@@ -113,41 +113,86 @@ async function fetchSmartCitizenDetail(rawId){
 }
 
 // ============================================================
-// ADAPTER: OpenAQ
-// https://api.openaq.org/v2/locations
-// V2 is anonymous; v3 requires X-API-Key (free at explore.openaq.org/register).
-// V2 covers AirGradient, AQICN/GAIA, KLHK ISPU, and most other Bali sources
-// that Bali Air Dispatch aggregates.
+// ADAPTER: OpenAQ v3
+// https://api.openaq.org/v3
+// Requires X-API-Key (free at explore.openaq.org/register).
+// v3 splits locations (metadata) and latest values into separate endpoints,
+// so we fetch the locations in the Bali bbox first, then fetch each
+// location's latest measurements in parallel.
+//
+// API key is publicly visible in this file. Treat as low-trust and rotate
+// freely if abused — OpenAQ keys are free.
 // ============================================================
+const OPENAQ_API_KEY = 'd85c862e2685ab786503f7648fc9581158527bcc617383e6b95db460594baf6f';
+
 async function fetchOpenAQSensors(){
-  // Filter Indonesia at the API; trim to Bali bbox client-side.
-  // Sort by lastUpdated descending so freshest data appears first.
-  const url = 'https://api.openaq.org/v2/locations?country=ID&limit=1000&order_by=lastUpdated&sort=desc';
+  const headers = {'X-API-Key': OPENAQ_API_KEY, 'Accept': 'application/json'};
+  const bbox = `${BALI_BOUNDS.minLng},${BALI_BOUNDS.minLat},${BALI_BOUNDS.maxLng},${BALI_BOUNDS.maxLat}`;
+
   try {
-    const r = await fetch(url, {headers:{'Accept':'application/json'}});
-    if(!r.ok) throw new Error(`OpenAQ HTTP ${r.status}`);
+    // Step 1: locations in Bali bounding box
+    const locUrl = `https://api.openaq.org/v3/locations?bbox=${bbox}&limit=1000`;
+    const r = await fetch(locUrl, {headers});
+    if(!r.ok){
+      const body = await r.text().catch(()=>'');
+      throw new Error(`OpenAQ locations HTTP ${r.status} ${body.slice(0,200)}`);
+    }
     const data = await r.json();
-    const results = (data && data.results) || [];
+    const locations = (data && data.results) || [];
 
-    const sensors = results.filter(loc => {
-      const c = loc.coordinates;
-      return c && inBali(c.latitude, c.longitude);
-    }).map(loc => {
-      const params = loc.parameters || [];
-      const findParam = name => params.find(p => p.parameter === name);
-      const pm25 = findParam('pm25');
-      const pm10 = findParam('pm10');
-      const temp = findParam('temperature');
-      const rh   = findParam('humidity') || findParam('relativehumidity');
+    if(!locations.length){
+      console.log('[OpenAQ] no locations in Bali bbox');
+      return [];
+    }
+    console.log(`[OpenAQ] ${locations.length} location(s) in Bali bbox — fetching latest values`);
 
-      const sourceNames = (loc.sources || []).map(s => s.name).filter(Boolean).join(', ');
-      const sourceLabel = sourceNames ? `OpenAQ · ${sourceNames}` : 'OpenAQ';
+    // Step 2: for each location, fetch latest measurements (parallel)
+    const enriched = await Promise.all(locations.map(async loc => {
+      // Build sensorId → parameter.name map from location's sensors[] array
+      const sensorParamMap = {};
+      for(const s of (loc.sensors || [])){
+        if(s.parameter && s.parameter.name && s.id != null){
+          sensorParamMap[s.id] = s.parameter.name;
+        }
+      }
 
-      // Best last-update timestamp we can find
-      const lastReading = loc.lastUpdated
-        || (pm25 && pm25.lastUpdated)
-        || (pm10 && pm10.lastUpdated)
-        || null;
+      try {
+        const lr = await fetch(`https://api.openaq.org/v3/locations/${loc.id}/latest`, {headers});
+        if(!lr.ok) return {loc, readings: {}};
+        const ldata = await lr.json();
+        const measurements = (ldata && ldata.results) || [];
+        const readings = {};
+        for(const m of measurements){
+          const param = sensorParamMap[m.sensorsId];
+          if(param && typeof m.value === 'number'){
+            readings[param] = {
+              value: m.value,
+              datetime: (m.datetime && m.datetime.utc) || null,
+            };
+          }
+        }
+        return {loc, readings};
+      } catch(e){
+        console.warn(`[OpenAQ] latest ${loc.id} failed:`, e);
+        return {loc, readings: {}};
+      }
+    }));
+
+    // Step 3: normalize to our common shape
+    const sensors = enriched.map(({loc, readings}) => {
+      const lat = loc.coordinates && loc.coordinates.latitude;
+      const lng = loc.coordinates && loc.coordinates.longitude;
+      if(typeof lat !== 'number' || typeof lng !== 'number') return null;
+
+      const providerNames = (loc.providers || []).map(p => p && p.name).filter(Boolean).join(', ');
+      const sourceLabel = providerNames ? `OpenAQ · ${providerNames}` : 'OpenAQ';
+
+      // Latest reading datetime — prefer freshest from measurements,
+      // fall back to location's datetimeLast metadata.
+      let lastReading = (loc.datetimeLast && loc.datetimeLast.utc) || null;
+      for(const v of Object.values(readings)){
+        if(v.datetime && (!lastReading || v.datetime > lastReading)) lastReading = v.datetime;
+      }
 
       return {
         id: `openaq-${loc.id}`,
@@ -155,21 +200,21 @@ async function fetchOpenAQSensors(){
         source: 'openaq',
         sourceLabel,
         name: loc.name || `OpenAQ #${loc.id}`,
-        description: [loc.city, sourceNames].filter(Boolean).join(' · '),
-        lat: loc.coordinates.latitude,
-        lng: loc.coordinates.longitude,
+        description: [loc.locality, providerNames].filter(Boolean).join(' · '),
+        lat, lng,
         lastReading,
         reading: {
-          pm25: pm25 ? pm25.lastValue : null,
-          pm10: pm10 ? pm10.lastValue : null,
-          temp: temp ? temp.lastValue : null,
-          rh:   rh   ? rh.lastValue   : null,
+          pm25: readings.pm25 ? readings.pm25.value : null,
+          pm10: readings.pm10 ? readings.pm10.value : null,
+          temp: readings.temperature ? readings.temperature.value : null,
+          rh:   readings.relativehumidity ? readings.relativehumidity.value :
+                (readings.humidity ? readings.humidity.value : null),
         },
         detailsUrl: `https://explore.openaq.org/locations/${loc.id}`,
       };
-    });
+    }).filter(Boolean);
 
-    console.log(`[OpenAQ] ${sensors.length} sensor(s) in Bali (${results.length} ID-wide)`);
+    console.log(`[OpenAQ] returning ${sensors.length} normalized sensor(s)`);
     return sensors;
   } catch(e){
     console.warn('[OpenAQ] fetch failed:', e);
