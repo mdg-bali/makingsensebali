@@ -36,8 +36,12 @@
       "url": "mdg-bali.github.io/smartcitizenbali/"
     },
     {
-      "name": "Making Sense Bali — methodology and survey",
-      "url": "mdg-bali.github.io/smartcitizenbali/making-sense/"
+      "name": "Phase 1 survey · Matters of concern",
+      "url": "mdg-bali.github.io/smartcitizenbali/#survey"
+    },
+    {
+      "name": "Data view (sensors, standards, methodology)",
+      "url": "mdg-bali.github.io/smartcitizenbali/dashboard/"
     },
     {
       "name": "Source code repository",
@@ -69,7 +73,7 @@
   },
   "contact_details": {
     "email": "fablabbali@gmail.com",
-    "contact_form": "mdg-bali.github.io/smartcitizenbali/making-sense/#contact"
+    "contact_form": "mdg-bali.github.io/smartcitizenbali/#contact"
   },
   "starts_at": 1764460800,
   "relationships": [
