@@ -13,6 +13,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="../data.js"></script>
 
 <style>
   :root{
@@ -197,14 +198,13 @@
   <div class="panel-grid" style="margin-top:24px">
     <div class="panel">
       <div class="panel-label">Sensor network</div>
-      <div class="panel-title">Coverage</div>
-      <div class="panel-desc">Public environmental sensors aggregated from the Smart Citizen Platform. Any compatible sensor in Bali — Smart Citizen, Sensor.Community, PurpleAir — can register.</div>
-      <div class="panel-body">
-        <div class="stat-row"><span class="stat-label">Smart Citizen devices · Bali</span><span class="stat-val" id="adv-sck-count">—</span></div>
-        <div class="stat-row"><span class="stat-label">Active in last 24h</span><span class="stat-val" id="adv-active-count">—</span></div>
-        <div class="stat-row"><span class="stat-label">Sensor.Community devices</span><span class="stat-val">— (planned)</span></div>
-        <div class="stat-row"><span class="stat-label">PurpleAir devices</span><span class="stat-val">— (planned)</span></div>
+      <div class="panel-title">Coverage by source</div>
+      <div class="panel-desc">Public environmental sensors aggregated across multiple open networks. Any compatible sensor in Bali can join — Smart Citizen, AirGradient (via OpenAQ), PurpleAir, Sensor.Community.</div>
+      <div class="panel-body" id="adv-sources-body">
+        <div class="stat-row"><span class="stat-label">Total sensors · Bali</span><span class="stat-val" id="adv-sck-count">—</span></div>
+        <div class="stat-row"><span class="stat-label">Active (last 14 days)</span><span class="stat-val" id="adv-active-count">—</span></div>
       </div>
+      <div class="panel-body" id="adv-sources-breakdown" style="margin-top:14px"></div>
     </div>
     <div class="panel">
       <div class="panel-label">Citizen reports · 24h</div>
@@ -267,8 +267,13 @@
       <a href="../">Back to home →</a>
     </div>
     <div>
-      <h4>Method &amp; sources</h4>
-      Live data: Smart Citizen Platform API (api.smartcitizen.me/v0). Sensors: SEN5x particulate, SHT31 temp/RH, ICS43432 noise, AS7731 UV. 30-min server-side rollup.<br><br>
+      <h4>Sensor data</h4>
+      Aggregated across open networks:<br>
+      · <a href="https://smartcitizen.me" target="_blank" rel="noopener">Smart Citizen Platform</a><br>
+      · <a href="https://openaq.org" target="_blank" rel="noopener">OpenAQ</a> (covers AirGradient, AQICN/GAIA, KLHK ISPU)<br>
+      · <a href="https://map.purpleair.com" target="_blank" rel="noopener">PurpleAir</a> (planned)<br>
+      · <a href="https://sensor.community" target="_blank" rel="noopener">Sensor.Community</a> (planned)<br>
+      · <a href="https://baliair.pages.dev" target="_blank" rel="noopener">Bali Air Dispatch</a> — independent journalistic register, cross-referenced.<br><br>
       Reference: WHO AQG 2021 · WHO ENG 2018 · WHO Housing 2018 · US EPA NAAQS · ASHRAE 55 · NIOSH.
     </div>
     <div>
@@ -284,17 +289,14 @@
 
 <script>
 'use strict';
-const API_BASE = 'https://api.smartcitizen.me/v0';
+const D = window.SCB_DATA;
 const REFRESH_MS = 5 * 60 * 1000;
-const EXCLUDED_DEVICE_IDS = new Set([19236, 19600]);
-const BALI_BOUNDS = {minLat:-8.95, maxLat:-8.00, minLng:114.40, maxLng:115.85};
-const BALI_CENTER = [-8.4095, 115.1889];
 
 if (typeof L.GestureHandling !== 'undefined') {
   L.Map.addInitHook('addHandler', 'gestureHandling', L.GestureHandling);
 }
 const map = L.map('map', {
-  center: BALI_CENTER, zoom: 10,
+  center: D.BALI_CENTER, zoom: 10,
   zoomControl: true, attributionControl: true,
   gestureHandling: true,
   gestureHandlingOptions: {
@@ -313,42 +315,6 @@ function pinIcon(kind){
     iconSize:[24,24], iconAnchor:[12,12]});
 }
 
-async function api(path){
-  const r = await fetch(API_BASE + path, {headers:{'Accept':'application/json'}});
-  if(!r.ok) throw new Error(`API ${path}: ${r.status}`);
-  return r.json();
-}
-
-async function fetchBaliSensors(){
-  const collected = [];
-  try {
-    let page=1, gotMore=true, safety=0;
-    while(gotMore && safety < 5){
-      const r = await fetch(`${API_BASE}/devices/world_map?per_page=500&page=${page}`, {headers:{'Accept':'application/json'}});
-      if(!r.ok) break;
-      const arr = await r.json();
-      if(!Array.isArray(arr) || !arr.length){ gotMore = false; break; }
-      collected.push(...arr); gotMore = arr.length===500; page++; safety++;
-    }
-  } catch(e){ console.warn('world_map failed:', e); }
-  return collected.filter(d => {
-    const lat = d.latitude ?? d.lat, lng = d.longitude ?? d.lng ?? d.lon;
-    if(typeof lat !== 'number' || typeof lng !== 'number') return false;
-    if(lat < BALI_BOUNDS.minLat || lat > BALI_BOUNDS.maxLat) return false;
-    if(lng < BALI_BOUNDS.minLng || lng > BALI_BOUNDS.maxLng) return false;
-    if(EXCLUDED_DEVICE_IDS.has(d.id)) return false;
-    return true;
-  }).map(d => ({
-    id:d.id, name:d.name||`Device ${d.id}`, description:d.description||'',
-    lat:d.latitude??d.lat, lng:d.longitude??d.lng??d.lon,
-    lastReading:d.last_reading_at||null,
-  }));
-}
-
-async function fetchSensorDetail(id){ return api(`/devices/${id}`); }
-async function fetchReports(){ return []; }
-
-function escapeHtml(s){return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function fmt(v, dp=2){return v==null||isNaN(v)?'—':Number(v).toFixed(dp);}
 
 const state = {sensors:[], reports:[]};
@@ -356,9 +322,11 @@ const state = {sensors:[], reports:[]};
 function renderPins(){
   sensorLayer.clearLayers(); reportLayer.clearLayers();
   for(const s of state.sensors){
-    const m = L.marker([s.lat, s.lng], {icon: pinIcon('good')});
+    const cls = D.classifyPM25(s.reading && s.reading.pm25);
+    const pinKind = cls === 'unknown' ? 'good' : cls;
+    const m = L.marker([s.lat, s.lng], {icon: pinIcon(pinKind)});
     m.on('click', () => selectSensor(s));
-    m.bindPopup(`<b>${escapeHtml(s.name)}</b><br><span style="font-size:11px;color:#8a948c">Click for details below</span>`);
+    m.bindPopup(`<b>${D.escapeHtml(s.name)}</b><br><span style="font-size:11px;color:#8a948c">${D.escapeHtml(s.sourceLabel)} · click for details below</span>`);
     m.addTo(sensorLayer);
   }
   for(const r of state.reports){
@@ -369,15 +337,25 @@ function renderPins(){
 }
 
 async function selectSensor(s){
-  document.getElementById('adv-detail-label').textContent = 'Sensor';
+  document.getElementById('adv-detail-label').textContent = s.sourceLabel;
   document.getElementById('adv-detail-title').textContent = s.name;
-  document.getElementById('adv-detail-desc').textContent = `Smart Citizen Kit ${s.id} · last reading: ${s.lastReading?new Date(s.lastReading).toLocaleString():'unknown'}`;
-  document.getElementById('adv-detail-body').innerHTML = `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">Loading sensor detail…</div>`;
+  document.getElementById('adv-detail-desc').textContent =
+    `${s.description || ''} · last reading: ${s.lastReading?new Date(s.lastReading).toLocaleString():'unknown'}`;
+  document.getElementById('adv-detail-body').innerHTML =
+    `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">Loading sensor detail…</div>`;
+
   try {
-    const detail = await fetchSensorDetail(s.id);
-    renderSensorDetail(detail, s);
+    if(s.source === 'smartcitizen'){
+      // Smart Citizen requires an extra detail call to get current readings
+      const detail = await D.fetchSmartCitizenDetail(s.rawId);
+      renderSmartCitizenDetail(detail, s);
+    } else {
+      // OpenAQ etc. ship readings in the locations response — render directly
+      renderCachedReading(s);
+    }
   } catch(e){
-    document.getElementById('adv-detail-body').innerHTML = `<div class="empty-state">Could not fetch detail: ${escapeHtml(e.message)}</div>`;
+    document.getElementById('adv-detail-body').innerHTML =
+      `<div class="empty-state">Could not fetch detail: ${D.escapeHtml(e.message)}</div>`;
   }
   document.querySelector('.section-label').scrollIntoView({behavior:'smooth', block:'start'});
 }
@@ -385,11 +363,13 @@ async function selectSensor(s){
 function selectReport(r){
   document.getElementById('adv-detail-label').textContent = 'Citizen report';
   document.getElementById('adv-detail-title').textContent = r.title || r.description || 'Report';
-  document.getElementById('adv-detail-desc').textContent = `Category: ${r.category||'general'} · ${r.submittedAt?new Date(r.submittedAt).toLocaleString():''}`;
-  document.getElementById('adv-detail-body').innerHTML = `<div class="panel-body">${escapeHtml(r.description||'')}</div>`;
+  document.getElementById('adv-detail-desc').textContent =
+    `Category: ${r.category||'general'} · ${r.submittedAt?new Date(r.submittedAt).toLocaleString():''}`;
+  document.getElementById('adv-detail-body').innerHTML =
+    `<div class="panel-body">${D.escapeHtml(r.description||'')}</div>`;
 }
 
-function renderSensorDetail(detail, s){
+function renderSmartCitizenDetail(detail, s){
   const sensors = detail.data?.sensors || detail.sensors || [];
   const findVal = names => {
     const m = sensors.find(x => names.some(n => (x.name||'').includes(n)));
@@ -397,10 +377,10 @@ function renderSensorDetail(detail, s){
   };
   const rows = [
     {label:'PM<sub>2.5</sub>', v:findVal(['PM 2.5','PM2.5']), unit:'µg/m³', threshold:15},
-    {label:'PM<sub>10</sub>', v:findVal(['PM 10','PM10']), unit:'µg/m³', threshold:45},
-    {label:'Temperature', v:findVal(['Temperature']), unit:'°C', threshold:null},
-    {label:'Humidity', v:findVal(['Humidity']), unit:'%', threshold:60},
-    {label:'Noise', v:findVal(['Noise']), unit:'dBA', threshold:55},
+    {label:'PM<sub>10</sub>',  v:findVal(['PM 10','PM10']),   unit:'µg/m³', threshold:45},
+    {label:'Temperature',      v:findVal(['Temperature']),    unit:'°C',    threshold:null},
+    {label:'Humidity',         v:findVal(['Humidity']),       unit:'%',     threshold:60},
+    {label:'Noise',            v:findVal(['Noise']),          unit:'dBA',   threshold:55},
   ];
   const html = rows.map(r => {
     if(!r.v) return `<div class="stat-row"><span class="stat-label">${r.label}</span><span class="stat-val" style="opacity:.4">no data</span></div>`;
@@ -411,8 +391,29 @@ function renderSensorDetail(detail, s){
     <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:14px">Live · ${detail.data?.recorded_at?new Date(detail.data.recorded_at).toLocaleString():''}</div>
     ${html}
     <div style="margin-top:18px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">
-      Smart Citizen ID: <a href="https://smartcitizen.me/kits/${s.id}" target="_blank" rel="noopener">${s.id} →</a><br>
-      Sensors: ${sensors.length}
+      Source: <a href="${D.escapeHtml(s.detailsUrl)}" target="_blank" rel="noopener">${D.escapeHtml(s.sourceLabel)} →</a><br>
+      Sensors on device: ${sensors.length}
+    </div>`;
+}
+
+function renderCachedReading(s){
+  const r = s.reading || {};
+  const rows = [
+    {label:'PM<sub>2.5</sub>', v:r.pm25, unit:'µg/m³', threshold:15},
+    {label:'PM<sub>10</sub>',  v:r.pm10, unit:'µg/m³', threshold:45},
+    {label:'Temperature',      v:r.temp, unit:'°C',    threshold:null},
+    {label:'Humidity',         v:r.rh,   unit:'%',     threshold:60},
+  ];
+  const html = rows.map(row => {
+    if(row.v == null) return `<div class="stat-row"><span class="stat-label">${row.label}</span><span class="stat-val" style="opacity:.4">no data</span></div>`;
+    const over = row.threshold && row.v > row.threshold;
+    return `<div class="stat-row"><span class="stat-label">${row.label}</span><span class="stat-val" style="${over?'color:var(--bad)':''}">${fmt(row.v)} ${row.unit}${over?' ⚠':''}</span></div>`;
+  }).join('');
+  document.getElementById('adv-detail-body').innerHTML = `
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:14px">Last reading · ${s.lastReading?new Date(s.lastReading).toLocaleString():'unknown'}</div>
+    ${html}
+    <div style="margin-top:18px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">
+      Source: <a href="${D.escapeHtml(s.detailsUrl)}" target="_blank" rel="noopener">${D.escapeHtml(s.sourceLabel)} →</a>
     </div>`;
 }
 
@@ -421,17 +422,33 @@ function updateStats(){
   document.getElementById('sensorCount').textContent = sN;
   document.getElementById('reportCount').textContent = rN;
   document.getElementById('adv-sck-count').textContent = sN;
-  const recent = state.sensors.filter(s => {
-    if(!s.lastReading) return false;
-    return (Date.now()-new Date(s.lastReading).getTime())/3600000 <= 24;
-  }).length;
+  const recent = state.sensors.filter(s => D.isActive(s.lastReading)).length;
   document.getElementById('activeCount').textContent = recent;
   document.getElementById('adv-active-count').textContent = recent;
+
+  // Source breakdown
+  const bySource = {};
+  for(const s of state.sensors){
+    const key = s.sourceLabel.split(' · ')[0]; // top-level label
+    bySource[key] = (bySource[key] || 0) + 1;
+  }
+  const breakdown = document.getElementById('adv-sources-breakdown');
+  if(breakdown){
+    if(Object.keys(bySource).length){
+      breakdown.innerHTML =
+        `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px">By source</div>` +
+        Object.entries(bySource).sort((a,b)=>b[1]-a[1]).map(([src,n])=>
+          `<div class="stat-row"><span class="stat-label">${D.escapeHtml(src)}</span><span class="stat-val">${n}</span></div>`
+        ).join('');
+    } else {
+      breakdown.innerHTML = '';
+    }
+  }
   if(rN > 0){
     const byCat = {};
     for(const r of state.reports) byCat[r.category||'general'] = (byCat[r.category||'general']||0)+1;
     document.getElementById('adv-reports-body').innerHTML = Object.entries(byCat).map(([cat,n])=>
-      `<div class="stat-row"><span class="stat-label">${escapeHtml(cat)}</span><span class="stat-val">${n}</span></div>`
+      `<div class="stat-row"><span class="stat-label">${D.escapeHtml(cat)}</span><span class="stat-val">${n}</span></div>`
     ).join('');
   }
 }
@@ -446,8 +463,8 @@ async function loadAll(){
   setLive('loading','SYNCING…');
   try{
     const [sensors, reports] = await Promise.all([
-      fetchBaliSensors().catch(e=>{console.error(e);return [];}),
-      fetchReports().catch(e=>{console.error(e);return [];}),
+      D.fetchAllSensors(),
+      D.fetchReports(),
     ]);
     state.sensors = sensors; state.reports = reports;
     renderPins(); updateStats();

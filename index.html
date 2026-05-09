@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
+<script src="./data.js"></script>
 
 <style>
   :root{
@@ -483,10 +484,13 @@
       Contact: <a href="mailto:fablabbali@gmail.com">fablabbali@gmail.com</a>
     </div>
     <div>
-      <h4>Method &amp; sources</h4>
-      Live data: Smart Citizen Platform API (api.smartcitizen.me/v0).<br>
-      Map: Leaflet + OpenStreetMap.<br>
-      Reports: Fab Lab Bali moderation queue (Airtable).<br>
+      <h4>Data sources</h4>
+      Sensors aggregated across open networks:<br>
+      · <a href="https://smartcitizen.me" target="_blank" rel="noopener">Smart Citizen</a><br>
+      · <a href="https://openaq.org" target="_blank" rel="noopener">OpenAQ</a> (AirGradient, AQICN, KLHK)<br>
+      · <a href="https://map.purpleair.com" target="_blank" rel="noopener">PurpleAir</a>, <a href="https://sensor.community" target="_blank" rel="noopener">Sensor.Community</a> — planned<br>
+      Cross-reference: <a href="https://baliair.pages.dev" target="_blank" rel="noopener">Bali Air Dispatch</a><br>
+      Reports: Fab Lab Bali moderation (Airtable).<br>
       Reference: WHO AQG 2021 · WHO ENG 2018 · US EPA · ASHRAE 55 · NIOSH.
     </div>
     <div>
@@ -502,21 +506,8 @@
 
 <script>
 'use strict';
-// ============================================================
-// CONFIG
-// ============================================================
-const API_BASE = 'https://api.smartcitizen.me/v0';
+const D = window.SCB_DATA;
 const REFRESH_MS = 5 * 60 * 1000;
-
-// EXCLUDE these device IDs from public dashboard (private/personal)
-const EXCLUDED_DEVICE_IDS = new Set([19236, 19600]);
-
-const BALI_BOUNDS = {
-  minLat: -8.95, maxLat: -8.00,
-  minLng: 114.40, maxLng: 115.85,
-};
-const BALI_CENTER = [-8.4095, 115.1889];
-const DEFAULT_ZOOM = 10;
 
 // Survey URL
 const SURVEY_OPEN_URL  = 'https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form';
@@ -529,7 +520,7 @@ if (typeof L.GestureHandling !== 'undefined') {
   L.Map.addInitHook('addHandler', 'gestureHandling', L.GestureHandling);
 }
 const map = L.map('map', {
-  center: BALI_CENTER, zoom: DEFAULT_ZOOM,
+  center: D.BALI_CENTER, zoom: 10,
   zoomControl: true, attributionControl: true,
   gestureHandling: true,
   gestureHandlingOptions: {
@@ -557,65 +548,28 @@ function pinIcon(kind){
 }
 
 // ============================================================
-// API
-// ============================================================
-async function api(path){
-  const r = await fetch(API_BASE + path, {headers:{'Accept':'application/json'}});
-  if(!r.ok) throw new Error(`API ${path}: ${r.status}`);
-  return r.json();
-}
-
-async function fetchBaliSensors(){
-  const collected = [];
-  try {
-    let page = 1, gotMore = true, safety = 0;
-    while(gotMore && safety < 5){
-      const url = `${API_BASE}/devices/world_map?per_page=500&page=${page}`;
-      const r = await fetch(url, {headers:{'Accept':'application/json'}});
-      if(!r.ok) break;
-      const arr = await r.json();
-      if(!Array.isArray(arr) || !arr.length){ gotMore = false; break; }
-      collected.push(...arr);
-      gotMore = arr.length === 500;
-      page++; safety++;
-    }
-  } catch(e){ console.warn('world_map endpoint failed:', e); }
-
-  return collected.filter(d => {
-    const lat = d.latitude ?? d.lat;
-    const lng = d.longitude ?? d.lng ?? d.lon;
-    if(typeof lat !== 'number' || typeof lng !== 'number') return false;
-    if(lat < BALI_BOUNDS.minLat || lat > BALI_BOUNDS.maxLat) return false;
-    if(lng < BALI_BOUNDS.minLng || lng > BALI_BOUNDS.maxLng) return false;
-    if(EXCLUDED_DEVICE_IDS.has(d.id)) return false;
-    return true;
-  }).map(d => ({
-    id: d.id, name: d.name || `Device ${d.id}`,
-    description: d.description || '',
-    lat: d.latitude ?? d.lat, lng: d.longitude ?? d.lng ?? d.lon,
-    lastReading: d.last_reading_at || null,
-  }));
-}
-
-async function fetchReports(){ return []; }
-
-// ============================================================
 // RENDER
 // ============================================================
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
 function buildSensorPopup(s){
   const last = s.lastReading ? new Date(s.lastReading).toLocaleString() : 'unknown';
+  const pm25 = s.reading && s.reading.pm25;
+  const pm10 = s.reading && s.reading.pm10;
+  const cls = D.classifyPM25(pm25);
+  const verdictColor = cls==='bad'?'#d96a4f':cls==='warn'?'#e8a04a':cls==='good'?'#5fb88a':'#8a948c';
+  const verdict = cls==='bad'?'Above WHO 24h × 2':cls==='warn'?'Above WHO 24h':cls==='good'?'Within WHO 24h':'No PM data';
   return `
-    <div style="min-width:220px">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a948c;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px">Sensor</div>
-      <div style="font-family:'Fraunces',serif;font-size:18px;color:#f4ede0;margin-bottom:8px">${escapeHtml(s.name)}</div>
-      ${s.description ? `<div style="font-size:12px;color:#c9c0aa;margin-bottom:8px">${escapeHtml(s.description.slice(0,120))}${s.description.length>120?'…':''}</div>` : ''}
+    <div style="min-width:240px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a948c;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px">${D.escapeHtml(s.sourceLabel)}</div>
+      <div style="font-family:'Fraunces',serif;font-size:18px;color:#f4ede0;margin-bottom:8px">${D.escapeHtml(s.name)}</div>
+      ${s.description ? `<div style="font-size:12px;color:#c9c0aa;margin-bottom:8px">${D.escapeHtml(s.description.slice(0,120))}${s.description.length>120?'…':''}</div>` : ''}
+      ${pm25!=null ? `<div style="margin:10px 0;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7">
+        <span style="color:#8a948c">PM2.5:</span> <span style="color:${verdictColor};font-weight:500">${pm25.toFixed(1)} µg/m³</span><br>
+        ${pm10!=null ? `<span style="color:#8a948c">PM10:</span> <span style="color:#f4ede0">${pm10.toFixed(1)} µg/m³</span><br>` : ''}
+        <span style="color:${verdictColor};font-size:10px;letter-spacing:.1em;text-transform:uppercase">${verdict}</span>
+      </div>` : ''}
       <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a948c;line-height:1.7">
         Last reading: <span style="color:#f4ede0">${last}</span><br>
-        <a href="https://smartcitizen.me/kits/${s.id}" target="_blank" style="color:#e8a04a">View on Smart Citizen →</a>
+        <a href="${D.escapeHtml(s.detailsUrl)}" target="_blank" rel="noopener" style="color:#e8a04a">View on ${D.escapeHtml(s.sourceLabel.split(' · ')[0])} →</a>
       </div>
     </div>`;
 }
@@ -626,7 +580,9 @@ function renderPins(){
   sensorLayer.clearLayers();
   reportLayer.clearLayers();
   for(const s of state.sensors){
-    const m = L.marker([s.lat, s.lng], {icon: pinIcon('good')});
+    const cls = D.classifyPM25(s.reading && s.reading.pm25);
+    const pinKind = cls === 'unknown' ? 'good' : cls;
+    const m = L.marker([s.lat, s.lng], {icon: pinIcon(pinKind)});
     m.bindPopup(buildSensorPopup(s));
     m.addTo(sensorLayer);
   }
@@ -643,16 +599,33 @@ function updateCounts(){
   const head = document.getElementById('today-headline');
   const dot = document.getElementById('overall-dot');
   const lbl = document.getElementById('overall-label');
+
+  // Compute overall air status from sensors with PM2.5 data
+  const pmReadings = state.sensors.map(s => s.reading && s.reading.pm25).filter(v => v!=null && !isNaN(v));
+  let overallCls = 'unknown';
+  if(pmReadings.length){
+    const median = pmReadings.sort((a,b)=>a-b)[Math.floor(pmReadings.length/2)];
+    overallCls = D.classifyPM25(median);
+  }
+
   if(sN === 0 && rN === 0){
     head.textContent = 'No sensors in Bali yet. Be the first.';
     dot.style.background = 'var(--muted)';
     lbl.textContent = 'CHECKING…';
     lbl.className = 'today-status-text good';
   } else {
-    head.textContent = `${sN} sensor${sN!==1?'s':''}, ${rN} report${rN!==1?'s':''} on the map.`;
-    dot.style.background = 'var(--good)';
-    lbl.textContent = 'LIVE';
-    lbl.className = 'today-status-text good';
+    const cls2color = {good:'var(--good)', warn:'var(--warn)', bad:'var(--bad)', unknown:'var(--muted)'};
+    const cls2label = {good:'AIR LOOKS OK', warn:'WORTH ATTENTION', bad:'CONCERN', unknown:'LIVE'};
+    const cls2head = {
+      good:`${sN} sensors live · most readings within WHO 24h.`,
+      warn:`${sN} sensors live · some readings above WHO 24h.`,
+      bad:`${sN} sensors live · several readings above WHO 24h × 2.`,
+      unknown:`${sN} sensor${sN!==1?'s':''}, ${rN} report${rN!==1?'s':''} on the map.`,
+    };
+    dot.style.background = cls2color[overallCls];
+    lbl.textContent = cls2label[overallCls];
+    lbl.className = 'today-status-text ' + (overallCls==='unknown'?'good':overallCls);
+    head.textContent = cls2head[overallCls];
   }
 }
 
@@ -667,10 +640,11 @@ async function loadAll(){
   setLive('loading','SYNCING…');
   try{
     const [sensors, reports] = await Promise.all([
-      fetchBaliSensors().catch(e => { console.error('sensors:', e); return []; }),
-      fetchReports().catch(e => { console.error('reports:', e); return []; }),
+      D.fetchAllSensors(),
+      D.fetchReports(),
     ]);
-    state.sensors = sensors; state.reports = reports;
+    state.sensors = sensors;
+    state.reports = reports;
     renderPins();
     updateCounts();
     if(sensors.length || reports.length){
