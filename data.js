@@ -231,21 +231,115 @@ async function fetchPurpleAirSensors(){
   return [];
 }
 
+// ============================================================
+// ADAPTER: Sensor.Community
+// https://data.sensor.community/static/v2/data.json
+// Static global feed, refreshed every ~5 minutes, no auth, CORS-friendly.
+// Returns the most recent reading per sensor worldwide (~5-15MB JSON).
+// We filter to Bali client-side, group measurements by location.
+//
+// Sensor.Community uses non-standard parameter codes:
+//   P1 = PM10   ·   P2 = PM2.5   ·   temperature, humidity, pressure
+// ============================================================
 async function fetchSensorCommunitySensors(){
-  // TODO. https://data.sensor.community/static/v2/data.json
-  // Open, no key, ~5MB global response — filter to Bali client-side.
-  return [];
+  const url = 'https://data.sensor.community/static/v2/data.json';
+  try {
+    const r = await fetch(url, {headers: {'Accept':'application/json'}});
+    if(!r.ok) throw new Error(`Sensor.Community HTTP ${r.status}`);
+    const items = await r.json();
+    if(!Array.isArray(items)) throw new Error('unexpected response shape');
+
+    // Group measurements by location
+    const byLoc = new Map();
+    for(const it of items){
+      const loc = it.location;
+      if(!loc) continue;
+      const lat = parseFloat(loc.latitude);
+      const lng = parseFloat(loc.longitude);
+      if(!inBali(lat, lng)) continue;
+
+      if(!byLoc.has(loc.id)){
+        byLoc.set(loc.id, {
+          locId: loc.id, lat, lng, country: loc.country,
+          city: loc.city || loc.name || '',
+          measurements: [],
+        });
+      }
+      byLoc.get(loc.id).measurements.push({
+        timestamp: it.timestamp,
+        sensorType: it.sensor && it.sensor.sensor_type && it.sensor.sensor_type.name,
+        values: it.sensordatavalues || [],
+      });
+    }
+
+    const sensors = [];
+    for(const agg of byLoc.values()){
+      let pm25 = null, pm10 = null, temp = null, rh = null, latestTs = null;
+      for(const m of agg.measurements){
+        for(const v of m.values){
+          const val = parseFloat(v.value);
+          if(isNaN(val)) continue;
+          if(v.value_type === 'P2' && pm25 === null) pm25 = val;     // PM2.5
+          if(v.value_type === 'P1' && pm10 === null) pm10 = val;     // PM10
+          if(/temperature/i.test(v.value_type) && temp === null) temp = val;
+          if(/humidity/i.test(v.value_type) && rh === null) rh = val;
+        }
+        if(!latestTs || m.timestamp > latestTs) latestTs = m.timestamp;
+      }
+
+      const sensorTypes = [...new Set(agg.measurements.map(m => m.sensorType).filter(Boolean))];
+      sensors.push({
+        id: `sensorcomm-${agg.locId}`,
+        rawId: agg.locId,
+        source: 'sensor_community',
+        sourceLabel: 'Sensor.Community',
+        name: sensorTypes.length ? `${sensorTypes[0]} · #${agg.locId}` : `Sensor.Community #${agg.locId}`,
+        description: [agg.city, sensorTypes.join(', ')].filter(Boolean).join(' · '),
+        lat: agg.lat, lng: agg.lng,
+        lastReading: latestTs ? new Date(latestTs.replace(' ','T') + 'Z').toISOString() : null,
+        reading: { pm25, pm10, temp, rh },
+        detailsUrl: `https://maps.sensor.community/#13/${agg.lat}/${agg.lng}`,
+      });
+    }
+
+    console.log(`[SensorCommunity] ${sensors.length} sensor(s) in Bali (${items.length} global measurements)`);
+    return sensors;
+  } catch(e){
+    console.warn('[SensorCommunity] fetch failed:', e);
+    return [];
+  }
 }
 
 // ============================================================
 // AGGREGATOR
 // ============================================================
+// Diagnostic: track per-source results so the UI can show what worked
+const SOURCE_STATUS = {
+  smartcitizen:     {count: 0, error: null},
+  openaq:           {count: 0, error: null},
+  sensor_community: {count: 0, error: null},
+  purpleair:        {count: 0, error: 'not configured'},
+};
+
+async function tracked(key, fn){
+  try {
+    const r = await fn();
+    SOURCE_STATUS[key].count = r.length;
+    SOURCE_STATUS[key].error = null;
+    return r;
+  } catch(e){
+    SOURCE_STATUS[key].error = String(e.message || e);
+    console.error(`[${key}]`, e);
+    return [];
+  }
+}
+
 async function fetchAllSensors(){
   const results = await Promise.all([
-    fetchSmartCitizenSensors().catch(e => { console.error('[SCK]', e); return []; }),
-    fetchOpenAQSensors().catch(e => { console.error('[OpenAQ]', e); return []; }),
-    fetchPurpleAirSensors().catch(e => { console.error('[PurpleAir]', e); return []; }),
-    fetchSensorCommunitySensors().catch(e => { console.error('[Sensor.Community]', e); return []; }),
+    tracked('smartcitizen',     fetchSmartCitizenSensors),
+    tracked('openaq',           fetchOpenAQSensors),
+    tracked('sensor_community', fetchSensorCommunitySensors),
+    // tracked('purpleair', fetchPurpleAirSensors),  // not configured
   ]);
   const all = results.flat();
 
@@ -284,5 +378,6 @@ if(typeof window !== 'undefined'){
     fetchPurpleAirSensors, fetchSensorCommunitySensors,
     fetchAllSensors,
     fetchReports,
+    SOURCE_STATUS,  // exposed for in-page diagnostic
   };
 }

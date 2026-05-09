@@ -304,6 +304,7 @@
       <div class="legend-row"><div class="legend-swatch" style="background:var(--bad);box-shadow:0 0 0 2px var(--bad)"></div>Concern</div>
       <div class="legend-row"><div class="legend-swatch" style="background:var(--accent);box-shadow:0 0 0 2px var(--accent)"></div>Report</div>
       <div style="margin-top:12px;font-size:10px;color:var(--muted);line-height:1.55">Tap a pin for details.</div>
+      <div id="sourceDiag" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);line-height:1.7"></div>
     </div>
   </div>
 </section>
@@ -636,6 +637,22 @@ function setLive(state, msg){
   lbl.textContent = msg;
 }
 
+function renderSourceDiag(){
+  const el = document.getElementById('sourceDiag');
+  if(!el || !D.SOURCE_STATUS) return;
+  const rows = [];
+  for(const [key, info] of Object.entries(D.SOURCE_STATUS)){
+    const label = key.replace('_',' ').replace(/\b\w/g, c=>c.toUpperCase());
+    if(info.error){
+      rows.push(`<div style="color:var(--bad)">${label}: <span style="opacity:.7">${D.escapeHtml(info.error.slice(0,80))}</span></div>`);
+    } else {
+      const color = info.count > 0 ? 'var(--good)' : 'var(--muted)';
+      rows.push(`<div style="color:${color}">${label}: ${info.count}</div>`);
+    }
+  }
+  el.innerHTML = `<div style="color:var(--muted);letter-spacing:.15em;text-transform:uppercase;font-size:9px;margin-bottom:6px">Sources</div>${rows.join('')}`;
+}
+
 async function loadAll(){
   setLive('loading','SYNCING…');
   try{
@@ -647,6 +664,7 @@ async function loadAll(){
     state.reports = reports;
     renderPins();
     updateCounts();
+    renderSourceDiag();
     if(sensors.length || reports.length){
       const all = [...sensors, ...reports].map(p => [p.lat, p.lng]).filter(p => p[0]!=null);
       if(all.length > 1) map.fitBounds(L.latLngBounds(all), {padding:[40,40], maxZoom:13});
@@ -654,6 +672,7 @@ async function loadAll(){
     setLive('ok','LIVE');
   } catch(e){
     console.error(e); setLive('error','ERROR');
+    renderSourceDiag();
   }
 }
 
