@@ -1,0 +1,97 @@
+{
+  "linked_schemas": [
+    "organizations_schema-v1.0.0"
+  ],
+  "name": "Smart Citizen Bali",
+  "nickname": "smartcitizenbali",
+  "primary_url": "mdg-bali.github.io/smartcitizenbali/",
+  "tags": [
+    "citizen sensing",
+    "environmental monitoring",
+    "air quality",
+    "noise pollution",
+    "open data",
+    "fab lab",
+    "fab lab bali",
+    "fab city",
+    "bioregional",
+    "smart citizen kit",
+    "making sense methodology",
+    "indonesia",
+    "bali",
+    "iaac",
+    "regenerative",
+    "open hardware",
+    "community led"
+  ],
+  "description": "Smart Citizen Bali is a community-led environmental sensing campaign led by Fab Lab Bali (fablabbali.com), the local fabrication laboratory in Bali, Indonesia. The campaign aggregates open data from networked low-cost sensors (Smart Citizen Kit and others) and pairs that machine-generated data with citizen reports of locally observed environmental issues — burning waste, air quality events, noise, and other matters of concern raised by residents. Fab Lab Bali is the local host, anchor, and accountable institution; the campaign is conducted in Indonesia, by people in Indonesia, on environmental concerns identified by people in Indonesia. The work is methodologically descended from the EU Making Sense project (2015–2017, Fab Lab Barcelona / IAAC and partners), and applies that participatory citizen-sensing framework to the Bali context as a Fab City Hub instance — an integrated cycle of observation, computation, prototyping, learning, and mechanism, anchored in a specific bioregion.",
+  "mission": "To make visible the environmental conditions that residents of Bali identify as their matters of concern, by combining open hardware sensing with community-led reporting, and to use that visibility to support local responses — from individual awareness to collective action to policy advocacy — under the leadership and accountability of Fab Lab Bali.",
+  "urls": [
+    {
+      "name": "Fab Lab Bali — campaign lead",
+      "url": "fablabbali.com"
+    },
+    {
+      "name": "Live dashboard",
+      "url": "mdg-bali.github.io/smartcitizenbali/"
+    },
+    {
+      "name": "Making Sense Bali — methodology and survey",
+      "url": "mdg-bali.github.io/smartcitizenbali/making-sense/"
+    },
+    {
+      "name": "Source code repository",
+      "url": "github.com/mdg-bali/smartcitizenbali"
+    },
+    {
+      "name": "Smart Citizen Kit · House node 19236",
+      "url": "smartcitizen.me/kits/19236"
+    },
+    {
+      "name": "Smart Citizen Kit · Office node 19600",
+      "url": "smartcitizen.me/kits/19600"
+    },
+    {
+      "name": "Smart Citizen platform (origin: Fab Lab Barcelona / IAAC)",
+      "url": "smartcitizen.me"
+    },
+    {
+      "name": "Making Sense project archive",
+      "url": "making-sense.eu"
+    }
+  ],
+  "locality": "Bali",
+  "region": "Bali",
+  "country_iso_3166": "IDN",
+  "geolocation": {
+    "lat": -8.4095,
+    "lon": 115.1889
+  },
+  "contact_details": {
+    "email": "fablabbali@gmail.com",
+    "contact_form": "mdg-bali.github.io/smartcitizenbali/making-sense/#contact"
+  },
+  "starts_at": 1764460800,
+  "relationships": [
+    {
+      "predicate_url": "https://schema.org/parentOrganization",
+      "object_url": "fablabbali.com"
+    },
+    {
+      "predicate_url": "https://schema.org/memberOf",
+      "object_url": "fab.city"
+    },
+    {
+      "predicate_url": "https://schema.org/memberOf",
+      "object_url": "fablabs.io"
+    },
+    {
+      "predicate_url": "https://schema.org/isBasedOn",
+      "object_url": "making-sense.eu"
+    },
+    {
+      "predicate_url": "https://schema.org/usesTool",
+      "object_url": "smartcitizen.me"
+    }
+  ]
+}

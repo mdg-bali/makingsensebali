@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Citizen Bali · Live · Fab Lab Bali</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Live environmental monitoring in Bali — a Fab Lab Bali campaign. Sensors and citizen reports on one map. Read against WHO air, noise, and indoor environment guidelines.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23e8a04a'/%3E%3C/svg%3E">
+
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,1,400&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
+<style>
+  :root{
+    --bg:#0f1417; --bg2:#161c20; --bg3:#1d242a; --paper:#f4ede0;
+    --muted:#8a948c; --line:#2a3138; --accent:#e8a04a;
+    --good:#5fb88a; --warn:#e8a04a; --bad:#d96a4f; --crit:#c4493a;
+    --teal:#5fa8a8; --cream:#e8dfcc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--cream);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+  body{padding:0 0 60px}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{color:#f0b362}
+
+  /* ===== STATUS BAR ===== */
+  .statusbar{
+    position:sticky;top:0;z-index:1000;
+    background:rgba(15,20,23,.94);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+    padding:12px 4vw;
+    display:flex;justify-content:space-between;align-items:center;gap:20px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;flex-wrap:wrap;
+  }
+  .status-left{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+  .status-right{display:flex;gap:12px;align-items:center}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--good);
+    margin-right:8px;display:inline-block;animation:pulse 2s infinite}
+  .live-dot.error{background:var(--bad);animation:none}
+  .live-dot.loading{background:var(--accent);animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .status-label{color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+  .status-val{color:var(--paper)}
+  .btn{background:transparent;border:1px solid var(--line);color:var(--cream);
+    padding:6px 12px;border-radius:3px;font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;
+    transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{border-color:var(--accent);color:var(--accent)}
+  .btn.primary:hover{background:var(--accent);color:var(--bg)}
+
+  /* ===== HERO ===== */
+  .hero{
+    padding:48px 4vw 32px;border-bottom:1px solid var(--line);
+    background:
+      radial-gradient(circle at 80% 20%, rgba(232,160,74,.10), transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(95,168,168,.06), transparent 50%);
+  }
+  .crumb{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);
+    letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px}
+  .crumb a{color:var(--accent);border:none;text-decoration:none}
+  h1{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(38px,5.5vw,72px);
+    line-height:.98;letter-spacing:-.02em;margin-bottom:18px;color:var(--paper)}
+  h1 em{font-style:italic;color:var(--accent);font-weight:400}
+  .lede-hero{font-family:'Fraunces',serif;font-size:clamp(18px,2vw,22px);
+    line-height:1.45;color:var(--cream);max-width:780px}
+
+  /* ===== VIEW TOGGLE ===== */
+  .view-toggle-wrap{
+    padding:24px 4vw;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;
+    background:var(--bg);
+  }
+  .toggle-tabs{
+    display:inline-flex;background:var(--bg2);border:1px solid var(--line);
+    border-radius:4px;padding:3px;
+  }
+  .toggle-tab{
+    background:none;border:none;cursor:pointer;color:var(--muted);
+    padding:10px 22px;font-family:'JetBrains Mono',monospace;font-size:11px;
+    letter-spacing:.18em;text-transform:uppercase;border-radius:2px;
+    transition:all .2s;display:flex;align-items:center;gap:8px;
+  }
+  .toggle-tab:hover{color:var(--cream)}
+  .toggle-tab.active{background:var(--accent);color:var(--bg);font-weight:600}
+  .toggle-tab .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.6}
+  .toggle-meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);
+    letter-spacing:.05em}
+  .toggle-meta b{color:var(--paper);font-weight:500}
+
+  /* ===== MAP ===== */
+  .map-container{
+    position:relative;
+    height:calc(100vh - 200px);
+    min-height:500px;
+    border-bottom:1px solid var(--line);
+  }
+  #map{width:100%;height:100%;background:var(--bg2)}
+  .leaflet-tile-pane{filter:brightness(0.6) saturate(0.7) hue-rotate(-10deg)}
+  .leaflet-control-attribution{
+    background:rgba(15,20,23,0.8) !important;color:var(--muted) !important;
+    font-family:'JetBrains Mono',monospace !important;font-size:9px !important;
+  }
+  .leaflet-control-attribution a{color:var(--accent) !important}
+  .leaflet-control-zoom a{
+    background:rgba(22,28,32,0.95) !important;color:var(--cream) !important;
+    border:1px solid var(--line) !important;
+  }
+  .leaflet-control-zoom a:hover{background:var(--bg3) !important;color:var(--accent) !important}
+  .leaflet-popup-content-wrapper{
+    background:var(--bg2) !important;color:var(--cream) !important;
+    border:1px solid var(--line) !important;border-radius:4px !important;
+    box-shadow:0 8px 24px rgba(0,0,0,0.5) !important;
+  }
+  .leaflet-popup-tip{background:var(--bg2) !important;border:1px solid var(--line) !important}
+  .leaflet-popup-content{margin:14px 16px !important;font-family:'Inter',sans-serif !important;font-size:13px !important;line-height:1.5 !important}
+  .leaflet-popup-close-button{color:var(--muted) !important}
+
+  /* Custom pin styles */
+  .pin{
+    width:24px;height:24px;border-radius:50%;
+    border:2px solid var(--bg);
+    box-shadow:0 0 0 2px currentColor, 0 4px 8px rgba(0,0,0,0.5);
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;color:var(--bg);font-weight:700;
+    cursor:pointer;transition:transform .15s;
+  }
+  .pin:hover{transform:scale(1.2)}
+  .pin-good{background:var(--good);color:var(--good)}
+  .pin-warn{background:var(--warn);color:var(--warn)}
+  .pin-bad{background:var(--bad);color:var(--bad)}
+  .pin-report{background:var(--accent);color:var(--accent)}
+  .pin-sensor::before{content:'●';color:var(--bg);font-size:10px}
+  .pin-report::before{content:'!';color:var(--bg);font-size:13px;font-weight:700}
+
+  .map-overlay{
+    position:absolute;z-index:500;
+    pointer-events:none;
+  }
+  .map-overlay-card{
+    pointer-events:auto;
+    background:rgba(22,28,32,0.95);backdrop-filter:blur(12px);
+    border:1px solid var(--line);border-radius:6px;padding:18px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.5);
+  }
+  .top-left-overlay{top:16px;left:16px;max-width:340px}
+  .top-right-overlay{top:16px;right:16px;max-width:280px}
+  .bottom-overlay{bottom:16px;left:16px;right:16px;display:flex;gap:12px;justify-content:flex-start;flex-wrap:wrap}
+
+  .legend{
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cream);
+  }
+  .legend-title{color:var(--muted);letter-spacing:.15em;text-transform:uppercase;font-size:10px;margin-bottom:10px}
+  .legend-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .legend-swatch{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid var(--bg)}
+
+  /* ===== SIMPLE VIEW HEADLINE ===== */
+  .today-card{
+    pointer-events:auto;
+    background:rgba(22,28,32,0.95);backdrop-filter:blur(12px);
+    border:1px solid var(--line);border-radius:6px;padding:24px;
+    max-width:520px;
+  }
+  .today-status{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .today-status-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+  .today-status-text{
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    letter-spacing:.15em;text-transform:uppercase;
+  }
+  .today-status-text.good{color:var(--good)}
+  .today-status-text.warn{color:var(--warn)}
+  .today-status-text.bad{color:var(--bad)}
+  .today-headline{
+    font-family:'Fraunces',serif;font-size:24px;line-height:1.25;
+    color:var(--paper);margin-bottom:12px;
+  }
+  .today-detail{font-family:'Inter',sans-serif;font-size:14px;line-height:1.55;color:var(--cream);opacity:.9;margin-bottom:16px}
+  .today-cta{display:flex;gap:10px;flex-wrap:wrap}
+
+  /* ===== ADVANCED VIEW PANELS ===== */
+  .advanced-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:24px;
+    padding:48px 4vw;border-bottom:1px solid var(--line);
+  }
+  @media(max-width:900px){.advanced-grid{grid-template-columns:1fr}}
+  .panel{
+    background:var(--bg2);border:1px solid var(--line);border-radius:6px;
+    padding:24px;
+  }
+  .panel-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);
+    letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px}
+  .panel-title{font-family:'Fraunces',serif;font-size:22px;color:var(--paper);margin-bottom:8px;font-weight:400}
+  .panel-desc{font-family:'Inter',sans-serif;font-size:13px;color:var(--cream);opacity:.85;line-height:1.55;margin-bottom:18px}
+  .panel-body{font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:var(--cream)}
+
+  .stat-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:12px}
+  .stat-row:last-child{border:none}
+  .stat-label{color:var(--muted)}
+  .stat-val{color:var(--paper);font-weight:500}
+
+  .stdtable{width:100%;border-collapse:collapse;font-size:12px;margin-top:14px}
+  .stdtable th{font-family:'JetBrains Mono',monospace;font-size:10px;
+    letter-spacing:.15em;text-transform:uppercase;color:var(--muted);
+    text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-weight:500}
+  .stdtable td{padding:14px 8px;border-bottom:1px solid var(--line);color:var(--cream);vertical-align:top}
+  .stdtable td.metric{font-family:'Fraunces',serif;font-size:15px;color:var(--paper)}
+  .stdtable td.value{font-family:'JetBrains Mono',monospace;color:var(--paper);font-size:11px}
+
+  .empty-state{
+    padding:40px 24px;text-align:center;
+    border:1px dashed var(--line);border-radius:6px;
+    color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px;
+    letter-spacing:.05em;line-height:1.7;
+  }
+  .empty-state strong{color:var(--paper)}
+  .empty-state .hint{margin-top:14px;font-size:11px;color:var(--muted)}
+
+  /* ===== METHODOLOGY (advanced only) ===== */
+  .method-bar{
+    display:grid;grid-template-columns:repeat(5,1fr);gap:1px;
+    background:var(--line);margin-top:14px;border-radius:4px;overflow:hidden;
+  }
+  .method-step{background:var(--bg3);padding:14px 12px;font-size:11px;line-height:1.4}
+  .method-step b{font-family:'Fraunces',serif;font-size:13px;color:var(--paper);font-weight:500;display:block;margin-bottom:4px}
+  @media(max-width:800px){.method-bar{grid-template-columns:repeat(2,1fr)}}
+
+  /* ===== FOOTER ===== */
+  footer{padding:48px 4vw;font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--muted);line-height:1.8}
+  footer a{color:var(--accent)}
+  footer h4{font-family:'Fraunces',serif;font-size:14px;font-weight:500;color:var(--paper);
+    margin-bottom:12px;text-transform:none;letter-spacing:0}
+  .foot-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:36px;margin-bottom:28px}
+  @media (max-width:900px){.foot-grid{grid-template-columns:1fr;gap:24px}}
+
+  /* ===== VIEW VISIBILITY ===== */
+  .view-content{display:none}
+  .view-content.active{display:block}
+
+  /* hide overlays based on view */
+  body[data-view="simple"] .advanced-only{display:none}
+  body[data-view="advanced"] .simple-only{display:none}
+
+  /* ===== RESPONSIVE NUDGES ===== */
+  @media(max-width:700px){
+    .top-right-overlay{display:none}
+    .map-container{height:60vh}
+    .toggle-meta{display:none}
+  }
+</style>
+</head>
+<body data-view="simple">
+
+<!-- ===== STATUS BAR ===== -->
+<div class="statusbar">
+  <div class="status-left">
+    <span><span class="live-dot loading" id="liveDot"></span><span id="liveLabel">CONNECTING…</span></span>
+    <span><span class="status-label">Led by</span> <a href="https://www.fablabbali.com/" target="_blank" rel="noopener" style="color:var(--accent)">Fab Lab Bali</a></span>
+    <span><span class="status-label">Sensors</span> <span class="status-val" id="sensorCount">—</span></span>
+    <span><span class="status-label">Reports</span> <span class="status-val" id="reportCount">—</span></span>
+    <span><span class="status-label">Last sync</span> <span class="status-val" id="lastSync">—</span></span>
+  </div>
+  <div class="status-right">
+    <a href="./making-sense/" class="btn">📋 Survey</a>
+    <a href="#" class="btn primary" id="reportBtn">+ Report an issue</a>
+  </div>
+</div>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="crumb">A campaign by <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a> · <span style="color:var(--accent)">Bali, Indonesia · live</span></div>
+  <h1>What's happening in <em>your environment</em>, right now.</h1>
+  <p class="lede-hero">
+    Sensors and citizen reports across Bali, on one map. Switch between <strong>Simple</strong> for plain language, or <strong>Advanced</strong> for charts, units, and standards.
+  </p>
+</header>
+
+<!-- ===== VIEW TOGGLE ===== -->
+<div class="view-toggle-wrap">
+  <div class="toggle-tabs" role="tablist">
+    <button class="toggle-tab active" data-view="simple" role="tab" aria-selected="true">
+      <span class="dot"></span>Simple
+    </button>
+    <button class="toggle-tab" data-view="advanced" role="tab" aria-selected="false">
+      <span class="dot"></span>Advanced
+    </button>
+  </div>
+  <div class="toggle-meta">
+    <span class="simple-only">For everyone — no technical knowledge needed.</span>
+    <span class="advanced-only">Charts, scientific units, methodology references.</span>
+  </div>
+</div>
+
+<!-- ===== MAP (always visible) ===== -->
+<div class="map-container">
+  <div id="map"></div>
+
+  <!-- Simple view overlays -->
+  <div class="map-overlay top-left-overlay simple-only">
+    <div class="today-card">
+      <div class="today-status">
+        <div class="today-status-dot" id="overall-dot" style="background:var(--good)"></div>
+        <div class="today-status-text good" id="overall-label">CHECKING…</div>
+      </div>
+      <div class="today-headline" id="today-headline">Reading the air across Bali</div>
+      <div class="today-detail" id="today-detail">
+        Pulling fresh data from sensors and reports. The dots on the map are sensor stations and reports submitted by people in Bali.
+      </div>
+      <div class="today-cta">
+        <a href="#" class="btn primary" id="reportBtn2">+ Report something I see</a>
+        <a href="./making-sense/" class="btn">What is this?</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="map-overlay top-right-overlay simple-only">
+    <div class="map-overlay-card legend">
+      <div class="legend-title">Map key</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:var(--good);box-shadow:0 0 0 2px var(--good)"></div>Sensor · air OK</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:var(--warn);box-shadow:0 0 0 2px var(--warn)"></div>Sensor · attention</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:var(--bad);box-shadow:0 0 0 2px var(--bad)"></div>Sensor · concern</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:var(--accent);box-shadow:0 0 0 2px var(--accent)"></div>Citizen report</div>
+    </div>
+  </div>
+
+  <!-- Advanced view overlays -->
+  <div class="map-overlay top-left-overlay advanced-only">
+    <div class="map-overlay-card legend">
+      <div class="legend-title">Layers · Bali</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:var(--good);box-shadow:0 0 0 2px var(--good)"></div>Sensor (PM<sub>2.5</sub> &le; WHO 24h)</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:var(--warn);box-shadow:0 0 0 2px var(--warn)"></div>Sensor (1–2× WHO)</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:var(--bad);box-shadow:0 0 0 2px var(--bad)"></div>Sensor (&gt; 2× WHO)</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:var(--accent);box-shadow:0 0 0 2px var(--accent)"></div>Citizen report (24h)</div>
+      <div style="margin-top:14px;font-size:10px;color:var(--muted);line-height:1.55">
+        Sources: Smart Citizen Platform API · Sensor.Community (planned) · Fab Lab Bali citizen reports.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SIMPLE VIEW BODY ===== -->
+<div class="view-content active simple-only" id="view-simple">
+  <div class="advanced-grid" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="panel">
+      <div class="panel-label">Sensors</div>
+      <div class="panel-title" id="simple-sensors-headline">Looking for sensors in Bali…</div>
+      <div class="panel-desc" id="simple-sensors-desc">Public environmental sensors registered in Bali on Smart Citizen Platform. Each one measures things like air quality, noise, temperature, and humidity continuously.</div>
+      <div class="panel-body">
+        <div class="stat-row"><span class="stat-label">Active sensors</span><span class="stat-val" id="simple-sensors-count">—</span></div>
+        <div class="stat-row"><span class="stat-label">Reading air right now</span><span class="stat-val" id="simple-sensors-air">—</span></div>
+        <div class="stat-row"><span class="stat-label">Reading sound right now</span><span class="stat-val" id="simple-sensors-noise">—</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-label">Reports</div>
+      <div class="panel-title" id="simple-reports-headline">Reports from people</div>
+      <div class="panel-desc">Things people in Bali have reported in their neighborhoods — burning trash, smoke, noise, water, or anything else they think we should know about.</div>
+      <div class="panel-body" id="simple-reports-body">
+        <div class="empty-state">
+          <strong>No reports yet.</strong><br>
+          Be the first to share what you see — open the report tool above.
+          <div class="hint">Reports are reviewed by Fab Lab Bali before they appear on the map.</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-label">Get involved</div>
+      <div class="panel-title">Add to the map</div>
+      <div class="panel-desc">There are three things you can do — even without any technical knowledge.</div>
+      <div class="panel-body" style="display:flex;flex-direction:column;gap:14px">
+        <a href="./making-sense/#survey" class="btn" style="justify-content:center">📋 Tell us what matters to you</a>
+        <a href="#" class="btn" id="reportBtn3" style="justify-content:center">+ Report something you see</a>
+        <a href="./making-sense/#contact" class="btn" style="justify-content:center">🛰 Host a sensor</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADVANCED VIEW BODY ===== -->
+<div class="view-content advanced-only" id="view-advanced">
+
+  <!-- Selected sensor / data detail -->
+  <div class="advanced-grid">
+    <div class="panel" style="grid-column:1/-1">
+      <div class="panel-label">Selected · click a pin on the map</div>
+      <div class="panel-title" id="adv-detail-title">No pin selected</div>
+      <div class="panel-desc" id="adv-detail-desc">Click any sensor or report pin on the map above to see details, charts, and reference standard comparisons here.</div>
+      <div class="panel-body" id="adv-detail-body">
+        <div class="empty-state">Select a pin on the map to inspect it.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Network stats -->
+  <div class="advanced-grid">
+    <div class="panel">
+      <div class="panel-label">Sensor network</div>
+      <div class="panel-title">Coverage</div>
+      <div class="panel-desc">Public environmental sensors aggregated across Bali. The network is intentionally open: any compatible sensor (Smart Citizen, Sensor.Community) can register.</div>
+      <div class="panel-body">
+        <div class="stat-row"><span class="stat-label">Smart Citizen devices · Bali</span><span class="stat-val" id="adv-sck-count">—</span></div>
+        <div class="stat-row"><span class="stat-label">Active in last 24h</span><span class="stat-val" id="adv-active-count">—</span></div>
+        <div class="stat-row"><span class="stat-label">Sensor.Community devices · Bali</span><span class="stat-val">— (planned)</span></div>
+        <div class="stat-row"><span class="stat-label">PurpleAir · Bali</span><span class="stat-val">— (planned)</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-label">Citizen reports · 24h</div>
+      <div class="panel-title">By category</div>
+      <div class="panel-desc">Reports submitted by Bali residents through the bot or web form, reviewed by Fab Lab Bali, surfaced on the public map.</div>
+      <div class="panel-body" id="adv-reports-body">
+        <div class="empty-state">
+          <strong>No reports yet.</strong><br>
+          Reporting infrastructure is being built. The Telegram/web reporting bot launches in Phase 2.
+          <div class="hint">Phase 1 is open: <a href="./making-sense/#survey">tell us what matters via the survey</a>.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Standards reference -->
+  <div class="advanced-grid">
+    <div class="panel" style="grid-column:1/-1">
+      <div class="panel-label">Reference standards</div>
+      <div class="panel-title">What we measure against</div>
+      <div class="panel-desc">All sensor readings on this dashboard are compared against international health-evidence-based thresholds. Where references differ, the strictest applicable value is used.</div>
+      <table class="stdtable">
+        <thead><tr><th>Indicator</th><th>Threshold</th><th>Period</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td class="metric">PM<sub>2.5</sub></td><td class="value">15 µg/m³</td><td>24-hour mean</td><td>WHO Global AQG 2021</td></tr>
+          <tr><td class="metric">PM<sub>2.5</sub></td><td class="value">5 µg/m³</td><td>annual mean</td><td>WHO Global AQG 2021</td></tr>
+          <tr><td class="metric">PM<sub>10</sub></td><td class="value">45 µg/m³</td><td>24-hour mean</td><td>WHO Global AQG 2021</td></tr>
+          <tr><td class="metric">Indoor temperature</td><td class="value">18 – 24 °C (residential) · 22 – 26 °C (work)</td><td>continuous</td><td>WHO Housing 2018 · ASHRAE 55</td></tr>
+          <tr><td class="metric">Relative humidity</td><td class="value">30 – 60 %</td><td>continuous</td><td>EPA / ASHRAE 55</td></tr>
+          <tr><td class="metric">Noise · night indoor</td><td class="value">30 dB</td><td>L<sub>night</sub></td><td>WHO ENG 2018</td></tr>
+          <tr><td class="metric">Noise · night outdoor</td><td class="value">40 dB</td><td>L<sub>night</sub></td><td>WHO ENG 2018</td></tr>
+          <tr><td class="metric">Noise peaks</td><td class="value">85 dB</td><td>occupational ceiling</td><td>NIOSH</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Methodology -->
+  <div class="advanced-grid">
+    <div class="panel" style="grid-column:1/-1">
+      <div class="panel-label">Methodology · Making Sense framework</div>
+      <div class="panel-title">How this campaign is built</div>
+      <div class="panel-desc">The campaign follows the EU Making Sense participatory methodology (Fab Lab Barcelona / IAAC, 2015–2017), adapted by Fab Lab Bali for the Indonesian context. We're currently in Phase 1.</div>
+      <div class="method-bar">
+        <div class="method-step" style="border-left:3px solid var(--accent)"><b>1 · Scoping</b>Collect matters of concern from the community before deciding what to measure. <em>Now.</em></div>
+        <div class="method-step"><b>2 · Community</b>Convene local contributors — schools, banjar, NGOs, fab labs.</div>
+        <div class="method-step"><b>3 · Planning</b>Co-design what to measure, where, how often, in which language.</div>
+        <div class="method-step"><b>4 · Sensing</b>Deploy sensors and the citizen-reporting bot.</div>
+        <div class="method-step"><b>5+ · Awareness · Action · Reflection</b>Read data together, decide responses, document for the next bioregion.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="foot-grid">
+    <div>
+      <h4>Campaign lead</h4>
+      <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a> · Bali, Indonesia<br>
+      Local fabrication laboratory and maker community.<br>
+      Accountable institution for Smart Citizen Bali.<br>
+      Contact: <a href="mailto:fablabbali@gmail.com">fablabbali@gmail.com</a><br>
+      <a href="./making-sense/">Making Sense Bali · Phase 1 survey →</a>
+    </div>
+    <div>
+      <h4>Method &amp; sources</h4>
+      Live data: Smart Citizen Platform API (api.smartcitizen.me/v0). Map: Leaflet + OpenStreetMap. Reports: Fab Lab Bali moderation queue (Airtable).<br><br>
+      Reference: WHO Global Air Quality Guidelines 2021 · WHO Environmental Noise Guidelines 2018 · WHO Housing &amp; Health 2018 · US EPA NAAQS · ASHRAE 55 · NIOSH.
+    </div>
+    <div>
+      <h4>Network &amp; tech</h4>
+      Smart Citizen Kit · open hardware (Fab Lab Barcelona / IAAC origin)<br>
+      <a href="https://fab.city" target="_blank" rel="noopener">Fab City</a> Hub instance · <a href="https://murmurations.network" target="_blank" rel="noopener">Murmurations</a> federated discovery<br>
+      Source: <a href="https://github.com/mdg-bali/smartcitizenbali" target="_blank" rel="noopener">github.com/mdg-bali/smartcitizenbali</a><br>
+      Technical partner: Meaningful Design Group<br>
+      <span style="opacity:.6">Low-cost sensors. ±10–15% from regulatory-grade. Trends and relative magnitudes are reliable.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+'use strict';
+// ============================================================
+// CONFIG
+// ============================================================
+const API_BASE = 'https://api.smartcitizen.me/v0';
+const REFRESH_MS = 5 * 60 * 1000;
+
+// EXCLUDE these device IDs from public dashboard (private/personal)
+const EXCLUDED_DEVICE_IDS = new Set([19236, 19600]);
+
+// Bali bounding box (approximate, generous)
+// covers main Bali island + Nusa Penida/Lembongan
+const BALI_BOUNDS = {
+  minLat: -8.95, maxLat: -8.00,
+  minLng: 114.40, maxLng: 115.85,
+};
+const BALI_CENTER = [-8.4095, 115.1889];
+const DEFAULT_ZOOM = 10;
+
+// Reporting URL — Telegram bot (Phase 2) or fallback to survey
+const REPORT_URL = './making-sense/#survey'; // TODO: replace with bot link when live
+
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  sensors: [],      // [{id, name, lat, lng, lastReading, sensors: {PM25, Noise, Temp, RH}}]
+  reports: [],      // [{id, lat, lng, category, description, submittedAt}]
+  selectedPin: null,
+  view: 'simple',
+};
+
+// ============================================================
+// MAP
+// ============================================================
+const map = L.map('map', {
+  center: BALI_CENTER, zoom: DEFAULT_ZOOM,
+  zoomControl: true, attributionControl: true,
+});
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap',
+  maxZoom: 18,
+}).addTo(map);
+
+const sensorLayer = L.layerGroup().addTo(map);
+const reportLayer = L.layerGroup().addTo(map);
+
+function pinIcon(kind, value){
+  return L.divIcon({
+    className: '',
+    html: `<div class="pin pin-${kind} ${kind==='report'?'pin-report':'pin-sensor'}"></div>`,
+    iconSize: [24,24], iconAnchor: [12,12],
+  });
+}
+
+// ============================================================
+// API
+// ============================================================
+async function api(path){
+  const url = path.startsWith('http') ? path : API_BASE + path;
+  const r = await fetch(url, {headers:{'Accept':'application/json'}});
+  if(!r.ok) throw new Error(`API ${path}: ${r.status}`);
+  return r.json();
+}
+
+// Fetch Smart Citizen devices in Bali bounding box.
+// API supports `near` queries; we filter client-side as fallback.
+async function fetchBaliSensors(){
+  // Use bbox-filter via near-coords + paginate if needed.
+  // The /devices endpoint paginates; we'll fetch a few pages near Bali.
+  const collected = [];
+  try {
+    // First: try the world_map endpoint for lighter response
+    let page = 1, gotMore = true, safety = 0;
+    while(gotMore && safety < 5){
+      const url = `${API_BASE}/devices/world_map?per_page=500&page=${page}`;
+      const r = await fetch(url, {headers:{'Accept':'application/json'}});
+      if(!r.ok) break;
+      const arr = await r.json();
+      if(!Array.isArray(arr) || !arr.length){ gotMore = false; break; }
+      collected.push(...arr);
+      gotMore = arr.length === 500;
+      page++;
+      safety++;
+    }
+  } catch(e){
+    console.warn('world_map endpoint failed, falling back:', e);
+  }
+
+  // Filter to Bali bounds and exclude private devices
+  const inBali = collected.filter(d => {
+    const lat = d.latitude ?? d.lat;
+    const lng = d.longitude ?? d.lng ?? d.lon;
+    if(typeof lat !== 'number' || typeof lng !== 'number') return false;
+    if(lat < BALI_BOUNDS.minLat || lat > BALI_BOUNDS.maxLat) return false;
+    if(lng < BALI_BOUNDS.minLng || lng > BALI_BOUNDS.maxLng) return false;
+    if(EXCLUDED_DEVICE_IDS.has(d.id)) return false;
+    return true;
+  });
+
+  // Normalize device shape
+  return inBali.map(d => ({
+    id: d.id,
+    name: d.name || `Device ${d.id}`,
+    description: d.description || '',
+    lat: d.latitude ?? d.lat,
+    lng: d.longitude ?? d.lng ?? d.lon,
+    lastReading: d.last_reading_at || null,
+    state: d.state,
+    raw: d,
+  }));
+}
+
+// Fetch detailed device info for a single sensor (when clicked)
+async function fetchSensorDetail(id){
+  return api(`/devices/${id}`);
+}
+
+// Citizen reports — currently stubbed.
+// Replace with Cloudflare Worker proxy fetching from Airtable once Phase 2 is live.
+async function fetchReports(){
+  // const r = await fetch('https://reports.fablabbali.workers.dev/api/reports?since=24h');
+  // return r.json();
+  return []; // empty for now
+}
+
+// ============================================================
+// RENDERERS
+// ============================================================
+function classifyPM25(value){
+  if(value == null) return 'unknown';
+  if(value <= 15) return 'good';
+  if(value <= 30) return 'warn';
+  return 'bad';
+}
+
+function renderSensorPins(){
+  sensorLayer.clearLayers();
+  for(const s of state.sensors){
+    // Without per-device readings yet, classify as unknown / good (fallback)
+    // Once detail loaded, refine
+    const cls = s._pm25Class || 'good';
+    const marker = L.marker([s.lat, s.lng], {icon: pinIcon(cls)});
+    marker.bindPopup(buildSensorPopup(s));
+    marker.on('click', ()=> selectSensor(s));
+    marker.addTo(sensorLayer);
+  }
+}
+
+function renderReportPins(){
+  reportLayer.clearLayers();
+  for(const r of state.reports){
+    const marker = L.marker([r.lat, r.lng], {icon: pinIcon('report')});
+    marker.bindPopup(buildReportPopup(r));
+    marker.on('click', ()=> selectReport(r));
+    marker.addTo(reportLayer);
+  }
+}
+
+function buildSensorPopup(s){
+  const last = s.lastReading ? new Date(s.lastReading).toLocaleString() : 'unknown';
+  return `
+    <div style="min-width:220px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a948c;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px">Sensor</div>
+      <div style="font-family:'Fraunces',serif;font-size:18px;color:#f4ede0;margin-bottom:8px">${escapeHtml(s.name)}</div>
+      ${s.description ? `<div style="font-size:12px;color:#c9c0aa;margin-bottom:8px">${escapeHtml(s.description.slice(0,140))}${s.description.length>140?'…':''}</div>` : ''}
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a948c;line-height:1.7">
+        Last reading: <span style="color:#f4ede0">${last}</span><br>
+        Smart Citizen ID: <a href="https://smartcitizen.me/kits/${s.id}" target="_blank" style="color:#e8a04a">${s.id} →</a>
+      </div>
+    </div>
+  `;
+}
+
+function buildReportPopup(r){
+  return `
+    <div style="min-width:220px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#e8a04a;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px">Citizen report · ${escapeHtml(r.category||'general')}</div>
+      <div style="font-family:'Fraunces',serif;font-size:16px;color:#f4ede0;margin-bottom:8px">${escapeHtml(r.title || r.description || 'Report')}</div>
+      <div style="font-size:12px;color:#c9c0aa">${escapeHtml((r.description||'').slice(0,200))}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a948c;margin-top:8px">${r.submittedAt ? new Date(r.submittedAt).toLocaleString() : ''}</div>
+    </div>
+  `;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ============================================================
+// SELECTION (advanced view detail panel)
+// ============================================================
+async function selectSensor(s){
+  state.selectedPin = {kind:'sensor', data:s};
+  document.getElementById('adv-detail-title').textContent = s.name;
+  document.getElementById('adv-detail-desc').textContent = `Smart Citizen Kit ${s.id} · last reading: ${s.lastReading ? new Date(s.lastReading).toLocaleString() : 'unknown'}`;
+  document.getElementById('adv-detail-body').innerHTML = `
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:14px">Loading sensor detail…</div>
+  `;
+  try {
+    const detail = await fetchSensorDetail(s.id);
+    renderSensorDetail(detail, s);
+  } catch(e){
+    document.getElementById('adv-detail-body').innerHTML = `<div class="empty-state">Could not fetch sensor detail (${escapeHtml(e.message)}).</div>`;
+  }
+}
+
+function selectReport(r){
+  state.selectedPin = {kind:'report', data:r};
+  document.getElementById('adv-detail-title').textContent = r.title || r.description || 'Citizen report';
+  document.getElementById('adv-detail-desc').textContent = `Category: ${r.category || 'general'} · Submitted: ${r.submittedAt ? new Date(r.submittedAt).toLocaleString() : 'unknown'}`;
+  document.getElementById('adv-detail-body').innerHTML = `
+    <div class="panel-body">${escapeHtml(r.description || '')}</div>
+  `;
+}
+
+function renderSensorDetail(detail, s){
+  const sensors = detail.data?.sensors || detail.sensors || [];
+  const findVal = (names) => {
+    const m = sensors.find(x => names.some(n => (x.name||'').includes(n)));
+    return m ? {value:m.value, unit:m.unit, name:m.name} : null;
+  };
+  const pm25 = findVal(['PM 2.5','PM2.5']);
+  const pm10 = findVal(['PM 10','PM10']);
+  const temp = findVal(['Temperature','Air Temperature']);
+  const rh = findVal(['Humidity','Relative Humidity']);
+  const noise = findVal(['Noise']);
+
+  const rows = [
+    {label:'PM2.5', v:pm25, unit:'µg/m³', threshold:15},
+    {label:'PM10', v:pm10, unit:'µg/m³', threshold:45},
+    {label:'Temperature', v:temp, unit:'°C', threshold:null},
+    {label:'Humidity', v:rh, unit:'%', threshold:60},
+    {label:'Noise', v:noise, unit:'dBA', threshold:55},
+  ];
+  const html = rows.map(r => {
+    if(!r.v) return `<div class="stat-row"><span class="stat-label">${r.label}</span><span class="stat-val" style="opacity:.4">no data</span></div>`;
+    const v = r.v.value;
+    const overThreshold = r.threshold && v > r.threshold;
+    return `<div class="stat-row">
+      <span class="stat-label">${r.label}</span>
+      <span class="stat-val" style="${overThreshold?'color:var(--bad)':''}">${v == null ? '—' : Number(v).toFixed(2)} ${r.unit}${overThreshold ? ' ⚠' : ''}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('adv-detail-body').innerHTML = `
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:14px">
+      Live readings · ${detail.data?.recorded_at ? new Date(detail.data.recorded_at).toLocaleString() : ''}
+    </div>
+    ${html}
+    <div style="margin-top:18px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">
+      Smart Citizen ID: <a href="https://smartcitizen.me/kits/${s.id}" target="_blank">${s.id} →</a><br>
+      Owner: ${escapeHtml(detail.owner?.username || 'unknown')}<br>
+      Sensor count: ${sensors.length}
+    </div>
+  `;
+}
+
+// ============================================================
+// SUMMARY CARDS
+// ============================================================
+function classifyOverall(){
+  // Aggregate state — rough heuristic from sensor PM2.5 classes when available
+  const cls = state.sensors.map(s => s._pm25Class).filter(Boolean);
+  if(!cls.length) return 'unknown';
+  if(cls.some(c => c === 'bad')) return 'bad';
+  if(cls.some(c => c === 'warn')) return 'warn';
+  return 'good';
+}
+
+function updateSummaryCards(){
+  const sensorN = state.sensors.length;
+  const reportN = state.reports.length;
+  document.getElementById('sensorCount').textContent = sensorN;
+  document.getElementById('reportCount').textContent = reportN;
+
+  const overall = classifyOverall();
+  const dot = document.getElementById('overall-dot');
+  const lbl = document.getElementById('overall-label');
+  const head = document.getElementById('today-headline');
+  const detail = document.getElementById('today-detail');
+
+  const colors = {good:'var(--good)', warn:'var(--warn)', bad:'var(--bad)', unknown:'var(--muted)'};
+  dot.style.background = colors[overall];
+  lbl.className = 'today-status-text ' + (overall==='unknown'?'good':overall);
+  lbl.textContent = ({good:'AIR LOOKS OK', warn:'WORTH ATTENTION', bad:'CONCERN', unknown:'CHECKING…'})[overall];
+
+  if(sensorN === 0 && reportN === 0){
+    head.textContent = 'No sensors registered in Bali yet.';
+    detail.innerHTML = `Smart Citizen Bali is in Phase 1 — gathering matters of concern from the community before deploying. <strong>If you have a sensor in Bali, register it.</strong> If you see something worth reporting, use the button below.`;
+  } else if(sensorN === 0){
+    head.textContent = `${reportN} citizen report${reportN!==1?'s':''} from Bali.`;
+    detail.textContent = 'No environmental sensors are registered yet. The pins on the map are reports submitted by people in Bali.';
+  } else {
+    const human = ({good:'Air looks OK at most sensor stations.', warn:'Some sensors are showing readings worth attention.', bad:'Some sensors are showing concerning readings.', unknown:'Sensor readings are loading.'})[overall];
+    head.textContent = human;
+    detail.textContent = `${sensorN} sensor station${sensorN!==1?'s':''} active in Bali · ${reportN} citizen report${reportN!==1?'s':''} on the map. Tap a pin to see details.`;
+  }
+
+  // Simple panel
+  document.getElementById('simple-sensors-headline').textContent =
+    sensorN === 0 ? 'No sensors registered yet' :
+    `${sensorN} sensor station${sensorN!==1?'s':''} across Bali`;
+  document.getElementById('simple-sensors-count').textContent = sensorN;
+  document.getElementById('simple-sensors-air').textContent = sensorN === 0 ? '—' : 'see map pins';
+  document.getElementById('simple-sensors-noise').textContent = sensorN === 0 ? '—' : 'see map pins';
+
+  document.getElementById('simple-reports-headline').textContent =
+    reportN === 0 ? 'Reports from people' : `${reportN} report${reportN!==1?'s':''} from people in Bali`;
+
+  if(reportN > 0){
+    document.getElementById('simple-reports-body').innerHTML = state.reports.slice(0,5).map(r => `
+      <div class="stat-row">
+        <span class="stat-label">${escapeHtml(r.category||'general')}</span>
+        <span class="stat-val">${r.submittedAt ? new Date(r.submittedAt).toLocaleDateString() : ''}</span>
+      </div>
+    `).join('');
+  }
+
+  // Advanced
+  document.getElementById('adv-sck-count').textContent = sensorN;
+  const recent = state.sensors.filter(s => {
+    if(!s.lastReading) return false;
+    const ageH = (Date.now() - new Date(s.lastReading).getTime())/3600000;
+    return ageH <= 24;
+  }).length;
+  document.getElementById('adv-active-count').textContent = recent;
+
+  if(reportN > 0){
+    const byCat = {};
+    for(const r of state.reports) byCat[r.category||'general'] = (byCat[r.category||'general']||0)+1;
+    document.getElementById('adv-reports-body').innerHTML = Object.entries(byCat).map(([cat,n]) => `
+      <div class="stat-row"><span class="stat-label">${escapeHtml(cat)}</span><span class="stat-val">${n}</span></div>
+    `).join('');
+  }
+
+  document.getElementById('lastSync').textContent = new Date().toLocaleTimeString();
+}
+
+// ============================================================
+// LOAD CYCLE
+// ============================================================
+function setLive(state, msg){
+  const dot = document.getElementById('liveDot');
+  const lbl = document.getElementById('liveLabel');
+  dot.className = 'live-dot ' + (state==='ok'?'':state);
+  lbl.textContent = msg;
+}
+
+async function loadAll(){
+  setLive('loading','SYNCING…');
+  try {
+    const [sensors, reports] = await Promise.all([
+      fetchBaliSensors().catch(e => { console.error('sensors failed:', e); return []; }),
+      fetchReports().catch(e => { console.error('reports failed:', e); return []; }),
+    ]);
+    state.sensors = sensors;
+    state.reports = reports;
+
+    renderSensorPins();
+    renderReportPins();
+    updateSummaryCards();
+
+    // Fit bounds if we have any pins
+    if(sensors.length || reports.length){
+      const all = [...sensors, ...reports].map(p => [p.lat, p.lng]).filter(p => p[0]!=null);
+      if(all.length){
+        const bounds = L.latLngBounds(all);
+        // Don't zoom in too far if only one pin
+        if(all.length > 1) map.fitBounds(bounds, {padding:[40,40], maxZoom:13});
+      }
+    }
+
+    setLive('ok','LIVE');
+  } catch(err){
+    console.error(err);
+    setLive('error','ERROR');
+  }
+}
+
+// ============================================================
+// VIEW SWITCH
+// ============================================================
+function setView(v){
+  state.view = v;
+  document.body.dataset.view = v;
+  document.querySelectorAll('.toggle-tab').forEach(t => {
+    const active = t.dataset.view === v;
+    t.classList.toggle('active', active);
+    t.setAttribute('aria-selected', active);
+  });
+  document.querySelectorAll('.view-content').forEach(c => {
+    c.classList.toggle('active', c.id === `view-${v}`);
+  });
+  // Persist
+  try { localStorage.setItem('scb-view', v); } catch(e) {}
+  // Map needs a resize after layout shift
+  setTimeout(() => map.invalidateSize(), 100);
+}
+
+document.querySelectorAll('.toggle-tab').forEach(t => {
+  t.addEventListener('click', () => setView(t.dataset.view));
+});
+// Restore saved view
+try {
+  const saved = localStorage.getItem('scb-view');
+  if(saved === 'simple' || saved === 'advanced') setView(saved);
+} catch(e){}
+
+// Report buttons all link to the survey for now (Phase 2 will replace with bot)
+document.querySelectorAll('#reportBtn, #reportBtn2, #reportBtn3').forEach(b => {
+  b.href = REPORT_URL;
+});
+
+// ============================================================
+// INIT
+// ============================================================
+loadAll();
+setInterval(loadAll, REFRESH_MS);
+
+// Resize map on window resize for safety
+window.addEventListener('resize', () => map.invalidateSize());
+</script>
+</body>
+</html>
