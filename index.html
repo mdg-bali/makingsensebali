@@ -7,7 +7,7 @@
 <meta name="description" content="A community campaign by Fab Lab Bali — open environmental sensors and citizen reports on one public map. The work begins with what residents tell us matters.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23e8a04a'/%3E%3C/svg%3E">
 
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,1,400&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -16,10 +16,22 @@
 
 <style>
   :root{
-    --bg:#0f1417; --bg2:#161c20; --bg3:#1d242a; --paper:#f4ede0;
-    --muted:#8a948c; --line:#2a3138; --accent:#e8a04a;
-    --good:#5fb88a; --warn:#e8a04a; --bad:#d96a4f; --crit:#c4493a;
-    --teal:#5fa8a8; --cream:#e8dfcc;
+    /* Light, airy palette · warm paper background · saffron + teal accents */
+    --bg:#f8f3e6;          /* warm paper cream */
+    --bg2:#ffffff;          /* clean white cards */
+    --bg3:#efe7d3;          /* deeper cream surfaces */
+    --paper:#1a1b1f;        /* warm near-black for text on light */
+    --ink:#1a1b1f;          /* primary text */
+    --muted:#827a6a;        /* warm gray for secondary text */
+    --line:#d6cdb5;         /* pale tan dividers */
+    --accent:#d28336;       /* saffron — Bali sun */
+    --accent-warm:#c25539;  /* terracotta for emphasis */
+    --teal:#1e5959;         /* deep teal — water, mountain */
+    --good:#4f7d4a;         /* forest green */
+    --warn:#c98a2a;         /* honey amber */
+    --bad:#b94830;          /* brick red */
+    --crit:#7a2516;         /* deep burgundy */
+    --cream:#3a3328;        /* warm dark for "cream" emphasis on light */
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--bg);color:var(--cream);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
@@ -30,11 +42,12 @@
   /* ===== STATUS BAR ===== */
   .statusbar{
     position:sticky;top:0;z-index:1000;
-    background:rgba(15,20,23,.94);backdrop-filter:blur(12px);
+    background:rgba(248,243,230,.94);backdrop-filter:blur(12px);
     border-bottom:1px solid var(--line);
     padding:12px 4vw;
     display:flex;justify-content:space-between;align-items:center;gap:20px;
-    font-family:'JetBrains Mono',monospace;font-size:11px;flex-wrap:wrap;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;flex-wrap:wrap;
+    color:var(--ink);
   }
   .status-left{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
   .status-right{display:flex;gap:12px;align-items:center}
@@ -44,54 +57,55 @@
   .live-dot.loading{background:var(--accent);animation:pulse 1s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
   .status-label{color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
-  .status-val{color:var(--paper)}
-  .btn{background:transparent;border:1px solid var(--line);color:var(--cream);
-    padding:6px 12px;border-radius:3px;font-family:'JetBrains Mono',monospace;
+  .status-val{color:var(--ink);font-weight:500}
+  .btn{background:#ffffff;border:1px solid var(--line);color:var(--ink);
+    padding:6px 12px;border-radius:3px;font-family:'IBM Plex Mono',monospace;
     font-size:10px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;
     transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
   .btn:hover{border-color:var(--accent);color:var(--accent)}
-  .btn.primary{border-color:var(--accent);color:var(--accent)}
-  .btn.primary:hover{background:var(--accent);color:var(--bg)}
+  .btn.primary{border-color:var(--accent);color:var(--accent);background:#ffffff}
+  .btn.primary:hover{background:var(--accent);color:#ffffff}
   .btn-primary{
     display:inline-block;padding:14px 28px;
-    background:var(--accent);color:var(--bg);
-    font-family:'JetBrains Mono',monospace;font-size:12px;
+    background:var(--accent);color:#ffffff;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;
     letter-spacing:.15em;text-transform:uppercase;font-weight:600;
     border:none;border-radius:3px;cursor:pointer;text-decoration:none;
     transition:all .15s;
   }
-  .btn-primary:hover{background:#f0b362}
+  .btn-primary:hover{background:var(--accent-warm)}
 
   /* ===== HERO ===== */
   .hero{
     padding:60px 4vw 40px;border-bottom:1px solid var(--line);
     background:
-      radial-gradient(circle at 80% 20%, rgba(232,160,74,.10), transparent 50%),
-      radial-gradient(circle at 20% 80%, rgba(95,168,168,.06), transparent 50%);
+      radial-gradient(circle at 80% 20%, rgba(210,131,54,.18), transparent 55%),
+      radial-gradient(circle at 20% 80%, rgba(30,89,89,.10), transparent 55%);
   }
-  .crumb{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);
+  .crumb{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);
     letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px}
   .crumb a{color:var(--accent);text-decoration:none}
-  h1{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(40px,6vw,80px);
-    line-height:.98;letter-spacing:-.02em;margin-bottom:22px;color:var(--paper)}
-  h1 em{font-style:italic;color:var(--accent);font-weight:400}
-  .lede-hero{font-family:'Fraunces',serif;font-size:clamp(18px,2vw,22px);
-    line-height:1.5;color:var(--cream);max-width:780px}
-  .lede-hero strong{color:var(--accent);font-weight:500}
+  h1{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(42px,6.5vw,84px);
+    line-height:1.02;letter-spacing:-.018em;margin-bottom:22px;color:var(--ink)}
+  h1 em{font-style:italic;color:var(--accent);font-weight:500}
+  .lede-hero{font-family:'Newsreader',serif;font-weight:400;font-size:clamp(19px,2.1vw,24px);
+    line-height:1.5;color:var(--ink);opacity:.85;max-width:780px}
+  .lede-hero strong{color:var(--accent-warm);font-weight:500}
 
   /* ===== SECTIONS ===== */
   section{padding:56px 4vw;border-bottom:1px solid var(--line)}
-  .section-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);
+  .section-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);
     letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px;
     display:flex;align-items:center;gap:12px}
   .section-label::before{content:'';width:24px;height:1px;background:var(--accent)}
-  h2{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(28px,3.5vw,42px);
-    line-height:1.05;letter-spacing:-.015em;margin-bottom:20px;color:var(--paper)}
-  h2 em{font-style:italic;color:var(--accent)}
-  .body-prose{font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;
-    color:var(--cream);max-width:760px}
+  h2{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(30px,3.6vw,46px);
+    line-height:1.08;letter-spacing:-.013em;margin-bottom:20px;color:var(--ink)}
+  h2 em{font-style:italic;color:var(--accent);font-weight:500}
+  .body-prose{font-family:'Inter',sans-serif;font-size:16px;line-height:1.7;
+    color:var(--ink);opacity:.85;max-width:720px}
   .body-prose p{margin-bottom:14px}
-  .body-prose strong{color:var(--paper)}
+  .body-prose strong{color:var(--ink);opacity:1;font-weight:600}
+  .body-prose a{color:var(--accent-warm);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
 
   /* ===== MAP SECTION ===== */
   .map-section{position:relative;padding:0;border-bottom:1px solid var(--line)}
@@ -101,32 +115,32 @@
     min-height:480px;
     border-bottom:1px solid var(--line);
   }
-  #map{width:100%;height:100%;background:#0a0e10}
+  #map{width:100%;height:100%;background:#e6e0cd}
   .leaflet-control-attribution{
-    background:rgba(15,20,23,0.8) !important;color:var(--muted) !important;
-    font-family:'JetBrains Mono',monospace !important;font-size:9px !important;
+    background:rgba(255,255,255,0.88) !important;color:var(--muted) !important;
+    font-family:'IBM Plex Mono',monospace !important;font-size:9px !important;
   }
   .leaflet-control-attribution a{color:var(--accent) !important}
   .leaflet-control-zoom a{
-    background:rgba(22,28,32,0.95) !important;color:var(--cream) !important;
+    background:rgba(255,255,255,0.96) !important;color:var(--ink) !important;
     border:1px solid var(--line) !important;
   }
   .leaflet-control-zoom a:hover{background:var(--bg3) !important;color:var(--accent) !important}
   .leaflet-popup-content-wrapper{
-    background:var(--bg2) !important;color:var(--cream) !important;
+    background:#ffffff !important;color:var(--ink) !important;
     border:1px solid var(--line) !important;border-radius:4px !important;
-    box-shadow:0 8px 24px rgba(0,0,0,0.5) !important;
+    box-shadow:0 8px 24px rgba(40,30,15,0.18) !important;
   }
-  .leaflet-popup-tip{background:var(--bg2) !important;border:1px solid var(--line) !important}
-  .leaflet-popup-content{margin:14px 16px !important;font-family:'Inter',sans-serif !important;font-size:13px !important;line-height:1.5 !important}
+  .leaflet-popup-tip{background:#ffffff !important;border:1px solid var(--line) !important}
+  .leaflet-popup-content{margin:14px 16px !important;font-family:'Inter',sans-serif !important;font-size:13px !important;line-height:1.5 !important;color:var(--ink) !important}
   .leaflet-popup-close-button{color:var(--muted) !important}
 
   .pin{
     width:26px;height:26px;border-radius:50%;
-    border:2px solid #0a0e10;
-    box-shadow:0 0 0 2px currentColor, 0 0 14px rgba(0,0,0,0.7), 0 4px 10px rgba(0,0,0,0.55);
+    border:2px solid #ffffff;
+    box-shadow:0 0 0 1.5px currentColor, 0 4px 10px rgba(40,30,15,0.35);
     display:flex;align-items:center;justify-content:center;
-    font-size:11px;color:#0a0e10;font-weight:700;
+    font-size:11px;color:#ffffff;font-weight:700;
     cursor:pointer;transition:transform .15s;
   }
   .pin:hover{transform:scale(1.25)}
@@ -135,40 +149,41 @@
   .pin-bad{background:var(--bad);color:var(--bad)}
   .pin-report{background:var(--accent);color:var(--accent)}
   .pin-offline{
-    background:transparent !important;
-    border:2px dashed var(--cream);
-    box-shadow:0 0 0 1px rgba(244,237,224,0.15), 0 4px 10px rgba(0,0,0,0.5) !important;
-    color:var(--cream);opacity:.85;
+    background:#ffffff !important;
+    border:2px dashed var(--ink);
+    box-shadow:0 0 0 1px rgba(26,27,31,0.15), 0 4px 10px rgba(40,30,15,0.25) !important;
+    color:var(--ink);opacity:.7;
   }
   .pin-offline::before{display:none}
-  .pin-sensor::before{content:'●';color:#0a0e10;font-size:10px}
-  .pin-report::before{content:'!';color:#0a0e10;font-size:13px;font-weight:700}
+  .pin-sensor::before{content:'●';color:#ffffff;font-size:10px}
+  .pin-report::before{content:'!';color:#ffffff;font-size:13px;font-weight:700}
 
   .map-overlay{position:absolute;z-index:500;pointer-events:auto}
   .map-overlay-card{
-    background:rgba(22,28,32,0.95);backdrop-filter:blur(12px);
+    background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);
     border:1px solid var(--line);border-radius:6px;padding:18px;
-    box-shadow:0 8px 24px rgba(0,0,0,0.5);
+    box-shadow:0 8px 24px rgba(40,30,15,0.14);
   }
   .top-left-overlay{top:16px;left:16px;max-width:340px}
   .top-right-overlay{top:16px;right:16px;max-width:240px}
 
-  .legend{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cream)}
+  .legend{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink)}
   .legend-title{color:var(--muted);letter-spacing:.15em;text-transform:uppercase;font-size:10px;margin-bottom:10px}
   .legend-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-  .legend-swatch{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid var(--bg)}
+  .legend-swatch{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid #ffffff;box-shadow:0 0 0 1.5px currentColor}
 
   .today-card{
-    background:rgba(22,28,32,0.95);backdrop-filter:blur(12px);
+    background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);
     border:1px solid var(--line);border-radius:6px;padding:24px;max-width:340px;
+    box-shadow:0 8px 24px rgba(40,30,15,0.12);
   }
   .today-status{display:flex;align-items:center;gap:14px;margin-bottom:14px}
   .today-status-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
-  .today-status-text{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase}
+  .today-status-text{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase}
   .today-status-text.good{color:var(--good)}
   .today-status-text.warn{color:var(--warn)}
   .today-status-text.bad{color:var(--bad)}
-  .today-headline{font-family:'Fraunces',serif;font-size:22px;line-height:1.25;color:var(--paper);margin-bottom:14px}
+  .today-headline{font-family:'Newsreader',serif;font-weight:500;font-size:22px;line-height:1.25;color:var(--ink);margin-bottom:14px}
 
   /* ===== INFO PANELS ===== */
   .panel-grid{
@@ -178,23 +193,52 @@
   .panel{
     background:var(--bg2);border:1px solid var(--line);border-radius:6px;
     padding:24px;
+    box-shadow:0 1px 3px rgba(40,30,15,0.04);
   }
-  .panel-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);
-    letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px}
-  .panel-title{font-family:'Fraunces',serif;font-size:22px;color:var(--paper);margin-bottom:8px;font-weight:400}
-  .panel-desc{font-family:'Inter',sans-serif;font-size:14px;color:var(--cream);opacity:.85;line-height:1.55;margin-bottom:14px}
-  .panel-body{font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:var(--cream)}
-  .stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:12px}
+  .panel-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent-warm);
+    letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px;font-weight:500}
+  .panel-title{font-family:'Newsreader',serif;font-size:24px;color:var(--ink);margin-bottom:8px;font-weight:500;line-height:1.2}
+  .panel-desc{font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);opacity:.78;line-height:1.6;margin-bottom:14px}
+  .panel-body{font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:var(--ink)}
+  .stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:12px}
   .stat-row:last-child{border:none}
   .stat-label{color:var(--muted)}
-  .stat-val{color:var(--paper);font-weight:500}
+  .stat-val{color:var(--ink);font-weight:500}
+
+  /* ===== LIVE READING (in "What this means" cards) ===== */
+  .reading-now{
+    margin:-4px -4px 22px;
+    padding:18px 20px;
+    background:linear-gradient(135deg, rgba(210,131,54,0.07), rgba(210,131,54,0.02));
+    border:1px solid rgba(210,131,54,0.25);
+    border-radius:4px;
+  }
+  .reading-now-label{
+    font-family:'IBM Plex Mono',monospace;font-size:10px;
+    color:var(--accent-warm);letter-spacing:.18em;text-transform:uppercase;
+    margin-bottom:8px;font-weight:500;
+  }
+  .reading-now-value{
+    font-family:'Newsreader',serif;font-weight:500;
+    font-size:42px;line-height:1;color:var(--ink);
+  }
+  .reading-now-value .unit{
+    font-size:18px;color:var(--muted);font-weight:400;margin-left:6px;
+  }
+  .reading-now-verdict{
+    font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);opacity:.78;
+    margin-top:8px;line-height:1.4;
+  }
+  .reading-now-verdict b{color:var(--ink);opacity:1;font-weight:500}
+  .reading-now.empty{background:rgba(130,122,106,0.05);border-color:rgba(130,122,106,0.2)}
+  .reading-now.empty .reading-now-value{color:var(--muted);font-size:24px}
 
   /* ===== GENEALOGY ===== */
   .genealogy{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
-  .ancestor{padding:18px;border:1px solid var(--line);border-radius:4px;background:var(--bg2)}
-  .ancestor-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}
-  .ancestor-name{font-family:'Fraunces',serif;font-size:18px;color:var(--paper);margin-bottom:6px}
-  .ancestor-desc{font-family:'Inter',sans-serif;font-size:12px;line-height:1.5;color:var(--cream);opacity:.85}
+  .ancestor{padding:18px;border:1px solid var(--line);border-radius:4px;background:var(--bg2);box-shadow:0 1px 3px rgba(40,30,15,0.04)}
+  .ancestor-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent-warm);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;font-weight:500}
+  .ancestor-name{font-family:'Newsreader',serif;font-weight:500;font-size:19px;color:var(--ink);margin-bottom:6px}
+  .ancestor-desc{font-family:'Inter',sans-serif;font-size:12.5px;line-height:1.55;color:var(--ink);opacity:.78}
 
   /* ===== PHASES ===== */
   .phases{
@@ -203,42 +247,40 @@
     margin-top:24px;overflow:hidden;
   }
   .phase{background:var(--bg2);padding:20px 14px;display:flex;flex-direction:column;gap:8px;min-height:160px;position:relative}
-  .phase-num{font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:var(--accent);line-height:1}
-  .phase-title{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--paper);letter-spacing:.1em;text-transform:uppercase}
-  .phase-desc{font-family:'Inter',sans-serif;font-size:11px;line-height:1.5;color:var(--cream);opacity:.85}
-  .phase.current{background:linear-gradient(135deg, rgba(232,160,74,0.12), rgba(232,160,74,0.04))}
-  .phase.current::after{content:'NOW';position:absolute;top:8px;right:8px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:.15em;background:rgba(232,160,74,0.18);padding:2px 6px;border-radius:2px}
+  .phase-num{font-family:'Newsreader',serif;font-size:30px;font-weight:500;color:var(--accent);line-height:1}
+  .phase-title{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink);letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+  .phase-desc{font-family:'Inter',sans-serif;font-size:11.5px;line-height:1.55;color:var(--ink);opacity:.75}
+  .phase.current{background:linear-gradient(135deg, rgba(210,131,54,0.16), rgba(210,131,54,0.06))}
+  .phase.current::after{content:'NOW';position:absolute;top:8px;right:8px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#ffffff;letter-spacing:.15em;background:var(--accent);padding:2px 6px;border-radius:2px;font-weight:500}
   @media(max-width:1100px){.phases{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:600px){.phases{grid-template-columns:1fr}}
 
   /* ===== PULL QUOTE ===== */
   .pullquote{margin:32px 0;padding:32px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-  .pullquote p{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:clamp(20px,2.4vw,28px);line-height:1.35;color:var(--paper);max-width:880px}
-  .pullquote .attr{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:18px}
+  .pullquote p{font-family:'Newsreader',serif;font-style:italic;font-weight:400;font-size:clamp(22px,2.5vw,30px);line-height:1.35;color:var(--ink);max-width:880px}
+  .pullquote .attr{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:18px}
 
   /* ===== CONCERNS ===== */
   .concerns{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:24px}
-  .concern{border:1px solid var(--line);background:var(--bg2);padding:16px;border-radius:4px;display:flex;align-items:center;gap:10px}
-  .concern-name{font-family:'Fraunces',serif;font-size:16px;color:var(--paper)}
+  .concern{border:1px solid var(--line);background:var(--bg2);padding:16px;border-radius:4px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 3px rgba(40,30,15,0.04)}
+  .concern-name{font-family:'Newsreader',serif;font-weight:500;font-size:17px;color:var(--ink)}
   .concern-icon{font-size:18px;line-height:1;color:var(--accent);font-style:italic}
 
   /* ===== SURVEY ===== */
-  .survey-cta{margin-top:24px;padding:32px;border:1px solid var(--accent);border-radius:6px;background:linear-gradient(135deg, rgba(232,160,74,0.08), rgba(232,160,74,0.02));text-align:center}
-  .survey-cta h3{font-family:'Fraunces',serif;font-size:24px;color:var(--paper);margin-bottom:12px;font-weight:400}
-  .survey-cta p{font-family:'Inter',sans-serif;font-size:14px;line-height:1.55;color:var(--cream);max-width:540px;margin:0 auto 20px}
-  .survey-embed{margin-top:20px;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--bg2)}
-  .survey-embed iframe{width:100%;min-height:780px;border:none;background:transparent}
+  .survey-cta{margin-top:24px;padding:32px;border:1px solid var(--accent);border-radius:6px;background:linear-gradient(135deg, rgba(210,131,54,0.10), rgba(210,131,54,0.02));text-align:center}
+  .survey-cta h3{font-family:'Newsreader',serif;font-weight:500;font-size:26px;color:var(--ink);margin-bottom:12px}
+  .survey-cta p{font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;color:var(--ink);opacity:.82;max-width:540px;margin:0 auto 20px}
 
   /* ===== CONTACT ===== */
   .contact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1080px;margin-top:18px}
   @media(max-width:800px){.contact-grid{grid-template-columns:1fr}}
-  .contact-col h3{font-family:'Fraunces',serif;font-size:18px;font-weight:400;color:var(--paper);margin-bottom:10px}
-  .contact-col p{font-family:'Inter',sans-serif;font-size:14px;line-height:1.55;color:var(--cream);opacity:.9}
+  .contact-col h3{font-family:'Newsreader',serif;font-weight:500;font-size:19px;color:var(--ink);margin-bottom:10px}
+  .contact-col p{font-family:'Inter',sans-serif;font-size:14.5px;line-height:1.6;color:var(--ink);opacity:.8}
 
   /* ===== FOOTER ===== */
-  footer{padding:48px 4vw;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.8}
-  footer a{color:var(--accent)}
-  footer h4{font-family:'Fraunces',serif;font-size:14px;font-weight:500;color:var(--paper);margin-bottom:12px;text-transform:none;letter-spacing:0}
+  footer{padding:48px 4vw;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:1.8;background:var(--bg3);border-top:1px solid var(--line)}
+  footer a{color:var(--accent-warm)}
+  footer h4{font-family:'Newsreader',serif;font-size:15px;font-weight:500;color:var(--ink);margin-bottom:12px;text-transform:none;letter-spacing:0}
   .foot-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:36px;margin-bottom:28px}
   @media(max-width:900px){.foot-grid{grid-template-columns:1fr;gap:24px}}
 
@@ -317,28 +359,28 @@
 </section>
 
 <!-- ===== TODAY IN NUMBERS ===== -->
-<section style="padding:48px 4vw;border-bottom:1px solid var(--line);background:var(--bg2)">
+<section style="padding:48px 4vw;border-bottom:1px solid var(--line)">
   <div class="section-label">Today, in four numbers</div>
   <h2 style="margin-bottom:32px">The state of <em>Bali's air</em>, as we measure it.</h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden">
-    <div style="padding:28px 22px;background:var(--bg2)">
+    <div style="padding:28px 22px;background:#ffffff">
       <div class="panel-label">Active sensors</div>
-      <div style="font-family:'Fraunces',serif;font-size:48px;line-height:1;color:var(--paper);margin:8px 0" id="num-active">—</div>
+      <div style="font-family:'Newsreader',serif;font-weight:500;font-size:52px;line-height:1;color:var(--ink);margin:8px 0" id="num-active">—</div>
       <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)">reporting in the last 14 days</div>
     </div>
-    <div style="padding:28px 22px;background:var(--bg2)">
+    <div style="padding:28px 22px;background:#ffffff">
       <div class="panel-label">Median PM<sub>2.5</sub></div>
-      <div style="font-family:'Fraunces',serif;font-size:48px;line-height:1;margin:8px 0" id="num-median">—</div>
+      <div style="font-family:'Newsreader',serif;font-weight:500;font-size:52px;line-height:1;color:var(--ink);margin:8px 0" id="num-median">—</div>
       <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)">µg/m³ · network-wide</div>
     </div>
-    <div style="padding:28px 22px;background:var(--bg2)">
+    <div style="padding:28px 22px;background:#ffffff">
       <div class="panel-label">Worst reading right now</div>
-      <div style="font-family:'Fraunces',serif;font-size:32px;line-height:1.1;margin:8px 0;color:var(--paper)" id="num-worst-value">—</div>
+      <div style="font-family:'Newsreader',serif;font-weight:500;font-size:34px;line-height:1.1;color:var(--ink);margin:8px 0" id="num-worst-value">—</div>
       <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)" id="num-worst-loc">—</div>
     </div>
-    <div style="padding:28px 22px;background:var(--bg2)">
+    <div style="padding:28px 22px;background:#ffffff">
       <div class="panel-label">Offline sensors</div>
-      <div style="font-family:'Fraunces',serif;font-size:48px;line-height:1;color:var(--paper);margin:8px 0" id="num-offline">—</div>
+      <div style="font-family:'Newsreader',serif;font-weight:500;font-size:52px;line-height:1;color:var(--ink);margin:8px 0" id="num-offline">—</div>
       <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)">silent for &gt;14 days</div>
     </div>
   </div>
@@ -355,86 +397,104 @@
     <!-- PM2.5 card -->
     <div class="panel" id="card-pm25">
       <div class="panel-label">Air · PM<sub>2.5</sub></div>
+      <div class="reading-now empty" id="ctx-pm25-current"><div class="reading-now-label">Loading…</div><div class="reading-now-value">—</div></div>
       <div class="panel-title">Fine particles your lungs can't filter</div>
       <div class="panel-desc">Smaller than 2.5 micrometres — they bypass your nose, enter the deep lung, and cross into the bloodstream. Long-term exposure is linked to heart disease, stroke, and reduced life expectancy. Burning waste releases particularly toxic versions.</div>
-      <div class="panel-body" style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.9">
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);box-shadow:0 0 0 2px var(--good);flex-shrink:0"></span><div><b style="color:var(--paper)">0–5</b> µg/m³ · WHO annual target · forest after rain</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);opacity:.6;flex-shrink:0"></span><div><b style="color:var(--paper)">5–15</b> · within WHO 24h · normal urban background</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--warn);flex-shrink:0"></span><div><b style="color:var(--paper)">15–35</b> · above WHO 24h · roadside in light traffic</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--bad);flex-shrink:0"></span><div><b style="color:var(--paper)">35–55</b> · sensitive groups affected · near a fire</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--crit);flex-shrink:0"></span><div><b style="color:var(--paper)">55+</b> · unhealthy for everyone · cooking smoke indoors</div></div>
+      <div class="panel-body" style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.9">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);box-shadow:0 0 0 2px var(--good);flex-shrink:0"></span><div><b style="color:var(--ink)">0–5</b> µg/m³ · WHO annual target · forest after rain</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);opacity:.6;flex-shrink:0"></span><div><b style="color:var(--ink)">5–15</b> · within WHO 24h · normal urban background</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--warn);flex-shrink:0"></span><div><b style="color:var(--ink)">15–35</b> · above WHO 24h · roadside in light traffic</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--bad);flex-shrink:0"></span><div><b style="color:var(--ink)">35–55</b> · sensitive groups affected · near a fire</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--crit);flex-shrink:0"></span><div><b style="color:var(--ink)">55+</b> · unhealthy for everyone · cooking smoke indoors</div></div>
       </div>
-      <div id="ctx-pm25-current" style="margin-top:14px;padding:12px;background:rgba(255,255,255,0.03);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;color:var(--muted)">Loading network reading…</div>
     </div>
 
     <!-- Mosquito risk card — Bali-specific dengue context -->
     <div class="panel" id="card-mosquito">
       <div class="panel-label">Climate · disease vectors</div>
+      <div class="reading-now empty" id="ctx-mosquito-current"><div class="reading-now-label">Loading…</div><div class="reading-now-value">—</div></div>
       <div class="panel-title">Mosquitoes love what Bali's air already is</div>
       <div class="panel-desc"><em>Aedes aegypti</em> — the dengue, Zika and chikungunya vector — breeds fastest at <strong>26–30°C with humidity above 70%</strong>. Bali's tropical baseline puts most of the year inside that window. Indoor conditions matter as much as outdoor: standing water, damp corners, kitchen humidity.</div>
-      <div class="panel-body" style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.9">
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);flex-shrink:0"></span><div><b style="color:var(--paper)">&lt;60% RH</b> · breeding declines significantly</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--warn);flex-shrink:0"></span><div><b style="color:var(--paper)">60–70% RH</b> · moderate risk · empty standing water</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--bad);flex-shrink:0"></span><div><b style="color:var(--paper)">70–80% RH + 26–30°C</b> · high breeding conditions</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--crit);flex-shrink:0"></span><div><b style="color:var(--paper)">&gt;80% RH</b> · also mould and dust mite problem</div></div>
+      <div class="panel-body" style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.9">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);flex-shrink:0"></span><div><b style="color:var(--ink)">&lt;60% RH</b> · breeding declines significantly</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--warn);flex-shrink:0"></span><div><b style="color:var(--ink)">60–70% RH</b> · moderate risk · empty standing water</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--bad);flex-shrink:0"></span><div><b style="color:var(--ink)">70–80% RH + 26–30°C</b> · high breeding conditions</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--crit);flex-shrink:0"></span><div><b style="color:var(--ink)">&gt;80% RH</b> · also mould and dust mite problem</div></div>
       </div>
-      <div id="ctx-mosquito-current" style="margin-top:14px;padding:12px;background:rgba(255,255,255,0.03);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;color:var(--muted)">Loading network reading…</div>
     </div>
 
     <!-- Noise card -->
     <div class="panel" id="card-noise">
       <div class="panel-label">Noise · what it does to sleep</div>
+      <div class="reading-now empty" id="ctx-noise-current"><div class="reading-now-label">Loading…</div><div class="reading-now-value">—</div></div>
       <div class="panel-title">Quiet has a number</div>
       <div class="panel-desc">WHO 2018 night-time guidelines: <strong>30 dB indoor / 40 dB outdoor</strong>. Chronic night exposure above 40 dB is linked to cardiovascular disease and disrupted sleep architecture. Even when you don't hear it, your body does.</div>
-      <div class="panel-body" style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.9">
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);flex-shrink:0"></span><div><b style="color:var(--paper)">30 dB</b> · whisper, library</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);opacity:.6;flex-shrink:0"></span><div><b style="color:var(--paper)">50 dB</b> · refrigerator hum, light rain</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--warn);flex-shrink:0"></span><div><b style="color:var(--paper)">70 dB</b> · vacuum cleaner, busy street</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--bad);flex-shrink:0"></span><div><b style="color:var(--paper)">85 dB</b> · motorcycle close · hearing damage starts</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--crit);flex-shrink:0"></span><div><b style="color:var(--paper)">100 dB</b> · live concert · damage in 15 minutes</div></div>
+      <div class="panel-body" style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.9">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);flex-shrink:0"></span><div><b style="color:var(--ink)">30 dB</b> · whisper, library</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);opacity:.6;flex-shrink:0"></span><div><b style="color:var(--ink)">50 dB</b> · refrigerator hum, light rain</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--warn);flex-shrink:0"></span><div><b style="color:var(--ink)">70 dB</b> · vacuum cleaner, busy street</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--bad);flex-shrink:0"></span><div><b style="color:var(--ink)">85 dB</b> · motorcycle close · hearing damage starts</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--crit);flex-shrink:0"></span><div><b style="color:var(--ink)">100 dB</b> · live concert · damage in 15 minutes</div></div>
       </div>
-      <div id="ctx-noise-current" style="margin-top:14px;padding:12px;background:rgba(255,255,255,0.03);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;color:var(--muted)">Loading network reading…</div>
     </div>
 
     <!-- Heat stress / tropical context -->
     <div class="panel" id="card-heat">
       <div class="panel-label">Heat · the tropical context</div>
+      <div class="reading-now empty" id="ctx-heat-current"><div class="reading-now-label">Loading…</div><div class="reading-now-value">—</div></div>
       <div class="panel-title">Bali isn't temperate Europe</div>
       <div class="panel-desc">WHO's 18–24°C indoor comfort range was written for temperate climates. Bali's 27–30°C is normal with air movement. The real risk is sustained <strong>33+ °C with high humidity</strong> — outdoor workers face heat-stress days that compound through harvest and construction season.</div>
-      <div class="panel-body" style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.9">
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);flex-shrink:0"></span><div><b style="color:var(--paper)">22–26 °C</b> · ASHRAE work comfort</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);opacity:.6;flex-shrink:0"></span><div><b style="color:var(--paper)">26–30 °C</b> · tropical normal · acceptable with ventilation</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--warn);flex-shrink:0"></span><div><b style="color:var(--paper)">30–33 °C</b> · outdoor exertion gets harder</div></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--bad);flex-shrink:0"></span><div><b style="color:var(--paper)">33+ °C with &gt;70% RH</b> · heat-stress for outdoor workers</div></div>
+      <div class="panel-body" style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.9">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);flex-shrink:0"></span><div><b style="color:var(--ink)">22–26 °C</b> · ASHRAE work comfort</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--good);opacity:.6;flex-shrink:0"></span><div><b style="color:var(--ink)">26–30 °C</b> · tropical normal · acceptable with ventilation</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--warn);flex-shrink:0"></span><div><b style="color:var(--ink)">30–33 °C</b> · outdoor exertion gets harder</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--bad);flex-shrink:0"></span><div><b style="color:var(--ink)">33+ °C with &gt;70% RH</b> · heat-stress for outdoor workers</div></div>
       </div>
-      <div id="ctx-heat-current" style="margin-top:14px;padding:12px;background:rgba(255,255,255,0.03);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;color:var(--muted)">Loading network reading…</div>
     </div>
 
   </div>
 </section>
 
-<!-- ===== TWO STREAMS ===== -->
+<!-- ===== HOW IT WORKS ===== -->
 <section>
   <div class="section-label">How this works</div>
-  <h2>Two streams of data, <em>one map.</em></h2>
-  <div class="panel-grid" style="margin-top:24px">
-    <div class="panel">
-      <div class="panel-label">Sensors</div>
-      <div class="panel-title">Always-on measurement</div>
-      <div class="panel-desc">Open-hardware environmental sensors across Bali — Smart Citizen Kits and others — measure air quality, noise, temperature and humidity continuously. Anyone in Bali with a compatible sensor can register theirs.</div>
+  <h2>Listen. Show. <em>Act.</em></h2>
+  <div class="body-prose"><p>A simple three-step loop. We collect data, we make it visible, the community acts on what it sees.</p></div>
+
+  <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:14px;margin-top:32px;position:relative">
+    <div class="panel" style="position:relative">
+      <div style="position:absolute;top:-14px;left:24px;background:var(--accent);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;padding:4px 10px;border-radius:2px;font-weight:500">01 · LISTEN</div>
+      <div class="panel-title" style="margin-top:8px">Collect from two sources</div>
+      <div class="panel-desc" style="margin-bottom:0">
+        Open-hardware <strong>sensors</strong> across Bali measure air, noise, temperature, humidity — continuously.
+        And an <strong>AI-assisted reporting bot</strong> on Telegram (Phase 2) lets residents send what they see — burning trash, smoke, water, noise — in their own words.
+      </div>
     </div>
-    <div class="panel">
-      <div class="panel-label">Citizen reports</div>
-      <div class="panel-title">From the people who live here</div>
-      <div class="panel-desc">Residents tell us what they see, smell, hear or are worried about — burning trash, smoke, water issues, noise. Every report is reviewed by Fab Lab Bali before it appears on the map.</div>
+    <div class="panel" style="position:relative">
+      <div style="position:absolute;top:-14px;left:24px;background:var(--teal);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;padding:4px 10px;border-radius:2px;font-weight:500">02 · SHOW</div>
+      <div class="panel-title" style="margin-top:8px">Make it visible</div>
+      <div class="panel-desc" style="margin-bottom:0">
+        Both streams land on <strong>this public map</strong>. Every reading is compared against international health guidelines — WHO for air and noise, EPA and ASHRAE for indoor environments. Translated into plain language. No login, no tracking, no paywall.
+      </div>
     </div>
-    <div class="panel">
-      <div class="panel-label">Community-defined</div>
-      <div class="panel-title">Sensors come <em>after</em> the question</div>
-      <div class="panel-desc">Before measuring anything, we ask Bali residents which environmental issues matter most. The campaign is shaped by those answers. <a href="#survey">Take the survey →</a></div>
+    <div class="panel" style="position:relative">
+      <div style="position:absolute;top:-14px;left:24px;background:var(--accent-warm);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;padding:4px 10px;border-radius:2px;font-weight:500">03 · ACT</div>
+      <div class="panel-title" style="margin-top:8px">Awareness → action</div>
+      <div class="panel-desc" style="margin-bottom:0">
+        Visibility is the start. From there: community workshops, advocacy with banjar and local government, behavior change in homes and schools. Fab Lab Bali coordinates the response loop with local partners.
+      </div>
     </div>
   </div>
+  <p style="margin-top:32px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);text-align:center">
+    Phase 1 (now): <a href="#survey" style="color:var(--accent-warm)">survey of matters of concern</a> · Phase 2: reporting bot · Phase 3: action with local partners
+  </p>
 </section>
+
+<style>
+@media(max-width:800px){
+  section[data-flow] > div, section > div[style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr !important}
+}
+</style>
 
 <!-- ===== METHODOLOGY GENEALOGY ===== -->
 <section>
@@ -515,18 +575,10 @@
 <section id="survey">
   <div class="section-label">Take the survey</div>
   <h2>Tell us <em>what matters.</em></h2>
-  <div class="body-prose"><p>5 minutes. Anonymous if you want. No technical knowledge needed.</p></div>
-  <div class="survey-cta">
-    <h3>Share your matter of concern</h3>
-    <p>Your answers shape what we measure, in which language, and who the data goes to.</p>
-    <a class="btn-primary" id="surveyLink" href="#" target="_blank" rel="noopener">→ Open the survey</a>
+  <div class="body-prose">
+    <p>Five minutes. Anonymous if you want. No technical knowledge needed. Your answers shape what we measure, in which language, and who the data goes to.</p>
+    <p style="margin-top:24px"><a class="btn-primary" id="surveyLink" href="#" target="_blank" rel="noopener" style="text-decoration:none">→ Open the survey</a></p>
   </div>
-  <div class="survey-embed">
-    <iframe id="surveyFrame" src="about:blank" title="Matters of Concern survey" sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe>
-  </div>
-  <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">
-    If the form does not load: <a id="surveyLinkFallback" href="#" target="_blank" rel="noopener">open in a new window →</a>
-  </p>
 </section>
 
 <!-- ===== WHAT THE SURVEY ASKS ===== -->
@@ -534,7 +586,7 @@
   <div class="section-label">What the survey asks</div>
   <h2>Eight questions.</h2>
   <div class="body-prose">
-    <ol style="font-family:'Fraunces',serif;font-size:17px;line-height:1.6;padding-left:20px;color:var(--paper)">
+    <ol style="font-family:'Newsreader',serif;font-size:17px;line-height:1.6;padding-left:20px;color:var(--paper)">
       <li>What environmental issue do you most want made visible?</li>
       <li>Where? (neighborhood, road, school, beach)</li>
       <li>Who is most affected?</li>
@@ -565,7 +617,7 @@
       <p>Bahasa Indonesia from day one. Bahasa Bali if there's interest. Local contributors specifically welcome.</p>
     </div>
   </div>
-  <p style="margin-top:24px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)">
+  <p style="margin-top:24px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)">
     Email: <a href="mailto:fablabbali@gmail.com">fablabbali@gmail.com</a>
   </p>
 </section>
@@ -637,7 +689,7 @@ const map = L.map('map', {
     duration: 1500,
   },
 });
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap · © CARTO',
   subdomains: 'abcd', maxZoom: 19,
 }).addTo(map);
@@ -665,19 +717,19 @@ function buildSensorPopup(s, isOffline){
   const verdict = cls==='bad'?'Above WHO 24h × 2':cls==='warn'?'Above WHO 24h':cls==='good'?'Within WHO 24h':'No PM data';
   return `
     <div style="min-width:240px">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${isOffline?'#8a948c':'#8a948c'};letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:${isOffline?'#8a948c':'#8a948c'};letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px">
         ${isOffline ? '⚠ OFFLINE · ' : ''}${D.escapeHtml(s.sourceLabel)}
       </div>
-      <div style="font-family:'Fraunces',serif;font-size:18px;color:#f4ede0;margin-bottom:8px">${D.escapeHtml(s.name)}</div>
+      <div style="font-family:'Newsreader',serif;font-size:18px;color:#f4ede0;margin-bottom:8px">${D.escapeHtml(s.name)}</div>
       ${s.description ? `<div style="font-size:12px;color:#c9c0aa;margin-bottom:8px">${D.escapeHtml(s.description.slice(0,120))}${s.description.length>120?'…':''}</div>` : ''}
-      ${isOffline ? `<div style="margin:10px 0;padding:8px 10px;background:rgba(217,106,79,0.08);border:1px solid rgba(217,106,79,0.25);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#d96a4f;line-height:1.5">
+      ${isOffline ? `<div style="margin:10px 0;padding:8px 10px;background:rgba(217,106,79,0.08);border:1px solid rgba(217,106,79,0.25);border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#d96a4f;line-height:1.5">
         Sensor offline. Last data: ${last}.
-      </div>` : (pm25!=null ? `<div style="margin:10px 0;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7">
+      </div>` : (pm25!=null ? `<div style="margin:10px 0;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.7">
         <span style="color:#8a948c">PM2.5:</span> <span style="color:${verdictColor};font-weight:500">${pm25.toFixed(1)} µg/m³</span><br>
         ${pm10!=null ? `<span style="color:#8a948c">PM10:</span> <span style="color:#f4ede0">${pm10.toFixed(1)} µg/m³</span><br>` : ''}
         <span style="color:${verdictColor};font-size:10px;letter-spacing:.1em;text-transform:uppercase">${verdict}</span>
       </div>` : '')}
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a948c;line-height:1.7">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8a948c;line-height:1.7">
         ${!isOffline ? `Last reading: <span style="color:#f4ede0">${last}</span><br>` : ''}
         <a href="${D.escapeHtml(s.detailsUrl)}" target="_blank" rel="noopener" style="color:#e8a04a">View on ${D.escapeHtml(s.sourceLabel.split(' · ')[0])} →</a>
       </div>
@@ -750,66 +802,64 @@ function updateCounts(){
 
   // ===== Live readings inside the "What this means" cards =====
   function fmt(v, dp){ return v == null ? '—' : v.toFixed(dp ?? 1); }
-
-  // PM2.5 contextual reading
-  const pmEl = document.getElementById('ctx-pm25-current');
-  if(pmEl){
-    if(median == null){
-      pmEl.innerHTML = `<span style="opacity:.7">No PM2.5 readings from active sensors right now.</span>`;
+  function renderReading(elId, label, value, unit, verdictText, verdictColor, isEmpty){
+    const el = document.getElementById(elId);
+    if(!el) return;
+    el.className = 'reading-now' + (isEmpty ? ' empty' : '');
+    if(isEmpty){
+      el.innerHTML = `<div class="reading-now-label">${label}</div><div class="reading-now-value">— <span class="unit">no data</span></div>`;
     } else {
-      const cls = D.classifyPM25(median);
-      const color = cls==='bad'?'var(--bad)':cls==='warn'?'var(--warn)':cls==='good'?'var(--good)':'var(--paper)';
-      const verdict = cls==='bad'?'above WHO 24h × 2 — sensitive groups affected':cls==='warn'?'above WHO 24h — moderate concern':cls==='good'?'within WHO 24h guideline':'mixed';
-      pmEl.innerHTML = `<b style="color:var(--paper)">Network median right now:</b> <span style="color:${color}">${fmt(median)} µg/m³</span> · ${verdict}`;
+      el.innerHTML = `<div class="reading-now-label">${label}</div><div class="reading-now-value">${value}${unit ? ' <span class="unit">' + unit + '</span>' : ''}</div><div class="reading-now-verdict" style="color:${verdictColor}">${verdictText}</div>`;
     }
   }
 
-  // Mosquito risk contextual reading
-  const mosqEl = document.getElementById('ctx-mosquito-current');
-  if(mosqEl){
-    if(medRH == null || medTemp == null){
-      mosqEl.innerHTML = `<span style="opacity:.7">No temperature/humidity readings from active sensors right now.</span>`;
-    } else {
-      let risk, color, note;
-      const inTempRange = medTemp >= 26 && medTemp <= 30;
-      if(medRH < 60){ risk = 'LOW'; color = 'var(--good)'; note = 'humidity below 60% — breeding declines'; }
-      else if(medRH >= 80){ risk = 'HIGH (with mold risk)'; color = 'var(--crit)'; note = 'also favours mold and dust mites'; }
-      else if(medRH >= 70 && inTempRange){ risk = 'HIGH'; color = 'var(--bad)'; note = 'optimal Aedes breeding window'; }
-      else if(medRH >= 60){ risk = 'MODERATE'; color = 'var(--warn)'; note = 'empty standing water around your home'; }
-      else { risk = 'LOW'; color = 'var(--good)'; note = ''; }
-      mosqEl.innerHTML = `<b style="color:var(--paper)">Right now:</b> ${fmt(medTemp)}°C · ${fmt(medRH,0)}% RH · <span style="color:${color}">${risk}</span>${note ? ' · ' + note : ''}`;
-    }
+  // PM2.5
+  if(median == null){
+    renderReading('ctx-pm25-current', 'Network median right now', null, null, null, null, true);
+  } else {
+    const cls = D.classifyPM25(median);
+    const color = cls==='bad'?'var(--bad)':cls==='warn'?'var(--warn)':cls==='good'?'var(--good)':'var(--ink)';
+    const verdict = cls==='bad'?'Above WHO 24h × 2 — sensitive groups affected.':cls==='warn'?'Above WHO 24h — moderate concern.':cls==='good'?'Within WHO 24h guideline.':'Mixed readings across sensors.';
+    renderReading('ctx-pm25-current', 'Network median right now', fmt(median), 'µg/m³', verdict, color, false);
   }
 
-  // Noise contextual reading
-  const noiseEl = document.getElementById('ctx-noise-current');
-  if(noiseEl){
-    if(medNoise == null){
-      noiseEl.innerHTML = `<span style="opacity:.7">No noise readings from active sensors right now.</span>`;
-    } else {
-      let color, note;
-      if(medNoise < 40){ color = 'var(--good)'; note = 'comfortable indoor level'; }
-      else if(medNoise < 55){ color = 'var(--warn)'; note = 'above WHO indoor night, fine for daytime'; }
-      else if(medNoise < 70){ color = 'var(--warn)'; note = 'above EPA daytime intrusion threshold'; }
-      else if(medNoise < 85){ color = 'var(--bad)'; note = 'sustained exposure stresses the body'; }
-      else { color = 'var(--crit)'; note = 'hearing damage risk'; }
-      noiseEl.innerHTML = `<b style="color:var(--paper)">Network median right now:</b> <span style="color:${color}">${fmt(medNoise)} dBA</span> · ${note}`;
-    }
+  // Mosquito
+  if(medRH == null || medTemp == null){
+    renderReading('ctx-mosquito-current', 'Bali right now', null, null, null, null, true);
+  } else {
+    let risk, color, note;
+    const inTempRange = medTemp >= 26 && medTemp <= 30;
+    if(medRH < 60){ risk = 'LOW'; color = 'var(--good)'; note = 'Humidity below 60% — Aedes breeding declines.'; }
+    else if(medRH >= 80){ risk = 'HIGH'; color = 'var(--crit)'; note = 'Also favours mold and dust mites.'; }
+    else if(medRH >= 70 && inTempRange){ risk = 'HIGH'; color = 'var(--bad)'; note = 'Optimal Aedes breeding window for dengue.'; }
+    else if(medRH >= 60){ risk = 'MODERATE'; color = 'var(--warn)'; note = 'Empty standing water around your home.'; }
+    else { risk = 'LOW'; color = 'var(--good)'; note = ''; }
+    renderReading('ctx-mosquito-current', 'Bali right now', `${fmt(medTemp)}°C · ${fmt(medRH,0)}% RH`, risk, note, color, false);
   }
 
-  // Heat contextual reading
-  const heatEl = document.getElementById('ctx-heat-current');
-  if(heatEl){
-    if(medTemp == null){
-      heatEl.innerHTML = `<span style="opacity:.7">No temperature readings from active sensors right now.</span>`;
-    } else {
-      let color, note;
-      if(medTemp < 26){ color = 'var(--good)'; note = 'within ASHRAE comfort'; }
-      else if(medTemp <= 30){ color = 'var(--good)'; note = 'tropical normal'; }
-      else if(medTemp <= 33){ color = 'var(--warn)'; note = 'outdoor exertion harder'; }
-      else { color = 'var(--bad)'; note = 'heat-stress risk for outdoor workers'; }
-      heatEl.innerHTML = `<b style="color:var(--paper)">Network median right now:</b> <span style="color:${color}">${fmt(medTemp)} °C</span> · ${note}`;
-    }
+  // Noise
+  if(medNoise == null){
+    renderReading('ctx-noise-current', 'Network median right now', null, null, null, null, true);
+  } else {
+    let color, note;
+    if(medNoise < 40){ color = 'var(--good)'; note = 'Comfortable indoor level.'; }
+    else if(medNoise < 55){ color = 'var(--warn)'; note = 'Above WHO indoor night — fine for daytime.'; }
+    else if(medNoise < 70){ color = 'var(--warn)'; note = 'Above EPA daytime intrusion threshold.'; }
+    else if(medNoise < 85){ color = 'var(--bad)'; note = 'Sustained exposure stresses the body.'; }
+    else { color = 'var(--crit)'; note = 'Hearing damage risk with sustained exposure.'; }
+    renderReading('ctx-noise-current', 'Network median right now', fmt(medNoise), 'dBA', note, color, false);
+  }
+
+  // Heat
+  if(medTemp == null){
+    renderReading('ctx-heat-current', 'Network median right now', null, null, null, null, true);
+  } else {
+    let color, note;
+    if(medTemp < 26){ color = 'var(--good)'; note = 'Within ASHRAE work-comfort range.'; }
+    else if(medTemp <= 30){ color = 'var(--good)'; note = 'Tropical normal — acceptable with airflow.'; }
+    else if(medTemp <= 33){ color = 'var(--warn)'; note = 'Outdoor exertion gets harder.'; }
+    else { color = 'var(--bad)'; note = 'Heat-stress risk for outdoor workers.'; }
+    renderReading('ctx-heat-current', 'Network median right now', fmt(medTemp), '°C', note, color, false);
   }
   if(median != null){
     const cls = D.classifyPM25(median);
@@ -823,7 +873,7 @@ function updateCounts(){
     const cls = D.classifyPM25(worst.val);
     const color = cls==='bad'?'var(--bad)':cls==='warn'?'var(--warn)':cls==='good'?'var(--good)':'var(--paper)';
     const el = document.getElementById('num-worst-value');
-    if(el){ el.innerHTML = `${worst.val.toFixed(1)} <span style="font-size:18px;color:var(--muted);font-family:'JetBrains Mono',monospace">µg/m³</span>`; el.style.color = color; }
+    if(el){ el.innerHTML = `${worst.val.toFixed(1)} <span style="font-size:18px;color:var(--muted);font-family:'IBM Plex Mono',monospace">µg/m³</span>`; el.style.color = color; }
     setText('num-worst-loc', worst.name);
   } else {
     setText('num-worst-value', '—');
@@ -902,10 +952,7 @@ async function loadAll(){
 // ============================================================
 (function(){
   const linkBtn = document.getElementById('surveyLink');
-  const linkFb = document.getElementById('surveyLinkFallback');
-  const frame = document.getElementById('surveyFrame');
-  if(SURVEY_OPEN_URL){ linkBtn.href = SURVEY_OPEN_URL; linkFb.href = SURVEY_OPEN_URL; }
-  if(SURVEY_EMBED_URL){ frame.src = SURVEY_EMBED_URL; }
+  if(linkBtn && SURVEY_OPEN_URL) linkBtn.href = SURVEY_OPEN_URL;
 })();
 
 // ============================================================
