@@ -116,18 +116,43 @@ async function fetchSmartCitizenSensors(){
   }
   console.log(`[SCK] will fetch ${ids.size} device(s):`, [...ids]);
 
+  // Helper: extract coords from any of several response shapes
+  function extractCoords(detail){
+    // Try multiple field locations and types — Smart Citizen has shipped
+    // different shapes over the years
+    const candidates = [
+      [detail.latitude, detail.longitude],
+      [detail.lat, detail.lng],
+      [detail.location && detail.location.latitude, detail.location && detail.location.longitude],
+      [detail.location && detail.location.lat, detail.location && detail.location.lng],
+      [detail.data && detail.data.location && detail.data.location.latitude, detail.data && detail.data.location && detail.data.location.longitude],
+    ];
+    for(const [la, ln] of candidates){
+      const latNum = typeof la === 'string' ? parseFloat(la) : la;
+      const lngNum = typeof ln === 'string' ? parseFloat(ln) : ln;
+      if(typeof latNum === 'number' && typeof lngNum === 'number' && !isNaN(latNum) && !isNaN(lngNum)){
+        return [latNum, lngNum];
+      }
+    }
+    return [null, null];
+  }
+
   // Fetch each device's full detail (parallel)
+  const isKnown = id => KNOWN_BALI_SCK_IDS.includes(id);
   const results = await Promise.all([...ids].map(async id => {
     try {
       const detail = await sckFetch(`/devices/${id}`);
 
-      const lat = detail.latitude;
-      const lng = detail.longitude;
-      if(typeof lat !== 'number' || typeof lng !== 'number'){
-        console.warn(`[SCK] device ${id}: no coordinates in response`);
+      const [lat, lng] = extractCoords(detail);
+      console.log(`[SCK] device ${id}: coords (${lat}, ${lng}), keys: [${Object.keys(detail).slice(0, 10).join(',')}]`);
+
+      if(lat == null || lng == null){
+        console.warn(`[SCK] device ${id}: no coordinates found`);
         return null;
       }
-      if(!inBali(lat, lng)){
+      // Trust known IDs even if outside the bbox heuristic — they're explicitly
+      // listed because we know they're in Bali, even if coords look weird.
+      if(!isKnown(id) && !inBali(lat, lng)){
         console.warn(`[SCK] device ${id}: outside Bali bbox (${lat}, ${lng})`);
         return null;
       }
@@ -139,11 +164,11 @@ async function fetchSmartCitizenSensors(){
       };
 
       return {
-        id: `sck-${detail.id}`,
-        rawId: detail.id,
+        id: `sck-${detail.id || id}`,
+        rawId: detail.id || id,
         source: 'smartcitizen',
         sourceLabel: 'Smart Citizen',
-        name: detail.name || `Device ${detail.id}`,
+        name: detail.name || `Device ${detail.id || id}`,
         description: detail.description || '',
         lat, lng,
         lastReading: (detail.data && detail.data.recorded_at) || detail.last_reading_at || null,
@@ -154,7 +179,7 @@ async function fetchSmartCitizenSensors(){
           rh:   findVal(['Relative Humidity','Humidity']),
           noise: findVal(['Noise']),
         },
-        detailsUrl: `https://smartcitizen.me/kits/${detail.id}`,
+        detailsUrl: `https://smartcitizen.me/kits/${detail.id || id}`,
       };
     } catch(e){
       console.warn(`[SCK] device ${id} failed:`, e.message);
