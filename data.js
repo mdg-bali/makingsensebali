@@ -34,6 +34,11 @@ const BALI_CENTER = [-8.4095, 115.1889];
 // (Currently empty: Tomas's house + office sensors are part of the public network.)
 const EXCLUDED_DEVICE_IDS = new Set([]);
 
+// Known Bali devices to add explicitly even if the world_map endpoint
+// doesn't return them (or returns them without coordinates). This guarantees
+// the campaign's own SCK sensors always appear on the map.
+const KNOWN_BALI_SCK_IDS = [19236, 19600];
+
 // ============================================================
 // HELPERS
 // ============================================================
@@ -84,6 +89,7 @@ async function fetchSmartCitizenSensors(){
       page++; safety++;
     }
   } catch(e){ console.warn('[SCK] world_map failed:', e); }
+  console.log(`[SCK] world_map returned ${collected.length} devices total`);
 
   // Filter to Bali devices
   const inBaliDevices = collected.filter(d => {
@@ -93,9 +99,18 @@ async function fetchSmartCitizenSensors(){
     if(EXCLUDED_DEVICE_IDS.has(d.id)) return false;
     return true;
   });
+  console.log(`[SCK] ${inBaliDevices.length} devices in Bali from world_map`);
+
+  // Always include known Bali devices, even if missing from world_map
+  const haveIds = new Set(inBaliDevices.map(d => d.id));
+  for(const id of KNOWN_BALI_SCK_IDS){
+    if(!haveIds.has(id) && !EXCLUDED_DEVICE_IDS.has(id)){
+      inBaliDevices.push({id, latitude: null, longitude: null, _fromFallback: true});
+    }
+  }
 
   // Fetch per-device current readings in parallel (small N, only Bali devices)
-  return Promise.all(inBaliDevices.map(async d => {
+  const results = await Promise.all(inBaliDevices.map(async d => {
     const base = {
       id: `sck-${d.id}`,
       rawId: d.id,
@@ -111,15 +126,22 @@ async function fetchSmartCitizenSensors(){
     };
     try {
       const detailRes = await fetch(`https://api.smartcitizen.me/v0/devices/${d.id}`);
-      if(!detailRes.ok) return base;
+      if(!detailRes.ok){ console.warn(`[SCK] device ${d.id} detail HTTP ${detailRes.status}`); return base.lat != null ? base : null; }
       const detail = await detailRes.json();
       const sensors = (detail.data && detail.data.sensors) || detail.sensors || [];
       const findVal = names => {
         const m = sensors.find(x => names.some(n => (x.name||'').includes(n)));
         return m && typeof m.value === 'number' ? m.value : null;
       };
+      // Resolve lat/lng — detail response is authoritative, especially for fallback devices
+      const lat = (detail.latitude != null ? detail.latitude : null) ?? base.lat;
+      const lng = (detail.longitude != null ? detail.longitude : null) ?? base.lng;
+      if(lat == null || lng == null){ console.warn(`[SCK] device ${d.id} has no coordinates`); return null; }
       return {
         ...base,
+        name: detail.name || base.name,
+        description: detail.description || base.description,
+        lat, lng,
         reading: {
           pm25: findVal(['PM 2.5','PM2.5']),
           pm10: findVal(['PM 10','PM10']),
@@ -131,9 +153,13 @@ async function fetchSmartCitizenSensors(){
       };
     } catch(e){
       console.warn(`[SCK] detail ${d.id} failed:`, e);
-      return base;
+      return base.lat != null ? base : null;
     }
   }));
+
+  const valid = results.filter(Boolean);
+  console.log(`[SCK] returning ${valid.length} sensor(s) with coordinates`);
+  return valid;
 }
 
 // Per-device detail call (used by dashboard's "click pin" panel)
