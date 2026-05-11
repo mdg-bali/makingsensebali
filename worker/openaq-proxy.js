@@ -62,6 +62,11 @@ export default {
       return proxyOpenAQ(url, env, baseHeaders);
     }
 
+    // Route: /sck/*  →  api.smartcitizen.me/v0/*
+    if (url.pathname.startsWith('/sck/')) {
+      return proxySCK(url, env, baseHeaders);
+    }
+
     // Health check
     if (url.pathname === '/' || url.pathname === '/health') {
       return jsonResponse({
@@ -70,6 +75,8 @@ export default {
         routes: [
           'GET /openaq/locations?bbox=...',
           'GET /openaq/locations/{id}/latest',
+          'GET /sck/devices/{id}',
+          'GET /sck/devices/world_map?per_page=...&page=...',
         ],
       }, 200, baseHeaders);
     }
@@ -105,6 +112,42 @@ async function proxyOpenAQ(url, env, baseHeaders) {
         cacheTtl: 60,
         cacheEverything: true,
       },
+    });
+  } catch (e) {
+    return jsonResponse({error: 'Upstream fetch failed', message: String(e)}, 502, baseHeaders);
+  }
+
+  const bodyText = await upstream.text();
+  return new Response(bodyText, {
+    status: upstream.status,
+    headers: {
+      ...baseHeaders,
+      'Content-Type': upstream.headers.get('content-type') || 'application/json',
+      'Cache-Control': 'public, max-age=60',
+    },
+  });
+}
+
+async function proxySCK(url, env, baseHeaders) {
+  // Smart Citizen Platform public endpoints don't require auth, but optional
+  // Bearer token can be set as SCK_API_KEY for owner-only data.
+  const apiKey = env.SCK_API_KEY;
+
+  const upstreamPath = url.pathname.replace(/^\/sck/, '/v0');
+  const upstreamUrl = `https://api.smartcitizen.me${upstreamPath}${url.search}`;
+
+  const upstreamHeaders = {
+    'Accept': 'application/json',
+    'User-Agent': 'smartcitizenbali-proxy/1.0',
+  };
+  if (apiKey) upstreamHeaders['Authorization'] = `Bearer ${apiKey}`;
+
+  let upstream;
+  try {
+    upstream = await fetch(upstreamUrl, {
+      method: 'GET',
+      headers: upstreamHeaders,
+      cf: { cacheTtl: 60, cacheEverything: true },
     });
   } catch (e) {
     return jsonResponse({error: 'Upstream fetch failed', message: String(e)}, 502, baseHeaders);

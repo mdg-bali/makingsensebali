@@ -72,76 +72,81 @@ function isActive(lastReadingIso){
 
 // ============================================================
 // ADAPTER: Smart Citizen Platform
-// https://api.smartcitizen.me/v0
+// Direct: https://api.smartcitizen.me/v0
+// Via Cloudflare Worker proxy: ${SCK_PROXY_BASE} (same worker as OpenAQ)
+//
+// We default to the proxy because api.smartcitizen.me's CORS policy can
+// block browser calls from github.io origins. The proxy also caches
+// responses for ~60s at the Cloudflare edge.
 // ============================================================
+const SCK_PROXY_BASE = 'https://scb-bali.tomas-74b.workers.dev/sck';
+
+async function sckFetch(path){
+  const base = SCK_PROXY_BASE || 'https://api.smartcitizen.me/v0';
+  const url = base + path;
+  const r = await fetch(url, {headers:{'Accept':'application/json'}});
+  if(!r.ok) throw new Error(`SCK HTTP ${r.status} at ${path}`);
+  return r.json();
+}
+
 async function fetchSmartCitizenSensors(){
-  const collected = [];
+  // Strategy:
+  //   1. Always fetch the known Bali devices directly (guaranteed to appear)
+  //   2. Best-effort: also fetch world_map to discover other Bali devices
+
+  const ids = new Set(KNOWN_BALI_SCK_IDS.filter(id => !EXCLUDED_DEVICE_IDS.has(id)));
+
+  // Try world_map for discovery (best effort — endpoint may not exist)
   try {
-    let page = 1, gotMore = true, safety = 0;
-    while(gotMore && safety < 5){
-      const url = `https://api.smartcitizen.me/v0/devices/world_map?per_page=500&page=${page}`;
-      const r = await fetch(url, {headers:{'Accept':'application/json'}});
-      if(!r.ok) break;
-      const arr = await r.json();
-      if(!Array.isArray(arr) || !arr.length){ gotMore = false; break; }
-      collected.push(...arr);
-      gotMore = arr.length === 500;
-      page++; safety++;
+    const arr = await sckFetch('/devices/world_map?per_page=500&page=1');
+    if(Array.isArray(arr)){
+      console.log(`[SCK] world_map returned ${arr.length} devices`);
+      for(const d of arr){
+        const lat = d.latitude ?? d.lat;
+        const lng = d.longitude ?? d.lng ?? d.lon;
+        if(!inBali(lat, lng)) continue;
+        if(EXCLUDED_DEVICE_IDS.has(d.id)) continue;
+        ids.add(d.id);
+      }
+    } else {
+      console.log('[SCK] world_map returned non-array, skipping discovery');
     }
-  } catch(e){ console.warn('[SCK] world_map failed:', e); }
-  console.log(`[SCK] world_map returned ${collected.length} devices total`);
-
-  // Filter to Bali devices
-  const inBaliDevices = collected.filter(d => {
-    const lat = d.latitude ?? d.lat;
-    const lng = d.longitude ?? d.lng ?? d.lon;
-    if(!inBali(lat, lng)) return false;
-    if(EXCLUDED_DEVICE_IDS.has(d.id)) return false;
-    return true;
-  });
-  console.log(`[SCK] ${inBaliDevices.length} devices in Bali from world_map`);
-
-  // Always include known Bali devices, even if missing from world_map
-  const haveIds = new Set(inBaliDevices.map(d => d.id));
-  for(const id of KNOWN_BALI_SCK_IDS){
-    if(!haveIds.has(id) && !EXCLUDED_DEVICE_IDS.has(id)){
-      inBaliDevices.push({id, latitude: null, longitude: null, _fromFallback: true});
-    }
+  } catch(e){
+    console.log(`[SCK] world_map skipped: ${e.message}`);
   }
+  console.log(`[SCK] will fetch ${ids.size} device(s):`, [...ids]);
 
-  // Fetch per-device current readings in parallel (small N, only Bali devices)
-  const results = await Promise.all(inBaliDevices.map(async d => {
-    const base = {
-      id: `sck-${d.id}`,
-      rawId: d.id,
-      source: 'smartcitizen',
-      sourceLabel: 'Smart Citizen',
-      name: d.name || `Device ${d.id}`,
-      description: d.description || '',
-      lat: d.latitude ?? d.lat,
-      lng: d.longitude ?? d.lng ?? d.lon,
-      lastReading: d.last_reading_at || null,
-      reading: {},
-      detailsUrl: `https://smartcitizen.me/kits/${d.id}`,
-    };
+  // Fetch each device's full detail (parallel)
+  const results = await Promise.all([...ids].map(async id => {
     try {
-      const detailRes = await fetch(`https://api.smartcitizen.me/v0/devices/${d.id}`);
-      if(!detailRes.ok){ console.warn(`[SCK] device ${d.id} detail HTTP ${detailRes.status}`); return base.lat != null ? base : null; }
-      const detail = await detailRes.json();
+      const detail = await sckFetch(`/devices/${id}`);
+
+      const lat = detail.latitude;
+      const lng = detail.longitude;
+      if(typeof lat !== 'number' || typeof lng !== 'number'){
+        console.warn(`[SCK] device ${id}: no coordinates in response`);
+        return null;
+      }
+      if(!inBali(lat, lng)){
+        console.warn(`[SCK] device ${id}: outside Bali bbox (${lat}, ${lng})`);
+        return null;
+      }
+
       const sensors = (detail.data && detail.data.sensors) || detail.sensors || [];
       const findVal = names => {
         const m = sensors.find(x => names.some(n => (x.name||'').includes(n)));
         return m && typeof m.value === 'number' ? m.value : null;
       };
-      // Resolve lat/lng — detail response is authoritative, especially for fallback devices
-      const lat = (detail.latitude != null ? detail.latitude : null) ?? base.lat;
-      const lng = (detail.longitude != null ? detail.longitude : null) ?? base.lng;
-      if(lat == null || lng == null){ console.warn(`[SCK] device ${d.id} has no coordinates`); return null; }
+
       return {
-        ...base,
-        name: detail.name || base.name,
-        description: detail.description || base.description,
+        id: `sck-${detail.id}`,
+        rawId: detail.id,
+        source: 'smartcitizen',
+        sourceLabel: 'Smart Citizen',
+        name: detail.name || `Device ${detail.id}`,
+        description: detail.description || '',
         lat, lng,
+        lastReading: (detail.data && detail.data.recorded_at) || detail.last_reading_at || null,
         reading: {
           pm25: findVal(['PM 2.5','PM2.5']),
           pm10: findVal(['PM 10','PM10']),
@@ -149,24 +154,22 @@ async function fetchSmartCitizenSensors(){
           rh:   findVal(['Relative Humidity','Humidity']),
           noise: findVal(['Noise']),
         },
-        lastReading: (detail.data && detail.data.recorded_at) || base.lastReading,
+        detailsUrl: `https://smartcitizen.me/kits/${detail.id}`,
       };
     } catch(e){
-      console.warn(`[SCK] detail ${d.id} failed:`, e);
-      return base.lat != null ? base : null;
+      console.warn(`[SCK] device ${id} failed:`, e.message);
+      return null;
     }
   }));
 
   const valid = results.filter(Boolean);
-  console.log(`[SCK] returning ${valid.length} sensor(s) with coordinates`);
+  console.log(`[SCK] returning ${valid.length} sensor(s)`);
   return valid;
 }
 
 // Per-device detail call (used by dashboard's "click pin" panel)
 async function fetchSmartCitizenDetail(rawId){
-  const r = await fetch(`https://api.smartcitizen.me/v0/devices/${rawId}`);
-  if(!r.ok) throw new Error(`SCK ${rawId}: ${r.status}`);
-  return r.json();
+  return sckFetch(`/devices/${rawId}`);
 }
 
 // ============================================================
