@@ -30,8 +30,9 @@ const BALI_BOUNDS = {
 };
 const BALI_CENTER = [-8.4095, 115.1889];
 
-// Private/personal sensors — never shown publicly
-const EXCLUDED_DEVICE_IDS = new Set([19236, 19600]);
+// Private/personal sensors — never shown publicly.
+// (Currently empty: Tomas's house + office sensors are part of the public network.)
+const EXCLUDED_DEVICE_IDS = new Set([]);
 
 // ============================================================
 // HELPERS
@@ -84,24 +85,54 @@ async function fetchSmartCitizenSensors(){
     }
   } catch(e){ console.warn('[SCK] world_map failed:', e); }
 
-  return collected.filter(d => {
+  // Filter to Bali devices
+  const inBaliDevices = collected.filter(d => {
     const lat = d.latitude ?? d.lat;
     const lng = d.longitude ?? d.lng ?? d.lon;
     if(!inBali(lat, lng)) return false;
     if(EXCLUDED_DEVICE_IDS.has(d.id)) return false;
     return true;
-  }).map(d => ({
-    id: `sck-${d.id}`,
-    rawId: d.id,
-    source: 'smartcitizen',
-    sourceLabel: 'Smart Citizen',
-    name: d.name || `Device ${d.id}`,
-    description: d.description || '',
-    lat: d.latitude ?? d.lat,
-    lng: d.longitude ?? d.lng ?? d.lon,
-    lastReading: d.last_reading_at || null,
-    reading: {},  // Smart Citizen requires per-device call for live values
-    detailsUrl: `https://smartcitizen.me/kits/${d.id}`,
+  });
+
+  // Fetch per-device current readings in parallel (small N, only Bali devices)
+  return Promise.all(inBaliDevices.map(async d => {
+    const base = {
+      id: `sck-${d.id}`,
+      rawId: d.id,
+      source: 'smartcitizen',
+      sourceLabel: 'Smart Citizen',
+      name: d.name || `Device ${d.id}`,
+      description: d.description || '',
+      lat: d.latitude ?? d.lat,
+      lng: d.longitude ?? d.lng ?? d.lon,
+      lastReading: d.last_reading_at || null,
+      reading: {},
+      detailsUrl: `https://smartcitizen.me/kits/${d.id}`,
+    };
+    try {
+      const detailRes = await fetch(`https://api.smartcitizen.me/v0/devices/${d.id}`);
+      if(!detailRes.ok) return base;
+      const detail = await detailRes.json();
+      const sensors = (detail.data && detail.data.sensors) || detail.sensors || [];
+      const findVal = names => {
+        const m = sensors.find(x => names.some(n => (x.name||'').includes(n)));
+        return m && typeof m.value === 'number' ? m.value : null;
+      };
+      return {
+        ...base,
+        reading: {
+          pm25: findVal(['PM 2.5','PM2.5']),
+          pm10: findVal(['PM 10','PM10']),
+          temp: findVal(['Air Temperature','Temperature']),
+          rh:   findVal(['Relative Humidity','Humidity']),
+          noise: findVal(['Noise']),
+        },
+        lastReading: (detail.data && detail.data.recorded_at) || base.lastReading,
+      };
+    } catch(e){
+      console.warn(`[SCK] detail ${d.id} failed:`, e);
+      return base;
+    }
   }));
 }
 

@@ -61,8 +61,7 @@
 
   .map-section{position:relative;border-bottom:1px solid var(--line)}
   .map-container{position:relative;height:calc(100vh - 200px);min-height:480px}
-  #map{width:100%;height:100%;background:var(--bg2)}
-  .leaflet-tile-pane{filter:brightness(0.6) saturate(0.7) hue-rotate(-10deg)}
+  #map{width:100%;height:100%;background:#0a0e10}
   .leaflet-control-attribution{background:rgba(15,20,23,0.8) !important;color:var(--muted) !important;font-family:'JetBrains Mono',monospace !important;font-size:9px !important}
   .leaflet-control-attribution a{color:var(--accent) !important}
   .leaflet-control-zoom a{background:rgba(22,28,32,0.95) !important;color:var(--cream) !important;border:1px solid var(--line) !important}
@@ -71,16 +70,16 @@
   .leaflet-popup-tip{background:var(--bg2) !important;border:1px solid var(--line) !important}
   .leaflet-popup-content{margin:14px 16px !important;font-family:'Inter',sans-serif !important;font-size:13px !important;line-height:1.5 !important}
 
-  .pin{width:24px;height:24px;border-radius:50%;border:2px solid var(--bg);box-shadow:0 0 0 2px currentColor, 0 4px 8px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s}
-  .pin:hover{transform:scale(1.2)}
+  .pin{width:26px;height:26px;border-radius:50%;border:2px solid #0a0e10;box-shadow:0 0 0 2px currentColor, 0 0 14px rgba(0,0,0,0.7), 0 4px 10px rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s}
+  .pin:hover{transform:scale(1.25)}
   .pin-good{background:var(--good);color:var(--good)}
   .pin-warn{background:var(--warn);color:var(--warn)}
   .pin-bad{background:var(--bad);color:var(--bad)}
   .pin-report{background:var(--accent);color:var(--accent)}
-  .pin-offline{background:transparent !important;border:2px dashed var(--muted);box-shadow:none !important;color:var(--muted);opacity:.75}
+  .pin-offline{background:transparent !important;border:2px dashed var(--cream);box-shadow:0 0 0 1px rgba(244,237,224,0.15), 0 4px 10px rgba(0,0,0,0.5) !important;color:var(--cream);opacity:.85}
   .pin-offline::before{display:none}
-  .pin-sensor::before{content:'●';color:var(--bg);font-size:10px}
-  .pin-report::before{content:'!';color:var(--bg);font-size:13px;font-weight:700}
+  .pin-sensor::before{content:'●';color:#0a0e10;font-size:10px}
+  .pin-report::before{content:'!';color:#0a0e10;font-size:13px;font-weight:700}
 
   .map-overlay{position:absolute;z-index:500;pointer-events:auto}
   .map-overlay-card{background:rgba(22,28,32,0.95);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:6px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,0.5)}
@@ -224,6 +223,19 @@
 </section>
 
 <section>
+  <div class="section-label">Sensors · ranked</div>
+  <h2>Current PM<sub>2.5</sub>, <em>by sensor.</em></h2>
+  <div class="body-prose"><p>All currently-active sensors with PM2.5 data, sorted by reading. Click a row to focus the map on that sensor.</p></div>
+  <table class="stdtable" style="margin-top:14px">
+    <thead><tr><th>Sensor</th><th>Source</th><th>PM<sub>2.5</sub></th><th>Last reading</th></tr></thead>
+    <tbody id="adv-ranked-body">
+      <tr><td colspan="4" style="text-align:center;color:var(--muted);font-family:'JetBrains Mono'">Loading…</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
   <div class="section-label">Reference standards</div>
   <h2>What we measure <em>against.</em></h2>
   <div class="body-prose">
@@ -307,7 +319,9 @@ const map = L.map('map', {
     duration: 1500,
   },
 });
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap', maxZoom:18}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution:'© OpenStreetMap · © CARTO', subdomains:'abcd', maxZoom:19
+}).addTo(map);
 
 const sensorLayer = L.layerGroup().addTo(map);
 const reportLayer = L.layerGroup().addTo(map);
@@ -434,6 +448,48 @@ function updateStats(){
   const recent = state.sensors.filter(s => D.isActive(s.lastReading)).length;
   document.getElementById('activeCount').textContent = recent;
   document.getElementById('adv-active-count').textContent = recent;
+
+  // Ranked sensor list — sorted by PM2.5 desc (worst at top), then by name
+  const ranked = [...state.sensors].sort((a, b) => {
+    const av = (a.reading && a.reading.pm25) ?? -1;
+    const bv = (b.reading && b.reading.pm25) ?? -1;
+    if(av !== bv) return bv - av;
+    return (a.name || '').localeCompare(b.name || '');
+  });
+  const rankedBody = document.getElementById('adv-ranked-body');
+  if(rankedBody){
+    if(!ranked.length){
+      rankedBody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted)">No sensors yet.</td></tr>`;
+    } else {
+      rankedBody.innerHTML = ranked.map(s => {
+        const offline = !D.isActive(s.lastReading);
+        const pm25 = s.reading && s.reading.pm25;
+        const cls = D.classifyPM25(pm25);
+        const color = offline ? 'var(--muted)' : (cls==='bad'?'var(--bad)':cls==='warn'?'var(--warn)':cls==='good'?'var(--good)':'var(--paper)');
+        const pmCell = offline ? '<span style="color:var(--muted)">— offline</span>'
+          : pm25 == null ? '<span style="opacity:.5">no data</span>'
+          : `<span style="color:${color}">${pm25.toFixed(1)} µg/m³</span>`;
+        const last = s.lastReading ? new Date(s.lastReading).toLocaleDateString() : '—';
+        return `<tr style="cursor:pointer" data-sid="${D.escapeHtml(s.id)}">
+          <td class="metric">${D.escapeHtml(s.name)}</td>
+          <td class="value" style="opacity:.7">${D.escapeHtml(s.sourceLabel.split(' · ')[0])}</td>
+          <td class="value">${pmCell}</td>
+          <td class="value" style="opacity:.7">${last}</td>
+        </tr>`;
+      }).join('');
+      // Attach click handlers
+      rankedBody.querySelectorAll('tr[data-sid]').forEach(tr => {
+        tr.addEventListener('click', () => {
+          const sid = tr.dataset.sid;
+          const s = state.sensors.find(x => x.id === sid);
+          if(s){
+            map.setView([s.lat, s.lng], 14, {animate: true});
+            selectSensor(s);
+          }
+        });
+      });
+    }
+  }
 
   // Source breakdown
   const bySource = {};

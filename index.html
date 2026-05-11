@@ -101,8 +101,7 @@
     min-height:480px;
     border-bottom:1px solid var(--line);
   }
-  #map{width:100%;height:100%;background:var(--bg2)}
-  .leaflet-tile-pane{filter:brightness(0.6) saturate(0.7) hue-rotate(-10deg)}
+  #map{width:100%;height:100%;background:#0a0e10}
   .leaflet-control-attribution{
     background:rgba(15,20,23,0.8) !important;color:var(--muted) !important;
     font-family:'JetBrains Mono',monospace !important;font-size:9px !important;
@@ -123,22 +122,27 @@
   .leaflet-popup-close-button{color:var(--muted) !important}
 
   .pin{
-    width:24px;height:24px;border-radius:50%;
-    border:2px solid var(--bg);
-    box-shadow:0 0 0 2px currentColor, 0 4px 8px rgba(0,0,0,0.5);
+    width:26px;height:26px;border-radius:50%;
+    border:2px solid #0a0e10;
+    box-shadow:0 0 0 2px currentColor, 0 0 14px rgba(0,0,0,0.7), 0 4px 10px rgba(0,0,0,0.55);
     display:flex;align-items:center;justify-content:center;
-    font-size:11px;color:var(--bg);font-weight:700;
+    font-size:11px;color:#0a0e10;font-weight:700;
     cursor:pointer;transition:transform .15s;
   }
-  .pin:hover{transform:scale(1.2)}
+  .pin:hover{transform:scale(1.25)}
   .pin-good{background:var(--good);color:var(--good)}
   .pin-warn{background:var(--warn);color:var(--warn)}
   .pin-bad{background:var(--bad);color:var(--bad)}
   .pin-report{background:var(--accent);color:var(--accent)}
-  .pin-offline{background:transparent !important;border:2px dashed var(--muted);box-shadow:none !important;color:var(--muted);opacity:.75}
+  .pin-offline{
+    background:transparent !important;
+    border:2px dashed var(--cream);
+    box-shadow:0 0 0 1px rgba(244,237,224,0.15), 0 4px 10px rgba(0,0,0,0.5) !important;
+    color:var(--cream);opacity:.85;
+  }
   .pin-offline::before{display:none}
-  .pin-sensor::before{content:'●';color:var(--bg);font-size:10px}
-  .pin-report::before{content:'!';color:var(--bg);font-size:13px;font-weight:700}
+  .pin-sensor::before{content:'●';color:#0a0e10;font-size:10px}
+  .pin-report::before{content:'!';color:#0a0e10;font-size:13px;font-weight:700}
 
   .map-overlay{position:absolute;z-index:500;pointer-events:auto}
   .map-overlay-card{
@@ -308,6 +312,34 @@
       <div class="legend-row"><div class="legend-swatch" style="background:transparent;border:2px dashed var(--muted);box-shadow:none"></div>Offline</div>
       <div style="margin-top:12px;font-size:10px;color:var(--muted);line-height:1.55">Tap a pin for details.</div>
       <div id="sourceDiag" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);line-height:1.7"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TODAY IN NUMBERS ===== -->
+<section style="padding:48px 4vw;border-bottom:1px solid var(--line);background:var(--bg2)">
+  <div class="section-label">Today, in four numbers</div>
+  <h2 style="margin-bottom:32px">The state of <em>Bali's air</em>, as we measure it.</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden">
+    <div style="padding:28px 22px;background:var(--bg2)">
+      <div class="panel-label">Active sensors</div>
+      <div style="font-family:'Fraunces',serif;font-size:48px;line-height:1;color:var(--paper);margin:8px 0" id="num-active">—</div>
+      <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)">reporting in the last 14 days</div>
+    </div>
+    <div style="padding:28px 22px;background:var(--bg2)">
+      <div class="panel-label">Median PM<sub>2.5</sub></div>
+      <div style="font-family:'Fraunces',serif;font-size:48px;line-height:1;margin:8px 0" id="num-median">—</div>
+      <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)">µg/m³ · network-wide</div>
+    </div>
+    <div style="padding:28px 22px;background:var(--bg2)">
+      <div class="panel-label">Worst reading right now</div>
+      <div style="font-family:'Fraunces',serif;font-size:32px;line-height:1.1;margin:8px 0;color:var(--paper)" id="num-worst-value">—</div>
+      <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)" id="num-worst-loc">—</div>
+    </div>
+    <div style="padding:28px 22px;background:var(--bg2)">
+      <div class="panel-label">Offline sensors</div>
+      <div style="font-family:'Fraunces',serif;font-size:48px;line-height:1;color:var(--paper);margin:8px 0" id="num-offline">—</div>
+      <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)">silent for &gt;14 days</div>
     </div>
   </div>
 </section>
@@ -536,8 +568,9 @@ const map = L.map('map', {
     duration: 1500,
   },
 });
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap', maxZoom: 18,
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap · © CARTO',
+  subdomains: 'abcd', maxZoom: 19,
 }).addTo(map);
 
 const sensorLayer = L.layerGroup().addTo(map);
@@ -613,12 +646,44 @@ function updateCounts(){
   const dot = document.getElementById('overall-dot');
   const lbl = document.getElementById('overall-label');
 
-  // Compute overall air status from sensors with PM2.5 data
-  const pmReadings = state.sensors.map(s => s.reading && s.reading.pm25).filter(v => v!=null && !isNaN(v));
-  let overallCls = 'unknown';
+  // Compute active vs offline
+  const activeSensors = state.sensors.filter(s => D.isActive(s.lastReading));
+  const offlineSensors = state.sensors.filter(s => !D.isActive(s.lastReading));
+
+  // Active sensors with current PM2.5 reading
+  const pmReadings = activeSensors
+    .map(s => ({val: s.reading && s.reading.pm25, name: s.name, source: s.sourceLabel}))
+    .filter(o => o.val!=null && !isNaN(o.val));
+
+  let median = null, worst = null, overallCls = 'unknown';
   if(pmReadings.length){
-    const median = pmReadings.sort((a,b)=>a-b)[Math.floor(pmReadings.length/2)];
+    const vals = pmReadings.map(o => o.val).sort((a,b)=>a-b);
+    median = vals[Math.floor(vals.length/2)];
+    worst = pmReadings.reduce((m, x) => x.val > m.val ? x : m, pmReadings[0]);
     overallCls = D.classifyPM25(median);
+  }
+
+  // Update "Today in numbers" panel
+  const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  setText('num-active', activeSensors.length);
+  setText('num-offline', offlineSensors.length);
+  if(median != null){
+    const cls = D.classifyPM25(median);
+    const color = cls==='bad'?'var(--bad)':cls==='warn'?'var(--warn)':cls==='good'?'var(--good)':'var(--paper)';
+    const el = document.getElementById('num-median');
+    if(el){ el.textContent = median.toFixed(1); el.style.color = color; }
+  } else {
+    setText('num-median', '—');
+  }
+  if(worst){
+    const cls = D.classifyPM25(worst.val);
+    const color = cls==='bad'?'var(--bad)':cls==='warn'?'var(--warn)':cls==='good'?'var(--good)':'var(--paper)';
+    const el = document.getElementById('num-worst-value');
+    if(el){ el.innerHTML = `${worst.val.toFixed(1)} <span style="font-size:18px;color:var(--muted);font-family:'JetBrains Mono',monospace">µg/m³</span>`; el.style.color = color; }
+    setText('num-worst-loc', worst.name);
+  } else {
+    setText('num-worst-value', '—');
+    setText('num-worst-loc', '—');
   }
 
   if(sN === 0 && rN === 0){
