@@ -135,6 +135,8 @@
   .pin-warn{background:var(--warn);color:var(--warn)}
   .pin-bad{background:var(--bad);color:var(--bad)}
   .pin-report{background:var(--accent);color:var(--accent)}
+  .pin-offline{background:transparent !important;border:2px dashed var(--muted);box-shadow:none !important;color:var(--muted);opacity:.75}
+  .pin-offline::before{display:none}
   .pin-sensor::before{content:'●';color:var(--bg);font-size:10px}
   .pin-report::before{content:'!';color:var(--bg);font-size:13px;font-weight:700}
 
@@ -303,6 +305,7 @@
       <div class="legend-row"><div class="legend-swatch" style="background:var(--warn);box-shadow:0 0 0 2px var(--warn)"></div>Attention</div>
       <div class="legend-row"><div class="legend-swatch" style="background:var(--bad);box-shadow:0 0 0 2px var(--bad)"></div>Concern</div>
       <div class="legend-row"><div class="legend-swatch" style="background:var(--accent);box-shadow:0 0 0 2px var(--accent)"></div>Report</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:transparent;border:2px dashed var(--muted);box-shadow:none"></div>Offline</div>
       <div style="margin-top:12px;font-size:10px;color:var(--muted);line-height:1.55">Tap a pin for details.</div>
       <div id="sourceDiag" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);line-height:1.7"></div>
     </div>
@@ -551,7 +554,7 @@ function pinIcon(kind){
 // ============================================================
 // RENDER
 // ============================================================
-function buildSensorPopup(s){
+function buildSensorPopup(s, isOffline){
   const last = s.lastReading ? new Date(s.lastReading).toLocaleString() : 'unknown';
   const pm25 = s.reading && s.reading.pm25;
   const pm10 = s.reading && s.reading.pm10;
@@ -560,16 +563,20 @@ function buildSensorPopup(s){
   const verdict = cls==='bad'?'Above WHO 24h × 2':cls==='warn'?'Above WHO 24h':cls==='good'?'Within WHO 24h':'No PM data';
   return `
     <div style="min-width:240px">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a948c;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px">${D.escapeHtml(s.sourceLabel)}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${isOffline?'#8a948c':'#8a948c'};letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px">
+        ${isOffline ? '⚠ OFFLINE · ' : ''}${D.escapeHtml(s.sourceLabel)}
+      </div>
       <div style="font-family:'Fraunces',serif;font-size:18px;color:#f4ede0;margin-bottom:8px">${D.escapeHtml(s.name)}</div>
       ${s.description ? `<div style="font-size:12px;color:#c9c0aa;margin-bottom:8px">${D.escapeHtml(s.description.slice(0,120))}${s.description.length>120?'…':''}</div>` : ''}
-      ${pm25!=null ? `<div style="margin:10px 0;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7">
+      ${isOffline ? `<div style="margin:10px 0;padding:8px 10px;background:rgba(217,106,79,0.08);border:1px solid rgba(217,106,79,0.25);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#d96a4f;line-height:1.5">
+        Sensor offline. Last data: ${last}.
+      </div>` : (pm25!=null ? `<div style="margin:10px 0;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7">
         <span style="color:#8a948c">PM2.5:</span> <span style="color:${verdictColor};font-weight:500">${pm25.toFixed(1)} µg/m³</span><br>
         ${pm10!=null ? `<span style="color:#8a948c">PM10:</span> <span style="color:#f4ede0">${pm10.toFixed(1)} µg/m³</span><br>` : ''}
         <span style="color:${verdictColor};font-size:10px;letter-spacing:.1em;text-transform:uppercase">${verdict}</span>
-      </div>` : ''}
+      </div>` : '')}
       <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a948c;line-height:1.7">
-        Last reading: <span style="color:#f4ede0">${last}</span><br>
+        ${!isOffline ? `Last reading: <span style="color:#f4ede0">${last}</span><br>` : ''}
         <a href="${D.escapeHtml(s.detailsUrl)}" target="_blank" rel="noopener" style="color:#e8a04a">View on ${D.escapeHtml(s.sourceLabel.split(' · ')[0])} →</a>
       </div>
     </div>`;
@@ -581,10 +588,15 @@ function renderPins(){
   sensorLayer.clearLayers();
   reportLayer.clearLayers();
   for(const s of state.sensors){
-    const cls = D.classifyPM25(s.reading && s.reading.pm25);
-    const pinKind = cls === 'unknown' ? 'good' : cls;
+    let pinKind;
+    if(!D.isActive(s.lastReading)){
+      pinKind = 'offline';
+    } else {
+      const cls = D.classifyPM25(s.reading && s.reading.pm25);
+      pinKind = cls === 'unknown' ? 'good' : cls;
+    }
     const m = L.marker([s.lat, s.lng], {icon: pinIcon(pinKind)});
-    m.bindPopup(buildSensorPopup(s));
+    m.bindPopup(buildSensorPopup(s, pinKind === 'offline'));
     m.addTo(sensorLayer);
   }
   for(const r of state.reports){

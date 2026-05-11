@@ -113,25 +113,29 @@ async function fetchSmartCitizenDetail(rawId){
 }
 
 // ============================================================
-// ADAPTER: OpenAQ v3
-// https://api.openaq.org/v3
-// Requires X-API-Key (free at explore.openaq.org/register).
-// v3 splits locations (metadata) and latest values into separate endpoints,
-// so we fetch the locations in the Bali bbox first, then fetch each
-// location's latest measurements in parallel.
+// ADAPTER: OpenAQ v3 (via Cloudflare Worker proxy)
+// https://api.openaq.org/v3 doesn't support CORS preflight for X-API-Key,
+// so the browser can't call it directly. We route through a Cloudflare
+// Worker that adds the API key server-side and returns CORS headers.
 //
-// API key is publicly visible in this file. Treat as low-trust and rotate
-// freely if abused — OpenAQ keys are free.
+// Configure: set OPENAQ_PROXY_BASE to your worker URL + '/openaq'.
+// If left empty, the adapter falls back to direct fetch (will fail with CORS,
+// but won't break the page — error shows in the source-status diagnostic).
 // ============================================================
-const OPENAQ_API_KEY = 'd85c862e2685ab786503f7648fc9581158527bcc617383e6b95db460594baf6f';
+const OPENAQ_PROXY_BASE = 'https://scb-bali.tomas-74b.workers.dev/openaq';
+const OPENAQ_API_KEY    = 'd85c862e2685ab786503f7648fc9581158527bcc617383e6b95db460594baf6f';
 
 async function fetchOpenAQSensors(){
-  const headers = {'X-API-Key': OPENAQ_API_KEY, 'Accept': 'application/json'};
+  const useProxy = !!OPENAQ_PROXY_BASE;
+  const baseUrl  = useProxy ? OPENAQ_PROXY_BASE : 'https://api.openaq.org/v3';
+  const headers  = useProxy
+    ? {'Accept': 'application/json'}                                // worker adds the key
+    : {'X-API-Key': OPENAQ_API_KEY, 'Accept': 'application/json'};  // direct (will hit CORS)
   const bbox = `${BALI_BOUNDS.minLng},${BALI_BOUNDS.minLat},${BALI_BOUNDS.maxLng},${BALI_BOUNDS.maxLat}`;
 
   try {
     // Step 1: locations in Bali bounding box
-    const locUrl = `https://api.openaq.org/v3/locations?bbox=${bbox}&limit=1000`;
+    const locUrl = `${baseUrl}/locations?bbox=${bbox}&limit=1000`;
     const r = await fetch(locUrl, {headers});
     if(!r.ok){
       const body = await r.text().catch(()=>'');
@@ -157,7 +161,7 @@ async function fetchOpenAQSensors(){
       }
 
       try {
-        const lr = await fetch(`https://api.openaq.org/v3/locations/${loc.id}/latest`, {headers});
+        const lr = await fetch(`${baseUrl}/locations/${loc.id}/latest`, {headers});
         if(!lr.ok) return {loc, readings: {}};
         const ldata = await lr.json();
         const measurements = (ldata && ldata.results) || [];

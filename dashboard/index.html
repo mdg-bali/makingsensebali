@@ -77,6 +77,8 @@
   .pin-warn{background:var(--warn);color:var(--warn)}
   .pin-bad{background:var(--bad);color:var(--bad)}
   .pin-report{background:var(--accent);color:var(--accent)}
+  .pin-offline{background:transparent !important;border:2px dashed var(--muted);box-shadow:none !important;color:var(--muted);opacity:.75}
+  .pin-offline::before{display:none}
   .pin-sensor::before{content:'●';color:var(--bg);font-size:10px}
   .pin-report::before{content:'!';color:var(--bg);font-size:13px;font-weight:700}
 
@@ -173,7 +175,8 @@
       <div class="legend-row"><div class="legend-swatch" style="background:var(--warn);box-shadow:0 0 0 2px var(--warn)"></div>Sensor (1–2× WHO)</div>
       <div class="legend-row"><div class="legend-swatch" style="background:var(--bad);box-shadow:0 0 0 2px var(--bad)"></div>Sensor (&gt; 2× WHO)</div>
       <div class="legend-row"><div class="legend-swatch" style="background:var(--accent);box-shadow:0 0 0 2px var(--accent)"></div>Citizen report (24h)</div>
-      <div style="margin-top:14px;font-size:10px;color:var(--muted);line-height:1.55">Sources: Smart Citizen Platform · Sensor.Community (planned) · Fab Lab Bali reports.</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:transparent;border:2px dashed var(--muted);box-shadow:none"></div>Sensor offline (>14 days)</div>
+      <div style="margin-top:14px;font-size:10px;color:var(--muted);line-height:1.55">Sources: Smart Citizen · OpenAQ (AirGradient, AQICN, KLHK) · Sensor.Community · Fab Lab Bali reports.</div>
     </div>
   </div>
 </section>
@@ -322,11 +325,17 @@ const state = {sensors:[], reports:[]};
 function renderPins(){
   sensorLayer.clearLayers(); reportLayer.clearLayers();
   for(const s of state.sensors){
-    const cls = D.classifyPM25(s.reading && s.reading.pm25);
-    const pinKind = cls === 'unknown' ? 'good' : cls;
+    let pinKind;
+    if(!D.isActive(s.lastReading)){
+      pinKind = 'offline';
+    } else {
+      const cls = D.classifyPM25(s.reading && s.reading.pm25);
+      pinKind = cls === 'unknown' ? 'good' : cls;
+    }
     const m = L.marker([s.lat, s.lng], {icon: pinIcon(pinKind)});
     m.on('click', () => selectSensor(s));
-    m.bindPopup(`<b>${D.escapeHtml(s.name)}</b><br><span style="font-size:11px;color:#8a948c">${D.escapeHtml(s.sourceLabel)} · click for details below</span>`);
+    const offlinePrefix = pinKind === 'offline' ? '⚠ OFFLINE · ' : '';
+    m.bindPopup(`<b>${D.escapeHtml(s.name)}</b><br><span style="font-size:11px;color:#8a948c">${offlinePrefix}${D.escapeHtml(s.sourceLabel)} · click for details below</span>`);
     m.addTo(sensorLayer);
   }
   for(const r of state.reports){
