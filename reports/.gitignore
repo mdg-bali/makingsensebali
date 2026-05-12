@@ -1,0 +1,22 @@
+# Secrets
+.env
+
+# Runtime data — NEVER commit
+data/
+reports/AQ_*.json
+reports/reports_*.jsonl
+profiles/AQ_*.json
+images/
+vision_queue/
+consent.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db

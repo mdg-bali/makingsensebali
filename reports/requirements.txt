@@ -1,0 +1,17 @@
+# Bali Air Quality Reporter — runtime dependencies
+# Install:  pip install -r requirements.txt
+
+# --- Bot core (Flask webhook + Murmurations adapter) ---
+flask>=3.0.0
+requests>=2.31.0
+python-dateutil>=2.8.0
+
+# --- Vision (only the chosen backend is required) ---
+# Pick one or more:
+#   MLX local server   → no extra deps in this file; runs in its own process
+#   Ollama local       → no extra deps in this file; HTTP call via `requests`
+#   Anthropic fallback → uncomment below
+# anthropic>=0.40.0
+
+# --- Dev / smoke tests ---
+# (mock backend has no deps)

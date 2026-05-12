@@ -1,0 +1,173 @@
+# docker-compose.yml — Bukit AQ Reporter on Synology DS725+
+#
+# Services:
+#   evolution-api  — WhatsApp transport (Baileys), official upstream image
+#   evolution-pg   — Postgres (required by Evolution API v2)
+#   evolution-redis— Redis (required by Evolution API v2)
+#   aq-bot         — Flask webhook receiver + Murmurations publisher
+#
+# We skip Evolution's optional `manager` frontend — we drive the API
+# with curl during setup, and the bot is the runtime consumer.
+#
+# Bring-up:
+#   1. `docker compose up -d evolution-pg evolution-redis evolution-api`
+#   2. Create the bali-aq instance via curl, scan the QR
+#   3. `docker compose up -d aq-bot`
+#
+# All persistent data lives under ./data/ via bind mounts — survives
+# rebuilds and is readable over SMB from your Mac for the M1 worker.
+
+services:
+
+  evolution-pg:
+    image: postgres:16-alpine
+    container_name: aq-postgres
+    restart: unless-stopped
+    mem_limit: 256m
+    environment:
+      POSTGRES_DB: evolution
+      POSTGRES_USER: evolution
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evolution"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  evolution-redis:
+    image: redis:7-alpine
+    container_name: aq-redis
+    restart: unless-stopped
+    mem_limit: 128m
+    command: redis-server --appendonly yes
+    volumes:
+      - ./data/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  evolution-api:
+    image: evoapicloud/evolution-api:latest
+    container_name: aq-evolution
+    restart: unless-stopped
+    mem_limit: 768m
+    depends_on:
+      evolution-pg:
+        condition: service_healthy
+      evolution-redis:
+        condition: service_healthy
+    ports:
+      # Bind to LAN only (so you can scp QRs from the Mac). Never the internet.
+      - "8080:8080"
+    environment:
+      SERVER_PORT: 8080
+      SERVER_URL: http://localhost:8080
+
+      # Auth
+      AUTHENTICATION_TYPE: apikey
+      AUTHENTICATION_API_KEY: ${EVOLUTION_API_KEY}
+
+      # Database — Postgres
+      DATABASE_PROVIDER: postgresql
+      DATABASE_ENABLED: "true"
+      DATABASE_CONNECTION_URI: postgresql://evolution:${POSTGRES_PASSWORD}@evolution-pg:5432/evolution?schema=public
+      DATABASE_CONNECTION_CLIENT_NAME: evolution_bali_aq
+      DATABASE_SAVE_DATA_INSTANCE: "true"
+      DATABASE_SAVE_DATA_NEW_MESSAGE: "true"
+      DATABASE_SAVE_MESSAGE_UPDATE: "true"
+      DATABASE_SAVE_DATA_CONTACTS: "true"
+      DATABASE_SAVE_DATA_CHATS: "true"
+
+      # Cache — Redis
+      CACHE_REDIS_ENABLED: "true"
+      CACHE_REDIS_URI: redis://evolution-redis:6379/0
+      CACHE_REDIS_PREFIX_KEY: evolution
+      CACHE_REDIS_SAVE_INSTANCES: "false"
+      CACHE_LOCAL_ENABLED: "false"
+
+      # Webhook — Evolution pushes incoming messages to the bot
+      WEBHOOK_GLOBAL_ENABLED: "true"
+      WEBHOOK_GLOBAL_URL: "http://aq-bot:5055/webhook"
+      WEBHOOK_EVENTS_MESSAGES_UPSERT: "true"
+
+      # Logs
+      LOG_LEVEL: ERROR,WARN,INFO
+      LOG_COLOR: "false"
+      QRCODE_LIMIT: "30"
+
+    volumes:
+      - ./data/evolution:/evolution/instances
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  aq-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aq-bot
+    restart: unless-stopped
+    mem_limit: 512m
+    expose:
+      - "5055"
+    environment:
+      AQ_LOG_LEVEL: INFO
+      AQ_BOT_PORT: "5055"
+      # Bot never calls vision directly — M1 worker does.
+      AQ_VISION_BACKEND: mock
+      # Outbound replies via Evolution API
+      AQ_EVOLUTION_KEY: ${EVOLUTION_API_KEY}
+    volumes:
+      - ./data/reports:/app/reports
+      - ./data/profiles:/app/profiles
+      - ./data/images:/app/images
+      - ./data/vision_queue:/app/vision_queue
+      - ./config.json:/app/config.json
+      - ./consent.json:/app/consent.json
+    depends_on:
+      evolution-api:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5055/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  aq-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aq-dashboard
+    restart: unless-stopped
+    mem_limit: 256m
+    command: ["python", "dashboard.py"]
+    ports:
+      # Exposed on the LAN so you can reach the dashboard from any device
+      # on your network at http://<nas-ip>:5056. Not the internet.
+      - "5056:5056"
+    environment:
+      DASHBOARD_USER: ${DASHBOARD_USER:-admin}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
+      DASHBOARD_PORT: "5056"
+      AQ_EVOLUTION_KEY: ${EVOLUTION_API_KEY}
+      BOT_URL: "http://aq-bot:5055"
+      AQ_ROOT: /app
+    volumes:
+      - ./data/reports:/app/reports
+      - ./data/profiles:/app/profiles
+      - ./data/vision_queue:/app/vision_queue
+      - ./config.json:/app/config.json
+      - ./consent.json:/app/consent.json
+    depends_on:
+      - aq-bot
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5056/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

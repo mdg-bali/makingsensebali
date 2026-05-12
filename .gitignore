@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Editor swap/temp files
+*.swp
+*.swo
+*~
+
+# Python (in case ad-hoc scripts run from repo root)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Local-only data — see reports/.gitignore for the bot's runtime data
+.env

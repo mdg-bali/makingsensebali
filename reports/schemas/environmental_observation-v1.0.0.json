@@ -1,0 +1,339 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "environmental_observation-v1.0.0",
+  "title": "Environmental Observation",
+  "description": "Schema for community-sourced environmental monitoring data, designed for Planet AI and federated environmental observation networks. Captures pollution incidents, sensor readings, and community reports with full geolocation and action-cycle tracking.",
+  "type": "object",
+  "properties": {
+    "linked_schemas": {
+      "$ref": "../fields/linked_schemas.json"
+    },
+    "name": {
+      "$ref": "../fields/name.json"
+    },
+    "description": {
+      "$ref": "../fields/description.json"
+    },
+    "primary_url": {
+      "$ref": "../fields/primary_url.json"
+    },
+    "latitude": {
+      "$ref": "../fields/latitude.json"
+    },
+    "longitude": {
+      "$ref": "../fields/longitude.json"
+    },
+    "geolocation": {
+      "$ref": "../fields/geolocation.json"
+    },
+    "locality": {
+      "$ref": "../fields/locality.json"
+    },
+    "region": {
+      "$ref": "../fields/region.json"
+    },
+    "country_name": {
+      "$ref": "../fields/country_name.json"
+    },
+    "country_iso_3166": {
+      "$ref": "../fields/country_iso_3166.json"
+    },
+    "tags": {
+      "$ref": "../fields/tags.json"
+    },
+    "image": {
+      "$ref": "../fields/image.json"
+    },
+    "images": {
+      "$ref": "../fields/images.json"
+    },
+    "status": {
+      "$ref": "../fields/status.json"
+    },
+    "date_added": {
+      "$ref": "../fields/date_added.json"
+    },
+    "observation_type": {
+      "type": "string",
+      "title": "Observation Type",
+      "description": "How the environmental observation was captured",
+      "enum": [
+        "photo",
+        "video",
+        "drone_aerial",
+        "satellite",
+        "sensor_reading",
+        "eyewitness",
+        "eyewitness_audio",
+        "other"
+      ]
+    },
+    "pollution_category": {
+      "type": "string",
+      "title": "Pollution Category",
+      "description": "Type of pollution or environmental incident observed",
+      "enum": [
+        "burning",
+        "trash",
+        "industrial",
+        "vehicle",
+        "construction",
+        "dust",
+        "chemical",
+        "water",
+        "noise",
+        "radiation",
+        "deforestation",
+        "other",
+        "none"
+      ]
+    },
+    "ai_analysis": {
+      "type": "object",
+      "title": "AI Analysis",
+      "description": "Automated analysis of observation media (photos, video)",
+      "properties": {
+        "detected": {
+          "type": "boolean",
+          "description": "Whether pollution/indicators were detected"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence score of detection (0-1)"
+        },
+        "indicators": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of detected indicators (e.g., 'smoke', 'trash pile')"
+        },
+        "description": {
+          "type": "string",
+          "description": "AI-generated description of observation"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"],
+          "description": "Severity assessment of the observation"
+        },
+        "model_version": {
+          "type": "string",
+          "description": "Version of AI model used for analysis"
+        }
+      },
+      "required": ["detected"]
+    },
+    "sensor_data": {
+      "type": "object",
+      "title": "Sensor Data",
+      "description": "Quantitative sensor readings associated with observation",
+      "properties": {
+        "pm25": {
+          "type": "number",
+          "description": "PM2.5 particulate matter (μg/m³)"
+        },
+        "pm10": {
+          "type": "number",
+          "description": "PM10 particulate matter (μg/m³)"
+        },
+        "aqi": {
+          "type": "number",
+          "description": "Air Quality Index value"
+        },
+        "o3": {
+          "type": "number",
+          "description": "Ozone concentration (ppb)"
+        },
+        "no2": {
+          "type": "number",
+          "description": "Nitrogen dioxide concentration (ppb)"
+        },
+        "so2": {
+          "type": "number",
+          "description": "Sulfur dioxide concentration (ppb)"
+        },
+        "co": {
+          "type": "number",
+          "description": "Carbon monoxide concentration (ppm)"
+        },
+        "temperature": {
+          "type": "number",
+          "description": "Temperature (°C)"
+        },
+        "humidity": {
+          "type": "number",
+          "description": "Relative humidity (%)"
+        },
+        "device_id": {
+          "type": "string",
+          "description": "Identifier of sensor device"
+        },
+        "device_type": {
+          "type": "string",
+          "description": "Type/model of sensor device"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When sensor reading was taken"
+        }
+      }
+    },
+    "data_source": {
+      "type": "string",
+      "title": "Data Source",
+      "description": "Origin of the environmental observation",
+      "enum": [
+        "whatsapp",
+        "telegram",
+        "sms",
+        "email",
+        "web_form",
+        "mobile_app",
+        "smart_citizen",
+        "openaq",
+        "sensor_community",
+        "purple_air",
+        "manual_entry",
+        "government_api",
+        "satellite",
+        "other"
+      ]
+    },
+    "planet_ai_node": {
+      "type": "string",
+      "title": "Planet AI Node",
+      "description": "Identifier of the Planet AI node that originated this observation (e.g., bali.fab.city)",
+      "pattern": "^[a-z0-9_-]+\\.[a-z0-9_-]+\\.[a-z]+$"
+    },
+    "bioregion": {
+      "type": "string",
+      "title": "Bioregion",
+      "description": "Bioregional identifier following Planet AI bioregion taxonomy",
+      "enum": [
+        "indo_pacific_coral_triangle",
+        "amazon_basin",
+        "congo_basin",
+        "mediterranean_basin",
+        "himalayas",
+        "arctic_circle",
+        "baltic_sea",
+        "caribbean",
+        "great_barrier_reef",
+        "other"
+      ]
+    },
+    "action_cycle": {
+      "type": "object",
+      "title": "Action Cycle",
+      "description": "Tracks observation through Planet AI action-latency hypothesis workflow",
+      "properties": {
+        "observation_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the environmental incident was first observed"
+        },
+        "reported_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the observation was reported to the system"
+        },
+        "verified_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the observation was verified (if applicable)"
+        },
+        "response_initiated_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When response action was initiated"
+        },
+        "resolved_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the incident was resolved"
+        },
+        "response_status": {
+          "type": "string",
+          "enum": [
+            "observed",
+            "reported",
+            "under_review",
+            "verified",
+            "in_response",
+            "escalated",
+            "resolved",
+            "archived"
+          ],
+          "description": "Current status in the action cycle"
+        },
+        "response_type": {
+          "type": "string",
+          "enum": [
+            "none",
+            "community_alert",
+            "authority_notification",
+            "media_exposure",
+            "legal_action",
+            "remediation",
+            "policy_change",
+            "other"
+          ],
+          "description": "Type of response initiated"
+        },
+        "response_notes": {
+          "type": "string",
+          "description": "Notes about response actions taken"
+        }
+      }
+    },
+    "weather_conditions": {
+      "type": "object",
+      "title": "Weather Conditions",
+      "description": "Weather at time of observation",
+      "properties": {
+        "temperature": {
+          "type": "number",
+          "description": "Temperature in Celsius"
+        },
+        "wind_speed": {
+          "type": "number",
+          "description": "Wind speed (m/s)"
+        },
+        "wind_direction": {
+          "type": "number",
+          "description": "Wind direction in degrees (0-360)"
+        },
+        "humidity": {
+          "type": "number",
+          "description": "Relative humidity (%)"
+        },
+        "pressure": {
+          "type": "number",
+          "description": "Atmospheric pressure (hPa)"
+        },
+        "conditions": {
+          "type": "string",
+          "enum": ["clear", "cloudy", "rain", "fog", "storm", "other"]
+        }
+      }
+    }
+  },
+  "required": [
+    "linked_schemas",
+    "name",
+    "latitude",
+    "longitude",
+    "pollution_category"
+  ],
+  "metadata": {
+    "creator": "Fab Lab Bali / Planet AI",
+    "purpose": "Community-scale environmental monitoring for federated observation networks",
+    "version": "1.0.0",
+    "license": "CC-BY 4.0",
+    "planet_ai_tier": "Community 64-d"
+  }
+}
