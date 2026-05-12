@@ -93,7 +93,7 @@ Smart Citizen Bali is intentionally replicable. Other Fab City chapters with a h
 
 The full replication guide is in **[REPLICATION.md](REPLICATION.md)**.
 
-Currently in conversation: **Smart Citizen Barcelona** (Fab Lab Barcelona, 2026 H2). Each Smart Citizen [city] is its own campaign, hosted by its own Fab Lab, anchored in its own bioregion, sharing methodology and federating discoverable data — that's the network the project is building toward, one chapter at a time.
+Currently in conversation: **Smart Citizen Barcelona** (Fab Lab Barcelona, 2026 H2). Other Fab City chapters being approached include Yucatán, Montreal, Goa, and Santiago. Each Smart Citizen [city] is its own campaign, hosted by its own Fab Lab, anchored in its own bioregion, sharing methodology and federating discoverable data — that's the network the project is building toward, one chapter at a time.
 
 ---
 
