@@ -64,7 +64,7 @@ Smart Citizen Bali's accountability structure:
 - **Host institution**: Fab Lab Bali
 - **Chapter context**: Fab City Bali
 - **Network membership**: [Fab City](https://fab.city/) global network · [Fab Lab Network](https://fablabs.io/)
-- **Lead**: Tomas Diez, [tomas@fab.city](mailto:tomas@fab.city)
+- **Contact**: (mailto:fablabbali@gmail.com)
 
 ---
 
