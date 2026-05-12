@@ -448,11 +448,90 @@ async function fetchAllSensors(){
 }
 
 // ============================================================
-// REPORTS (placeholder)
+// REPORTS — citizen observations via WhatsApp bot
 // ============================================================
+// Approved reports from the Sense Making bot (reports/ component) are
+// published to data/reports/ in this repo by the bot's sync_profiles.sh
+// script. Each report is a sanitized Murmurations profile (PII-stripped).
+//
+// File layout in the repo:
+//   data/reports/index.json          — { profiles: ["AQ_…json", …], count: N, generated_at: ISO }
+//   data/reports/AQ_<id>.json        — one Murmurations profile per approved report
+//
+// This function reads the index, fetches each profile, and normalizes
+// to the report shape the map renderer expects (lat, lng, title,
+// description, category, severity, submittedAt, locality).
+
+// Resolve the data/reports/ URL relative to the current page. Home page
+// is at the repo root; dashboard is one level deeper.
+function reportsBaseUrl(){
+  const path = window.location.pathname;
+  // Match any path that ends in /dashboard or /dashboard/ (with optional trailing index.html)
+  if(/\/dashboard\/?(index\.html)?$/.test(path)) return '../data/reports';
+  return './data/reports';
+}
+
+function profileToReport(profile){
+  if(!profile) return null;
+  const lat = profile.latitude;
+  const lng = profile.longitude;
+  if(typeof lat !== 'number' || typeof lng !== 'number') return null;
+
+  const ai = profile.ai_analysis || {};
+  const id = profile.primary_url
+    ? profile.primary_url.split('/').pop().replace('.json','')
+    : (profile.name || 'report');
+
+  return {
+    id,
+    lat, lng,
+    title: profile.name || 'Citizen report',
+    description: profile.description || '',
+    category: profile.pollution_category || 'other',
+    severity: ai.severity || null,
+    indicators: Array.isArray(ai.indicators) ? ai.indicators : [],
+    submittedAt: profile.date_added || null,
+    locality: profile.locality || '',
+    source: 'whatsapp_bot',
+    sourceLabel: 'Resident report',
+    profileUrl: profile.primary_url || null,
+  };
+}
+
 async function fetchReports(){
-  // TODO. Cloudflare Worker proxy reading published reports from Airtable.
-  return [];
+  const base = reportsBaseUrl();
+  try {
+    const indexResp = await fetch(`${base}/index.json`, {cache: 'no-cache'});
+    if(!indexResp.ok){
+      // 404 just means no approved reports yet — silent
+      if(indexResp.status === 404) return [];
+      throw new Error(`reports index HTTP ${indexResp.status}`);
+    }
+    const index = await indexResp.json();
+    const filenames = Array.isArray(index.profiles) ? index.profiles : [];
+    if(!filenames.length) return [];
+
+    console.log(`[reports] fetching ${filenames.length} approved profile(s)`);
+
+    const results = await Promise.all(filenames.map(async fn => {
+      try {
+        const r = await fetch(`${base}/${fn}`, {cache: 'no-cache'});
+        if(!r.ok) return null;
+        const profile = await r.json();
+        return profileToReport(profile);
+      } catch(e){
+        console.warn(`[reports] failed to fetch ${fn}:`, e.message);
+        return null;
+      }
+    }));
+
+    const valid = results.filter(Boolean);
+    console.log(`[reports] returning ${valid.length} valid report(s)`);
+    return valid;
+  } catch(e){
+    console.warn('[reports] fetch failed:', e);
+    return [];
+  }
 }
 
 // ============================================================
@@ -466,7 +545,7 @@ if(typeof window !== 'undefined'){
     fetchOpenAQSensors,
     fetchPurpleAirSensors, fetchSensorCommunitySensors,
     fetchAllSensors,
-    fetchReports,
+    fetchReports, profileToReport, reportsBaseUrl,
     SOURCE_STATUS,  // exposed for in-page diagnostic
   };
 }

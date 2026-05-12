@@ -22,7 +22,7 @@
 #   GITHUB_REPO_DIR        local checkout of mdg-bali/smartcitizenbali
 #                          leave empty to skip github sync
 #   GITHUB_PROFILES_SUBDIR subdir inside the repo for profiles
-#                          default: dashboard/data/profiles
+#                          default: data/reports
 #   GITHUB_COMMIT_AUTHOR   default: "AQ Bot <bot@fab.city>"
 
 set -euo pipefail
@@ -31,7 +31,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SOURCE="${AQ_SYNC_SOURCE:-$SCRIPT_DIR/data/profiles/}"
 PLANETAI_TARGET="${PLANETAI_TARGET:-}"
 GITHUB_REPO_DIR="${GITHUB_REPO_DIR:-}"
-GITHUB_PROFILES_SUBDIR="${GITHUB_PROFILES_SUBDIR:-dashboard/data/profiles}"
+GITHUB_PROFILES_SUBDIR="${GITHUB_PROFILES_SUBDIR:-data/reports}"
 GITHUB_COMMIT_AUTHOR="${GITHUB_COMMIT_AUTHOR:-AQ Bot <bot@fab.city>}"
 LOCK_FILE="${AQ_SYNC_LOCK:-/tmp/aq-sync.lock}"
 LOG_TAG="aq-sync"

@@ -1,0 +1,6 @@
+{
+  "count": 0,
+  "profiles": [],
+  "generated_at": "2026-05-12T00:00:00Z",
+  "comment": "This file lists all approved citizen-report profiles published to the public site. Populated by reports/sync_profiles.sh after operator approval in the local dashboard. Manually safe to leave empty; the map will simply show no report pins."
+}

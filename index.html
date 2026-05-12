@@ -755,8 +755,30 @@ function renderPins(){
   }
   for(const r of state.reports){
     const m = L.marker([r.lat, r.lng], {icon: pinIcon('report')});
+    m.bindPopup(buildReportPopup(r));
     m.addTo(reportLayer);
   }
+}
+
+function buildReportPopup(r){
+  const submitted = r.submittedAt ? new Date(r.submittedAt).toLocaleString() : '';
+  const sev = (r.severity || '').toLowerCase();
+  const sevColor = sev==='critical'?'#7a2516':sev==='high'?'#b94830':sev==='medium'?'#c98a2a':sev==='low'?'#5fb88a':'#8a948c';
+  const catLabel = r.category ? r.category.replace(/_/g,' ') : 'report';
+  return `
+    <div style="min-width:240px">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8a948c;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px">
+        Resident report · ${D.escapeHtml(r.locality || 'Bali')}
+      </div>
+      <div style="font-family:'Newsreader',serif;font-size:18px;color:#f4ede0;margin-bottom:8px">${D.escapeHtml(r.title)}</div>
+      ${r.description ? `<div style="font-size:12px;color:#c9c0aa;margin-bottom:8px">${D.escapeHtml(r.description.slice(0,200))}${r.description.length>200?'…':''}</div>` : ''}
+      <div style="margin:10px 0;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.7">
+        <span style="color:#8a948c">Category:</span> <span style="color:#f4ede0">${D.escapeHtml(catLabel)}</span>
+        ${r.severity ? `<br><span style="color:#8a948c">Severity:</span> <span style="color:${sevColor};font-weight:500">${D.escapeHtml(r.severity)}</span>` : ''}
+        ${r.indicators && r.indicators.length ? `<br><span style="color:#8a948c">Detected:</span> <span style="color:#f4ede0">${D.escapeHtml(r.indicators.slice(0,3).join(', '))}</span>` : ''}
+      </div>
+      ${submitted ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8a948c">Reported: <span style="color:#f4ede0">${D.escapeHtml(submitted)}</span></div>` : ''}
+    </div>`;
 }
 
 function updateCounts(){
