@@ -18,6 +18,7 @@ COPY bot_murmurations.py .
 COPY murmurations_adapter.py .
 COPY vision_analyzer.py .
 COPY messages.py .
+COPY sessions.py .
 COPY dashboard.py .
 COPY schemas/ ./schemas/
 
