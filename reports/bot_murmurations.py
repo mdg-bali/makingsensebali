@@ -34,6 +34,14 @@ from murmurations_adapter import (
     PlanetAINode,
 )
 from vision_analyzer import analyze_pollution_image
+from sessions import (
+    AWAIT_CATEGORY,
+    AWAIT_DETAIL,
+    AWAIT_LOCATION,
+    AWAIT_PHOTO,
+    AWAIT_CONFIRM,
+    SessionStore,
+)
 from messages import (
     CONSENT_PROMPT,
     CONSENT_CONFIRMED,
@@ -43,12 +51,33 @@ from messages import (
     STATS_REPLY,
     ABOUT_REPLY,
     UNKNOWN_COMMAND,
-    TEXT_RECEIVED,
-    PHOTO_RECEIVED,
-    LOCATION_RECEIVED_MERGED,
-    LOCATION_RECEIVED_STANDALONE,
     LOCATION_INVALID,
     AUDIO_RECEIVED,
+    # New guided-flow messages
+    CATEGORY_MENU,
+    CATEGORY_MENU_ITEMS,
+    CATEGORY_CHOSEN,
+    CATEGORY_EMOJI,
+    INVALID_CATEGORY,
+    DETAIL_SKIP_KEYWORDS,
+    ASK_LOCATION,
+    ASK_LOCATION_AFTER_SKIP,
+    ASK_PHOTO,
+    REPORT_SUMMARY,
+    SUMMARY_DETAIL_LINE,
+    CONFIRM_SEND_KEYWORDS,
+    CONFIRM_CANCEL_KEYWORDS,
+    REPORT_SUBMITTED,
+    POSTSUBMIT_NEW_KEYWORDS,
+    POSTSUBMIT_INFO_KEYWORDS,
+    POSTSUBMIT_STATS_KEYWORDS,
+    INFO_REPLY,
+    CANCEL_CONFIRMED,
+    WRONG_STEP_AWAIT_CATEGORY,
+    WRONG_STEP_AWAIT_DETAIL,
+    WRONG_STEP_AWAIT_LOCATION,
+    WRONG_STEP_AWAIT_PHOTO,
+    WRONG_STEP_AWAIT_CONFIRM,
 )
 
 # --- Paths -----------------------------------------------------------------
@@ -60,6 +89,7 @@ IMAGE_DIR = ROOT / "images"
 VISION_QUEUE = ROOT / "vision_queue"
 CONFIG_FILE = ROOT / "config.json"
 CONSENT_FILE = ROOT / "consent.json"
+SESSIONS_FILE = ROOT / "sessions.json"
 
 for d in (DATA_DIR, PROFILE_DIR, IMAGE_DIR, VISION_QUEUE):
     d.mkdir(exist_ok=True)
@@ -346,6 +376,9 @@ class AQBot:
                 auto_index=cfg.get("murmurations_auto_index", False),
             )
         )
+        # Per-sender draft sessions for the guided reporting flow.
+        # One JSON file on disk, keyed by sender_hash. See sessions.py.
+        self.sessions = SessionStore(SESSIONS_FILE)
         log.info("AQBot ready — node=%s", cfg["node_id"])
 
     # ---- allowlist / consent / commands ----
@@ -371,6 +404,10 @@ class AQBot:
         """
         Returns a reply string if we should respond now without processing,
         or None if the caller may proceed with normal handling.
+
+        On a fresh consent grant we ALSO seed a new draft session and
+        append the category menu, so the user sees the report flow start
+        immediately rather than having to send a second message first.
         """
         sender = msg["sender"]
         status = get_consent(sender)
@@ -378,6 +415,8 @@ class AQBot:
 
         if text == "/optout":
             set_consent(sender, "optout")
+            # If they had a draft in progress, drop it on opt-out.
+            self.sessions.clear(_sender_key(sender))
             return OPTOUT_CONFIRMED
 
         if status == "granted":
@@ -386,49 +425,119 @@ class AQBot:
         # Anything else from an opted-out user re-prompts consent
         if text in CONSENT_KEYWORDS:
             set_consent(sender, "granted")
-            return CONSENT_CONFIRMED
+            # Start a fresh draft so the very next message lands in
+            # the category step without needing a second prompt.
+            self.sessions.start(_sender_key(sender))
+            return CONSENT_CONFIRMED + "\n\n" + CATEGORY_MENU
 
         return CONSENT_PROMPT
 
-    def _handle_command(self, msg: Dict[str, Any]) -> Optional[str]:
+    # ---- universal commands (work at any session state) -----------------
+
+    def _universal_command(self, msg: Dict[str, Any]) -> Optional[str]:
+        """
+        Slash-command shortcuts that should always work, regardless of
+        what step of the report flow the user is in. Returns the reply
+        text if a command was matched, or None to let the state machine
+        handle the message normally.
+        """
         text = (msg.get("text") or "").strip().lower()
         if not text.startswith("/"):
             return None
         cmd = text.split()[0]
+        sender_hash = _sender_key(msg["sender"])
+
+        if cmd in ("/batal", "/cancel"):
+            had_draft = self.sessions.has_active(sender_hash)
+            self.sessions.clear(sender_hash)
+            return CANCEL_CONFIRMED if had_draft else (
+                "Tidak ada laporan aktif untuk dibatalkan.\n"
+                "_No active report to cancel._\n\n"
+                "Ketik */baru* untuk mulai laporan, atau */info* untuk info.\n"
+                "_Type */new* to start a report, or */info* for info._"
+            )
+
+        if cmd in ("/baru", "/new"):
+            self.sessions.start(sender_hash)
+            return CATEGORY_MENU
+
+        if cmd == "/info":
+            return INFO_REPLY
+
         if cmd == "/help":
             return HELP_REPLY
-        if cmd == "/stats":
-            today = datetime.now().strftime("%Y-%m-%d")
-            daily = DATA_DIR / f"reports_{today}.jsonl"
-            count = sum(1 for _ in daily.open()) if daily.exists() else 0
-            return STATS_REPLY.format(count=count)
+
         if cmd == "/about":
             return ABOUT_REPLY
+
+        if cmd == "/stats":
+            return self._stats_reply()
+
         return UNKNOWN_COMMAND
 
-    # ---- per-type handlers ----
+    def _stats_reply(self) -> str:
+        today = datetime.now().strftime("%Y-%m-%d")
+        daily = DATA_DIR / f"reports_{today}.jsonl"
+        count = sum(1 for _ in daily.open()) if daily.exists() else 0
+        return STATS_REPLY.format(count=count)
 
-    def _handle_text(self, msg: Dict[str, Any]) -> str:
-        sender_hash = _sender_key(msg["sender"])
-        report = {
-            "sender_hash": sender_hash,
-            "type": "text",
-            "description": msg.get("text", ""),
-            "status": "pending",
-        }
-        rid = save_report(report)
-        # Profile is NOT published here. The report goes into the
-        # review queue (review_status='pending') and only gets federated
-        # after admin approval via /admin/approve-report.
-        return TEXT_RECEIVED
+    # ---- guided-flow state handlers -------------------------------------
 
-    def _handle_image(self, msg: Dict[str, Any]) -> str:
-        sender_hash = _sender_key(msg["sender"])
-        rid = _new_report_id()
+    def _state_await_category(self, msg: Dict[str, Any], session) -> str:
+        max_n = len(CATEGORY_MENU_ITEMS)
+        if msg.get("type") != "text":
+            return WRONG_STEP_AWAIT_CATEGORY.format(max=max_n)
+        text = (msg.get("text") or "").strip()
+        try:
+            n = int(text)
+        except ValueError:
+            return INVALID_CATEGORY.format(max=max_n)
+        if not (1 <= n <= max_n):
+            return INVALID_CATEGORY.format(max=max_n)
 
-        # Download image if Evolution API gave us a URL we can fetch.
-        # Some configurations send base64 in a different field; the M1
-        # worker also has access to Evolution's media-download endpoint.
+        key, emoji, bah, eng = CATEGORY_MENU_ITEMS[n - 1]
+        session.draft["category"] = key
+        session.draft["category_label_bahasa"] = bah
+        session.draft["category_label_en"] = eng
+        session.state = AWAIT_DETAIL
+        self.sessions.update(session)
+        return CATEGORY_CHOSEN.format(
+            cat_emoji=emoji, cat_label=bah, cat_label_en=eng
+        )
+
+    def _state_await_detail(self, msg: Dict[str, Any], session) -> str:
+        if msg.get("type") != "text":
+            return WRONG_STEP_AWAIT_DETAIL
+        text = (msg.get("text") or "").strip()
+        session.state = AWAIT_LOCATION
+        if text.lower() in DETAIL_SKIP_KEYWORDS:
+            self.sessions.update(session)
+            return ASK_LOCATION_AFTER_SKIP
+        session.draft["description"] = text
+        self.sessions.update(session)
+        return ASK_LOCATION
+
+    def _state_await_location(self, msg: Dict[str, Any], session) -> str:
+        if msg.get("type") != "location":
+            return WRONG_STEP_AWAIT_LOCATION
+        lat = msg.get("latitude")
+        lon = msg.get("longitude")
+        if lat is None or lon is None:
+            return LOCATION_INVALID
+        session.draft["location"] = {"lat": lat, "lon": lon}
+        session.state = AWAIT_PHOTO
+        self.sessions.update(session)
+        return ASK_PHOTO
+
+    def _state_await_photo(self, msg: Dict[str, Any], session) -> str:
+        if msg.get("type") != "image":
+            return WRONG_STEP_AWAIT_PHOTO
+
+        # Reserve a stable report id at photo time so the image file and
+        # the eventual saved report share an id.
+        rid = session.draft.get("id") or _new_report_id()
+        session.draft["id"] = rid
+
         image_path: Optional[Path] = None
         url = msg.get("image_url")
         if url:
@@ -441,62 +550,92 @@ class AQBot:
             except requests.RequestException as e:
                 log.warning("image fetch failed for %s: %s", rid, e)
 
+        session.draft["image_path"] = str(image_path) if image_path else None
+        session.draft["media_key"] = msg.get("media_key")
+        session.draft["mimetype"] = msg.get("mimetype")
+        session.state = AWAIT_CONFIRM
+        self.sessions.update(session)
+        return self._format_summary(session)
+
+    def _state_await_confirm(self, msg: Dict[str, Any], session) -> str:
+        if msg.get("type") != "text":
+            return WRONG_STEP_AWAIT_CONFIRM
+        text = (msg.get("text") or "").strip().lower()
+        if text in CONFIRM_SEND_KEYWORDS:
+            rid = self._commit_draft(session)
+            self.sessions.clear(session.sender_hash)
+            log.info("report submitted: %s", rid)
+            return REPORT_SUBMITTED
+        if text in CONFIRM_CANCEL_KEYWORDS:
+            self.sessions.clear(session.sender_hash)
+            return CANCEL_CONFIRMED
+        return WRONG_STEP_AWAIT_CONFIRM
+
+    # ---- helpers -------------------------------------------------------
+
+    def _format_summary(self, session) -> str:
+        d = session.draft
+        cat_key = d.get("category", "other")
+        emoji = CATEGORY_EMOJI.get(cat_key, "📋")
+        bah = d.get("category_label_bahasa", cat_key)
+        eng = d.get("category_label_en", cat_key)
+        detail = d.get("description", "")
+        detail_line = SUMMARY_DETAIL_LINE.format(detail=detail) if detail else ""
+        loc = d.get("location") or {}
+        lat = float(loc.get("lat") or 0.0)
+        lon = float(loc.get("lon") or 0.0)
+        return REPORT_SUMMARY.format(
+            cat_emoji=emoji,
+            cat_label=bah,
+            cat_label_en=eng,
+            detail_line=detail_line,
+            lat=lat,
+            lon=lon,
+        )
+
+    def _commit_draft(self, session) -> str:
+        """Persist the completed draft as a pending-review report.
+
+        Approval flow is unchanged: review_status='pending' until an
+        admin approves via /admin/approve-report. Only then is a profile
+        published and synced to the public dashboard.
+        """
+        d = session.draft
+        rid = d.get("id") or _new_report_id()
         report = {
             "id": rid,
-            "sender_hash": sender_hash,
-            "type": "photo",
-            "description": msg.get("text", ""),
-            "image_path": str(image_path) if image_path else None,
-            "media_key": msg.get("media_key"),
+            "sender_hash": session.sender_hash,
+            "type": "photo",  # complete reports always include a photo
+            "category": d.get("category"),
+            "category_label_bahasa": d.get("category_label_bahasa"),
+            "description": d.get("description", ""),
+            "location": d.get("location"),
+            "image_path": d.get("image_path"),
+            "media_key": d.get("media_key"),
+            "mimetype": d.get("mimetype"),
             "ai_analysis": None,
-            "status": "pending",
+            "status": "complete",
         }
         save_report(report)
 
-        # Either run vision inline (dev) or hand off to the M1 worker
-        if self.cfg.get("synchronous_vision") and image_path:
-            result = analyze_pollution_image(str(image_path))
-            update_report(rid, ai_analysis=result, category=result.get("category"))
+        # Hand off vision analysis (async via the M1 worker by default).
+        image_path = d.get("image_path")
+        if image_path and self.cfg.get("synchronous_vision"):
+            try:
+                result = analyze_pollution_image(image_path)
+                update_report(
+                    rid,
+                    ai_analysis=result,
+                    category_ai=result.get("category"),
+                )
+            except Exception as e:  # noqa: BLE001
+                log.error("sync vision failed for %s: %s", rid, e)
         elif image_path:
-            enqueue_vision_job(rid, image_path)
+            enqueue_vision_job(rid, Path(image_path))
 
-        # No auto-publish — awaits admin approval
-        return PHOTO_RECEIVED
+        return rid
 
-    def _handle_location(self, msg: Dict[str, Any]) -> str:
-        sender_hash = _sender_key(msg["sender"])
-        lat, lon = msg.get("latitude"), msg.get("longitude")
-        if lat is None or lon is None:
-            return LOCATION_INVALID
-
-        merged = merge_pending_location(sender_hash, lat, lon)
-        if merged:
-            # Report is now complete; awaits admin approval.
-            return LOCATION_RECEIVED_MERGED
-
-        # Standalone location report — also awaits approval
-        save_report({
-            "sender_hash": sender_hash,
-            "type": "location",
-            "location": {"lat": lat, "lon": lon},
-            "status": "pending",
-        })
-        return LOCATION_RECEIVED_STANDALONE
-
-    def _handle_audio(self, msg: Dict[str, Any]) -> str:
-        # Voice notes are huge in Indonesian WhatsApp — transcription
-        # comes in a later sprint (whisper.cpp / MLX-Whisper on the M1).
-        sender_hash = _sender_key(msg["sender"])
-        save_report({
-            "sender_hash": sender_hash,
-            "type": "audio",
-            "media_key": msg.get("media_key"),
-            "status": "pending",
-            "ai_analysis": {"description": "Voice note — transcription pending"},
-        })
-        return AUDIO_RECEIVED
-
-    # ---- federation ----
+    # ---- federation ----------------------------------------------------
 
     def _publish_profile(self, report_id: str) -> None:
         """Convert the canonical report to a sanitized Murmurations profile."""
@@ -512,33 +651,81 @@ class AQBot:
         except Exception as e:  # noqa: BLE001
             log.error("publish failed for %s: %s", report_id, e)
 
-    # ---- dispatch ----
+    # ---- top-level dispatch -------------------------------------------
 
     def process(self, msg: Dict[str, Any]) -> Optional[str]:
-        """Returns the reply text, or None if we shouldn't reply."""
-        # Allowlist gate — critical when running on a personal WhatsApp
-        # number. Drops messages from anyone not explicitly approved.
-        if not self._is_allowed_sender(msg.get("sender", "")):
-            log.info("dropped (not in allowlist): %s", msg.get("sender"))
+        """Returns the reply text, or None if we shouldn't reply.
+
+        Routing order:
+          1. Allowlist gate (silent drop if not allowed)
+          2. Consent gate (and seed session on fresh grant)
+          3. Universal slash commands (/baru, /info, /help, /batal, ...)
+          4. Post-submit menu shortcuts (1/2/3) when no active session
+          5. State-machine dispatch on the active draft session
+        """
+        sender = msg.get("sender", "")
+
+        # 1. Allowlist
+        if not self._is_allowed_sender(sender):
+            log.info("dropped (not in allowlist): %s", sender)
             return None
 
+        # 2. Consent
         gate = self._gate_consent(msg)
         if gate is not None:
             return gate
 
-        cmd_reply = self._handle_command(msg)
+        # 3. Universal commands
+        cmd_reply = self._universal_command(msg)
         if cmd_reply is not None:
             return cmd_reply
 
-        handler = {
-            "text": self._handle_text,
-            "image": self._handle_image,
-            "location": self._handle_location,
-            "audio": self._handle_audio,
-        }.get(msg.get("type"))
+        sender_hash = _sender_key(sender)
+        session = self.sessions.get(sender_hash)
+
+        # 4. Post-submit / no-active-session handling
+        if session is None:
+            if msg.get("type") == "text":
+                text = (msg.get("text") or "").strip().lower()
+                if text in POSTSUBMIT_NEW_KEYWORDS:
+                    self.sessions.start(sender_hash)
+                    return CATEGORY_MENU
+                if text in POSTSUBMIT_INFO_KEYWORDS:
+                    return INFO_REPLY
+                if text in POSTSUBMIT_STATS_KEYWORDS:
+                    return self._stats_reply()
+            elif msg.get("type") == "audio":
+                # We don't process audio (yet) — let the user know but
+                # don't start a draft from it.
+                return AUDIO_RECEIVED
+            # Default: start a fresh report flow.
+            self.sessions.start(sender_hash)
+            return CATEGORY_MENU
+
+        # 5. State dispatch
+        handlers = {
+            AWAIT_CATEGORY: self._state_await_category,
+            AWAIT_DETAIL: self._state_await_detail,
+            AWAIT_LOCATION: self._state_await_location,
+            AWAIT_PHOTO: self._state_await_photo,
+            AWAIT_CONFIRM: self._state_await_confirm,
+        }
+        handler = handlers.get(session.state)
         if not handler:
-            return None
-        return handler(msg)
+            # Defensive — corrupt state, reset and restart cleanly.
+            log.error(
+                "unknown session state %s for %s — restarting",
+                session.state, sender_hash,
+            )
+            self.sessions.start(sender_hash)
+            return CATEGORY_MENU
+
+        # Audio is never a valid step input — bail out before handler so
+        # the user gets a clear "not supported yet" reply.
+        if msg.get("type") == "audio":
+            return AUDIO_RECEIVED
+
+        return handler(msg, session)
 
 
 # --- Flask app -------------------------------------------------------------

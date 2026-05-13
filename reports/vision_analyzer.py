@@ -67,6 +67,7 @@ REQUEST_TIMEOUT = float(os.environ.get("AQ_VISION_TIMEOUT", "30"))
 CATEGORIES = [
     "burning",       # open burning of trash / agricultural waste
     "trash",         # accumulated waste, illegal dumping
+    "water",         # water pollution: drains, rivers, beach runoff, sewage
     "vehicle",       # traffic exhaust, motorbike smoke
     "construction",  # dust, demolition, excavation
     "industrial",    # factory smoke, generator emissions

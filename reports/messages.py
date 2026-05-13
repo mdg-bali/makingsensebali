@@ -88,16 +88,9 @@ CONSENT_PROMPT = (
 # Sent right after the user replies with one of CONSENT_KEYWORDS below.
 
 CONSENT_CONFIRMED = (
-    "✅ Terima kasih! Sekarang Anda bisa melaporkan masalah.\n"
-    "_Thanks! You can now report issues._\n\n"
-    "*Mulai dengan menulis deskripsi singkat tentang apa yang Anda lihat.*\n"
-    "_*Start by writing a short description of what you see.*_\n\n"
-    "Setelah itu, bot akan meminta lokasi 📍 dan kemudian foto (opsional).\n"
-    "_Then the bot will ask for a location 📍, then a photo (optional)._\n\n"
-    "Perintah / commands:\n"
-    "  /help  — bantuan / help\n"
-    "  /stats — laporan hari ini / today's reports\n"
-    "  /optout — berhenti / leave"
+    "✅ Terima kasih! Mari mulai laporan Anda.\n"
+    "_Thanks! Let's start your report._\n"
+    # The category menu is sent immediately after, in the same reply.
 )
 
 # Sent after /optout.
@@ -120,17 +113,25 @@ CONSENT_KEYWORDS = {"setuju", "agree", "yes", "ya", "ok", "okay"}
 # =====================================================================
 
 HELP_REPLY = (
-    "🌴 *Cara melapor:*\n"
-    "1️⃣ Tulis deskripsi masalah\n"
-    "2️⃣ Bagikan lokasi 📍\n"
-    "3️⃣ Kirim foto (opsional)\n\n"
-    "_*How to report:*_\n"
-    "_1️⃣ Write a description_\n"
-    "_2️⃣ Share your location 📍_\n"
-    "_3️⃣ Send a photo (optional)_\n\n"
+    "🌴 *Cara melapor / How to report*\n\n"
+    "Bot akan memandu Anda dalam 4 langkah:\n"
+    "_The bot will guide you in 4 steps:_\n\n"
+    "1️⃣ Pilih jenis masalah dari menu\n"
+    "   _Pick the issue type from the menu_\n"
+    "2️⃣ Tulis detail singkat (opsional)\n"
+    "   _Write a short detail (optional)_\n"
+    "3️⃣ Bagikan lokasi 📍\n"
+    "   _Share your location 📍_\n"
+    "4️⃣ Kirim foto 📸\n"
+    "   _Send a photo 📸_\n\n"
+    "Lalu balas *KIRIM* untuk mengirim, atau *BATAL* untuk membatalkan.\n"
+    "_Then reply *SEND* to submit, or *CANCEL* to discard._\n\n"
     "Perintah / commands:\n"
+    "/baru   — laporan baru / new report\n"
+    "/info   — info kampanye / campaign info\n"
     "/stats  — laporan hari ini / today's reports\n"
     "/about  — tentang / about\n"
+    "/batal  — batalkan laporan saat ini / cancel current report\n"
     "/optout — berhenti / leave"
 )
 
@@ -257,6 +258,7 @@ ANALYSIS_DESCRIPTION_LINE = "\n_{description}_"
 CATEGORY_EMOJI = {
     "burning": "🔥",
     "trash": "🚮",
+    "water": "💧",
     "vehicle": "🚗",
     "construction": "🏗️",
     "industrial": "🏭",
@@ -284,6 +286,7 @@ SEVERITY_EMOJI = {
 CATEGORY_BAHASA = {
     "burning": "pembakaran",
     "trash": "sampah",
+    "water": "polusi air",
     "vehicle": "kendaraan",
     "construction": "konstruksi",
     "industrial": "industri",
@@ -298,3 +301,209 @@ SEVERITY_BAHASA = {
     "high": "tinggi",
     "critical": "kritis",
 }
+
+
+# =====================================================================
+# GUIDED REPORTING FLOW — strict-order state machine
+# =====================================================================
+# The bot walks the user through one report at a time:
+#   1. category menu  → user replies with a number 1..N
+#   2. optional detail  → free text, or 'lanjut'/'skip' to move on
+#   3. location pin    → required
+#   4. photo           → required
+#   5. confirm         → 'kirim' (send) or 'batal' (cancel)
+#
+# Wrong-type messages at any step get a polite reminder of what's next,
+# NOT a new partial report.
+
+# ---- step 1 of 4: choose category ----------------------------------------
+# Numbered list keyed by the same category names used by vision_analyzer
+# CATEGORIES. Order here is the order users see in WhatsApp.
+CATEGORY_MENU_ITEMS = [
+    ("burning",      "🔥",  "Pembakaran sampah",  "Burning trash"),
+    ("trash",        "🚮",  "Tumpukan sampah",    "Trash pile / dumping"),
+    ("water",        "💧",  "Polusi air",         "Water pollution"),
+    ("construction", "🏗️",  "Debu konstruksi",    "Construction dust"),
+    ("vehicle",      "🚗",  "Asap kendaraan",     "Vehicle smoke"),
+    ("industrial",   "🏭",  "Polusi industri",    "Industrial pollution"),
+    ("other",        "📋",  "Lain-lain",          "Other"),
+]
+
+
+def _format_category_menu() -> str:
+    lines = []
+    for idx, (_key, emoji, bah, eng) in enumerate(CATEGORY_MENU_ITEMS, start=1):
+        lines.append(f"  *{idx}.* {emoji} {bah} / _{eng}_")
+    return "\n".join(lines)
+
+
+CATEGORY_MENU = (
+    "*Langkah 1/4: Jenis masalah*\n"
+    "_*Step 1/4: Issue type*_\n\n"
+    "Apa yang Anda lihat? Balas dengan nomor:\n"
+    "_What do you see? Reply with a number:_\n\n"
+    f"{_format_category_menu()}"
+)
+
+# Sent after the bot accepts a valid number. {cat_emoji} and {cat_label}
+# get filled in by the dispatcher.
+CATEGORY_CHOSEN = (
+    "{cat_emoji} *{cat_label}* dipilih.\n"
+    "_{cat_emoji} *{cat_label_en}* selected._\n\n"
+    "*Langkah 2/4: Detail singkat (opsional)*\n"
+    "_*Step 2/4: Short detail (optional)*_\n\n"
+    "Tulis satu kalimat tambahan (misal: _\"di pinggir Jalan Pantai \"_), "
+    "atau balas *LANJUT* untuk melewati langkah ini.\n"
+    "_Type one extra line (e.g. \"on the side of Pantai road\"), "
+    "or reply *NEXT* to skip this step._"
+)
+
+INVALID_CATEGORY = (
+    "❓ Mohon balas dengan nomor (1–{max}).\n"
+    "_Please reply with a number (1–{max})._\n\n"
+    "Atau ketik */batal* untuk membatalkan.\n"
+    "_Or type */cancel* to abort._"
+)
+
+# Words that mean "skip the detail step and move on".
+DETAIL_SKIP_KEYWORDS = {"lanjut", "skip", "next", "lewati", "-"}
+
+# ---- step 3 of 4: location -----------------------------------------------
+ASK_LOCATION = (
+    "📝 Detail tersimpan.\n"
+    "_Detail saved._\n\n"
+    "*Langkah 3/4: Lokasi 📍*\n"
+    "_*Step 3/4: Location 📍*_\n\n"
+    "Bagikan lokasi WhatsApp Anda:\n"
+    "_Share your WhatsApp location:_\n"
+    "  📎 Lampiran → Lokasi → Kirim lokasi saat ini\n"
+    "  _📎 Attach → Location → Send current location_"
+)
+
+ASK_LOCATION_AFTER_SKIP = (
+    "⏭️ Dilewati.\n"
+    "_Skipped._\n\n"
+    "*Langkah 3/4: Lokasi 📍*\n"
+    "_*Step 3/4: Location 📍*_\n\n"
+    "Bagikan lokasi WhatsApp Anda:\n"
+    "_Share your WhatsApp location:_\n"
+    "  📎 Lampiran → Lokasi → Kirim lokasi saat ini\n"
+    "  _📎 Attach → Location → Send current location_"
+)
+
+# ---- step 4 of 4: photo --------------------------------------------------
+ASK_PHOTO = (
+    "📍 Lokasi tersimpan.\n"
+    "_Location saved._\n\n"
+    "*Langkah 4/4: Foto 📸*\n"
+    "_*Step 4/4: Photo 📸*_\n\n"
+    "Kirim satu foto masalah ini (wajib untuk analisis otomatis).\n"
+    "_Send one photo of the issue (required for auto-analysis)._"
+)
+
+# ---- confirm / summary ---------------------------------------------------
+# {cat_emoji} {cat_label} {detail_line} {lat} {lon}
+REPORT_SUMMARY = (
+    "📋 *Ringkasan laporan / Report summary*\n\n"
+    "Jenis / type: {cat_emoji} {cat_label} / _{cat_label_en}_\n"
+    "{detail_line}"
+    "Lokasi / location: {lat:.5f}, {lon:.5f}\n"
+    "Foto / photo: ✅ tersimpan / saved\n\n"
+    "Balas *KIRIM* untuk mengirim ke tim Fab Lab Bali.\n"
+    "_Reply *SEND* to submit to the Fab Lab Bali team._\n\n"
+    "Atau *BATAL* untuk membatalkan.\n"
+    "_Or *CANCEL* to discard._"
+)
+
+# Optional detail line in summary
+SUMMARY_DETAIL_LINE = "Detail: _{detail}_\n"
+
+# Words accepted as "submit now"
+CONFIRM_SEND_KEYWORDS = {"kirim", "send", "ya", "yes", "ok", "submit"}
+# Words accepted as "cancel"
+CONFIRM_CANCEL_KEYWORDS = {"batal", "cancel", "tidak", "no", "stop"}
+
+# ---- post-submit menu ----------------------------------------------------
+REPORT_SUBMITTED = (
+    "✅ *Laporan terkirim, terima kasih!* 🙏\n"
+    "_Report submitted, thank you!_\n\n"
+    "Laporan Anda menunggu peninjauan tim sebelum dipublikasikan "
+    "secara anonim.\n"
+    "_Your report is pending team review before being published "
+    "anonymously._\n\n"
+    "*Apa selanjutnya? / What next?*\n"
+    "  *1.* 📝 Laporkan masalah lain / Report another issue\n"
+    "  *2.* ℹ️  Info kampanye / Campaign info\n"
+    "  *3.* 📊 Statistik hari ini / Today's stats\n\n"
+    "Atau kunjungi situs kami / Or visit our site:\n"
+    "🔗 https://mdg-bali.github.io/smartcitizenbali/"
+)
+
+# Numeric shortcuts for the post-submit menu
+POSTSUBMIT_NEW_KEYWORDS = {"1", "baru", "new", "lagi", "another"}
+POSTSUBMIT_INFO_KEYWORDS = {"2", "info"}
+POSTSUBMIT_STATS_KEYWORDS = {"3", "stats", "statistik"}
+
+# ---- info / campaign reply ----------------------------------------------
+INFO_REPLY = (
+    "🌴 *Smart Citizen Bali*\n"
+    "Sebuah inisiatif Fab Lab Bali untuk memantau lingkungan secara "
+    "kolaboratif di Bukit.\n"
+    "_A Fab Lab Bali initiative for collaborative environmental "
+    "monitoring in the Bukit._\n\n"
+    "Apa yang kami lakukan:\n"
+    "_What we do:_\n"
+    "  • Mengumpulkan laporan warga tentang polusi dan masalah lingkungan\n"
+    "    _Collect citizen reports on pollution and environmental issues_\n"
+    "  • Memetakan dan menganalisis pola dengan komunitas\n"
+    "    _Map and analyze patterns together with the community_\n"
+    "  • Mendukung tindakan lokal dengan data terbuka\n"
+    "    _Support local action with open data_\n\n"
+    "🔗 *Lihat peta & data:* https://mdg-bali.github.io/smartcitizenbali/\n"
+    "_See the map & data at the link above._\n\n"
+    "Untuk laporan baru: ketik */baru*.\n"
+    "_For a new report: type */new*._"
+)
+
+# ---- cancel --------------------------------------------------------------
+CANCEL_CONFIRMED = (
+    "🗑️ Laporan dibatalkan.\n"
+    "_Report cancelled._\n\n"
+    "Ketik */baru* untuk mulai laporan baru, atau */info* untuk info kampanye.\n"
+    "_Type */new* to start a new report, or */info* for campaign info._"
+)
+
+# ---- wrong-step reminders (strict order) ---------------------------------
+# Sent when a user sends a message type that doesn't match the current
+# state — e.g. a photo when we're awaiting a category number.
+
+WRONG_STEP_AWAIT_CATEGORY = (
+    "⏳ Kita di *Langkah 1/4* — pilih jenis masalah.\n"
+    "_We're at *Step 1/4* — pick the issue type._\n\n"
+    "Balas dengan nomor (1–{max}), atau */batal* untuk membatalkan.\n"
+    "_Reply with a number (1–{max}), or */cancel* to abort._"
+)
+
+WRONG_STEP_AWAIT_DETAIL = (
+    "⏳ Kita di *Langkah 2/4* — tulis satu kalimat detail, "
+    "atau balas *LANJUT* untuk melewati.\n"
+    "_We're at *Step 2/4* — type one line of detail, "
+    "or reply *NEXT* to skip._"
+)
+
+WRONG_STEP_AWAIT_LOCATION = (
+    "⏳ Kita di *Langkah 3/4* — bagikan lokasi 📍.\n"
+    "_We're at *Step 3/4* — share your location 📍._\n\n"
+    "📎 Lampiran → Lokasi → Kirim lokasi saat ini.\n"
+    "_📎 Attach → Location → Send current location._"
+)
+
+WRONG_STEP_AWAIT_PHOTO = (
+    "⏳ Kita di *Langkah 4/4* — kirim satu foto 📸.\n"
+    "_We're at *Step 4/4* — send one photo 📸._"
+)
+
+WRONG_STEP_AWAIT_CONFIRM = (
+    "⏳ Hampir selesai — balas *KIRIM* untuk mengirim, atau *BATAL* untuk membatalkan.\n"
+    "_Almost done — reply *SEND* to submit, or *CANCEL* to discard._"
+)
