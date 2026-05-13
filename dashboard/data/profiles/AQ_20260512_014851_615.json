@@ -1,0 +1,40 @@
+{
+  "linked_schemas": [
+    "environmental_observation-v1.0.0"
+  ],
+  "name": "Other observation — Bukit, Bali",
+  "description": "Trash in the street",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260512_014851_615.json",
+  "latitude": -8.793487,
+  "longitude": 115.1446945,
+  "geolocation": {
+    "lat": -8.793487,
+    "lon": 115.1446945
+  },
+  "locality": "Bukit",
+  "region": "Bali",
+  "country_name": "Indonesia",
+  "country_iso_3166": "ID",
+  "tags": [
+    "air_quality",
+    "environment",
+    "community_report",
+    "planet_ai",
+    "source:whatsapp",
+    "severity:low",
+    "bioregion:indo_pacific_coral_triangle",
+    "bukit_pilot"
+  ],
+  "status": "active",
+  "date_added": "2026-05-12T01:48:51.615965+00:00",
+  "observation_type": "eyewitness",
+  "pollution_category": "other",
+  "data_source": "whatsapp",
+  "planet_ai_node": "bali.fab.city",
+  "bioregion": "indo_pacific_coral_triangle",
+  "action_cycle": {
+    "observation_timestamp": "2026-05-12T01:48:51.615965+00:00",
+    "reported_timestamp": "2026-05-12T01:48:51.615965+00:00",
+    "response_status": "reported"
+  }
+}
