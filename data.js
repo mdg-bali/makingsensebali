@@ -35,9 +35,11 @@ const BALI_CENTER = [-8.4095, 115.1889];
 const EXCLUDED_DEVICE_IDS = new Set([]);
 
 // Known Bali devices to add explicitly even if the world_map endpoint
-// doesn't return them (or returns them without coordinates). This guarantees
-// the campaign's own SCK sensors always appear on the map.
-const KNOWN_BALI_SCK_IDS = [19236, 19600];
+// doesn't return them (or returns them without coordinates). This is a
+// safety net — the pagination in fetchSmartCitizenSensors() below
+// should catch all Bali devices automatically. Only add here if a
+// sensor needs to appear even when world_map is broken / unreachable.
+const KNOWN_BALI_SCK_IDS = [19236, 19600, 19618];
 
 // ============================================================
 // HELPERS
@@ -91,30 +93,55 @@ async function sckFetch(path){
 
 async function fetchSmartCitizenSensors(){
   // Strategy:
-  //   1. Always fetch the known Bali devices directly (guaranteed to appear)
-  //   2. Best-effort: also fetch world_map to discover other Bali devices
+  //   1. Seed with the known Bali devices (safety net for when discovery breaks)
+  //   2. Paginate world_map until empty/short — discovers any new Bali sensors
+  //      that get registered with Smart Citizen, no code change required
 
   const ids = new Set(KNOWN_BALI_SCK_IDS.filter(id => !EXCLUDED_DEVICE_IDS.has(id)));
 
-  // Try world_map for discovery (best effort — endpoint may not exist)
-  try {
-    const arr = await sckFetch('/devices/world_map?per_page=500&page=1');
-    if(Array.isArray(arr)){
-      console.log(`[SCK] world_map returned ${arr.length} devices`);
-      for(const d of arr){
-        const lat = d.latitude ?? d.lat;
-        const lng = d.longitude ?? d.lng ?? d.lon;
-        if(!inBali(lat, lng)) continue;
-        if(EXCLUDED_DEVICE_IDS.has(d.id)) continue;
-        ids.add(d.id);
-      }
-    } else {
-      console.log('[SCK] world_map returned non-array, skipping discovery');
+  // Pagination cap — Smart Citizen has ~5–10k devices globally, well under
+  // this ceiling. The cap exists to prevent a runaway loop if the API ever
+  // returns the same page indefinitely (cache poisoning etc.).
+  const SCK_PAGE_SIZE = 500;
+  const SCK_MAX_PAGES = 30;
+
+  let pagesFetched = 0;
+  let totalReturned = 0;
+  let baliFound = 0;
+  let lastError = null;
+
+  for (let page = 1; page <= SCK_MAX_PAGES; page++) {
+    let batch;
+    try {
+      batch = await sckFetch(`/devices/world_map?per_page=${SCK_PAGE_SIZE}&page=${page}`);
+    } catch (e) {
+      lastError = e;
+      console.log(`[SCK] world_map page ${page} failed: ${e.message}`);
+      break;
     }
-  } catch(e){
-    console.log(`[SCK] world_map skipped: ${e.message}`);
+    if (!Array.isArray(batch)) {
+      console.log(`[SCK] world_map page ${page} returned non-array, stopping`);
+      break;
+    }
+    pagesFetched++;
+    totalReturned += batch.length;
+    for (const d of batch) {
+      const lat = d.latitude ?? d.lat;
+      const lng = d.longitude ?? d.lng ?? d.lon;
+      if (!inBali(lat, lng)) continue;
+      if (EXCLUDED_DEVICE_IDS.has(d.id)) continue;
+      if (!ids.has(d.id)) baliFound++;
+      ids.add(d.id);
+    }
+    // Stop when we get a short page (API has no more) — saves the
+    // remaining cap when nothing's left to fetch.
+    if (batch.length < SCK_PAGE_SIZE) break;
   }
-  console.log(`[SCK] will fetch ${ids.size} device(s):`, [...ids]);
+  console.log(
+    `[SCK] world_map: ${pagesFetched} page(s), ${totalReturned} devices scanned, `
+    + `${baliFound} new in Bali bbox (plus ${KNOWN_BALI_SCK_IDS.length} known) → ${ids.size} total to fetch`
+    + (lastError ? ` (last error: ${lastError.message})` : '')
+  );
 
   // Helper: extract coords from any of several response shapes
   function extractCoords(detail){
