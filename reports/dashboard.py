@@ -709,7 +709,7 @@ PENDING_TEMPLATE = """
 
   {% if pending %}
   {% for r in pending %}
-  <article style="border:1px solid var(--rule); padding:1rem 1.25rem; margin-bottom:1rem;">
+  <article class="pending-card">
     <header style="display:flex; justify-content:space-between; align-items:baseline;">
       <div>
         <strong class="mono">{{ r.id[:24] }}</strong>
@@ -721,19 +721,54 @@ PENDING_TEMPLATE = """
         {% if r.severity %}<span class="pill {{ 'down' if r.severity in ('high','critical') else 'neutral' }}">{{ r.severity }}</span>{% endif %}
       </div>
     </header>
-    <p style="margin: 0.5rem 0;">{{ r.description or '_(no description)_' }}</p>
-    <p style="color: var(--muted); font-size: 0.9rem;">
-      📍 {{ r.locality }}
-      {% if r.coords %}<span class="mono" style="margin-left:0.5rem;">{{ r.coords }}</span>{% endif %}
-    </p>
-    {% if r.ai_indicators %}
-    <p style="color: var(--muted); font-size: 0.9rem;">
-      🔍 {{ r.ai_indicators }}
-    </p>
-    {% endif %}
-    <div style="display:flex; gap:0.75rem; margin-top:0.75rem;">
-      <form method="post" action="{{ url_for('approve', report_id=r.id) }}" style="margin:0;">
-        <button type="submit" style="background:#1d6f1d; border:0;">Approve & publish</button>
+    <div class="pending-grid">
+      <div class="pending-text">
+        <p style="margin: 0.5rem 0;">{{ r.description or '_(no description)_' }}</p>
+        <p style="color: var(--muted); font-size: 0.9rem;">
+          📍 {{ r.locality }}
+          {% if r.coords %}<span class="mono" style="margin-left:0.5rem;">{{ r.coords }}</span>{% endif %}
+        </p>
+        {% if r.ai_description %}
+        <p class="ai-block">
+          🤖 <em>{{ r.ai_description }}</em>
+        </p>
+        {% elif r.has_photo and not r.ai_description and not r.ai_indicators %}
+        <p style="color: var(--muted); font-size: 0.85rem; font-style: italic;">
+          🤖 Photo analysis pending — M1 worker will fill this in shortly.
+        </p>
+        {% endif %}
+        {% if r.ai_indicators %}
+        <p style="color: var(--muted); font-size: 0.9rem;">🔍 {{ r.ai_indicators }}</p>
+        {% endif %}
+      </div>
+      <div class="pending-visuals">
+        {% if r.has_photo %}
+        <img class="pending-thumb"
+             src="{{ url_for('report_image', report_id=r.id) }}"
+             alt="report photo"
+             onclick="openImgModal(this.src)">
+        {% else %}
+        <div class="pending-thumb-empty">no photo</div>
+        {% endif %}
+        {% if r.lat is not none and r.lon is not none %}
+        <div id="map-{{ loop.index0 }}" class="pending-map" data-lat="{{ r.lat }}" data-lon="{{ r.lon }}" data-cat="{{ r.category or 'other' }}"></div>
+        {% else %}
+        <div class="pending-thumb-empty">no location</div>
+        {% endif %}
+      </div>
+    </div>
+    <div style="display:flex; gap:0.75rem; margin-top:0.75rem; align-items:center; flex-wrap:wrap;">
+      <form method="post" action="{{ url_for('approve', report_id=r.id) }}"
+            style="margin:0; display:flex; gap:0.6rem; align-items:center;">
+        {% if r.has_photo %}
+        <label class="publish-photo-toggle"
+               title="If checked, the photo travels to the public repo too. Once published, it lives in git history.">
+          <input type="checkbox" name="include_photo" value="1"
+                 onchange="onPublishPhotoToggle(this)">
+          <span>📷 Publish photo too</span>
+        </label>
+        {% endif %}
+        <button type="submit" style="background:#1d6f1d; border:0;">Approve &amp; publish</button>
       </form>
       <form method="post" action="{{ url_for('reject', report_id=r.id) }}" style="margin:0;">
         <button type="submit" class="contrast outline">Reject</button>
@@ -743,6 +778,66 @@ PENDING_TEMPLATE = """
     </div>
   </article>
   {% endfor %}
+
+  <div id="img-modal" class="img-modal" onclick="this.style.display='none'">
+    <img id="img-modal-content" alt="">
+  </div>
+
+  <script>
+    // One Leaflet mini-map per pending card. Marker only — no popup,
+    // because the same info is already in the card body.
+    const CAT_COLORS = {
+      burning: '#c4392b', trash: '#e08a2e', water: '#3a7ab8',
+      vehicle: '#5b8def', construction: '#a37e3e', industrial: '#7a3a8c',
+      dust: '#9b9b9b', other: '#666', none: '#28a745'
+    };
+    document.querySelectorAll('.pending-map').forEach(el => {
+      const lat = parseFloat(el.dataset.lat);
+      const lon = parseFloat(el.dataset.lon);
+      const cat = el.dataset.cat || 'other';
+      if (isNaN(lat) || isNaN(lon)) return;
+      const m = L.map(el, {
+        scrollWheelZoom: false, dragging: false, zoomControl: false,
+        attributionControl: false, doubleClickZoom: false,
+      }).setView([lat, lon], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19}).addTo(m);
+      const color = CAT_COLORS[cat] || '#666';
+      L.circleMarker([lat, lon], {
+        radius: 9, color: color, fillColor: color, fillOpacity: 0.85, weight: 2
+      }).addTo(m);
+    });
+
+    function openImgModal(src) {
+      document.getElementById('img-modal-content').src = src;
+      document.getElementById('img-modal').style.display = 'flex';
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.getElementById('img-modal').style.display = 'none';
+    });
+
+    // Photo-publish confirmation. First time per page-load that the
+    // operator checks any "Publish photo too" box, surface a confirm
+    // dialog spelling out that git history is permanent. After they
+    // confirm once, free to check more boxes without re-prompting.
+    let photoPublishConfirmedThisSession = false;
+    function onPublishPhotoToggle(cb) {
+      if (!cb.checked) return;
+      if (photoPublishConfirmedThisSession) return;
+      const msg =
+        'This photo will be published to the public GitHub repo at ' +
+        'mdg-bali/smartcitizenbali and archived in git history.\\n\\n' +
+        'Once published, the photo cannot be fully removed without ' +
+        'rewriting git history — anyone who has cloned the repo can ' +
+        'still recover it.\\n\\n' +
+        'EXIF metadata (including GPS) will be stripped before publish.\\n\\n' +
+        'Confirm publish for this and other photos this session?';
+      if (window.confirm(msg)) {
+        photoPublishConfirmedThisSession = true;
+      } else {
+        cb.checked = false;
+      }
+    }
+  </script>
   {% else %}
   <p class="empty">No reports awaiting review. All caught up.</p>
   {% endif %}
@@ -768,19 +863,72 @@ def pending_view():
             "description": r.get("description", ""),
             "category": ai.get("category") or r.get("category"),
             "severity": ai.get("severity"),
+            # AI's natural-language description of the photo (when the
+            # M1 worker has finished). Empty string if not yet analyzed.
+            "ai_description": (ai.get("description") or "").strip() if ai else "",
             "ai_indicators": ", ".join(ai.get("indicators", [])) if ai.get("indicators") else "",
             "locality": _from_description(r.get("description", "")) or "—",
             "coords": coords,
+            "lat": lat,
+            "lon": lon,
+            "has_photo": bool(r.get("image_path")),
         })
-    return render(PENDING_TEMPLATE, title="Pending review", active="pending", pending=rows)
+
+    head_extra = (
+        '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">'
+        '<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>'
+        '<style>'
+        '.pending-card { border: 1px solid var(--rule); padding: 1rem 1.25rem; margin-bottom: 1rem; }'
+        '.pending-grid { display: grid; grid-template-columns: 1fr 280px; '
+        ' gap: 1.25rem; margin-top: 0.5rem; align-items: start; }'
+        '.pending-text { min-width: 0; }'
+        '.pending-visuals { display: flex; flex-direction: column; gap: 0.5rem; }'
+        '.pending-thumb { width: 100%; height: 160px; object-fit: cover; '
+        ' border: 1px solid var(--rule); cursor: zoom-in; }'
+        '.pending-thumb:hover { opacity: 0.92; }'
+        '.pending-thumb-empty { width: 100%; height: 90px; border: 1px dashed var(--rule); '
+        ' display: flex; align-items: center; justify-content: center; '
+        ' color: var(--muted); font-size: 0.85rem; font-style: italic; }'
+        '.pending-map { width: 100%; height: 160px; border: 1px solid var(--rule); }'
+        '.ai-block { font-size: 0.92rem; background: var(--accent-soft); '
+        ' padding: 0.5rem 0.75rem; margin-top: 0.5rem; border-left: 3px solid var(--accent); }'
+        '.img-modal { display: none; position: fixed; inset: 0; '
+        ' background: rgba(0,0,0,0.88); z-index: 1000; '
+        ' align-items: center; justify-content: center; cursor: zoom-out; }'
+        '.img-modal img { max-width: 92vw; max-height: 92vh; object-fit: contain; }'
+        '.publish-photo-toggle { display: inline-flex; align-items: center; '
+        ' gap: 0.4rem; font-size: 0.85rem; padding: 0.25rem 0.55rem; '
+        ' border: 1px solid var(--rule); cursor: pointer; user-select: none; }'
+        '.publish-photo-toggle input { margin: 0; cursor: pointer; }'
+        '.publish-photo-toggle:has(input:checked) { '
+        ' background: var(--accent-soft); border-color: var(--accent); }'
+        '@media (max-width: 720px) { .pending-grid { grid-template-columns: 1fr; } }'
+        '</style>'
+    )
+    return render(
+        PENDING_TEMPLATE,
+        title="Pending review",
+        active="pending",
+        pending=rows,
+        head_extra=head_extra,
+    )
 
 
 @app.post("/approve/<report_id>")
 @auth_required
 def approve(report_id: str):
-    ok = _call_bot_admin("approve-report", {"report_id": report_id})
-    msg = "Approved+and+published" if ok else "Approve+failed"
-    return redirect(url_for("pending_view") + f"?msg={msg}+{report_id[:16]}")
+    # Checkbox "include_photo" only present in the form when the operator
+    # explicitly opted to publish the photo. Default = photo stays NAS-only.
+    include_photo = request.form.get("include_photo") == "1"
+    ok = _call_bot_admin(
+        "approve-report",
+        {"report_id": report_id, "include_photo": include_photo},
+    )
+    msg_word = (
+        ("Approved+with+photo" if include_photo else "Approved+text-only")
+        if ok else "Approve+failed"
+    )
+    return redirect(url_for("pending_view") + f"?msg={msg_word}+{report_id[:16]}")
 
 
 @app.post("/reject/<report_id>")
@@ -889,9 +1037,61 @@ def report_detail(report_id: str):
                   raw=p.read_text())
 
 
+@app.get("/image/<report_id>")
+@auth_required
+def report_image(report_id: str):
+    """Serve the photo attached to a report.
+
+    The image path stored in the report JSON is treated as untrusted —
+    we resolve it and confirm it lives inside our images dir before
+    serving, so a malformed report can't leak arbitrary files.
+    """
+    p = DATA_DIR / f"{report_id}.json"
+    if not p.exists():
+        abort(404)
+    try:
+        r = json.loads(p.read_text())
+    except json.JSONDecodeError:
+        abort(404)
+    image_path = r.get("image_path")
+    if not image_path:
+        abort(404)
+    safe_dir = (ROOT / "images").resolve()
+    try:
+        target = Path(image_path).resolve()
+        target.relative_to(safe_dir)  # raises if outside safe_dir
+    except (ValueError, OSError):
+        abort(404)
+    if not target.exists():
+        abort(404)
+    ext = target.suffix.lower().lstrip(".")
+    mime = {
+        "jpg": "image/jpeg", "jpeg": "image/jpeg",
+        "png": "image/png", "gif": "image/gif", "webp": "image/webp",
+    }.get(ext, "application/octet-stream")
+    # Cache aggressively — images are immutable per report_id
+    return Response(
+        target.read_bytes(),
+        mimetype=mime,
+        headers={"Cache-Control": "private, max-age=3600"},
+    )
+
+
 MAP_TEMPLATE = """
   <h2>Reports map</h2>
   <p style="color: var(--muted);">{{ profiles|length }} profiles with coordinates.</p>
+
+  <div style="margin-bottom: 0.5rem; display:flex; align-items:center; gap:0.4rem;">
+    <button id="mode-markers" type="button"
+            style="font-size:0.85rem; padding:0.2rem 0.7rem; background:var(--accent); border:0;">Markers</button>
+    <button id="mode-heatmap" type="button"
+            class="contrast outline"
+            style="font-size:0.85rem; padding:0.2rem 0.7rem;">Heatmap</button>
+    <span id="mode-hint" style="color: var(--muted); font-size: 0.85rem; margin-left: 0.5rem;">
+      Showing individual reports
+    </span>
+  </div>
+
   <div id="map"></div>
   <script>
     const profiles = {{ profiles_json|safe }};
@@ -900,11 +1100,16 @@ MAP_TEMPLATE = """
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19, attribution: '© OpenStreetMap'
     }).addTo(map);
+
+    // Category colors — must stay in sync with messages.CATEGORY_EMOJI.
     const colors = {
-      burning: '#c4392b', trash: '#e08a2e', vehicle: '#5b8def',
-      construction: '#a37e3e', industrial: '#7a3a8c', dust: '#9b9b9b',
-      other: '#666', none: '#28a745'
+      burning: '#c4392b', trash: '#e08a2e', water: '#3a7ab8',
+      vehicle: '#5b8def', construction: '#a37e3e', industrial: '#7a3a8c',
+      dust: '#9b9b9b', other: '#666', none: '#28a745'
     };
+
+    // Marker layer
+    const markerLayer = L.layerGroup();
     profiles.forEach(p => {
       if (!p.lat || !p.lon) return;
       const color = colors[p.category] || '#666';
@@ -915,7 +1120,48 @@ MAP_TEMPLATE = """
         `<span style="color:#666">${p.ts}</span><br>` +
         `${p.description || ''}<br>` +
         `<em>Severity: ${p.severity}</em>`
-      ).addTo(map);
+      ).addTo(markerLayer);
+    });
+    markerLayer.addTo(map);
+
+    // Heatmap layer (built but not added by default)
+    const heatPoints = profiles
+      .filter(p => p.lat && p.lon)
+      .map(p => [p.lat, p.lon, 0.7]);
+    const heatLayer = L.heatLayer(heatPoints, {
+      radius: 35, blur: 25, maxZoom: 17, minOpacity: 0.4
+    });
+
+    const btnMarkers = document.getElementById('mode-markers');
+    const btnHeat = document.getElementById('mode-heatmap');
+    const hint = document.getElementById('mode-hint');
+
+    function setActive(active) {
+      // Swap button styles to indicate which mode is on.
+      [btnMarkers, btnHeat].forEach(b => {
+        b.classList.add('contrast', 'outline');
+        b.style.background = '';
+        b.style.border = '';
+      });
+      active.classList.remove('outline');
+      active.style.background = 'var(--accent)';
+      active.style.border = '0';
+    }
+
+    btnMarkers.addEventListener('click', () => {
+      map.removeLayer(heatLayer);
+      if (!map.hasLayer(markerLayer)) markerLayer.addTo(map);
+      hint.textContent = 'Showing individual reports';
+      setActive(btnMarkers);
+    });
+
+    btnHeat.addEventListener('click', () => {
+      if (map.hasLayer(markerLayer)) map.removeLayer(markerLayer);
+      heatLayer.addTo(map);
+      hint.textContent = profiles.length < 20
+        ? `Heatmap mode — sparse (${profiles.length} reports). Will resolve clusters as more reports come in.`
+        : `Heatmap mode — density of ${profiles.length} reports.`;
+      setActive(btnHeat);
     });
   </script>
 """
@@ -953,6 +1199,7 @@ def map_view():
     head_extra = (
         '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">'
         '<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>'
+        '<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>'
     )
     return render(
         MAP_TEMPLATE,

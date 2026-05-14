@@ -482,6 +482,15 @@ function profileToReport(profile){
     ? profile.primary_url.split('/').pop().replace('.json','')
     : (profile.name || 'report');
 
+  // photo_path is only present when the operator explicitly checked
+  // "Publish photo too" at approval time. Resolves to an absolute URL
+  // the browser can load, sitting in the same data/reports/ tree as
+  // the profile JSON itself.
+  let photoUrl = null;
+  if(typeof profile.photo_path === 'string' && profile.photo_path){
+    photoUrl = `${reportsBaseUrl()}/${profile.photo_path.replace(/^\/+/, '')}`;
+  }
+
   return {
     id,
     lat, lng,
@@ -492,6 +501,7 @@ function profileToReport(profile){
     indicators: Array.isArray(ai.indicators) ? ai.indicators : [],
     submittedAt: profile.date_added || null,
     locality: profile.locality || '',
+    photoUrl,
     source: 'whatsapp_bot',
     sourceLabel: 'Resident report',
     profileUrl: profile.primary_url || null,
@@ -534,6 +544,21 @@ async function fetchReports(){
   }
 }
 
+// Daily/weekly summary written by sync_profiles.sh via generate_summary.py.
+// Optional — if the file is missing (older deployments, sync not yet run),
+// callers should fall back to their existing category-count rendering.
+async function fetchReportsSummary(){
+  const base = reportsBaseUrl();
+  try {
+    const r = await fetch(`${base}/summary.json`, {cache: 'no-cache'});
+    if(!r.ok) return null;
+    return await r.json();
+  } catch(e){
+    console.warn('[reports] summary fetch failed:', e);
+    return null;
+  }
+}
+
 // ============================================================
 // EXPORT
 // ============================================================
@@ -545,7 +570,7 @@ if(typeof window !== 'undefined'){
     fetchOpenAQSensors,
     fetchPurpleAirSensors, fetchSensorCommunitySensors,
     fetchAllSensors,
-    fetchReports, profileToReport, reportsBaseUrl,
+    fetchReports, fetchReportsSummary, profileToReport, reportsBaseUrl,
     SOURCE_STATUS,  // exposed for in-page diagnostic
   };
 }

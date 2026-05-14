@@ -63,6 +63,7 @@ from messages import (
     ASK_LOCATION,
     ASK_LOCATION_AFTER_SKIP,
     ASK_PHOTO,
+    PHOTO_FETCH_FAILED,
     REPORT_SUMMARY,
     SUMMARY_DETAIL_LINE,
     CONFIRM_SEND_KEYWORDS,
@@ -86,12 +87,16 @@ ROOT = Path(__file__).parent
 DATA_DIR = ROOT / "reports"
 PROFILE_DIR = ROOT / "profiles"
 IMAGE_DIR = ROOT / "images"
+# EXIF-stripped photos that have been explicitly approved for public
+# publication. sync_profiles.sh copies these into the GitHub repo.
+# The raw photos in IMAGE_DIR never leave the NAS.
+PROFILE_PHOTOS_DIR = ROOT / "profile_photos"
 VISION_QUEUE = ROOT / "vision_queue"
 CONFIG_FILE = ROOT / "config.json"
 CONSENT_FILE = ROOT / "consent.json"
 SESSIONS_FILE = ROOT / "sessions.json"
 
-for d in (DATA_DIR, PROFILE_DIR, IMAGE_DIR, VISION_QUEUE):
+for d in (DATA_DIR, PROFILE_DIR, IMAGE_DIR, PROFILE_PHOTOS_DIR, VISION_QUEUE):
     d.mkdir(exist_ok=True)
 
 # --- Logging ---------------------------------------------------------------
@@ -238,6 +243,42 @@ def merge_pending_location(sender_hash: str, lat: float, lon: float) -> Optional
     return None
 
 
+# --- Public-photo prep -----------------------------------------------------
+
+def _exif_stripped_jpeg(src_path: Path, dst_path: Path) -> bool:
+    """Re-encode a raw photo as a clean JPEG at dst with EXIF removed.
+
+    We re-encode (rather than copying raw bytes) specifically to drop
+    EXIF metadata — GPS coordinates, camera serial number, embedded
+    thumbnails, all of which would de-anonymize the reporter even
+    though we've already hashed their phone number.
+
+    Pillow is the dependency. If it isn't available, we fail closed:
+    return False, callers must NOT fall back to a raw byte-copy. The
+    EXIF leak risk is bigger than the inconvenience of not publishing.
+    """
+    try:
+        from PIL import Image, ImageOps
+    except ImportError:
+        log.error(
+            "Pillow not available — refusing to publish photo without "
+            "EXIF strip. Add `pillow` to requirements.txt and rebuild."
+        )
+        return False
+    try:
+        with Image.open(src_path) as img:
+            # Apply orientation EXIF physically, then save without EXIF.
+            img = ImageOps.exif_transpose(img)
+            if img.mode not in ("RGB", "L"):
+                img = img.convert("RGB")
+            dst_path.parent.mkdir(parents=True, exist_ok=True)
+            img.save(dst_path, "JPEG", quality=85, optimize=True)
+        return True
+    except Exception as e:  # noqa: BLE001 — any failure here means don't publish
+        log.error("EXIF strip failed for %s: %s", src_path, e)
+        return False
+
+
 # --- Vision queue (async) --------------------------------------------------
 
 def enqueue_vision_job(report_id: str, image_path: Path) -> None:
@@ -281,6 +322,55 @@ class WhatsAppSender:
         except requests.RequestException as e:
             log.error("send_text failed: %s", e)
             return False
+
+    def download_media_decrypted(self, message_id: str) -> Optional[bytes]:
+        """Fetch decrypted media bytes for a WhatsApp message.
+
+        WhatsApp media is end-to-end encrypted. The `url` field in an
+        imageMessage points to the *ciphertext* on WhatsApp's CDN —
+        useless without the per-message media key. Evolution API
+        exposes a server-side decrypt endpoint that returns the
+        plaintext as base64.
+
+        Returns the decoded bytes, or None if decrypt fails for any
+        reason (callers should keep the user in AWAIT_PHOTO and ask
+        them to retry rather than committing a broken report).
+        """
+        if not self.enabled or not message_id:
+            return None
+        url = f"{self.base}/chat/getBase64FromMediaMessage/{self.instance}"
+        headers = {"Content-Type": "application/json"}
+        if self.key:
+            headers["apikey"] = self.key
+        try:
+            r = requests.post(
+                url,
+                json={
+                    "message": {"key": {"id": message_id}},
+                    "convertToMp4": False,
+                },
+                headers=headers,
+                timeout=30,
+            )
+            r.raise_for_status()
+            data = r.json()
+        except requests.RequestException as e:
+            log.error("media decrypt POST failed for %s: %s", message_id, e)
+            return None
+        except ValueError as e:  # JSON parse error
+            log.error("media decrypt response not JSON for %s: %s", message_id, e)
+            return None
+
+        b64 = data.get("base64") if isinstance(data, dict) else None
+        if not b64:
+            log.warning("media decrypt returned no base64 for %s: %s", message_id, data)
+            return None
+        try:
+            import base64 as _b64
+            return _b64.b64decode(b64, validate=True)
+        except (ValueError, TypeError) as e:
+            log.error("base64 decode failed for %s: %s", message_id, e)
+            return None
 
 
 # --- Evolution API webhook parsing ----------------------------------------
@@ -538,21 +628,43 @@ class AQBot:
         rid = session.draft.get("id") or _new_report_id()
         session.draft["id"] = rid
 
-        image_path: Optional[Path] = None
-        url = msg.get("image_url")
-        if url:
-            try:
-                resp = requests.get(url, timeout=20)
-                resp.raise_for_status()
-                ext = ".jpg" if "jpeg" in msg.get("mimetype", "") else ".png"
-                image_path = IMAGE_DIR / f"{rid}{ext}"
-                image_path.write_bytes(resp.content)
-            except requests.RequestException as e:
-                log.warning("image fetch failed for %s: %s", rid, e)
+        # WhatsApp media is E2EE. The imageMessage.url field points at
+        # encrypted ciphertext on WhatsApp's CDN; fetching it directly
+        # gives unusable random bytes. We must use Evolution API's
+        # decrypt endpoint, which returns plaintext as base64.
+        media_id = msg.get("media_key")
+        image_bytes = (
+            self.sender.download_media_decrypted(media_id) if media_id else None
+        )
+        if not image_bytes:
+            # Stay in AWAIT_PHOTO so the user can retry. Don't advance
+            # to confirm — the report would be unreviewable without
+            # a real photo.
+            log.warning(
+                "photo decrypt failed for sender_hash=%s media_id=%s — asking retry",
+                session.sender_hash, media_id,
+            )
+            return PHOTO_FETCH_FAILED
 
-        session.draft["image_path"] = str(image_path) if image_path else None
-        session.draft["media_key"] = msg.get("media_key")
-        session.draft["mimetype"] = msg.get("mimetype")
+        # Pick extension from declared mimetype, falling back to JPEG —
+        # WhatsApp basically always sends JPEG for camera/gallery photos.
+        mime = (msg.get("mimetype") or "image/jpeg").lower()
+        if "png" in mime:
+            ext = ".png"
+        elif "webp" in mime:
+            ext = ".webp"
+        else:
+            ext = ".jpg"
+        image_path = IMAGE_DIR / f"{rid}{ext}"
+        try:
+            image_path.write_bytes(image_bytes)
+        except OSError as e:
+            log.error("could not write image %s: %s", image_path, e)
+            return PHOTO_FETCH_FAILED
+
+        session.draft["image_path"] = str(image_path)
+        session.draft["media_key"] = media_id
+        session.draft["mimetype"] = mime
         session.state = AWAIT_CONFIRM
         self.sessions.update(session)
         return self._format_summary(session)
@@ -785,10 +897,18 @@ def create_app(bot: Optional[AQBot] = None) -> Flask:
         Mark a report as approved and publish its Murmurations profile.
         After this, the profile is in profiles/ and ready to be synced
         to planetai.fab.city and the public dashboard.
+
+        Optional body field `include_photo` (bool, default false): when
+        true, the photo is EXIF-stripped and written into PROFILE_PHOTOS_DIR
+        so sync_profiles.sh can push it to the public repo. When false
+        (the default), the photo stays NAS-only and the published
+        profile has no photo_path.
         """
         if not _check_admin_auth():
             return jsonify(ok=False, error="unauthorized"), 401
-        report_id = (request.get_json(silent=True) or {}).get("report_id", "")
+        body = request.get_json(silent=True) or {}
+        report_id = body.get("report_id", "")
+        include_photo = bool(body.get("include_photo", False))
         if not report_id:
             return jsonify(ok=False, error="missing report_id"), 400
 
@@ -796,21 +916,75 @@ def create_app(bot: Optional[AQBot] = None) -> Flask:
         if not report:
             return jsonify(ok=False, error="report not found"), 404
 
-        # Mark approved
+        # --- Optional: prep a public-safe copy of the photo --------------
+        # We do this BEFORE marking the report approved so a failed
+        # EXIF-strip doesn't leave us with an approved report whose
+        # photo silently never reaches the public side.
+        public_photo_relpath: Optional[str] = None
+        if include_photo:
+            src = report.get("image_path")
+            if not src:
+                return jsonify(
+                    ok=False,
+                    error="include_photo set but report has no image_path",
+                ), 400
+            src_p = Path(src)
+            if not src_p.exists():
+                return jsonify(
+                    ok=False,
+                    error=f"photo file missing on disk: {src}",
+                ), 404
+            # Always re-encode as JPEG for the public copy. Consistent
+            # format on the public side, smaller files, and the re-encode
+            # naturally drops everything Pillow doesn't recognize.
+            dst_p = PROFILE_PHOTOS_DIR / f"{report_id}.jpg"
+            if not _exif_stripped_jpeg(src_p, dst_p):
+                return jsonify(
+                    ok=False,
+                    error="photo prep failed (EXIF strip)",
+                ), 500
+            public_photo_relpath = f"photos/{report_id}.jpg"
+
+        # --- Mark approved on the canonical record -----------------------
         report["review_status"] = "approved"
         report["reviewed_at"] = datetime.now(timezone.utc).isoformat()
+        # Audit trail — easy to filter later for "which reports had
+        # their photo published". Survives even if the public photo
+        # is later removed from the repo.
+        report["photo_published"] = bool(public_photo_relpath)
+        if public_photo_relpath:
+            report["photo_public_path"] = public_photo_relpath
         (DATA_DIR / f"{report_id}.json").write_text(
             json.dumps(report, indent=2, ensure_ascii=False)
         )
 
-        # Now publish the Murmurations profile (sanitized — adapter
-        # strips PII even though we also strip here)
-        sanitized = {k: v for k, v in report.items()
-                     if k not in ("sender", "sender_hash", "image_path", "media_key")}
+        # --- Sanitize for federation ------------------------------------
+        # Strip everything that could de-anonymize: sender, sender_hash,
+        # raw image_path (server-internal), media_key. Audit-only fields
+        # (photo_published, photo_public_path) are also stripped from
+        # the sanitized profile — they're for the operator, not the
+        # public. If a photo IS being published, we expose it as
+        # photo_path, a clean relative URL the public dashboard can use.
+        _PRIVATE_KEYS = {
+            "sender", "sender_hash", "image_path", "media_key",
+            "photo_published", "photo_public_path",
+        }
+        sanitized = {k: v for k, v in report.items() if k not in _PRIVATE_KEYS}
+        if public_photo_relpath:
+            sanitized["photo_path"] = public_photo_relpath
+
         try:
             bot.node.process_report(sanitized)
-            log.info("approved + published: %s", report_id)
-            return jsonify(ok=True, report_id=report_id, review_status="approved")
+            log.info(
+                "approved + published: %s (photo=%s)",
+                report_id, bool(public_photo_relpath),
+            )
+            return jsonify(
+                ok=True,
+                report_id=report_id,
+                review_status="approved",
+                photo_published=bool(public_photo_relpath),
+            )
         except Exception as e:  # noqa: BLE001
             log.exception("publish failed for %s", report_id)
             return jsonify(ok=False, error=f"publish failed: {e}"), 500

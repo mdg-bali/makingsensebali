@@ -127,6 +127,9 @@ services:
       - ./data/reports:/app/reports
       - ./data/profiles:/app/profiles
       - ./data/images:/app/images
+      # EXIF-stripped photos approved for public publication —
+      # sync_profiles.sh on the NAS host reads from here.
+      - ./data/profile_photos:/app/profile_photos
       - ./data/vision_queue:/app/vision_queue
       - ./config.json:/app/config.json
       - ./consent.json:/app/consent.json
@@ -162,6 +165,9 @@ services:
       - ./data/reports:/app/reports
       - ./data/profiles:/app/profiles
       - ./data/vision_queue:/app/vision_queue
+      # Read-only — dashboard serves photos via /image/<report_id>
+      # for the admin review view. It never writes here.
+      - ./data/images:/app/images:ro
       - ./config.json:/app/config.json
       - ./consent.json:/app/consent.json
     depends_on:

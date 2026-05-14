@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js" crossorigin=""></script>
 <script src="./data.js"></script>
 
 <style>
@@ -302,6 +303,82 @@
     .map-container{height:48vh;min-height:320px}
     section{padding:40px 4vw}
   }
+
+  /* ===== REPORTS FEED ===== */
+  .reports-feed{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:14px;
+  }
+  .report-card{
+    display:flex;
+    flex-direction:column;
+    background:#ffffff;
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    outline:none;
+  }
+  .report-card:hover, .report-card:focus-visible{
+    transform:translateY(-2px);
+    box-shadow:0 8px 24px rgba(40,30,15,0.08);
+    border-color:var(--accent);
+  }
+  .report-card-thumb{
+    width:100%;
+    height:140px;
+    overflow:hidden;
+    background:var(--bg3);
+  }
+  .report-card-thumb img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .report-card-body{
+    padding:14px 16px 16px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .report-card-meta{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+  }
+  .report-card-cat{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:3px;
+    background:var(--accent-soft, #f4e4d4);
+    color:var(--accent-warm, #b35a25);
+    font-weight:600;
+  }
+  /* Per-category tint — purely cosmetic, mirrors map heat gradient stops. */
+  .report-card-cat-burning{background:rgba(196,57,43,0.12); color:#a02c20}
+  .report-card-cat-trash{background:rgba(224,138,46,0.14); color:#a25a1a}
+  .report-card-cat-water{background:rgba(58,122,184,0.13); color:#2a5a8a}
+  .report-card-cat-construction{background:rgba(163,126,62,0.14); color:#7a5d28}
+  .report-card-cat-vehicle{background:rgba(91,141,239,0.13); color:#3a5fb0}
+  .report-card-cat-industrial{background:rgba(122,58,140,0.13); color:#5a2a6a}
+  .report-card-cat-dust{background:rgba(155,155,155,0.18); color:#555}
+  .report-card-cat-other{background:rgba(130,122,106,0.14); color:#5a544a}
+  .report-card-locality{
+    font-size:12px; color:var(--muted);
+  }
+  .report-card-desc{
+    font-family:'Newsreader',serif;
+    font-size:15px;
+    line-height:1.45;
+    color:var(--ink);
+    margin:0;
+  }
+  .report-card-time{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--muted);
+    letter-spacing:.08em;
+    margin-top:auto;
+  }
 </style>
 </head>
 <body>
@@ -350,12 +427,24 @@
       <div class="legend-row"><div class="legend-swatch" style="background:var(--good);box-shadow:0 0 0 2px var(--good)"></div>Air OK</div>
       <div class="legend-row"><div class="legend-swatch" style="background:var(--warn);box-shadow:0 0 0 2px var(--warn)"></div>Attention</div>
       <div class="legend-row"><div class="legend-swatch" style="background:var(--bad);box-shadow:0 0 0 2px var(--bad)"></div>Concern</div>
-      <div class="legend-row"><div class="legend-swatch" style="background:var(--accent);box-shadow:0 0 0 2px var(--accent)"></div>Report</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:linear-gradient(90deg,#d8b86a,#e08a2e,#d96a4f,#c4392b);box-shadow:none"></div>Reports density</div>
       <div class="legend-row"><div class="legend-swatch" style="background:transparent;border:2px dashed var(--muted);box-shadow:none"></div>Offline</div>
-      <div style="margin-top:12px;font-size:10px;color:var(--muted);line-height:1.55">Tap a pin for details.</div>
+      <div style="margin-top:12px;font-size:10px;color:var(--muted);line-height:1.55">Tap a sensor pin for details, or open a report from the feed below.</div>
       <div id="sourceDiag" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);line-height:1.7"></div>
     </div>
   </div>
+</section>
+
+<!-- ===== REPORTS FEED ===== -->
+<!-- Hidden by default; renderReportFeed() reveals it when reports load. -->
+<section id="reports-feed-section" style="display:none; padding:40px 4vw; border-bottom:1px solid var(--line); background:var(--bg2)">
+  <div class="section-label">What people are reporting</div>
+  <h2 style="margin-bottom:8px">Reports from <em>across Bali</em>.</h2>
+  <p style="font-size:14px; color:var(--muted); margin:0 0 24px; max-width:640px">
+    Citizen reports submitted via WhatsApp. The map above shows where attention is concentrating;
+    each card below is one report. Click a card to fly the map there.
+  </p>
+  <div id="reports-feed" class="reports-feed"></div>
 </section>
 
 <!-- ===== TODAY IN NUMBERS ===== -->
@@ -695,7 +784,14 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
 }).addTo(map);
 
 const sensorLayer = L.layerGroup().addTo(map);
-const reportLayer = L.layerGroup().addTo(map);
+// Reports render as a heatmap layer (rebuilt each render cycle) instead
+// of per-report pins. Per-report detail moves to the feed section below
+// the map; clicking a feed card calls focusReport() to fly here and
+// open a popup at the exact coordinates.
+let reportHeatLayer = null;
+// One reusable popup for "I clicked a feed item, show me where it is"
+// — created lazily so leaflet is fully initialized.
+let reportFocusPopup = null;
 
 function pinIcon(kind){
   return L.divIcon({
@@ -740,7 +836,6 @@ const state = {sensors:[], reports:[]};
 
 function renderPins(){
   sensorLayer.clearLayers();
-  reportLayer.clearLayers();
   for(const s of state.sensors){
     let pinKind;
     if(!D.isActive(s.lastReading)){
@@ -753,11 +848,90 @@ function renderPins(){
     m.bindPopup(buildSensorPopup(s, pinKind === 'offline'));
     m.addTo(sensorLayer);
   }
-  for(const r of state.reports){
-    const m = L.marker([r.lat, r.lng], {icon: pinIcon('report')});
-    m.bindPopup(buildReportPopup(r));
-    m.addTo(reportLayer);
+
+  // Reports → heatmap. We tear down the previous heat layer because
+  // L.heatLayer doesn't expose setLatLngs in a way that survives a
+  // full data refresh cleanly.
+  if (reportHeatLayer) { map.removeLayer(reportHeatLayer); reportHeatLayer = null; }
+  const heatPoints = state.reports
+    .filter(r => typeof r.lat === 'number' && typeof r.lng === 'number')
+    .map(r => [r.lat, r.lng, 0.85]);
+  if (heatPoints.length && typeof L.heatLayer === 'function') {
+    reportHeatLayer = L.heatLayer(heatPoints, {
+      radius: 38, blur: 28, maxZoom: 16, minOpacity: 0.45,
+      // Warm saffron → red gradient — visually matches the page accent
+      // and reads as "concentration of citizen attention" rather than
+      // the cool blues a default heatmap gives you.
+      gradient: {0.2:'#d8b86a', 0.4:'#e08a2e', 0.65:'#d96a4f', 0.85:'#c4392b'},
+    });
+    reportHeatLayer.addTo(map);
   }
+
+  renderReportFeed();
+}
+
+// Fly to a single report and open a popup with the existing card.
+// Triggered from a feed card click — the heatmap shows clustering,
+// this gives you the per-point detail without re-adding pins.
+function focusReport(r){
+  if (typeof r.lat !== 'number' || typeof r.lng !== 'number') return;
+  if (!reportFocusPopup) reportFocusPopup = L.popup({maxWidth: 320, autoClose: true});
+  reportFocusPopup
+    .setLatLng([r.lat, r.lng])
+    .setContent(buildReportPopup(r))
+    .openOn(map);
+  map.flyTo([r.lat, r.lng], 16, {duration: 0.7});
+  // Scroll the map back into view in case the user clicked from a card
+  // that was below the fold.
+  document.querySelector('.map-section')?.scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+function renderReportFeed(){
+  const section = document.getElementById('reports-feed-section');
+  const container = document.getElementById('reports-feed');
+  if (!section || !container) return;
+  const reports = state.reports.slice().sort((a, b) => {
+    const ta = a.submittedAt ? +new Date(a.submittedAt) : 0;
+    const tb = b.submittedAt ? +new Date(b.submittedAt) : 0;
+    return tb - ta;
+  });
+  if (!reports.length) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = '';
+  // Cap the feed length so the home page doesn't grow unbounded. The
+  // dashboard view shows the full list.
+  const visible = reports.slice(0, 12);
+  container.innerHTML = visible.map((r, i) => {
+    const cat = (r.category || 'other').replace(/_/g, ' ');
+    const when = r.submittedAt ? new Date(r.submittedAt).toLocaleString() : '';
+    const desc = (r.description || '').slice(0, 160);
+    const photo = r.photoUrl
+      ? `<div class="report-card-thumb"><img src="${D.escapeHtml(r.photoUrl)}" alt="" loading="lazy"></div>`
+      : '';
+    return `
+      <article class="report-card" data-idx="${i}" tabindex="0" role="button"
+               aria-label="Open report on the map">
+        ${photo}
+        <div class="report-card-body">
+          <div class="report-card-meta">
+            <span class="report-card-cat report-card-cat-${D.escapeHtml(r.category || 'other')}">${D.escapeHtml(cat)}</span>
+            ${r.locality ? `<span class="report-card-locality">${D.escapeHtml(r.locality)}</span>` : ''}
+          </div>
+          ${desc ? `<p class="report-card-desc">${D.escapeHtml(desc)}${(r.description || '').length > 160 ? '…' : ''}</p>` : ''}
+          <div class="report-card-time">${D.escapeHtml(when)}</div>
+        </div>
+      </article>`;
+  }).join('');
+  container.querySelectorAll('.report-card').forEach(el => {
+    const idx = parseInt(el.dataset.idx, 10);
+    const r = visible[idx];
+    el.addEventListener('click', () => focusReport(r));
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); focusReport(r); }
+    });
+  });
 }
 
 function buildReportPopup(r){
@@ -765,12 +939,25 @@ function buildReportPopup(r){
   const sev = (r.severity || '').toLowerCase();
   const sevColor = sev==='critical'?'#7a2516':sev==='high'?'#b94830':sev==='medium'?'#c98a2a':sev==='low'?'#5fb88a':'#8a948c';
   const catLabel = r.category ? r.category.replace(/_/g,' ') : 'report';
+  // Photo only renders when the operator explicitly published it
+  // (per-report toggle in the admin dashboard). EXIF stripped before
+  // it ever reached the public repo.
+  const photoBlock = r.photoUrl
+    ? `<a href="${D.escapeHtml(r.photoUrl)}" target="_blank" rel="noopener"
+          style="display:block;margin-bottom:10px;line-height:0">
+         <img src="${D.escapeHtml(r.photoUrl)}" alt="report photo"
+              loading="lazy"
+              style="width:100%;max-width:260px;height:auto;border-radius:3px;
+                     border:1px solid rgba(255,255,255,0.08)">
+       </a>`
+    : '';
   return `
     <div style="min-width:240px">
       <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8a948c;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px">
         Resident report · ${D.escapeHtml(r.locality || 'Bali')}
       </div>
       <div style="font-family:'Newsreader',serif;font-size:18px;color:#f4ede0;margin-bottom:8px">${D.escapeHtml(r.title)}</div>
+      ${photoBlock}
       ${r.description ? `<div style="font-size:12px;color:#c9c0aa;margin-bottom:8px">${D.escapeHtml(r.description.slice(0,200))}${r.description.length>200?'…':''}</div>` : ''}
       <div style="margin:10px 0;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.7">
         <span style="color:#8a948c">Category:</span> <span style="color:#f4ede0">${D.escapeHtml(catLabel)}</span>

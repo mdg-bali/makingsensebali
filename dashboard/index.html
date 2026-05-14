@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js" crossorigin=""></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="../data.js"></script>
 
@@ -140,6 +141,70 @@
     .map-container{height:50vh;min-height:340px}
     .map-overlay{position:static;margin:14px 4vw 0;max-width:none !important}
   }
+
+  /* ===== REPORTS FEED ===== */
+  /* Dashboard theme is dark; cards adapt to the surrounding ink. */
+  .reports-feed{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:14px;
+  }
+  .report-card{
+    display:flex;
+    flex-direction:column;
+    background:var(--bg2, #1a1d21);
+    border:1px solid var(--line, rgba(255,255,255,0.1));
+    border-radius:6px;
+    overflow:hidden;
+    cursor:pointer;
+    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    outline:none;
+  }
+  .report-card:hover, .report-card:focus-visible{
+    transform:translateY(-2px);
+    border-color:#e08a2e;
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
+  }
+  .report-card-thumb{
+    width:100%; height:140px; overflow:hidden;
+    background:rgba(255,255,255,0.04);
+  }
+  .report-card-thumb img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .report-card-body{
+    padding:14px 16px 16px;
+    display:flex; flex-direction:column; gap:8px;
+    min-height:80px;
+  }
+  .report-card-meta{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+  }
+  .report-card-cat{
+    font-family:'JetBrains Mono','IBM Plex Mono',monospace;
+    font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+    padding:3px 8px; border-radius:3px;
+    background:rgba(224,138,46,0.15); color:#e8a04a; font-weight:600;
+  }
+  .report-card-cat-burning{background:rgba(196,57,43,0.18); color:#e8775d}
+  .report-card-cat-trash{background:rgba(224,138,46,0.18); color:#e8a04a}
+  .report-card-cat-water{background:rgba(58,122,184,0.22); color:#7fb1e0}
+  .report-card-cat-construction{background:rgba(163,126,62,0.22); color:#caa05a}
+  .report-card-cat-vehicle{background:rgba(91,141,239,0.18); color:#8eb5f5}
+  .report-card-cat-industrial{background:rgba(122,58,140,0.22); color:#b67fc8}
+  .report-card-cat-dust{background:rgba(155,155,155,0.22); color:#c7c0b0}
+  .report-card-cat-other{background:rgba(255,255,255,0.08); color:#c9c0aa}
+  .report-card-locality{font-size:12px; color:#8a948c}
+  .report-card-desc{
+    font-family:'Newsreader',serif;
+    font-size:14.5px; line-height:1.45;
+    color:#f4ede0; margin:0;
+  }
+  .report-card-time{
+    font-family:'JetBrains Mono','IBM Plex Mono',monospace;
+    font-size:10px; color:#8a948c; letter-spacing:.08em;
+    margin-top:auto;
+  }
 </style>
 </head>
 <body>
@@ -211,7 +276,7 @@
     <div class="panel">
       <div class="panel-label">Citizen reports · 24h</div>
       <div class="panel-title">By category</div>
-      <div class="panel-desc">Reports submitted via web form (and, in Phase 2, the Telegram bot), reviewed by Fab Lab Bali, surfaced on the map.</div>
+      <div class="panel-desc">Reports submitted via WhatsApp bot, reviewed by Fab Lab Bali, surfaced on the map above as a density layer. Open any card below to fly the map there.</div>
       <div class="panel-body" id="adv-reports-body">
         <div class="empty-state">
           <strong>No reports yet.</strong><br>
@@ -220,6 +285,14 @@
       </div>
     </div>
   </div>
+</section>
+
+<!-- ===== REPORTS FEED ===== -->
+<section>
+  <div class="section-label">Citizen reports · feed</div>
+  <h2>Latest <em>resident reports.</em></h2>
+  <div class="body-prose"><p>The map above shows density; the cards below are individual reports. Click any card to fly the map to that location and open its full detail.</p></div>
+  <div id="reports-feed" class="reports-feed" style="margin-top:18px"></div>
 </section>
 
 <section>
@@ -374,7 +447,9 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
 }).addTo(map);
 
 const sensorLayer = L.layerGroup().addTo(map);
-const reportLayer = L.layerGroup().addTo(map);
+// Reports → heatmap layer, rebuilt on each renderPins() call.
+// Per-report detail moves to the feed list rendered in the right panel.
+let reportHeatLayer = null;
 
 function pinIcon(kind){
   return L.divIcon({className:'',
@@ -387,7 +462,7 @@ function fmt(v, dp=2){return v==null||isNaN(v)?'—':Number(v).toFixed(dp);}
 const state = {sensors:[], reports:[]};
 
 function renderPins(){
-  sensorLayer.clearLayers(); reportLayer.clearLayers();
+  sensorLayer.clearLayers();
   for(const s of state.sensors){
     let pinKind;
     if(!D.isActive(s.lastReading)){
@@ -402,11 +477,73 @@ function renderPins(){
     m.bindPopup(`<b>${D.escapeHtml(s.name)}</b><br><span style="font-size:11px;color:#8a948c">${offlinePrefix}${D.escapeHtml(s.sourceLabel)} · click for details below</span>`);
     m.addTo(sensorLayer);
   }
-  for(const r of state.reports){
-    const m = L.marker([r.lat, r.lng], {icon: pinIcon('report')});
-    m.on('click', () => selectReport(r));
-    m.addTo(reportLayer);
+
+  // Reports → heatmap. No per-report pin; the feed in the right panel
+  // is the primary affordance for opening report details.
+  if (reportHeatLayer) { map.removeLayer(reportHeatLayer); reportHeatLayer = null; }
+  const heatPoints = state.reports
+    .filter(r => typeof r.lat === 'number' && typeof r.lng === 'number')
+    .map(r => [r.lat, r.lng, 0.85]);
+  if (heatPoints.length && typeof L.heatLayer === 'function') {
+    reportHeatLayer = L.heatLayer(heatPoints, {
+      radius: 38, blur: 28, maxZoom: 16, minOpacity: 0.45,
+      gradient: {0.2:'#d8b86a', 0.4:'#e08a2e', 0.65:'#d96a4f', 0.85:'#c4392b'},
+    });
+    reportHeatLayer.addTo(map);
   }
+
+  renderReportFeed();
+}
+
+// Feed rendering — keyed off state.reports. Clicking a card flies the
+// map to that report's coords and calls selectReport(r) to fill the
+// detail pane below the map.
+function renderReportFeed(){
+  const container = document.getElementById('reports-feed');
+  if (!container) return;
+  const reports = state.reports.slice().sort((a, b) => {
+    const ta = a.submittedAt ? +new Date(a.submittedAt) : 0;
+    const tb = b.submittedAt ? +new Date(b.submittedAt) : 0;
+    return tb - ta;
+  });
+  if (!reports.length) {
+    container.innerHTML = '<div class="empty-state">No citizen reports yet.</div>';
+    return;
+  }
+  container.innerHTML = reports.map((r, i) => {
+    const cat = (r.category || 'other').replace(/_/g, ' ');
+    const when = r.submittedAt ? new Date(r.submittedAt).toLocaleString() : '';
+    const desc = (r.description || '').slice(0, 180);
+    const photo = r.photoUrl
+      ? `<div class="report-card-thumb"><img src="${D.escapeHtml(r.photoUrl)}" alt="" loading="lazy"></div>`
+      : '';
+    return `
+      <article class="report-card" data-idx="${i}" tabindex="0" role="button">
+        ${photo}
+        <div class="report-card-body">
+          <div class="report-card-meta">
+            <span class="report-card-cat report-card-cat-${D.escapeHtml(r.category || 'other')}">${D.escapeHtml(cat)}</span>
+            ${r.locality ? `<span class="report-card-locality">${D.escapeHtml(r.locality)}</span>` : ''}
+          </div>
+          ${desc ? `<p class="report-card-desc">${D.escapeHtml(desc)}${(r.description || '').length > 180 ? '…' : ''}</p>` : ''}
+          <div class="report-card-time">${D.escapeHtml(when)}</div>
+        </div>
+      </article>`;
+  }).join('');
+  container.querySelectorAll('.report-card').forEach(el => {
+    const r = reports[parseInt(el.dataset.idx, 10)];
+    const open = () => {
+      // Pan the map to the report and fill the detail pane.
+      if (typeof r.lat === 'number' && typeof r.lng === 'number') {
+        map.flyTo([r.lat, r.lng], 16, {duration: 0.7});
+      }
+      selectReport(r);
+    };
+    el.addEventListener('click', open);
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+    });
+  });
 }
 
 async function selectSensor(s){
@@ -438,8 +575,17 @@ function selectReport(r){
   document.getElementById('adv-detail-title').textContent = r.title || r.description || 'Report';
   document.getElementById('adv-detail-desc').textContent =
     `Category: ${r.category||'general'} · ${r.submittedAt?new Date(r.submittedAt).toLocaleString():''}`;
+  // Photo only renders when operator explicitly published it.
+  const photoBlock = r.photoUrl
+    ? `<a href="${D.escapeHtml(r.photoUrl)}" target="_blank" rel="noopener"
+          style="display:block;margin:0 0 14px;line-height:0">
+         <img src="${D.escapeHtml(r.photoUrl)}" alt="report photo" loading="lazy"
+              style="width:100%;max-width:420px;height:auto;border-radius:3px;
+                     border:1px solid var(--line)">
+       </a>`
+    : '';
   document.getElementById('adv-detail-body').innerHTML =
-    `<div class="panel-body">${D.escapeHtml(r.description||'')}</div>`;
+    `${photoBlock}<div class="panel-body">${D.escapeHtml(r.description||'')}</div>`;
 }
 
 function renderSmartCitizenDetail(detail, s){
@@ -562,9 +708,22 @@ function updateStats(){
   if(rN > 0){
     const byCat = {};
     for(const r of state.reports) byCat[r.category||'general'] = (byCat[r.category||'general']||0)+1;
-    document.getElementById('adv-reports-body').innerHTML = Object.entries(byCat).map(([cat,n])=>
-      `<div class="stat-row"><span class="stat-label">${D.escapeHtml(cat)}</span><span class="stat-val">${n}</span></div>`
-    ).join('');
+    // Summary line (templated by generate_summary.py on the NAS) goes
+    // on top of the category breakdown. Falls through silently if the
+    // summary file isn't there — older deployments still render the
+    // categorized counts as before.
+    const summaryLine = state.summary && state.summary.line
+      ? `<div style="font-family:'Newsreader',serif;font-size:14px;color:var(--ink);
+                     line-height:1.5;margin-bottom:10px;padding-bottom:10px;
+                     border-bottom:1px solid var(--line)">
+           ${D.escapeHtml(state.summary.line)}
+         </div>`
+      : '';
+    document.getElementById('adv-reports-body').innerHTML =
+      summaryLine +
+      Object.entries(byCat).map(([cat,n])=>
+        `<div class="stat-row"><span class="stat-label">${D.escapeHtml(cat)}</span><span class="stat-val">${n}</span></div>`
+      ).join('');
   }
 }
 
@@ -577,11 +736,12 @@ function setLive(state, msg){
 async function loadAll(){
   setLive('loading','SYNCING…');
   try{
-    const [sensors, reports] = await Promise.all([
+    const [sensors, reports, summary] = await Promise.all([
       D.fetchAllSensors(),
       D.fetchReports(),
+      D.fetchReportsSummary ? D.fetchReportsSummary() : Promise.resolve(null),
     ]);
-    state.sensors = sensors; state.reports = reports;
+    state.sensors = sensors; state.reports = reports; state.summary = summary;
     renderPins(); updateStats();
     if(sensors.length || reports.length){
       const all = [...sensors, ...reports].map(p=>[p.lat,p.lng]).filter(p=>p[0]!=null);

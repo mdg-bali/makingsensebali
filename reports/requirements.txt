@@ -6,6 +6,12 @@ flask>=3.0.0
 requests>=2.31.0
 python-dateutil>=2.8.0
 
+# Pillow is used at approval time to EXIF-strip photos before they
+# go into the public profile_photos/ directory. We re-encode rather
+# than copy raw bytes specifically to drop GPS, camera serial, and
+# thumbnail metadata that would otherwise leak.
+pillow>=10.0.0
+
 # --- Vision (only the chosen backend is required) ---
 # Pick one or more:
 #   MLX local server   → no extra deps in this file; runs in its own process

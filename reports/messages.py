@@ -401,6 +401,18 @@ ASK_PHOTO = (
     "_Send one photo of the issue (required for auto-analysis)._"
 )
 
+# Sent when the bot couldn't fetch/decrypt the photo from WhatsApp.
+# WhatsApp media is E2EE; the bot decrypts via Evolution's
+# /chat/getBase64FromMediaMessage endpoint, which can fail (network,
+# instance restart, transient WhatsApp issue). User stays at step 4/4
+# so they can simply re-send the photo.
+PHOTO_FETCH_FAILED = (
+    "⚠️ Foto belum berhasil diunduh dari WhatsApp.\n"
+    "_Photo couldn't be downloaded from WhatsApp._\n\n"
+    "Silakan kirim foto sekali lagi.\n"
+    "_Please send the photo one more time._"
+)
+
 # ---- confirm / summary ---------------------------------------------------
 # {cat_emoji} {cat_label} {detail_line} {lat} {lon}
 REPORT_SUMMARY = (

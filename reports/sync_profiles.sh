@@ -29,12 +29,17 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SOURCE="${AQ_SYNC_SOURCE:-$SCRIPT_DIR/data/profiles/}"
+# Optional photo source — only photos explicitly approved with
+# "Publish photo too" in the dashboard land here. EXIF already stripped.
+PHOTO_SOURCE="${AQ_PHOTO_SOURCE:-$SCRIPT_DIR/data/profile_photos/}"
 PLANETAI_TARGET="${PLANETAI_TARGET:-}"
 GITHUB_REPO_DIR="${GITHUB_REPO_DIR:-}"
 GITHUB_PROFILES_SUBDIR="${GITHUB_PROFILES_SUBDIR:-data/reports}"
+GITHUB_PHOTOS_SUBDIR="${GITHUB_PHOTOS_SUBDIR:-data/reports/photos}"
 GITHUB_COMMIT_AUTHOR="${GITHUB_COMMIT_AUTHOR:-AQ Bot <bot@fab.city>}"
 LOCK_FILE="${AQ_SYNC_LOCK:-/tmp/aq-sync.lock}"
 LOG_TAG="aq-sync"
+SUMMARY_SCRIPT="${AQ_SUMMARY_SCRIPT:-$SCRIPT_DIR/generate_summary.py}"
 
 log() {
   echo "[$LOG_TAG] $*" >&2
@@ -135,6 +140,24 @@ if [[ -n "$GITHUB_REPO_DIR" ]]; then
   )
   rsync "${RSYNC_OPTS_GIT[@]}" "$SOURCE" "$TARGET_DIR/"
 
+  # Mirror approved-for-public photos (if any). Photos in PHOTO_SOURCE
+  # have already been EXIF-stripped by the bot at approve time. We do
+  # NOT use --delete-after here — a publish toggle is meant to be
+  # additive; removing photos requires explicit operator action.
+  PHOTO_TARGET_DIR="$GITHUB_REPO_DIR/$GITHUB_PHOTOS_SUBDIR"
+  if [[ -d "$PHOTO_SOURCE" ]]; then
+    PHOTO_COUNT=$(find "$PHOTO_SOURCE" -maxdepth 1 -name 'AQ_*.jpg' -type f 2>/dev/null | wc -l)
+    if [[ "$PHOTO_COUNT" -gt 0 ]]; then
+      log "  syncing $PHOTO_COUNT approved photos"
+      mkdir -p "$PHOTO_TARGET_DIR"
+      rsync --archive --quiet \
+            --include='AQ_*.jpg' \
+            --include='*/' \
+            --exclude='*' \
+            "$PHOTO_SOURCE" "$PHOTO_TARGET_DIR/"
+    fi
+  fi
+
   # Generate an index.json so the github.io dashboard has a single
   # file to fetch (lists all profile filenames)
   python3 - <<PYEOF
@@ -150,7 +173,23 @@ with open(os.path.join(target, 'index.json'), 'w') as f:
     json.dump(index, f, indent=2)
 PYEOF
 
-  # Stage, commit only if there are changes
+  # Refresh the daily/weekly summary. Templated for now (no LLM
+  # dependency); summary.json is written next to index.json. If the
+  # script is missing, log and skip — sync should not fail because
+  # the summary helper is absent.
+  if [[ -x "$SUMMARY_SCRIPT" || -f "$SUMMARY_SCRIPT" ]]; then
+    if python3 "$SUMMARY_SCRIPT" "$SOURCE" "$TARGET_DIR/summary.json" 2>/dev/null; then
+      log "  summary refreshed"
+    else
+      log "  WARN: summary refresh failed (continuing)"
+    fi
+  else
+    log "  WARN: generate_summary.py not found at $SUMMARY_SCRIPT — skipping summary"
+  fi
+
+  # Stage. We add the profiles subdir (covers index.json + AQ_*.json +
+  # photos/ underneath it) — `git add data/reports` picks up everything
+  # under that path.
   git add "$GITHUB_PROFILES_SUBDIR"
   if git diff --cached --quiet; then
     log "  no changes to commit"
