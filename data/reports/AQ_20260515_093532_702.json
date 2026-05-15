@@ -1,0 +1,41 @@
+{
+  "linked_schemas": [
+    "environmental_observation-v1.0.0"
+  ],
+  "name": "Trash observation — Bukit, Bali",
+  "description": "Lots of trash next to the roads",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260515_093532_702.json",
+  "latitude": -8.796456,
+  "longitude": 115.1493054,
+  "geolocation": {
+    "lat": -8.796456,
+    "lon": 115.1493054
+  },
+  "locality": "Bukit",
+  "region": "Bali",
+  "country_name": "Indonesia",
+  "country_iso_3166": "ID",
+  "tags": [
+    "air_quality",
+    "environment",
+    "community_report",
+    "planet_ai",
+    "trash",
+    "source:whatsapp",
+    "severity:low",
+    "bioregion:indo_pacific_coral_triangle",
+    "bukit_pilot"
+  ],
+  "status": "active",
+  "date_added": "2026-05-15T09:35:42.691554+00:00",
+  "observation_type": "photo",
+  "pollution_category": "trash",
+  "data_source": "whatsapp",
+  "planet_ai_node": "bali.fab.city",
+  "bioregion": "indo_pacific_coral_triangle",
+  "action_cycle": {
+    "observation_timestamp": "2026-05-15T09:35:42.691554+00:00",
+    "reported_timestamp": "2026-05-15T09:35:42.691554+00:00",
+    "response_status": "reported"
+  }
+}

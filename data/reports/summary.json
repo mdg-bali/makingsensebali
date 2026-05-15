@@ -1,0 +1,17 @@
+{
+  "line": "Today: 1 report \u2014 trash piles.",
+  "today": {
+    "total": 1,
+    "by_category": {
+      "trash": 1
+    }
+  },
+  "week": {
+    "total": 9,
+    "by_category": {
+      "other": 7,
+      "trash": 2
+    }
+  },
+  "generated_at": "2026-05-15T09:58:13.217364+00:00"
+}
