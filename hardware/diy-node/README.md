@@ -7,11 +7,11 @@ A low-cost, fab-lab-buildable environmental node that publishes to the [Smart Ci
 
 Same firmware runs both — for Basic, you simply don't connect the HM3301 and leave its sensor IDs at 0 in the config. Assembly time in a workshop: ~2 hours for Basic, ~3 hours for Plus, from kit to live-on-the-dashboard.
 
-This node is the **workshop entry point** to the Smart Citizen Bali campaign. It is not a replacement for an official [Smart Citizen Kit](https://smartcitizen.me/store) (~USD 300). Be honest about that distinction with workshop participants.
+This node is the **workshop entry point** to the Smart Citizen Bali campaign. It is not a replacement for an official [Smart Citizen Kit](https://smartcitizen.me/store) (~USD 150) — it's a spatial-density complement. Be honest about that distinction with workshop participants.
 
 ## What this is — and isn't
 
-The DIY node exists to **lower the price floor** of the campaign. A USD 300 SCK is out of reach for most banjars, schools, and warungs in Bali. A USD 30 DIY node, built in a Fab Lab Bali workshop and deployed on the participant's roof, gets a non-technical resident producing public data on the same dashboard within an afternoon. That accessibility is the point.
+The DIY node exists to **multiply spatial density per campaign dollar**. The official SCK 2.1 at ~USD 150 is the trusted backbone — battle-tested firmware, calibrated multi-parameter sensing, plug-and-play. But for the same money as one SCK, the campaign can ship 3–4 DIY Plus nodes or 6–10 DIY Basics, deployed by participants in their own kos rooms, schools, warungs, and banjar compounds. That's the leverage: not "the SCK is too expensive" (it isn't, for the campaign team), but "we can't put an SCK in every kos in Denpasar — and the DIY tier can get close." A USD 20 Basic, built in a Fab Lab Bali workshop and deployed on the participant's wall, gets a non-technical resident producing public data on the same dashboard within an afternoon. That density is the point.
 
 What you get:
 
@@ -112,7 +112,51 @@ This is the analytical capability you only get by running gas and PM in the same
 
 This signature analysis lets the campaign say more than "the air is bad" — it lets it say *what kind* of bad, which has different policy implications. A "construction dust" finding pushes one conversation (site water-spraying, work-hour limits); a "burning event" finding pushes another (waste collection schedules, banjar-level burning rules); a "vapour" finding pushes a third (workplace ventilation, household chemical storage).
 
-This triangulation is a Plus-kit-only capability and a meaningful research output beyond what the official $300 SCK measures — the SCK has eCO₂ via CCS811 but not raw gas resistance.
+This triangulation is a Plus-kit-only capability and a meaningful research output beyond what the official SCK measures — the SCK has eCO₂ via CCS811 but not raw gas resistance.
+
+## Where this fits — the campaign's sensor tiers
+
+The DIY node isn't a standalone instrument; it's one tier of a multi-fidelity sensing network. Smart Citizen Bali is built (or aims to be built) at four tiers, each lower tier referenced against the one above. That reference chain is what separates "the campaign published a dashboard" from "the campaign published data the regional government cited in a policy decision." Without it, every reading carries an asterisk; with it, the campaign can publish confidence intervals, derive event counts, and stand behind seasonal aggregates.
+
+| Tier | Hardware | Cost | Role | Typical count |
+|---|---|---|---|---|
+| **0 — Reference** | BAM-1020, Met One E-BAM, Aeroqual AQM 65, or hosted BMKG / Udayana station | USD 5,000–25,000+ | Ground truth. Regulatory- or near-regulatory-grade. Calibration anchor for everything below. | 1 per bioregion, hosted by institutional partner |
+| **1 — Smart Citizen Kit 2.1** | Official SCK from [smartcitizen.me](https://smartcitizen.me/store) | ~USD 150 | Trusted multi-parameter backbone (PM, eCO₂, noise, climate, light). Battle-tested firmware. | 3–10, deployed by the campaign team |
+| **2 — DIY Plus** | This repo, with HM3301 | ~USD 35–60 | Spatial density at outdoor sites. Same PM + climate metrics as SCK but lower fidelity. | 10–50, deployed by participants after workshops |
+| **3 — DIY Basic** | This repo, without HM3301 | ~USD 15–25 | Maximum reach. Indoor AQ, climate, VOC, mold / dengue / heat / indoor combustion use cases. | Many — schools, kos, banjars, individual homes |
+
+### The calibration chain
+
+Each tier is calibrated against the one above it. **Corrections live in the dashboard processing layer (`data.js`, the Cloudflare Worker), not in the firmware** — firmware corrections are unauditable, dashboard corrections are versioned and reproducible.
+
+**Tier 0 → Tier 1.** A BAM-1020 outright is a USD 25k purchase plus annual maintenance, which the campaign won't carry on its own. The pragmatic path for Bali is a partnership with **BMKG (Stasiun Klimatologi Bali, Sanglah)** for co-location at their existing reference climate stations, or with **Udayana University's Faculty of Engineering or School of Public Health** to host a mid-tier instrument like Aeroqual AQM 65 (~USD 8–15k, robust in tropical humidity, lower maintenance than a BAM). Both routes are conversations, not procurements.
+
+**Tier 1 → Tier 2.** Official SCKs are co-located with the Tier 0 reference for a week each season (dry, wet, transition). The dashboard derives a correction factor per SCK per season. After the calibration sprint, SCKs deploy across the bioregion as the trusted backbone.
+
+**Tier 2 → Tier 1.** DIY Plus nodes are co-located with a calibrated SCK for ~5 days during their first deployment. A correction factor is derived for the Plus node's HM3301 against the local SCK. From then on the Plus data is "SCK-corrected" — usable for trend analysis and event detection, flagged in the dashboard as derivative, not primary.
+
+**Tier 3 → Tier 1.** DIY Basic nodes don't carry PM, so PM calibration doesn't apply. Temperature and humidity get a sanity-check against the nearest SCK; gas resistance is a relative signal that doesn't need absolute calibration (lower = more VOCs is true regardless of the reference).
+
+### What a realistic network looks like
+
+For a bioregion the size of southern Bali:
+
+- 0–1 Tier 0 instruments (depending on partnerships)
+- 5–8 Tier 1 SCKs at strategic outdoor sites (banjar offices, partner Fab Lab, rooftop nodes in different microclimates)
+- 20–40 Tier 2 DIY Plus at outdoor community sites (schools, warungs near roads, beachfront)
+- 50+ Tier 3 DIY Basic indoors (kos rooms, classrooms, individual homes)
+
+That's ~75–100 nodes for roughly the cost of 10–15 SCKs alone. The data still leans on Tier 0/1 for credibility, but the spatial resolution is what makes the dashboard useful — you can see *which neighborhood* burns rubbish on Wednesday evenings, not just that "south Bali had elevated PM."
+
+### First moves before the network gets bigger
+
+Three concrete actions, in the order they matter:
+
+1. **Open the BMKG conversation now**, before the campaign needs the reference data. BMKG Stasiun Klimatologi at Sanglah operates reference-grade climate instruments. The ask is small — can the campaign co-locate one or two SCKs at the BMKG site for one week each season? That single co-location chain unlocks credibility for the entire downstream network.
+2. **Designate one SCK as the campaign's "reference within the network"** even before Tier 0 is in place. Pick the one most carefully maintained and most rarely moved. Its readings become the bridge until a proper reference exists.
+3. **Run the first DIY workshop only after step 2** so the Plus nodes have something to be co-located with. A DIY Plus deployed without any reference path is a node the campaign can't defend if asked.
+
+The calibration factors themselves — when they were taken, what they are, how they're applied in the dashboard — belong in `docs/calibration.md` (to be written; this is the next-actionable doc after this README).
 
 ## Wiring
 

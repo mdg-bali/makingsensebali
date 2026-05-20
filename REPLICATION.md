@@ -61,7 +61,7 @@ You can fork Smart Citizen Bali's survey questions as a starting point (see [doc
 
 While Phase 1 responses come in, you start the sensing and reporting layer. Two channels:
 
-**Quantitative — Smart Citizen Kits.** Deploy your campaign-operated SCK nodes at strategic locations. Start with two or three (a campaign-operated home node, an office node, a partner-hosted node), expand based on Phase 1 priorities. Each unit costs ~$300, runs on WiFi, publishes openly to [smartcitizen.me](https://smartcitizen.me/). The campaign site's dashboard auto-discovers and renders your kits.
+**Quantitative — Smart Citizen Kits.** Deploy your campaign-operated SCK nodes at strategic locations. Start with two or three (a campaign-operated home node, an office node, a partner-hosted node), expand based on Phase 1 priorities. Each unit costs ~$150, runs on WiFi, publishes openly to [smartcitizen.me](https://smartcitizen.me/). The campaign site's dashboard auto-discovers and renders your kits.
 
 **Qualitative — citizen reports.** Stand up the [reports component](reports/) — a WhatsApp bot that residents can message about what they're seeing. Trash dumps, water leaks, smoke, construction debris, vehicle exhaust. Each report is reviewed by your operator before publication. Approved reports appear on your campaign site alongside the sensor data.
 
@@ -150,14 +150,14 @@ Detailed customization guide: [docs/web-presence.md](docs/web-presence.md).
 
 ### Step 4 — Deploy Smart Citizen Kits
 
-- Buy 2–5 SCK units from [smartcitizen.me](https://smartcitizen.me/store) (~$300 each)
+- Buy 2–5 SCK units from [smartcitizen.me](https://smartcitizen.me/store) (~$150 each)
 - Register them at smartcitizen.me, get your device IDs
 - Deploy them — campaign office, host Fab Lab, partner location, your home
 - Update `data.js` `KNOWN_BALI_SCK_IDS` → `KNOWN_[YOURCITY]_SCK_IDS` with your device IDs
 
 Detailed guide: [docs/sensors.md](docs/sensors.md).
 
-**Cheaper alternative — DIY workshop nodes.** Where a $300 SCK is out of reach for community deployment, the [`hardware/diy-node/`](hardware/diy-node/) folder documents a ~$30–50 sensor (XIAO ESP32-S3 + Grove HM3301 + BME680) that publishes to the same platform. Lower fidelity, half-day build in your host Fab Lab, accessible to non-technical participants. The DIY node is an entry point, not a replacement — flag it as such on the dashboard and co-locate with an official SCK for calibration drift correction.
+**Cheaper alternative — DIY workshop nodes.** For 5× spatial density per dollar relative to the SCK, the [`hardware/diy-node/`](hardware/diy-node/) folder documents two tiers: a ~$15–25 Basic (XIAO ESP32-S3 + BME680, indoor air quality + climate + VOC, no PM) and a ~$35–60 Plus (Basic + Grove HM3301, adds PM1/2.5/10). Lower fidelity than the SCK, half-day build in your host Fab Lab, accessible to non-technical participants. DIY nodes are not a replacement for the SCK — they're spatial-density nodes referenced against SCK calibration. See `hardware/diy-node/README.md` for the full tier strategy.
 
 ### Step 5 — Design and launch the Phase 1 survey
 
