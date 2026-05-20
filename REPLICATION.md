@@ -100,6 +100,7 @@ Smart Citizen [your city] is assembled from these parts:
 | **Campaign site** (`index.html`, CSS, copy) | Fork, customize text + locality + visual accents for your city | 1–2 days of careful editing |
 | **Sensor data layer** (`data.js`) | Update bounding box for your bioregion, register your own SCK device IDs | 1–2 hours |
 | **Smart Citizen Kits** | Buy, register at smartcitizen.me, deploy in your bioregion | Procurement ~2 weeks + 1 hour per deployment |
+| **DIY workshop nodes** (optional) | Build low-cost XIAO ESP32-S3 + HM3301 + BME280 nodes for higher sensor density | Half-day workshop per cohort + parts ordering — see [`hardware/diy-node/`](hardware/diy-node/) |
 | **Cloudflare Worker proxies** (`worker/`) | Optional — only if OpenAQ rate-limits hit you | 1–2 hours if needed |
 | **Phase 1 survey** | Design questions for your context, host on Airtable (or alt) | 1 week of careful question design + ongoing data collection |
 | **Reports component** (`reports/`) | Fork, configure locale + language + allowlist, deploy on NAS | 1 day of config + several hours of NAS deployment |
@@ -155,6 +156,8 @@ Detailed customization guide: [docs/web-presence.md](docs/web-presence.md).
 - Update `data.js` `KNOWN_BALI_SCK_IDS` → `KNOWN_[YOURCITY]_SCK_IDS` with your device IDs
 
 Detailed guide: [docs/sensors.md](docs/sensors.md).
+
+**Cheaper alternative — DIY workshop nodes.** Where a $300 SCK is out of reach for community deployment, the [`hardware/diy-node/`](hardware/diy-node/) folder documents a ~$30–50 sensor (XIAO ESP32-S3 + Grove HM3301 + BME280) that publishes to the same platform. Lower fidelity, half-day build in your host Fab Lab, accessible to non-technical participants. The DIY node is an entry point, not a replacement — flag it as such on the dashboard and co-locate with an official SCK for calibration drift correction.
 
 ### Step 5 — Design and launch the Phase 1 survey
 

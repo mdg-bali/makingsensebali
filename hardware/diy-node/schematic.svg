@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 760 480" xmlns="http://www.w3.org/2000/svg" role="img" font-family="ui-monospace, 'SF Mono', monospace">
+  <title>Smart Citizen Bali DIY node wiring</title>
+  <desc>Wiring schematic for XIAO ESP32-S3 connected to BME280 and Grove HM3301 PM2.5 sensor on a shared I2C bus.</desc>
+  <style>
+    .label { font-size: 11px; fill: #555; }
+    .pin   { font-size: 10.5px; fill: #111; }
+    .chip-name { font-size: 13px; font-weight: 600; fill: #111; }
+    .chip-sub  { font-size: 10.5px; fill: #666; }
+    .net   { font-size: 10px; fill: #888; }
+    .title { font-size: 14px; font-weight: 600; fill: #111; }
+    .legend{ font-size: 11px; fill: #222; }
+  </style>
+
+  <text x="20" y="26" class="title">Smart Citizen Bali — DIY Node · I²C bus only</text>
+  <text x="20" y="44" class="label">XIAO ESP32-S3 · BME280 (0x76) · HM3301 (0x40)</text>
+
+  <!-- BME280 -->
+  <rect x="40" y="90" width="150" height="160" rx="6" fill="#faf7f2" stroke="#333" stroke-width="1.4"/>
+  <text x="115" y="112" text-anchor="middle" class="chip-name">BME280</text>
+  <text x="115" y="128" text-anchor="middle" class="chip-sub">temp · humidity · pressure</text>
+  <text x="115" y="142" text-anchor="middle" class="chip-sub">I²C addr 0x76</text>
+  <circle cx="190" cy="170" r="3.5" fill="#111"/><text x="184" y="174" text-anchor="end" class="pin">VCC</text>
+  <circle cx="190" cy="195" r="3.5" fill="#111"/><text x="184" y="199" text-anchor="end" class="pin">GND</text>
+  <circle cx="190" cy="220" r="3.5" fill="#111"/><text x="184" y="224" text-anchor="end" class="pin">SCL</text>
+  <circle cx="190" cy="245" r="3.5" fill="#111"/><text x="184" y="249" text-anchor="end" class="pin">SDA</text>
+
+  <!-- XIAO -->
+  <rect x="290" y="80" width="180" height="280" rx="8" fill="#ffffff" stroke="#111" stroke-width="1.6"/>
+  <text x="380" y="104" text-anchor="middle" class="chip-name">XIAO ESP32-S3</text>
+  <text x="380" y="120" text-anchor="middle" class="chip-sub">USB-C · WiFi · BLE</text>
+  <circle cx="290" cy="170" r="3.5" fill="#111"/><text x="298" y="174" class="pin">3V3</text>
+  <circle cx="290" cy="195" r="3.5" fill="#111"/><text x="298" y="199" class="pin">GND</text>
+  <circle cx="290" cy="220" r="3.5" fill="#111"/><text x="298" y="224" class="pin">D5 / GPIO6 · SCL</text>
+  <circle cx="290" cy="245" r="3.5" fill="#111"/><text x="298" y="249" class="pin">D4 / GPIO5 · SDA</text>
+  <circle cx="470" cy="170" r="3.5" fill="#111"/><text x="462" y="174" text-anchor="end" class="pin">5V</text>
+  <circle cx="470" cy="195" r="3.5" fill="#111"/><text x="462" y="199" text-anchor="end" class="pin">GND</text>
+  <circle cx="470" cy="220" r="3.5" fill="#111"/><text x="462" y="224" text-anchor="end" class="pin">SCL · D5</text>
+  <circle cx="470" cy="245" r="3.5" fill="#111"/><text x="462" y="249" text-anchor="end" class="pin">SDA · D4</text>
+  <rect x="365" y="335" width="30" height="14" rx="2" fill="none" stroke="#888" stroke-width="1"/>
+  <text x="380" y="346" text-anchor="middle" class="chip-sub">USB-C</text>
+
+  <!-- HM3301 -->
+  <rect x="570" y="90" width="150" height="220" rx="6" fill="#faf7f2" stroke="#333" stroke-width="1.4"/>
+  <text x="645" y="112" text-anchor="middle" class="chip-name">HM3301</text>
+  <text x="645" y="128" text-anchor="middle" class="chip-sub">PM1 · PM2.5 · PM10</text>
+  <text x="645" y="142" text-anchor="middle" class="chip-sub">Grove I²C · 5V fan/laser</text>
+  <circle cx="645" cy="195" r="22" fill="none" stroke="#666" stroke-width="1"/>
+  <path d="M645 175 q-6 12 0 24 q6 -12 0 -24z" fill="#bbb"/>
+  <path d="M625 195 q12 -6 24 0 q-12 6 -24 0z" fill="#bbb"/>
+  <circle cx="570" cy="240" r="3.5" fill="#111"/><text x="578" y="244" class="pin">VCC (5V)</text>
+  <circle cx="570" cy="260" r="3.5" fill="#111"/><text x="578" y="264" class="pin">GND</text>
+  <circle cx="570" cy="280" r="3.5" fill="#111"/><text x="578" y="284" class="pin">SCL</text>
+  <circle cx="570" cy="300" r="3.5" fill="#111"/><text x="578" y="304" class="pin">SDA</text>
+
+  <!-- wires -->
+  <path d="M290 170 L190 170" fill="none" stroke="#e08a1f" stroke-width="2"/>
+  <text x="200" y="164" class="net">3V3</text>
+  <path d="M290 195 L190 195" fill="none" stroke="#222" stroke-width="2"/>
+  <text x="200" y="189" class="net">GND</text>
+  <path d="M290 220 L190 220" fill="none" stroke="#2f8a4f" stroke-width="2"/>
+  <text x="200" y="214" class="net">SCL · GPIO6</text>
+  <path d="M290 245 L190 245" fill="none" stroke="#2c63b8" stroke-width="2"/>
+  <text x="200" y="239" class="net">SDA · GPIO5</text>
+  <path d="M470 170 L520 170 L520 240 L570 240" fill="none" stroke="#c0392b" stroke-width="2"/>
+  <text x="525" y="164" class="net">5V (fan)</text>
+  <path d="M470 195 L530 195 L530 260 L570 260" fill="none" stroke="#222" stroke-width="2"/>
+  <path d="M470 220 L540 220 L540 280 L570 280" fill="none" stroke="#2f8a4f" stroke-width="2"/>
+  <path d="M470 245 L550 245 L550 300 L570 300" fill="none" stroke="#2c63b8" stroke-width="2"/>
+
+  <!-- legend -->
+  <g transform="translate(40,395)">
+    <text x="0" y="0" class="title" font-size="12">Nets</text>
+    <g transform="translate(0,12)"><line x1="0" y1="0" x2="22" y2="0" stroke="#c0392b" stroke-width="2"/><text x="28" y="4" class="legend">5V — HM3301 fan + laser</text></g>
+    <g transform="translate(170,12)"><line x1="0" y1="0" x2="22" y2="0" stroke="#e08a1f" stroke-width="2"/><text x="28" y="4" class="legend">3V3 — BME280 logic</text></g>
+    <g transform="translate(330,12)"><line x1="0" y1="0" x2="22" y2="0" stroke="#222" stroke-width="2"/><text x="28" y="4" class="legend">GND — common ground</text></g>
+    <g transform="translate(490,12)"><line x1="0" y1="0" x2="22" y2="0" stroke="#2c63b8" stroke-width="2"/><text x="28" y="4" class="legend">SDA — GPIO5 (D4)</text></g>
+    <g transform="translate(640,12)"><line x1="0" y1="0" x2="22" y2="0" stroke="#2f8a4f" stroke-width="2"/><text x="28" y="4" class="legend">SCL — GPIO6 (D5)</text></g>
+    <text x="0" y="44" class="label">Both sensors share the I²C bus. HM3301 runs its fan + laser on 5V; logic lines are 3.3V-tolerant.</text>
+    <text x="0" y="60" class="label">BME280 SDO tied to GND ⇒ addr 0x76. Tie SDO to 3V3 for 0x77 (only matters if you bus two BME280s).</text>
+  </g>
+</svg>
