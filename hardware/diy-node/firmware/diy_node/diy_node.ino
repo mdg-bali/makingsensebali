@@ -1,6 +1,6 @@
 // Smart Citizen Bali — DIY Node firmware
 // Target: Seeed XIAO ESP32-S3
-// Sensors: BME280 (I2C 0x76) + Seeed Grove HM3301 (I2C 0x40)
+// Sensors: BME680 (I2C 0x76) + Seeed Grove HM3301 (I2C 0x40)
 // Platform: publishes to mqtt.smartcitizen.me over TLS
 //
 // Repo: https://github.com/mdg-bali/smartcitizenbali
@@ -8,10 +8,19 @@
 //
 // What this does (in order):
 //   1. Brings up Wire (I2C) on the XIAO's default SDA=D4 (GPIO5), SCL=D5 (GPIO6)
-//   2. Initialises BME280 at 0x76 and HM3301 via Seeed's library
+//   2. Initialises BME680 at 0x76 (oversampling + IIR filter + gas heater)
+//      and HM3301 via Seeed's library
 //   3. Connects to WiFi, syncs the clock via NTP
-//   4. Every PUBLISH_INTERVAL_MS, reads sensors and publishes one MQTT message
-//      to device/sck/<DEVICE_TOKEN>/readings on mqtt.smartcitizen.me:8883
+//   4. Every PUBLISH_INTERVAL_MS, reads sensors and publishes one MQTT
+//      message to device/sck/<DEVICE_TOKEN>/readings on mqtt.smartcitizen.me:8883
+//
+// Note on BME680 vs BME280:
+//   The BME680 adds a metal-oxide gas sensor (VOC-sensitive) on top of
+//   temp/humidity/pressure. We publish the raw gas resistance in kΩ —
+//   lower resistance = more VOCs in the air. This is a relative indicator,
+//   not a calibrated IAQ index. Bosch's BSEC library does the conversion
+//   to a 0-500 IAQ score but is closed-source with license restrictions,
+//   so we stay with the raw value for an open-data project.
 //
 // Payload shape matches the canonical Smart Citizen MQTT spec:
 //   { "data": [ { "recorded_at": "ISO8601",
@@ -19,7 +28,7 @@
 // Reference: https://github.com/fablabbcn/smartcitizen-api/blob/master/docs/mqtt.md
 //
 // Libraries (install via Arduino Library Manager):
-//   - Adafruit BME280 Library  (depends on Adafruit Unified Sensor)
+//   - Adafruit BME680 Library  (depends on Adafruit Unified Sensor)
 //   - Seeed_HM330X             (Seeed Studio's HM3301 driver)
 //   - PubSubClient             (Nick O'Leary)
 //   - ArduinoJson v7.x
@@ -29,7 +38,7 @@
 #include <PubSubClient.h>
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
-#include <Adafruit_BME280.h>
+#include <Adafruit_BME680.h>
 #include <Seeed_HM330X.h>
 #include <ArduinoJson.h>
 #include <time.h>
@@ -48,12 +57,14 @@ const char* SC_DEVICE_TOKEN = "CHANGE_ME_DEVICE_TOKEN";
 // Smart Citizen sensor IDs — one per metric, copy from your device page
 // Each value below MUST match the numeric ID assigned to that sensor on
 // smartcitizen.me. If they don't match, readings land in the wrong slot
-// or get silently dropped.
-const int SC_ID_TEMP  = 0;  // °C       — BME280 temperature
-const int SC_ID_HUM   = 0;  // %RH      — BME280 humidity
-const int SC_ID_PM1   = 0;  // µg/m³    — HM3301 PM1.0 (atmospheric)
-const int SC_ID_PM25  = 0;  // µg/m³    — HM3301 PM2.5 (atmospheric)
-const int SC_ID_PM10  = 0;  // µg/m³    — HM3301 PM10  (atmospheric)
+// or get silently dropped. Leave any unused ID as 0 to skip publishing it.
+const int SC_ID_TEMP      = 0;  // °C       — BME680 temperature
+const int SC_ID_HUM       = 0;  // %RH      — BME680 humidity
+const int SC_ID_PRESSURE  = 0;  // hPa      — BME680 barometric pressure (optional)
+const int SC_ID_GAS       = 0;  // kΩ       — BME680 gas resistance (VOC indicator)
+const int SC_ID_PM1       = 0;  // µg/m³    — HM3301 PM1.0 (atmospheric)
+const int SC_ID_PM25      = 0;  // µg/m³    — HM3301 PM2.5 (atmospheric)
+const int SC_ID_PM10      = 0;  // µg/m³    — HM3301 PM10  (atmospheric)
 
 // MQTT broker (do not change unless you're testing locally)
 const char* MQTT_HOST = "mqtt.smartcitizen.me";
@@ -67,7 +78,7 @@ const uint32_t WIFI_CONNECT_TIMEOUT_MS = 30000;
 // HARDWARE
 // ============================================================================
 
-Adafruit_BME280 bme;
+Adafruit_BME680 bme;
 HM330X hm3301;
 uint8_t hm3301_buf[30];
 
@@ -162,7 +173,7 @@ void connectMQTT() {
   }
 }
 
-bool publishReadings(float tempC, float humRH,
+bool publishReadings(float tempC, float humRH, float pressureHPa, float gasKOhm,
                      uint16_t pm1, uint16_t pm25, uint16_t pm10) {
   if (!mqtt.connected()) return false;
 
@@ -186,11 +197,13 @@ bool publishReadings(float tempC, float humRH,
     s["value"] = value;
   };
 
-  addSensor(SC_ID_TEMP, tempC);
-  addSensor(SC_ID_HUM,  humRH);
-  addSensor(SC_ID_PM1,  (float)pm1);
-  addSensor(SC_ID_PM25, (float)pm25);
-  addSensor(SC_ID_PM10, (float)pm10);
+  addSensor(SC_ID_TEMP,     tempC);
+  addSensor(SC_ID_HUM,      humRH);
+  addSensor(SC_ID_PRESSURE, pressureHPa);
+  addSensor(SC_ID_GAS,      gasKOhm);
+  addSensor(SC_ID_PM1,      (float)pm1);
+  addSensor(SC_ID_PM25,     (float)pm25);
+  addSensor(SC_ID_PM10,     (float)pm10);
 
   String json;
   serializeJson(doc, json);
@@ -215,10 +228,16 @@ bool publishReadings(float tempC, float humRH,
 // SENSORS
 // ============================================================================
 
-bool readBME280(float &tempC, float &humRH) {
-  tempC = bme.readTemperature();
-  humRH = bme.readHumidity();
-  // BME280 returns NaN on failure
+bool readBME680(float &tempC, float &humRH, float &pressureHPa, float &gasKOhm) {
+  // performReading() triggers a forced measurement and waits ~150 ms for the
+  // gas heater. Returns false if the conversion failed.
+  if (!bme.performReading()) {
+    return false;
+  }
+  tempC       = bme.temperature;            // °C
+  humRH       = bme.humidity;               // %RH
+  pressureHPa = bme.pressure / 100.0f;      // Pa → hPa
+  gasKOhm     = bme.gas_resistance / 1000.0f;  // Ω → kΩ
   return !(isnan(tempC) || isnan(humRH));
 }
 
@@ -252,13 +271,21 @@ void setup() {
   // Wire.begin() with no args uses those defaults.
   Wire.begin();
 
-  // BME280 — try 0x76 first (SDO grounded), then 0x77 (SDO to 3V3).
-  if (bme.begin(0x76)) {
-    Serial.println("[bme] online at 0x76");
-  } else if (bme.begin(0x77)) {
-    Serial.println("[bme] online at 0x77");
+  // BME680 — try 0x76 first (SDO grounded), then 0x77 (SDO to 3V3).
+  bool bmeOk = bme.begin(0x76);
+  if (!bmeOk) bmeOk = bme.begin(0x77);
+  if (bmeOk) {
+    // Typical settings for outdoor environmental monitoring — Bosch's
+    // suggested defaults. Heater at 320°C for 150 ms gives a stable gas
+    // resistance reading without burning power.
+    bme.setTemperatureOversampling(BME680_OS_8X);
+    bme.setHumidityOversampling(BME680_OS_2X);
+    bme.setPressureOversampling(BME680_OS_4X);
+    bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
+    bme.setGasHeater(320, 150);
+    Serial.println("[bme680] online — heater + filter configured");
   } else {
-    Serial.println("[bme] NOT FOUND — check SDA/SCL wiring and power");
+    Serial.println("[bme680] NOT FOUND — check SDA/SCL wiring and power");
   }
 
   // HM3301
@@ -281,17 +308,19 @@ void loop() {
   if (now - lastPublish >= PUBLISH_INTERVAL_MS || lastPublish == 0) {
     lastPublish = now;
 
-    float tempC, humRH;
+    float tempC = NAN, humRH = NAN, pressureHPa = NAN, gasKOhm = NAN;
     uint16_t pm1 = 0, pm25 = 0, pm10 = 0;
 
-    bool bmeOk = readBME280(tempC, humRH);
+    bool bmeOk = readBME680(tempC, humRH, pressureHPa, gasKOhm);
     bool hmOk  = readHM3301(pm1, pm25, pm10);
 
-    Serial.printf("[read] T=%.2f°C  RH=%.2f%%  PM1=%u  PM2.5=%u  PM10=%u  (bme=%d hm=%d)\n",
-                  tempC, humRH, pm1, pm25, pm10, bmeOk, hmOk);
+    Serial.printf("[read] T=%.2f°C  RH=%.2f%%  P=%.2fhPa  Gas=%.1fkΩ  "
+                  "PM1=%u  PM2.5=%u  PM10=%u  (bme=%d hm=%d)\n",
+                  tempC, humRH, pressureHPa, gasKOhm,
+                  pm1, pm25, pm10, bmeOk, hmOk);
 
     if (bmeOk || hmOk) {
-      publishReadings(tempC, humRH, pm1, pm25, pm10);
+      publishReadings(tempC, humRH, pressureHPa, gasKOhm, pm1, pm25, pm10);
     }
   }
 

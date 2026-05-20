@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg viewBox="0 0 760 480" xmlns="http://www.w3.org/2000/svg" role="img" font-family="ui-monospace, 'SF Mono', monospace">
   <title>Smart Citizen Bali DIY node wiring</title>
-  <desc>Wiring schematic for XIAO ESP32-S3 connected to BME280 and Grove HM3301 PM2.5 sensor on a shared I2C bus.</desc>
+  <desc>Wiring schematic for XIAO ESP32-S3 connected to BME680 and Grove HM3301 PM2.5 sensor on a shared I2C bus.</desc>
   <style>
     .label { font-size: 11px; fill: #555; }
     .pin   { font-size: 10.5px; fill: #111; }
@@ -13,12 +13,12 @@
   </style>
 
   <text x="20" y="26" class="title">Smart Citizen Bali — DIY Node · I²C bus only</text>
-  <text x="20" y="44" class="label">XIAO ESP32-S3 · BME280 (0x76) · HM3301 (0x40)</text>
+  <text x="20" y="44" class="label">XIAO ESP32-S3 · BME680 (0x76) · HM3301 (0x40)</text>
 
-  <!-- BME280 -->
+  <!-- BME680 -->
   <rect x="40" y="90" width="150" height="160" rx="6" fill="#faf7f2" stroke="#333" stroke-width="1.4"/>
-  <text x="115" y="112" text-anchor="middle" class="chip-name">BME280</text>
-  <text x="115" y="128" text-anchor="middle" class="chip-sub">temp · humidity · pressure</text>
+  <text x="115" y="112" text-anchor="middle" class="chip-name">BME680</text>
+  <text x="115" y="128" text-anchor="middle" class="chip-sub">temp · humidity · pressure · gas</text>
   <text x="115" y="142" text-anchor="middle" class="chip-sub">I²C addr 0x76</text>
   <circle cx="190" cy="170" r="3.5" fill="#111"/><text x="184" y="174" text-anchor="end" class="pin">VCC</text>
   <circle cx="190" cy="195" r="3.5" fill="#111"/><text x="184" y="199" text-anchor="end" class="pin">GND</text>
@@ -72,11 +72,11 @@
   <g transform="translate(40,395)">
     <text x="0" y="0" class="title" font-size="12">Nets</text>
     <g transform="translate(0,12)"><line x1="0" y1="0" x2="22" y2="0" stroke="#c0392b" stroke-width="2"/><text x="28" y="4" class="legend">5V — HM3301 fan + laser</text></g>
-    <g transform="translate(170,12)"><line x1="0" y1="0" x2="22" y2="0" stroke="#e08a1f" stroke-width="2"/><text x="28" y="4" class="legend">3V3 — BME280 logic</text></g>
+    <g transform="translate(170,12)"><line x1="0" y1="0" x2="22" y2="0" stroke="#e08a1f" stroke-width="2"/><text x="28" y="4" class="legend">3V3 — BME680 logic</text></g>
     <g transform="translate(330,12)"><line x1="0" y1="0" x2="22" y2="0" stroke="#222" stroke-width="2"/><text x="28" y="4" class="legend">GND — common ground</text></g>
     <g transform="translate(490,12)"><line x1="0" y1="0" x2="22" y2="0" stroke="#2c63b8" stroke-width="2"/><text x="28" y="4" class="legend">SDA — GPIO5 (D4)</text></g>
     <g transform="translate(640,12)"><line x1="0" y1="0" x2="22" y2="0" stroke="#2f8a4f" stroke-width="2"/><text x="28" y="4" class="legend">SCL — GPIO6 (D5)</text></g>
     <text x="0" y="44" class="label">Both sensors share the I²C bus. HM3301 runs its fan + laser on 5V; logic lines are 3.3V-tolerant.</text>
-    <text x="0" y="60" class="label">BME280 SDO tied to GND ⇒ addr 0x76. Tie SDO to 3V3 for 0x77 (only matters if you bus two BME280s).</text>
+    <text x="0" y="60" class="label">BME680 SDO tied to GND ⇒ addr 0x76. Tie SDO to 3V3 for 0x77 (only matters if you bus two BME680s).</text>
   </g>
 </svg>

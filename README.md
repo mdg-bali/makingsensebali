@@ -43,7 +43,7 @@ Smart Citizen Bali is assembled from these parts. Each has its own scope and its
 | **Campaign site** | Public landing page, methodology, sensor dashboard, reports, attribution | This repo · GitHub Pages |
 | **Sensor data layer** | Aggregates Smart Citizen Kit + OpenAQ + Sensor.Community via Cloudflare Workers | This repo · [`data.js`](data.js), [`worker/`](worker/) |
 | **Smart Citizen Kits** | Open-hardware air quality + noise + climate sensors deployed in Bali | [smartcitizen.me](https://smartcitizen.me/) — house node 19236, office node 19600 |
-| **DIY workshop nodes** | Low-cost XIAO ESP32-S3 + HM3301 + BME280 sensors built in Fab Lab Bali workshops — the affordable path for banjars, schools, warungs | [`hardware/diy-node/`](hardware/diy-node/) |
+| **DIY workshop nodes** | Low-cost XIAO ESP32-S3 + HM3301 + BME680 sensors built in Fab Lab Bali workshops — the affordable path for banjars, schools, warungs | [`hardware/diy-node/`](hardware/diy-node/) |
 | **Matters-of-concern survey** | Phase 1 community input on environmental concerns | Airtable (proprietary backend, public-facing form) |
 | **Reports component** | WhatsApp bot + operator dashboard for citizen reports | [`reports/`](reports/) — Sense Making toolkit |
 | **Murmurations identity** | Federated org profile, discoverable across community-data networks | [`murmurations.json`](murmurations.json) in this repo |
