@@ -1,6 +1,11 @@
 # DIY Node — the workshop sensor
 
-A low-cost, fab-lab-buildable environmental node that publishes to the [Smart Citizen platform](https://smartcitizen.me/) over MQTT. Built around a **Seeed XIAO ESP32-S3**, a **BME680** (temperature, humidity, pressure, gas/VOC), and a **Seeed Grove HM3301** (PM1 / PM2.5 / PM10). Total parts cost: roughly **USD 35–60** depending on where you source. Assembly time in a workshop: about **3 hours** from kit to live-on-the-dashboard.
+A low-cost, fab-lab-buildable environmental node that publishes to the [Smart Citizen platform](https://smartcitizen.me/) over MQTT. Built around a **Seeed XIAO ESP32-S3** and a **BME680** (temperature, humidity, pressure, gas/VOC), optionally extended with a **Seeed Grove HM3301** for outdoor particulate matter. Two variants:
+
+- **Basic** (XIAO + BME680) — ~USD 15–25. Indoor air quality, climate, mold-risk, VOC, mosquito-habitat monitoring.
+- **Plus** (Basic + HM3301) — ~USD 35–60. Adds outdoor PM1 / PM2.5 / PM10 for burning, traffic, and construction dust.
+
+Same firmware runs both — for Basic, you simply don't connect the HM3301 and leave its sensor IDs at 0 in the config. Assembly time in a workshop: ~2 hours for Basic, ~3 hours for Plus, from kit to live-on-the-dashboard.
 
 This node is the **workshop entry point** to the Smart Citizen Bali campaign. It is not a replacement for an official [Smart Citizen Kit](https://smartcitizen.me/store) (~USD 300). Be honest about that distinction with workshop participants.
 
@@ -10,11 +15,17 @@ The DIY node exists to **lower the price floor** of the campaign. A USD 300 SCK 
 
 What you get:
 
-- **Real PM2.5 / PM10 readings** good enough to detect burning events, traffic spikes, and seasonal patterns
+What you get from either variant:
+
 - **Temperature, humidity, and barometric pressure** with reasonable accuracy
 - **Gas resistance (VOC indicator)** — picks up wood smoke, mosquito coil burn, cooking fuel emissions, vehicle exhaust, cleaning products. Published as raw kΩ; lower = more VOCs. This is a relative signal, not a calibrated IAQ index — see the deployment notes.
 - **A Smart Citizen device record** that appears in the campaign dashboard alongside official SCKs and OpenAQ / Sensor.Community stations
 - **A teaching artifact** — participants leave the workshop understanding I²C, ESP32 firmware, MQTT, and what "your data is public" means
+
+What you additionally get with **Plus**:
+
+- **PM1 / PM2.5 / PM10 readings** good enough to detect rice-burning events, traffic spikes, and construction dust
+- **Combustion event triangulation** — only possible with both gas and PM in the same node (see use cases below)
 
 What you do not get:
 
@@ -25,24 +36,89 @@ What you do not get:
 
 When the campaign reports DIY-node data, it is reported **as such** — with a different marker on the dashboard and a tooltip explaining the lower fidelity. Mixing DIY and official kits silently would be dishonest and would erode the campaign's credibility with the regional government conversations the campaign feeds.
 
-## Bill of materials
+## Two variants — Basic and Plus
+
+### Basic — XIAO ESP32-S3 + BME680 (~USD 15–25)
 
 | Qty | Part | Where | Notes |
 |---|---|---|---|
 | 1 | Seeed XIAO ESP32-S3 | Tokopedia (search "XIAO ESP32S3"), Shopee, Seeed Indonesia distributor | ~Rp 250–350k. The Sense variant works too but the camera is unused; standard XIAO is cheaper. |
-| 1 | GY-BME680 breakout (6-pin) | Tokopedia search "BME680", generic Chinese clones work | ~Rp 150–300k. **Verify the IC marking reads BME680, not BME280 or BMP280** — sellers sometimes mislabel. BME680 is the only one in that family with a gas/VOC sensor. The IC is ~2.5 mm square; markings need a loupe. |
-| 1 | Seeed Grove HM3301 laser PM2.5 sensor v1.0 | Seeed direct, or Tokopedia "Grove HM3301" | ~Rp 450–600k. This is the single most expensive part. |
-| 1 | USB-C cable + 5V/2A power supply | Anywhere | The HM3301's fan + laser draws ~80 mA peaks. Cheap 1A USB chargers brown out. Use a real 2A supply. |
-| ~6 | 22 AWG jumper wires (M-F or F-F depending on your prototyping stage) | Any electronics shop in Denpasar | Keep short — long jumpers + the fan = noisy readings |
-| 1 | Solderless breadboard (prototyping only) | — | For workshop bring-up; not for deployment |
-| 1 | Perfboard 5×7 cm (deployment) | Tokopedia "PCB matrix board" | Or skip straight to a printed PCB from Fab Lab Bali's mill |
-| — | 3D-printed enclosure (PETG, not PLA) | Fab Lab Bali | PLA softens in Bali's roof temperatures. PETG holds up. STL files: TODO. |
+| 1 | GY-BME680 breakout (6-pin) | Tokopedia search "BME680", generic Chinese clones work | ~Rp 150–300k. **Verify the IC marking reads BME680**, not BME280 or BMP280 — sellers sometimes mislabel. BME680 is the only one in that family with a gas/VOC sensor. |
+| 1 | USB-C cable + 5V/1A power supply | Anywhere | Basic kit's power draw is modest; a phone charger works. |
+| ~4 | 22 AWG jumper wires | Any electronics shop in Denpasar | Keep short — long jumpers add I²C noise. |
+| 1 | Solderless breadboard (prototyping) + perfboard 5×7 cm (deployment) | Tokopedia "PCB matrix board" | Or skip straight to a printed PCB on Fab Lab Bali's mill for batch builds. |
+| — | 3D-printed enclosure (PETG, not PLA) | Fab Lab Bali | PLA softens in Bali rooftop temperatures. PETG holds up. STL files: TODO. |
 
-**Sourcing note for Bali:** the HM3301 is the only part that's genuinely expensive locally. Seeed's Indonesian distributor (Halo Robotics) carries it but markup is real. For a workshop of 10 nodes, ordering directly from Seeed (Shenzhen → Denpasar) via the Fab Lab Bali shipping pipeline is usually cheaper than buying 10× at retail. Budget 3 weeks for shipping.
+### Plus — Basic + HM3301 PM sensor (~USD 35–60)
+
+Everything in Basic, plus:
+
+| Qty | Part | Where | Notes |
+|---|---|---|---|
+| 1 | Seeed Grove HM3301 laser PM2.5 sensor v1.0 | Seeed direct, or Tokopedia "Grove HM3301" | ~Rp 450–600k. The kit's biggest cost driver. |
+| (upgrade) | 5V/2A USB-C power supply | Anywhere | The HM3301's fan + laser draws ~80 mA peaks. The 1A supply that's fine for Basic browns out under PM-sensor load. |
+
+### Choosing between them
+
+**Basic** is enough if the deployment is indoor (kos rooms, traditional homes, school classrooms, market stalls), if the use case is mold / dengue habitat / heat stress / indoor VOC monitoring, or if the workshop budget is tight — more Basics = more spatial coverage.
+
+**Plus** is necessary for outdoor air-quality monitoring (rooftops, banjar offices, coastal stations), for the rice-burning and traffic-pollution questions the campaign has flagged, or for the gas+PM triangulation that characterizes *what kind* of pollution event you're seeing.
+
+For a 10-node workshop budget of ~USD 250, you can ship: 10 Basics, or 4 Plus + 5 Basics, or any mix. Strategy: pick deployment sites first based on Phase 1 matters-of-concern, then pick the variant per site.
+
+**Sourcing note for Bali:** the HM3301 is the cost driver. Seeed's Indonesian distributor (Halo Robotics) carries it but markup is real. For a workshop ordering 5+ Plus kits, going direct from Seeed (Shenzhen → Denpasar) via Fab Lab Bali's shipping pipeline is usually cheaper than retail. Budget 3 weeks for shipping.
+
+## What the data is good for — Bali use cases
+
+The kit's value isn't the readings — it's the readings interpreted by people who live somewhere and act on what they see. Here's what the data looks like for the issues this campaign actually tracks.
+
+### Dengue mosquito habitat (Basic)
+
+Aedes aegypti, Bali's primary dengue vector, breeds optimally at 25–30°C and >70% relative humidity. Both conditions are the default in lowland Bali through most of the year, which is why dengue is endemic, not seasonal in the way it is in temperate places.
+
+What the Basic kit gives you isn't a "dengue alarm" — it's a hyperlocal record of how many hours a specific banjar, school, or kos compound spent in optimal mosquito-breeding conditions. Overlaid with Dinas Kesehatan case data, the question shifts from "how many dengue cases this month" to "which microclimates concentrate risk, and which interventions (fogging schedules, water-container clearing) actually broke the cycle." Most regional dengue surveillance lags case-reporting by 2–4 weeks; the environmental signal is real-time.
+
+### Mold and respiratory health (Basic)
+
+Mold grows when RH sits above ~60% with temperatures of 20–30°C — Bali's default indoor conditions through the October–April wet season in most non-AC dwellings. Mold spores are a documented asthma and allergic-rhinitis trigger, particularly for children.
+
+The Basic kit lets a resident see, with their own data, that their bedroom spent 14 hours yesterday in mold-favourable conditions. That's actionable: open windows in the afternoon when humidity drops, run a small dehumidifier, push the landlord on ventilation. "My doctor said I have asthma" is hard to act on. "Your bedroom has been at 78% RH for the last week" is easier.
+
+### Heat stress and outdoor work (Basic)
+
+Heat stress isn't temperature alone — it's wet-bulb temperature, a function of T and RH together. Bali outdoor workers (banjar maintenance, construction, agriculture, ceremony cooks) routinely hit dangerous combinations in dry-season afternoons. Wet-bulb above 30°C significantly impairs physical work; above 33°C is dangerous within hours.
+
+The Basic kit can compute a heat index for any deployment site. Mounted near a construction site, market, or banjar gathering point, it gives workers and their employers a shared signal: "this site is at heat-stress conditions today, schedule heavy work earlier or break for shade."
+
+### Indoor VOC and combustion exposure (Basic)
+
+The BME680's gas sensor responds to volatile organic compounds — mosquito coil smoke, kerosene cooking emissions, cleaning chemicals, paint solvents, cigarette smoke, the capsaicin volatilisation from sambal frying. Documented research (Liu et al., 2003) found that a single overnight mosquito coil releases PM2.5 mass comparable to burning ~75–100 cigarettes, alongside substantial formaldehyde.
+
+The Basic kit publishes raw gas resistance in kΩ; lower = more VOCs. A node in a kitchen or bedroom shows patterns — "your gas resistance drops every night between 9 PM and 5 AM because of the mosquito coil." That's a conversation about alternatives (mosquito nets, electric vaporisers, ventilation), not a vague worry about "indoor air".
+
+### Outdoor PM — rice burning, traffic, construction (Plus only)
+
+Bali's worst outdoor air quality periods are tied to rice-stubble burning, typically July–October when post-harvest fields are burned across Tabanan, Gianyar, and Klungkung. PM2.5 spikes of 200–400 µg/m³ downwind of burning fields are not rare. The Basic kit's gas sensor sees these as a VOC signal, but the particulate concentration — the part with documented cardiopulmonary health impact — needs the HM3301.
+
+The Plus kit also captures traffic corridors (Canggu, Seminyak, Kuta intersections during rush), construction dust (Ubud villa boom, southwest beachfront development), and coastal diesel exhaust (tourist boat traffic at Sanur, Padangbai, Amed). For any deployment where outdoor PM is the question, Plus is required.
+
+### Combustion event triangulation (Plus)
+
+This is the analytical capability you only get by running gas and PM in the same node. Air-quality events leave different signatures:
+
+- **Gas resistance drops AND PM spikes** = combustion. Burning rubbish, wood smoke, vehicle exhaust. Both released together.
+- **PM spikes, gas stable** = dust. Construction, traffic-kicked road dust, ash without active burning. No VOCs.
+- **Gas resistance drops, PM stable** = vapour. Solvents, paint, fuel, cleaning products. VOCs without combustion particulates.
+
+This signature analysis lets the campaign say more than "the air is bad" — it lets it say *what kind* of bad, which has different policy implications. A "construction dust" finding pushes one conversation (site water-spraying, work-hour limits); a "burning event" finding pushes another (waste collection schedules, banjar-level burning rules); a "vapour" finding pushes a third (workplace ventilation, household chemical storage).
+
+This triangulation is a Plus-kit-only capability and a meaningful research output beyond what the official $300 SCK measures — the SCK has eCO₂ via CCS811 but not raw gas resistance.
 
 ## Wiring
 
-Both sensors live on the same I²C bus. Four wires from the XIAO go to both sensors in parallel; power differs (5V for HM3301's fan, 3.3V for BME680 logic).
+The schematic below shows the **Plus** wiring. For **Basic**, skip the right half — the HM3301 rows in the table — and only wire the BME680.
+
+Both sensors live on the same I²C bus when both are present. Four wires from the XIAO go to both sensors in parallel; power differs (5V for HM3301's fan, 3.3V for BME680 logic).
 
 ![Schematic — XIAO ESP32-S3 + BME680 + HM3301 on shared I²C bus](schematic.svg)
 
@@ -70,13 +146,19 @@ Before flashing, set up the device on Smart Citizen:
 1. Sign in at [smartcitizen.me](https://smartcitizen.me/).
 2. Add a new device. Pick **"Other devices"** → custom hardware. Give it a name like `Bali DIY Node — [location]`.
 3. Add the sensors you'll publish. For this kit:
+
+   **Both variants:**
    - **Temperature** (°C) — BME680
    - **Humidity** (%) — BME680
    - **Pressure** (hPa) — BME680 *(optional, leave the firmware ID as 0 to skip)*
    - **Gas resistance** (kΩ) — BME680 VOC indicator
+
+   **Plus variant only — add these too:**
    - **PM1** (µg/m³) — HM3301
    - **PM2.5** (µg/m³) — HM3301
    - **PM10** (µg/m³) — HM3301
+
+   For a Basic kit, just leave the PM sensor IDs at 0 in the firmware config; the publish step skips any sensor with ID 0.
 4. Set the location to the deployment coordinates (not your laptop's IP geolocation — the actual rooftop).
 5. From the device's dashboard page, copy:
    - The **device token** (used for MQTT auth)
@@ -85,6 +167,8 @@ Before flashing, set up the device on Smart Citizen:
 The device token is what authenticates the node against the platform. It can be revoked from the dashboard if a kit goes missing — treat it like a password.
 
 ## Firmware
+
+**Same sketch runs both Basic and Plus.** For Basic, the HM3301 init at boot returns "NOT FOUND", the firmware logs it once, and skips PM publishing for every cycle. No code changes — just don't connect the HM3301 and leave its three sensor IDs at 0 in the config block.
 
 The firmware sketch is at [`firmware/diy_node/diy_node.ino`](firmware/diy_node/diy_node.ino). It:
 
