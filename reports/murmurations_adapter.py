@@ -135,6 +135,12 @@ class MurmurationsProfile:
                 "severity": severity,
                 "model_version": ai_analysis.get("model_version", "unknown"),
             } if ai_analysis else None,
+            # photo_path is set when the operator opts to publish the
+            # photo (per-report toggle in admin /pending). Optional —
+            # only present in the public profile when explicitly opted-in.
+            # The path is relative to the public data/reports/ tree so
+            # the dashboard resolves it as `${reportsBaseUrl}/${photo_path}`.
+            "photo_path": report.get("photo_path") if report.get("photo_path") else None,
             "data_source": report.get("source", "whatsapp"),
             "planet_ai_node": self.config.node_id,
             "bioregion": self.config.bioregion,

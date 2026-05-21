@@ -1017,6 +1017,90 @@ def create_app(bot: Optional[AQBot] = None) -> Flask:
         log.info("rejected: %s (%s)", report_id, reason or "no reason")
         return jsonify(ok=True, report_id=report_id, review_status="rejected")
 
+    @app.post("/admin/republish-report")
+    def republish_report():
+        """
+        Re-run the publish step for an already-approved report.
+
+        Use when:
+          - The M1 worker analyzed the photo AFTER approval (and the
+            initial publish happened before ai_analysis existed in the
+            canonical report).
+          - photo_path needs to land in the public profile because the
+            original approve happened before the adapter preserved it.
+          - An adapter / schema change shipped and you want to regenerate
+            published profiles without re-doing the human review.
+
+        Reads the canonical report's photo_published flag to decide
+        whether to include the photo in the regenerated profile, so the
+        admin's original opt-in choice is preserved.
+        """
+        if not _check_admin_auth():
+            return jsonify(ok=False, error="unauthorized"), 401
+        body = request.get_json(silent=True) or {}
+        report_id = body.get("report_id", "")
+        if not report_id:
+            return jsonify(ok=False, error="missing report_id"), 400
+
+        report = load_report(report_id)
+        if not report:
+            return jsonify(ok=False, error="report not found"), 404
+        if report.get("review_status") != "approved":
+            return jsonify(
+                ok=False,
+                error=f"report status is {report.get('review_status')!r}, "
+                      f"only approved reports can be republished",
+            ), 400
+
+        # If the original approve included the photo, regenerate the
+        # public-safe (EXIF-stripped) copy too — old approvals that
+        # predate the dashboard's photo-publish toggle won't have a
+        # profile_photos file yet.
+        public_photo_relpath: Optional[str] = None
+        if report.get("photo_published"):
+            src = report.get("image_path")
+            if src and Path(src).exists():
+                dst_p = PROFILE_PHOTOS_DIR / f"{report_id}.jpg"
+                if not dst_p.exists() or dst_p.stat().st_size == 0:
+                    if not _exif_stripped_jpeg(Path(src), dst_p):
+                        log.warning(
+                            "republish: EXIF strip failed for %s — "
+                            "regenerating profile without photo",
+                            report_id,
+                        )
+                if dst_p.exists():
+                    public_photo_relpath = f"photos/{report_id}.jpg"
+                    report["photo_public_path"] = public_photo_relpath
+                    (DATA_DIR / f"{report_id}.json").write_text(
+                        json.dumps(report, indent=2, ensure_ascii=False)
+                    )
+
+        _PRIVATE_KEYS = {
+            "sender", "sender_hash", "image_path", "media_key",
+            "photo_published", "photo_public_path",
+        }
+        sanitized = {k: v for k, v in report.items() if k not in _PRIVATE_KEYS}
+        if public_photo_relpath:
+            sanitized["photo_path"] = public_photo_relpath
+
+        try:
+            bot.node.process_report(sanitized)
+            log.info(
+                "republished: %s (photo=%s, ai=%s)",
+                report_id,
+                bool(public_photo_relpath),
+                bool(report.get("ai_analysis")),
+            )
+            return jsonify(
+                ok=True,
+                report_id=report_id,
+                photo_published=bool(public_photo_relpath),
+                has_ai_analysis=bool(report.get("ai_analysis")),
+            )
+        except Exception as e:  # noqa: BLE001
+            log.exception("republish failed for %s", report_id)
+            return jsonify(ok=False, error=f"republish failed: {e}"), 500
+
     @app.post("/admin/delete-report")
     def delete_report():
         """

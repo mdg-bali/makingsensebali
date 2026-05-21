@@ -1000,13 +1000,22 @@ REPORTS_TEMPLATE = """
         </td>
         <td>
           {% if r.review_status == 'approved' %}
-          <form method="post" action="{{ url_for('delete_published', report_id=r.id) }}"
-                style="margin:0" onsubmit="return confirmDelete('{{ r.id }}');">
-            <button type="submit" class="btn-mini-danger"
-                    title="Remove this report (and its photo) from the public site. The canonical NAS record stays for audit.">
-              Delete
-            </button>
-          </form>
+          <div style="display:flex; gap:0.4rem;">
+            <form method="post" action="{{ url_for('republish_pub', report_id=r.id) }}"
+                  style="margin:0">
+              <button type="submit" class="btn-mini"
+                      title="Regenerate the public profile. Use after AI analysis lands or after deploying adapter/schema fixes.">
+                Republish
+              </button>
+            </form>
+            <form method="post" action="{{ url_for('delete_published', report_id=r.id) }}"
+                  style="margin:0" onsubmit="return confirmDelete('{{ r.id }}');">
+              <button type="submit" class="btn-mini-danger"
+                      title="Remove this report (and its photo) from the public site. The canonical NAS record stays for audit.">
+                Delete
+              </button>
+            </form>
+          </div>
           {% endif %}
         </td>
       </tr>
@@ -1052,6 +1061,10 @@ def reports_view():
         })
     head_extra = (
         '<style>'
+        '.btn-mini { background: transparent; border: 1px solid var(--accent); '
+        ' color: var(--accent); padding: 0.18rem 0.6rem; font-size: 0.78rem; '
+        ' cursor: pointer; border-radius: 2px; }'
+        '.btn-mini:hover { background: var(--accent); color: #fff; }'
         '.btn-mini-danger { background: transparent; border: 1px solid #c44; '
         ' color: #c44; padding: 0.18rem 0.6rem; font-size: 0.78rem; '
         ' cursor: pointer; border-radius: 2px; }'
@@ -1078,6 +1091,20 @@ def delete_published(report_id: str):
     """
     ok = _call_bot_admin("delete-report", {"report_id": report_id})
     msg = "Deleted+from+public" if ok else "Delete+failed"
+    return redirect(url_for("reports_view") + f"?msg={msg}+{report_id[:16]}")
+
+
+@app.post("/republish/<report_id>")
+@auth_required
+def republish_pub(report_id: str):
+    """Regenerate the public profile for an already-approved report.
+
+    Use this when the report was approved before the M1 worker analyzed
+    the photo (so the initial publish missed ai_analysis), or after an
+    adapter / schema fix that needs to land in published profiles.
+    """
+    ok = _call_bot_admin("republish-report", {"report_id": report_id})
+    msg = "Republished" if ok else "Republish+failed"
     return redirect(url_for("reports_view") + f"?msg={msg}+{report_id[:16]}")
 
 

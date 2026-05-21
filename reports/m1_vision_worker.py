@@ -292,15 +292,44 @@ def _update_report(report_id: str, analysis: Dict[str, Any]) -> Optional[Dict[st
 
 
 def _republish(node: PlanetAINode, report: Dict[str, Any]) -> None:
-    # Sanitize the same way the bot does — never publish PII
+    """Refresh the sanitized profile so the public dashboard picks up AI analysis.
+
+    NOTE: we deliberately don't call node.process_report() here — that
+    would route through MurmurationsProfile.save(), which uses
+    LOCAL_PROFILE_DIR = Path(__file__).parent / "profiles". For the
+    worker running on the M1 Mac, __file__ resolves to
+    ~/Documents/.../smartcitizenbali/reports/, NOT the SMB-mounted NAS
+    profiles dir. The "republished" file would land in a folder nobody
+    reads and the public dashboard would keep showing the pre-analysis
+    profile. We build the profile via from_aq_report (which still
+    sanitizes) and write it directly to REPO/profiles/ — the same
+    physical location the bot's container writes to via its /app
+    bind mount.
+    """
     sanitized = {
         k: v for k, v in report.items()
-        if k not in ("sender", "sender_hash", "image_path", "media_key")
+        if k not in ("sender", "sender_hash", "image_path", "media_key",
+                     "photo_published", "photo_public_path")
     }
+    # Preserve photo_path explicitly — the bot sets this when the
+    # admin opts to publish the photo. from_aq_report propagates it
+    # only after our adapter patch (see Bug 2 / 2026-05-21).
+    if report.get("photo_public_path"):
+        sanitized["photo_path"] = report["photo_public_path"]
+
+    report_id = report.get("id")
+    if not report_id:
+        log.error("republish: report missing id, skipping")
+        return
     try:
-        node.process_report(sanitized)
+        profile = node.profile_gen.from_aq_report(sanitized)
+        out_dir = REPO / "profiles"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / f"{report_id}.json"
+        out_path.write_text(json.dumps(profile, indent=2, ensure_ascii=False))
+        log.info("republished %s → %s", report_id, out_path)
     except Exception as e:  # noqa: BLE001
-        log.error("republish failed for %s: %s", report.get("id"), e)
+        log.error("republish failed for %s: %s", report_id, e)
 
 
 # Outcome enum returned by process_job
