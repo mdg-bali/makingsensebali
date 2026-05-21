@@ -43,10 +43,27 @@ Smart Citizen Bali is assembled from these parts. Each has its own scope and its
 | **Campaign site** | Public landing page, methodology, sensor dashboard, reports, attribution | This repo · GitHub Pages |
 | **Sensor data layer** | Aggregates Smart Citizen Kit + OpenAQ + Sensor.Community via Cloudflare Workers | This repo · [`data.js`](data.js), [`worker/`](worker/) |
 | **Smart Citizen Kits** | Open-hardware air quality + noise + climate sensors deployed in Bali | [smartcitizen.me](https://smartcitizen.me/) — house node 19236, office node 19600 |
-| **DIY workshop nodes** | Low-cost XIAO ESP32-S3 + HM3301 + BME680 sensors built in Fab Lab Bali workshops — the affordable path for banjars, schools, warungs | [`hardware/diy-node/`](hardware/diy-node/) |
+| **DIY workshop nodes** | Workshop-built sensors in two tiers — Basic (XIAO + BME680, ~USD 15–25, indoor AQ + climate + VOC) and Plus (Basic + HM3301, ~USD 35–60, adds outdoor PM). The affordable spatial-density layer for banjars, schools, warungs. | [`hardware/diy-node/`](hardware/diy-node/) |
 | **Matters-of-concern survey** | Phase 1 community input on environmental concerns | Airtable (proprietary backend, public-facing form) |
 | **Reports component** | WhatsApp bot + operator dashboard for citizen reports | [`reports/`](reports/) — Sense Making toolkit |
 | **Murmurations identity** | Federated org profile, discoverable across community-data networks | [`murmurations.json`](murmurations.json) in this repo |
+
+---
+
+## Hardware — what we sense with
+
+The campaign isn't tied to a single sensor model. It's a multi-tier network with reference instruments, off-the-shelf Smart Citizen Kits, and workshop-built DIY nodes feeding the same dashboard with appropriate fidelity flags. Each lower tier is calibrated against the one above; corrections live in the dashboard processing layer, not in the firmware.
+
+| Tier | Hardware | Cost | Role |
+|---|---|---|---|
+| **0 — Reference** | BAM-1020, Aeroqual AQM 65, or hosted BMKG / Udayana station | USD 5,000–25,000+ | Ground truth. Regulatory-grade. Calibration anchor for everything below. Pursued via partnership with **BMKG Stasiun Klimatologi Bali** (Sanglah) or **Udayana University**. |
+| **1 — Smart Citizen Kit 2.1** | Official SCK from [smartcitizen.me](https://smartcitizen.me/store) | ~USD 150 | Trusted multi-parameter backbone — PM, eCO₂, noise, climate, light. Battle-tested firmware. The campaign's currently deployed nodes (house 19236, office 19600). |
+| **2 — DIY Plus** | XIAO ESP32-S3 + BME680 + HM3301 | ~USD 35–60 | Outdoor spatial density. PM + climate + gas/VOC. Workshop-buildable in Fab Lab Bali. |
+| **3 — DIY Basic** | XIAO ESP32-S3 + BME680 | ~USD 15–25 | Maximum reach — indoor AQ, mold/dengue/heat/VOC. The most accessible kit. |
+
+For the same money as 10 official SCKs, the campaign can ship ~75–100 nodes mixing tiers — providing both reference credibility (Tier 0/1) and the spatial resolution that lets a dashboard say *which neighborhood* burns rubbish on Wednesday evenings, not just "south Bali had elevated PM."
+
+Full hardware documentation — BOMs, schematics, firmware, the calibration chain, and Bali-specific use cases (dengue mosquito habitat, mold and respiratory health, heat stress, indoor VOC exposure, outdoor air pollution, combustion-event triangulation) — is in [`hardware/diy-node/README.md`](hardware/diy-node/).
 
 ---
 
@@ -75,6 +92,7 @@ The campaign is currently in early Phase 1 → Phase 2 transition (Q2 2026):
 
 - Phase 1 survey is live and collecting responses
 - Sensor dashboard is operational with the campaign's two SCK nodes and live aggregation from OpenAQ, Sensor.Community
+- DIY node hardware path documented and published — Basic (XIAO + BME680) and Plus (adds HM3301) variants ready for the first Fab Lab Bali workshop, pending Tier 0 reference path
 - Reports component (Sense Making) is in pilot — bot running on Fab Lab Bali's infrastructure, allowlist-restricted to early testers, approval gate in place
 - Public reports stream into the campaign site after operator review
 
