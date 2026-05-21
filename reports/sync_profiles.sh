@@ -140,22 +140,21 @@ if [[ -n "$GITHUB_REPO_DIR" ]]; then
   )
   rsync "${RSYNC_OPTS_GIT[@]}" "$SOURCE" "$TARGET_DIR/"
 
-  # Mirror approved-for-public photos (if any). Photos in PHOTO_SOURCE
-  # have already been EXIF-stripped by the bot at approve time. We do
-  # NOT use --delete-after here — a publish toggle is meant to be
-  # additive; removing photos requires explicit operator action.
+  # Mirror approved-for-public photos. Photos in PHOTO_SOURCE have
+  # already been EXIF-stripped by the bot at approve time. --delete-after
+  # is on so that when admin calls /admin/delete-report (which removes
+  # the photo from PHOTO_SOURCE), the next sync also removes it from
+  # the GitHub clone, propagating the takedown.
   PHOTO_TARGET_DIR="$GITHUB_REPO_DIR/$GITHUB_PHOTOS_SUBDIR"
   if [[ -d "$PHOTO_SOURCE" ]]; then
+    mkdir -p "$PHOTO_TARGET_DIR"
     PHOTO_COUNT=$(find "$PHOTO_SOURCE" -maxdepth 1 -name 'AQ_*.jpg' -type f 2>/dev/null | wc -l)
-    if [[ "$PHOTO_COUNT" -gt 0 ]]; then
-      log "  syncing $PHOTO_COUNT approved photos"
-      mkdir -p "$PHOTO_TARGET_DIR"
-      rsync --archive --quiet \
-            --include='AQ_*.jpg' \
-            --include='*/' \
-            --exclude='*' \
-            "$PHOTO_SOURCE" "$PHOTO_TARGET_DIR/"
-    fi
+    log "  syncing $PHOTO_COUNT approved photos (additive + propagate deletes)"
+    rsync --archive --quiet --delete-after \
+          --include='AQ_*.jpg' \
+          --include='*/' \
+          --exclude='*' \
+          "$PHOTO_SOURCE" "$PHOTO_TARGET_DIR/"
   fi
 
   # Generate an index.json so the github.io dashboard has a single

@@ -1017,6 +1017,74 @@ def create_app(bot: Optional[AQBot] = None) -> Flask:
         log.info("rejected: %s (%s)", report_id, reason or "no reason")
         return jsonify(ok=True, report_id=report_id, review_status="rejected")
 
+    @app.post("/admin/delete-report")
+    def delete_report():
+        """
+        Take an approved (already-published) report off the public site.
+
+        - Removes the sanitized profile from PROFILE_DIR.
+        - Removes the public photo from PROFILE_PHOTOS_DIR (if any).
+        - Marks the canonical report as review_status="deleted" — the
+          canonical JSON + raw image stay on the NAS so we keep an
+          audit trail of what existed and was taken down.
+
+        sync_profiles.sh's --delete-after rsyncs (for both JSON and JPG
+        targets) propagate the removal to the GitHub clone on the next
+        sync tick. Next push then removes them from the public site.
+        """
+        if not _check_admin_auth():
+            return jsonify(ok=False, error="unauthorized"), 401
+        body = request.get_json(silent=True) or {}
+        report_id = body.get("report_id", "")
+        reason = body.get("reason", "")
+        if not report_id:
+            return jsonify(ok=False, error="missing report_id"), 400
+
+        report = load_report(report_id)
+        if not report:
+            return jsonify(ok=False, error="report not found"), 404
+
+        # Pull both files off the publish side. Use missing_ok so the
+        # endpoint is idempotent — admin can hit delete twice safely.
+        profile_path = PROFILE_DIR / f"{report_id}.json"
+        photo_path = PROFILE_PHOTOS_DIR / f"{report_id}.jpg"
+        removed = []
+        try:
+            profile_path.unlink(missing_ok=True)
+            removed.append("profile")
+        except OSError as e:
+            log.error("could not remove profile %s: %s", profile_path, e)
+        try:
+            photo_path.unlink(missing_ok=True)
+            if photo_path.exists() is False:
+                # We don't always have a profile photo; only log if
+                # one was actually deleted.
+                pass
+            removed.append("profile_photo_if_present")
+        except OSError as e:
+            log.error("could not remove profile photo %s: %s", photo_path, e)
+
+        # Audit trail: keep the canonical record + the raw image, but
+        # mark the report as deleted from public.
+        report["review_status"] = "deleted"
+        report["deleted_at"] = datetime.now(timezone.utc).isoformat()
+        if reason:
+            report["deletion_reason"] = reason
+        report["photo_published"] = False
+        (DATA_DIR / f"{report_id}.json").write_text(
+            json.dumps(report, indent=2, ensure_ascii=False)
+        )
+        log.info(
+            "deleted from public: %s — removed=%s (%s)",
+            report_id, removed, reason or "no reason",
+        )
+        return jsonify(
+            ok=True,
+            report_id=report_id,
+            review_status="deleted",
+            removed=removed,
+        )
+
     return app
 
 

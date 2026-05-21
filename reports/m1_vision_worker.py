@@ -57,9 +57,28 @@ PROCESSING = QUEUE / "processing"
 DONE = QUEUE / "done"
 FAILED = QUEUE / "failed"
 REPORTS = REPO / "reports"
+# The bot writes container-internal paths into queue files (e.g.
+# "/app/images/AQ_xxx.jpg") because that's its own view. The worker
+# sees the same files at $AQ_REPO/images/AQ_xxx.jpg via SMB or local
+# mount. _resolve_image_path() handles the remap so the worker doesn't
+# need a fragile /app symlink on the host machine.
+BOT_CONTAINER_ROOT = "/app/"
 
 for d in (QUEUE, PROCESSING, DONE, FAILED):
     d.mkdir(parents=True, exist_ok=True)
+
+
+def _resolve_image_path(image_path: str) -> Path:
+    """Translate a queue file's image_path into the worker's filesystem view.
+
+    Bot writes /app/images/AQ_xxx.jpg (its container's view). Worker
+    sees the same file at AQ_REPO/images/AQ_xxx.jpg. If the path is
+    already absolute on the worker's filesystem (e.g. local dev with
+    AQ_REPO=cwd, full path resolves), we just use it as-is.
+    """
+    if image_path.startswith(BOT_CONTAINER_ROOT):
+        return REPO / image_path[len(BOT_CONTAINER_ROOT):]
+    return Path(image_path)
 
 # Make adapter + analyzer importable when running from anywhere
 sys.path.insert(0, str(REPO))
@@ -293,16 +312,26 @@ PERMANENT = "permanent"    # report missing, bad job format
 def process_job(job_path: Path, node: PlanetAINode) -> str:
     job = json.loads(job_path.read_text())
     report_id = job.get("report_id")
-    image_path = job.get("image_path")
+    image_path_raw = job.get("image_path")
     notify_jid = job.get("notify_jid")
 
-    if not report_id or not image_path:
+    if not report_id or not image_path_raw:
         log.error("bad job %s: %s", job_path.name, job)
         return PERMANENT
 
-    log.info("analyzing %s (%s)", report_id, Path(image_path).name)
+    # Remap bot's container-internal /app/... path to the worker's view.
+    image_path_local = _resolve_image_path(image_path_raw)
+    if not image_path_local.exists():
+        log.error(
+            "image not found for %s — bot wrote %r, worker resolved to %s. "
+            "Check AQ_REPO mount and image existence on disk.",
+            report_id, image_path_raw, image_path_local,
+        )
+        return PERMANENT
+
+    log.info("analyzing %s (%s)", report_id, image_path_local.name)
     t0 = time.time()
-    analysis = analyze_pollution_image(image_path)
+    analysis = analyze_pollution_image(str(image_path_local))
     log.info(
         "  → %s / %s (conf=%.2f) in %.1fs",
         analysis.get("category"),

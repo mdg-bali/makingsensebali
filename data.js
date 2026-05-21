@@ -525,7 +525,13 @@ function profileToReport(profile){
     description: profile.description || '',
     category: profile.pollution_category || 'other',
     severity: ai.severity || null,
+    // The model's natural-language description of the scene. Often
+    // useful to compare against the reporter's own description.
+    aiDescription: (ai.description || '').trim() || null,
     indicators: Array.isArray(ai.indicators) ? ai.indicators : [],
+    // Worker writes this when MLX inference succeeds — handy on the
+    // admin side to filter "AI-analyzed" vs "needs review" reports.
+    aiConfidence: typeof ai.confidence === 'number' ? ai.confidence : null,
     submittedAt: profile.date_added || null,
     locality: profile.locality || '',
     photoUrl,

@@ -762,8 +762,8 @@ PENDING_TEMPLATE = """
             style="margin:0; display:flex; gap:0.6rem; align-items:center;">
         {% if r.has_photo %}
         <label class="publish-photo-toggle"
-               title="If checked, the photo travels to the public repo too. Once published, it lives in git history.">
-          <input type="checkbox" name="include_photo" value="1"
+               title="Default ON — uncheck only if the photo would leak privacy (faces, plates, private property). Once published, the photo lives in git history.">
+          <input type="checkbox" name="include_photo" value="1" checked
                  onchange="onPublishPhotoToggle(this)">
           <span>📷 Publish photo too</span>
         </label>
@@ -815,27 +815,26 @@ PENDING_TEMPLATE = """
       if (e.key === 'Escape') document.getElementById('img-modal').style.display = 'none';
     });
 
-    // Photo-publish confirmation. First time per page-load that the
-    // operator checks any "Publish photo too" box, surface a confirm
-    // dialog spelling out that git history is permanent. After they
-    // confirm once, free to check more boxes without re-prompting.
-    let photoPublishConfirmedThisSession = false;
+    // Photo-publish toggle defaults ON. The first time per page-load
+    // that the operator UNCHECKS the box, we show a quick reminder of
+    // why they might want to (privacy) and what the trade-off is —
+    // but don't block the action. After the first uncheck the reminder
+    // doesn't fire again in this session.
+    let photoUncheckReminderShown = false;
     function onPublishPhotoToggle(cb) {
-      if (!cb.checked) return;
-      if (photoPublishConfirmedThisSession) return;
-      const msg =
-        'This photo will be published to the public GitHub repo at ' +
-        'mdg-bali/smartcitizenbali and archived in git history.\\n\\n' +
-        'Once published, the photo cannot be fully removed without ' +
-        'rewriting git history — anyone who has cloned the repo can ' +
-        'still recover it.\\n\\n' +
-        'EXIF metadata (including GPS) will be stripped before publish.\\n\\n' +
-        'Confirm publish for this and other photos this session?';
-      if (window.confirm(msg)) {
-        photoPublishConfirmedThisSession = true;
-      } else {
-        cb.checked = false;
-      }
+      if (cb.checked) return;  // checking is the default safe action
+      if (photoUncheckReminderShown) return;
+      photoUncheckReminderShown = true;
+      // Toast-style note via a transient div, less disruptive than confirm()
+      const hint = document.createElement('div');
+      hint.textContent = 'Photo will stay NAS-only for this report. Use this when the photo could identify people or property.';
+      hint.style.cssText =
+        'position:fixed;bottom:16px;right:16px;max-width:340px;' +
+        'background:var(--accent);color:#fff;padding:10px 14px;' +
+        'border-radius:3px;font-size:0.85rem;line-height:1.4;' +
+        'box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1000;';
+      document.body.appendChild(hint);
+      setTimeout(() => hint.remove(), 4500);
     }
   </script>
   {% else %}
@@ -965,7 +964,8 @@ def _call_bot_admin(action: str, payload: Dict[str, Any]) -> bool:
 REPORTS_TEMPLATE = """
   <h2>Reports</h2>
   <p style="color: var(--muted);">Last {{ reports|length }} reports.
-     Click a row to view raw JSON.</p>
+     Click an ID to view raw JSON. Use <strong>Delete</strong> to take an
+     approved report off the public site (also removes its photo).</p>
 
   {% if reports %}
   <table>
@@ -977,7 +977,8 @@ REPORTS_TEMPLATE = """
         <th>Category</th>
         <th>Severity</th>
         <th>Lat,Lon</th>
-        <th>Status</th>
+        <th>Review</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -989,11 +990,41 @@ REPORTS_TEMPLATE = """
         <td>{{ r.category or '—' }}</td>
         <td>{{ r.severity or '—' }}</td>
         <td class="mono">{{ r.coords }}</td>
-        <td>{{ r.status }}</td>
+        <td>
+          {% if r.review_status == 'approved' %}<span class="pill ok">approved</span>
+          {% elif r.review_status == 'rejected' %}<span class="pill down">rejected</span>
+          {% elif r.review_status == 'deleted' %}<span class="pill neutral">deleted</span>
+          {% elif r.review_status == 'pending' %}<span class="pill warn">pending</span>
+          {% else %}<span class="pill neutral">{{ r.review_status or '—' }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if r.review_status == 'approved' %}
+          <form method="post" action="{{ url_for('delete_published', report_id=r.id) }}"
+                style="margin:0" onsubmit="return confirmDelete('{{ r.id }}');">
+            <button type="submit" class="btn-mini-danger"
+                    title="Remove this report (and its photo) from the public site. The canonical NAS record stays for audit.">
+              Delete
+            </button>
+          </form>
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+  <script>
+    function confirmDelete(id) {
+      return window.confirm(
+        'Delete this report from the public site?\\n\\n' +
+        id + '\\n\\n' +
+        'This removes the profile JSON and any published photo from ' +
+        'GitHub on the next sync (~5 min). The canonical record stays ' +
+        'on the NAS for audit. This action is reversible only by ' +
+        're-approving manually.'
+      );
+    }
+  </script>
   {% else %}
     <p class="empty">No reports yet.</p>
   {% endif %}
@@ -1017,9 +1048,37 @@ def reports_view():
             "category": (r.get("ai_analysis") or {}).get("category") or r.get("category"),
             "severity": (r.get("ai_analysis") or {}).get("severity"),
             "coords": coords,
-            "status": r.get("status", "—"),
+            "review_status": r.get("review_status", "—"),
         })
-    return render(REPORTS_TEMPLATE, title="Reports", active="reports", reports=rows)
+    head_extra = (
+        '<style>'
+        '.btn-mini-danger { background: transparent; border: 1px solid #c44; '
+        ' color: #c44; padding: 0.18rem 0.6rem; font-size: 0.78rem; '
+        ' cursor: pointer; border-radius: 2px; }'
+        '.btn-mini-danger:hover { background: #c44; color: #fff; }'
+        '</style>'
+    )
+    return render(
+        REPORTS_TEMPLATE,
+        title="Reports",
+        active="reports",
+        reports=rows,
+        head_extra=head_extra,
+    )
+
+
+@app.post("/delete-published/<report_id>")
+@auth_required
+def delete_published(report_id: str):
+    """Take a published report off the public site.
+
+    Hits the bot's /admin/delete-report which removes the profile JSON
+    and the public photo, marks the canonical report as deleted, and
+    lets the next sync cycle propagate the removal to GitHub.
+    """
+    ok = _call_bot_admin("delete-report", {"report_id": report_id})
+    msg = "Deleted+from+public" if ok else "Delete+failed"
+    return redirect(url_for("reports_view") + f"?msg={msg}+{report_id[:16]}")
 
 
 @app.get("/reports/<report_id>")

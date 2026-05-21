@@ -573,8 +573,9 @@ async function selectSensor(s){
 function selectReport(r){
   document.getElementById('adv-detail-label').textContent = 'Citizen report';
   document.getElementById('adv-detail-title').textContent = r.title || r.description || 'Report';
+  const sev = r.severity ? ` · severity ${r.severity}` : '';
   document.getElementById('adv-detail-desc').textContent =
-    `Category: ${r.category||'general'} · ${r.submittedAt?new Date(r.submittedAt).toLocaleString():''}`;
+    `Category: ${r.category||'general'}${sev} · ${r.submittedAt?new Date(r.submittedAt).toLocaleString():''}`;
   // Photo only renders when operator explicitly published it.
   const photoBlock = r.photoUrl
     ? `<a href="${D.escapeHtml(r.photoUrl)}" target="_blank" rel="noopener"
@@ -584,8 +585,27 @@ function selectReport(r){
                      border:1px solid var(--line)">
        </a>`
     : '';
+  // AI analysis block — only shows after the M1 worker has populated it.
+  const aiBlock = (r.aiDescription || (r.indicators && r.indicators.length))
+    ? `<div style="margin:14px 0 0;padding:10px 12px;
+                   background:rgba(255,255,255,0.04);
+                   border-left:2px solid #e08a2e;
+                   font-size:12.5px;line-height:1.55;color:#f4ede0">
+         ${r.aiDescription
+           ? `<div style="font-style:italic;margin-bottom:${r.indicators && r.indicators.length ? '6px' : '0'}">
+                🤖 ${D.escapeHtml(r.aiDescription)}
+              </div>`
+           : ''}
+         ${r.indicators && r.indicators.length
+           ? `<div style="font-family:'JetBrains Mono','IBM Plex Mono',monospace;
+                          font-size:10.5px;color:#8a948c;letter-spacing:.05em">
+                Detected: <span style="color:#f4ede0">${D.escapeHtml(r.indicators.slice(0, 4).join(', '))}</span>
+              </div>`
+           : ''}
+       </div>`
+    : '';
   document.getElementById('adv-detail-body').innerHTML =
-    `${photoBlock}<div class="panel-body">${D.escapeHtml(r.description||'')}</div>`;
+    `${photoBlock}<div class="panel-body">${D.escapeHtml(r.description||'')}</div>${aiBlock}`;
 }
 
 function renderSmartCitizenDetail(detail, s){
