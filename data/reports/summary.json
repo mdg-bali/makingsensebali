@@ -1,17 +1,14 @@
 {
-  "line": "Today: 1 report \u2014 trash piles.",
+  "line": "No reports today yet \u2014 the page updates as residents submit.",
   "today": {
-    "total": 1,
-    "by_category": {
-      "trash": 1
-    }
+    "total": 0,
+    "by_category": {}
   },
   "week": {
-    "total": 9,
+    "total": 3,
     "by_category": {
-      "other": 7,
-      "trash": 2
+      "trash": 3
     }
   },
-  "generated_at": "2026-05-15T09:58:13.217364+00:00"
+  "generated_at": "2026-05-21T05:49:48.095887+00:00"
 }
