@@ -22,7 +22,7 @@
     "planet_ai",
     "trash",
     "source:whatsapp",
-    "severity:low",
+    "severity:high",
     "bioregion:indo_pacific_coral_triangle",
     "bukit_pilot"
   ],
@@ -30,6 +30,18 @@
   "date_added": "2026-05-15T09:35:42.691554+00:00",
   "observation_type": "photo",
   "pollution_category": "trash",
+  "ai_analysis": {
+    "detected": true,
+    "confidence": 0.9,
+    "indicators": [
+      "large amount of trash",
+      "various types of waste",
+      "smoke visible"
+    ],
+    "description": "A large accumulation of various types of waste and smoke visible in the image.",
+    "severity": "high",
+    "model_version": "mlx:Phi-3.5-vision-instruct-4bit"
+  },
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",

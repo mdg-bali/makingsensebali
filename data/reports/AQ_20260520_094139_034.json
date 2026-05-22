@@ -2,7 +2,7 @@
   "linked_schemas": [
     "environmental_observation-v1.0.0"
   ],
-  "name": "Trash observation — Bukit, Bali",
+  "name": "Vehicle observation — Bukit, Bali",
   "description": "Illegal landfill",
   "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260520_094139_034.json",
   "latitude": -8.7957983,
@@ -20,7 +20,7 @@
     "environment",
     "community_report",
     "planet_ai",
-    "trash",
+    "vehicle",
     "source:whatsapp",
     "severity:low",
     "bioregion:indo_pacific_coral_triangle",
@@ -29,7 +29,19 @@
   "status": "active",
   "date_added": "2026-05-20T09:41:48.941368+00:00",
   "observation_type": "photo",
-  "pollution_category": "trash",
+  "pollution_category": "vehicle",
+  "ai_analysis": {
+    "detected": true,
+    "confidence": 0.8,
+    "indicators": [
+      "motorbike smoke",
+      "motorbike",
+      "dirt road"
+    ],
+    "description": "A motorbike is parked on a dirt road with visible smoke coming from it.",
+    "severity": "low",
+    "model_version": "mlx:Phi-3.5-vision-instruct-4bit"
+  },
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
