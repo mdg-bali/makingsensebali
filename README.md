@@ -57,7 +57,7 @@ The campaign isn't tied to a single sensor model. It's a multi-tier network with
 | Tier | Hardware | Cost | Role |
 |---|---|---|---|
 | **0 — Reference** | BAM-1020, Aeroqual AQM 65, or hosted BMKG / Udayana station | USD 5,000–25,000+ | Ground truth. Regulatory-grade. Calibration anchor for everything below. Pursued via partnership with **BMKG Stasiun Klimatologi Bali** (Sanglah) or **Udayana University**. |
-| **1 — Smart Citizen Kit 2.1** | Official SCK from [smartcitizen.me](https://smartcitizen.me/store) | ~USD 150 | Trusted multi-parameter backbone — PM, eCO₂, noise, climate, light. Battle-tested firmware. The campaign's currently deployed nodes (house 19236, office 19600). |
+| **1 — Smart Citizen Kit 2.3** | Official SCK from [smartcitizen.me](https://smartcitizen.me/store) | ~USD 150 | Trusted multi-parameter backbone — PM, eCO₂, noise, climate, light. Battle-tested firmware. The campaign's currently deployed nodes (house 19236, office 19600). |
 | **2 — DIY Plus** | XIAO ESP32-S3 + BME680 + HM3301 | ~USD 35–60 | Outdoor spatial density. PM + climate + gas/VOC. Workshop-buildable in Fab Lab Bali. |
 | **3 — DIY Basic** | XIAO ESP32-S3 + BME680 | ~USD 15–25 | Maximum reach — indoor AQ, mold/dengue/heat/VOC. The most accessible kit. |
 
