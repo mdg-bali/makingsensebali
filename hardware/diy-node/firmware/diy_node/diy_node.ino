@@ -39,18 +39,13 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME680.h>
-
-// Seeed_HM330X.h uses non-standard u8/u16/u32 types without defining them.
-// The modern arduino-esp32 core doesn't ship these typedefs by default, so
-// we shim them in via stdint.h before the include. Without this shim the
-// library fails to compile with: error: 'u32' has not been declared
-#include <stdint.h>
-typedef uint8_t  u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-#include <Seeed_HM330X.h>
-
 #include <ArduinoJson.h>
+
+// HM3301 is read directly over I2C without the Seeed_HM330X library.
+// The Seeed library uses non-standard u8/u16/u32 type aliases and won't
+// compile against the modern arduino-esp32 core (a typedef shim in the
+// sketch can't fix the library's own .cpp translation unit). The HM3301
+// I2C protocol is simple enough that we read it ourselves — see readHM3301.
 #include <time.h>
 
 // ============================================================================
@@ -89,8 +84,9 @@ const uint32_t WIFI_CONNECT_TIMEOUT_MS = 30000;
 // ============================================================================
 
 Adafruit_BME680 bme;
-HM330X hm3301;
-uint8_t hm3301_buf[30];
+
+constexpr uint8_t HM3301_I2C_ADDR        = 0x40;
+constexpr uint8_t HM3301_SELECT_I2C_CMD  = 0x88;
 
 WiFiClientSecure net;
 PubSubClient mqtt(net);
@@ -251,20 +247,48 @@ bool readBME680(float &tempC, float &humRH, float &pressureHPa, float &gasKOhm) 
   return !(isnan(tempC) || isnan(humRH));
 }
 
+// HM3301 — direct I2C, no Seeed library.
+//
+// Init (once at boot): write 0x88 to address 0x40 to select I2C mode.
+//                      The sensor boots in UART mode by default.
+//
+// Read (every cycle):  requestFrom 29 bytes from 0x40. Frame layout per
+//                      the HM-3300/3600 datasheet and Seeed's own example:
+//
+//   buf[0..1]   frame header (often 0x42 0x4D, sometimes documented as
+//               "sensor model" — not used for anything here)
+//   buf[2..3]   sensor number
+//   buf[4..5]   PM1.0  (CF=1, indoor / factory calibration)
+//   buf[6..7]   PM2.5  (CF=1)
+//   buf[8..9]   PM10   (CF=1)
+//   buf[10..11] PM1.0  (atmospheric — what we publish)
+//   buf[12..13] PM2.5  (atmospheric)
+//   buf[14..15] PM10   (atmospheric)
+//   buf[16..27] particle counts by size bin (0.3, 0.5, 1.0, 2.5, 5, 10 µm)
+//   buf[28]     checksum (low byte of sum of buf[0..27])
+
+bool hm3301_init() {
+  Wire.beginTransmission(HM3301_I2C_ADDR);
+  Wire.write(HM3301_SELECT_I2C_CMD);
+  return Wire.endTransmission() == 0;
+}
+
 bool readHM3301(uint16_t &pm1, uint16_t &pm25, uint16_t &pm10) {
-  // read_sensor_value() pulls 29 bytes over I2C. Layout (Seeed HM330X datasheet):
-  //   buf[2..3]   PM1.0  CF=1 (indoor calibration)
-  //   buf[4..5]   PM2.5  CF=1
-  //   buf[6..7]   PM10   CF=1
-  //   buf[8..9]   PM1.0  atmospheric  ← we use these for outdoor monitoring
-  //   buf[10..11] PM2.5  atmospheric
-  //   buf[12..13] PM10   atmospheric
-  if (hm3301.read_sensor_value(hm3301_buf, 29) != 0) {
-    return false;
+  uint8_t buf[29];
+  size_t got = Wire.requestFrom(HM3301_I2C_ADDR, (uint8_t)29);
+  if (got != 29) return false;
+  for (int i = 0; i < 29; i++) {
+    if (!Wire.available()) return false;
+    buf[i] = Wire.read();
   }
-  pm1  = ((uint16_t)hm3301_buf[8]  << 8) | hm3301_buf[9];
-  pm25 = ((uint16_t)hm3301_buf[10] << 8) | hm3301_buf[11];
-  pm10 = ((uint16_t)hm3301_buf[12] << 8) | hm3301_buf[13];
+  // Checksum: low byte of sum(buf[0..27]) must equal buf[28].
+  uint8_t sum = 0;
+  for (int i = 0; i < 28; i++) sum += buf[i];
+  if (sum != buf[28]) return false;
+
+  pm1  = ((uint16_t)buf[10] << 8) | buf[11];
+  pm25 = ((uint16_t)buf[12] << 8) | buf[13];
+  pm10 = ((uint16_t)buf[14] << 8) | buf[15];
   return true;
 }
 
@@ -299,7 +323,7 @@ void setup() {
   }
 
   // HM3301
-  if (hm3301.init() == 0) {
+  if (hm3301_init()) {
     Serial.println("[hm3301] online at 0x40");
   } else {
     Serial.println("[hm3301] NOT FOUND — check 5V power and Grove cable");

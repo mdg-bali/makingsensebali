@@ -37,24 +37,20 @@
 //
 // Libraries (install via Arduino Library Manager):
 //   - Adafruit BME680 Library  (depends on Adafruit Unified Sensor)
-//   - Seeed_HM330X             (Seeed Studio's HM3301 driver)
+//
+// HM3301 is read directly over I2C without an external library — the Seeed
+// HM330X library won't compile against modern arduino-esp32 (uses undefined
+// u8/u16/u32 aliases), and the sensor's I2C protocol is simple enough that
+// reading it ourselves is the cleaner path.
 
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME680.h>
 
-// Seeed_HM330X.h uses non-standard u8/u16/u32 types without defining them.
-// Shim with stdint.h aliases before the include — otherwise the library
-// fails to compile with: error: 'u32' has not been declared
-#include <stdint.h>
-typedef uint8_t  u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-#include <Seeed_HM330X.h>
-
 Adafruit_BME680 bme;
-HM330X hm3301;
-uint8_t hm3301_buf[30];
+
+constexpr uint8_t HM3301_I2C_ADDR       = 0x40;
+constexpr uint8_t HM3301_SELECT_I2C_CMD = 0x88;
 
 bool bme_present = false;
 bool hm3301_present = false;
@@ -116,8 +112,13 @@ void setup() {
   Serial.println();
 
   // --- HM3301 ---
-  Serial.println("[hm3301] probing 0x40...");
-  if (hm3301.init() == 0) {
+  // Init = send 0x88 to the sensor at 0x40 to select I2C mode (it boots
+  // in UART mode by default). After that, every Wire.requestFrom returns
+  // the 29-byte data frame.
+  Serial.println("[hm3301] probing 0x40 (sending I2C select 0x88)...");
+  Wire.beginTransmission(HM3301_I2C_ADDR);
+  Wire.write(HM3301_SELECT_I2C_CMD);
+  if (Wire.endTransmission() == 0) {
     hm3301_present = true;
     Serial.println("[hm3301] online at 0x40");
   } else {
@@ -153,18 +154,38 @@ void loop() {
   }
 
   // --- HM3301 ---
+  // Frame layout per HM-3300/3600 datasheet and Seeed's example sketch:
+  //   buf[0..1]   frame header / sensor model (unused here)
+  //   buf[2..3]   sensor number
+  //   buf[4..5]   PM1.0  (CF=1)
+  //   buf[6..7]   PM2.5  (CF=1)
+  //   buf[8..9]   PM10   (CF=1)
+  //   buf[10..11] PM1.0  atmospheric  ← outdoor values, what we print
+  //   buf[12..13] PM2.5  atmospheric
+  //   buf[14..15] PM10   atmospheric
+  //   buf[16..27] particle counts per 0.1L by size bin (0.3..10 µm)
+  //   buf[28]     checksum (low byte of sum(buf[0..27]))
   if (hm3301_present) {
-    if (hm3301.read_sensor_value(hm3301_buf, 29) == 0) {
-      // Atmospheric environment values (outdoor calibration) at bytes 8-13:
-      //   buf[8..9]   PM1.0  atmospheric
-      //   buf[10..11] PM2.5  atmospheric
-      //   buf[12..13] PM10   atmospheric
-      uint16_t pm1  = ((uint16_t)hm3301_buf[8]  << 8) | hm3301_buf[9];
-      uint16_t pm25 = ((uint16_t)hm3301_buf[10] << 8) | hm3301_buf[11];
-      uint16_t pm10 = ((uint16_t)hm3301_buf[12] << 8) | hm3301_buf[13];
-      Serial.printf("[hm3301]  PM1=%4u µg/m³   PM2.5=%4u µg/m³   PM10=%4u µg/m³\n",
-                    pm1, pm25, pm10);
-      printed = true;
+    uint8_t buf[29];
+    size_t got = Wire.requestFrom(HM3301_I2C_ADDR, (uint8_t)29);
+    bool ok = (got == 29);
+    for (int i = 0; ok && i < 29; i++) {
+      if (!Wire.available()) { ok = false; break; }
+      buf[i] = Wire.read();
+    }
+    if (ok) {
+      uint8_t sum = 0;
+      for (int i = 0; i < 28; i++) sum += buf[i];
+      if (sum != buf[28]) {
+        Serial.println("[hm3301]  read returned bad checksum — frame corrupted");
+      } else {
+        uint16_t pm1  = ((uint16_t)buf[10] << 8) | buf[11];
+        uint16_t pm25 = ((uint16_t)buf[12] << 8) | buf[13];
+        uint16_t pm10 = ((uint16_t)buf[14] << 8) | buf[15];
+        Serial.printf("[hm3301]  PM1=%4u µg/m³   PM2.5=%4u µg/m³   PM10=%4u µg/m³\n",
+                      pm1, pm25, pm10);
+        printed = true;
+      }
     } else {
       Serial.println("[hm3301]  read failed");
     }

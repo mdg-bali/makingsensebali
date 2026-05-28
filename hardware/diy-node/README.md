@@ -235,21 +235,18 @@ The production firmware sketch is at [`firmware/diy_node/diy_node.ino`](firmware
 Required Arduino libraries (install via Library Manager):
 
 - `Adafruit BME680 Library` (depends on `Adafruit Unified Sensor`) — note: **not** the BME280 library
-- `Seeed_HM330X` (Seeed's official driver for HM3301)
-- `PubSubClient` by Nick O'Leary (MQTT)
-- `ArduinoJson` v7.x
+- `PubSubClient` by Nick O'Leary (MQTT) — only needed by the production sketch
+- `ArduinoJson` v7.x — only needed by the production sketch
+
+The HM3301 is read directly over I²C — no external library needed. See note below on why.
 
 Board: install the **esp32 by Espressif Systems** package in Arduino IDE board manager, then select **XIAO_ESP32S3**.
 
-**Known compile error — and the fix.** The Seeed_HM330X library uses non-standard `u8` / `u16` / `u32` type aliases without defining them, and the modern arduino-esp32 core doesn't ship those typedefs. Compiling fails with `error: 'u32' has not been declared`. Both sketches in this repo include a short typedef shim before the Seeed include to work around it — if you ever copy the HM3301 read code into another project, copy that shim too:
+**Why no Seeed_HM330X library?** Seeed's HM3301 Arduino driver is written against the old AVR Arduino toolchain and uses non-standard `u8` / `u16` / `u32` type aliases without defining them. The modern arduino-esp32 core doesn't provide those typedefs, so the library's own `.cpp` file fails to compile with `error: 'u32' has not been declared`. A typedef shim in the sketch can't fix this — the library's `.cpp` is a separate translation unit.
 
-```cpp
-#include <stdint.h>
-typedef uint8_t  u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-#include <Seeed_HM330X.h>
-```
+Rather than patch a vendor library on every developer's machine, both sketches in this repo talk to the HM3301 **directly over I²C**. It's a one-time `Wire.write(0x88)` at boot to select I²C mode, then `Wire.requestFrom(0x40, 29)` for each 29-byte data frame. The frame layout (per the HM-3300/3600 datasheet) is documented inline above the `readHM3301` function — atmospheric PM1/PM2.5/PM10 are at buf[10..15], plus a checksum at buf[28] that we verify before trusting the read.
+
+Total cost: ~15 lines of code, zero external dependency for this sensor.
 
 Edit the configuration block at the top of `diy_node.ino` — WiFi credentials, the device token, and the five sensor IDs from the SC dashboard. Flash, open serial monitor at 115200 baud, watch the connection sequence. Within a couple of minutes the device should appear "online" on smartcitizen.me with readings flowing.
 
