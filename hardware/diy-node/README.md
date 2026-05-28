@@ -212,9 +212,19 @@ The device token is what authenticates the node against the platform. It can be 
 
 ## Firmware
 
+Two sketches in this repo. **Flash the test sketch first.**
+
+### Test sketch — bring-up tool, no platform needed
+
+[`firmware/diy_node_test/diy_node_test.ino`](firmware/diy_node_test/diy_node_test.ino) is a verification-only sketch. It scans the I²C bus, probes both sensors, and prints readings to the Serial Monitor every 5 seconds. **No WiFi, no MQTT, no Smart Citizen account required.** This is what a workshop participant flashes immediately after soldering — if sensible numbers appear in Serial Monitor, the hardware is working and they can proceed to the full firmware with confidence. If not, the test sketch's I²C scan and per-sensor probe output usually points straight at the wiring or power problem.
+
+Works for both Basic (BME680 alone) and Plus (BME680 + HM3301) kits — the test sketch detects which sensors are present and prints only what it finds.
+
+### Production sketch — publishes to Smart Citizen
+
 **Same sketch runs both Basic and Plus.** For Basic, the HM3301 init at boot returns "NOT FOUND", the firmware logs it once, and skips PM publishing for every cycle. No code changes — just don't connect the HM3301 and leave its three sensor IDs at 0 in the config block.
 
-The firmware sketch is at [`firmware/diy_node/diy_node.ino`](firmware/diy_node/diy_node.ino). It:
+The production firmware sketch is at [`firmware/diy_node/diy_node.ino`](firmware/diy_node/diy_node.ino). It:
 
 - Brings up I²C and probes both sensors at boot
 - Connects to WiFi and syncs the clock via NTP (the platform requires real `recorded_at` timestamps)
@@ -231,6 +241,16 @@ Required Arduino libraries (install via Library Manager):
 
 Board: install the **esp32 by Espressif Systems** package in Arduino IDE board manager, then select **XIAO_ESP32S3**.
 
+**Known compile error — and the fix.** The Seeed_HM330X library uses non-standard `u8` / `u16` / `u32` type aliases without defining them, and the modern arduino-esp32 core doesn't ship those typedefs. Compiling fails with `error: 'u32' has not been declared`. Both sketches in this repo include a short typedef shim before the Seeed include to work around it — if you ever copy the HM3301 read code into another project, copy that shim too:
+
+```cpp
+#include <stdint.h>
+typedef uint8_t  u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+#include <Seeed_HM330X.h>
+```
+
 Edit the configuration block at the top of `diy_node.ino` — WiFi credentials, the device token, and the five sensor IDs from the SC dashboard. Flash, open serial monitor at 115200 baud, watch the connection sequence. Within a couple of minutes the device should appear "online" on smartcitizen.me with readings flowing.
 
 If readings don't appear: check that the sensor IDs in the firmware match exactly what's on the SC device page (they're numeric and per-device), and that the device hasn't been marked "private" — public is the default.
@@ -239,7 +259,7 @@ If readings don't appear: check that the sensor IDs in the firmware match exactl
 
 Do not skip steps. Each one isolates a different class of bug.
 
-**Stage 1 — Breadboard, USB-powered, in your workshop.** Wire it up with jumpers. Flash the firmware with WiFi pointing to the lab's network. Confirm both sensors are detected on the I²C scan, that NTP syncs, and that the device shows up on smartcitizen.me. This stage is purely software bring-up — if it works here it'll work everywhere else.
+**Stage 1 — Breadboard, USB-powered, in your workshop. Test sketch first, then production.** Wire it up with jumpers. **Flash `diy_node_test.ino` first** and confirm sensible readings in Serial Monitor — this proves the hardware works in isolation, no cloud setup required. Only after that, switch to `diy_node.ino`, fill in WiFi credentials and Smart Citizen device token / sensor IDs, and confirm the device appears on smartcitizen.me. Splitting the bring-up this way isolates hardware bugs from platform bugs — if both work in sequence, you're solid.
 
 **Stage 2 — Perfboard, USB-powered, indoor.** Solder onto a 5×7 cm matrix board. Use **female headers** for the XIAO and the BME680 — they're the parts most likely to die from a wiring mistake or surge, and you want to swap without desoldering. The HM3301 stays connected via its Grove cable. Run it for 48 hours indoors next to a known reference (a phone's air quality app pointed at a window will do for a sanity check). Confirm readings are stable, the device doesn't reset, and MQTT reconnects after WiFi drops.
 

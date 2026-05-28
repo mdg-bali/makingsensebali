@@ -55,6 +55,14 @@ services:
     container_name: aq-evolution
     restart: unless-stopped
     mem_limit: 768m
+    # Explicit DNS — Synology's per-container default-bridge DNS sometimes
+    # stops resolving (DSM updates, host network changes). Without DNS,
+    # Baileys can't reach WhatsApp's servers and the QR never generates;
+    # the dashboard sits in a perpetual "close" loop. 2026-05-21: root
+    # cause of stuck pairing was exactly this. Stick to public resolvers.
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     depends_on:
       evolution-pg:
         condition: service_healthy

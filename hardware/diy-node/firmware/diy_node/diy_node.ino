@@ -39,7 +39,17 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME680.h>
+
+// Seeed_HM330X.h uses non-standard u8/u16/u32 types without defining them.
+// The modern arduino-esp32 core doesn't ship these typedefs by default, so
+// we shim them in via stdint.h before the include. Without this shim the
+// library fails to compile with: error: 'u32' has not been declared
+#include <stdint.h>
+typedef uint8_t  u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
 #include <Seeed_HM330X.h>
+
 #include <ArduinoJson.h>
 #include <time.h>
 
