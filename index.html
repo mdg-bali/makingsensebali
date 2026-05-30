@@ -10,10 +10,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css">
+<meta property="og:title" content="Smart Citizen Bali · made visible">
+<meta property="og:description" content="Is the air bad today where you live? Citizen reports + open sensors, on one public map.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://mdg-bali.github.io/smartcitizenbali/share/today.png">
+<meta name="twitter:card" content="summary_large_image">
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js" crossorigin=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="./data.js"></script>
+<script src="./peaks.js"></script>
+<script src="./i18n.js"></script>
 
 <style>
   :root{
@@ -379,6 +388,231 @@
     letter-spacing:.08em;
     margin-top:auto;
   }
+
+  /* ============================================================
+     HOME V2 — severity hero, CTAs, audience sections, share cards
+     ============================================================ */
+
+  /* Language toggle (matches dashboard) */
+  .lang-toggle{
+    background:transparent;border:1px solid var(--line);
+    color:var(--muted);padding:5px 9px;border-radius:3px;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;
+    cursor:pointer;transition:all .12s;
+  }
+  .lang-toggle:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* ===== SEVERITY-FIRST HERO ===== */
+  .hero-v2{
+    padding:clamp(36px,5vw,72px) 4vw clamp(36px,5vw,56px);
+    border-bottom:1px solid var(--line);
+    background:
+      radial-gradient(circle at 90% 10%, rgba(210,131,54,.20), transparent 55%),
+      radial-gradient(circle at 10% 90%, rgba(30,89,89,.10), transparent 55%);
+  }
+  .hero-v2-band{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:6px 12px;border-radius:99px;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+    margin-bottom:18px;
+    border:1px solid var(--line);background:#ffffff;color:var(--muted);
+  }
+  .hero-v2-band-dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:var(--muted)}
+  .hero-v2-band.sev-green{border-color:var(--good); color:var(--good)}
+  .hero-v2-band.sev-green .hero-v2-band-dot{background:var(--good)}
+  .hero-v2-band.sev-yellow{border-color:var(--warn); color:var(--warn)}
+  .hero-v2-band.sev-yellow .hero-v2-band-dot{background:var(--warn)}
+  .hero-v2-band.sev-orange{border-color:var(--accent-warm); color:var(--accent-warm)}
+  .hero-v2-band.sev-orange .hero-v2-band-dot{background:var(--accent-warm)}
+  .hero-v2-band.sev-red{border-color:var(--bad); color:var(--bad); background:rgba(185,72,48,0.08)}
+  .hero-v2-band.sev-red .hero-v2-band-dot{background:var(--bad)}
+  .hero-v2-headline{
+    font-family:'Newsreader',serif;font-weight:500;
+    font-size:clamp(34px,5.5vw,68px);line-height:1.04;letter-spacing:-.018em;
+    color:var(--ink);max-width:920px;margin-bottom:18px;
+  }
+  .hero-v2-headline em{font-style:italic;color:var(--accent);font-weight:500}
+  .hero-v2-number{
+    font-family:'Newsreader',serif;font-weight:500;
+    font-size:clamp(60px,10vw,140px);line-height:0.95;letter-spacing:-.03em;
+    color:var(--ink);
+    display:inline-block;margin-right:18px;vertical-align:baseline;
+  }
+  .hero-v2-number.sev-green{color:var(--good)}
+  .hero-v2-number.sev-yellow{color:var(--warn)}
+  .hero-v2-number.sev-orange{color:var(--accent-warm)}
+  .hero-v2-number.sev-red{color:var(--bad)}
+  .hero-v2-unit{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .hero-v2-line{
+    font-family:'Newsreader',serif;font-size:clamp(18px,2vw,22px);line-height:1.5;
+    color:var(--ink);max-width:780px;margin:14px 0 6px;
+  }
+  .hero-v2-ctx{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;color:var(--muted);
+    margin-bottom:24px;
+  }
+  .hero-v2-actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:8px}
+  .hero-v2-locality{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 12px;border:1px solid var(--line);border-radius:3px;
+    background:#ffffff;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--ink);
+  }
+  .hero-v2-locality select{
+    border:none;background:transparent;font:inherit;color:var(--ink);
+    text-transform:uppercase;letter-spacing:.05em;padding-right:4px;outline:none;cursor:pointer;
+  }
+  .hero-v2-locality button.geo-btn{
+    background:none;border:none;color:var(--accent);font:inherit;cursor:pointer;padding:0 0 0 8px;border-left:1px solid var(--line);
+  }
+  .hero-v2-locality button.geo-btn:hover{color:var(--accent-warm)}
+
+  /* ===== FOUR CTAs ===== */
+  .cta-grid{
+    display:grid;grid-template-columns:repeat(4, 1fr);gap:14px;
+    margin-top:4px;
+  }
+  @media(max-width:1000px){.cta-grid{grid-template-columns:repeat(2, 1fr)}}
+  @media(max-width:560px){.cta-grid{grid-template-columns:1fr}}
+  .cta-card{
+    background:#ffffff;border:1px solid var(--line);border-radius:6px;
+    padding:22px 22px 20px;
+    display:flex;flex-direction:column;gap:10px;
+    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    text-decoration:none;color:var(--ink);
+    border-top:3px solid var(--line);
+  }
+  .cta-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+  .cta-card-num{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .cta-card-title{font-family:'Newsreader',serif;font-weight:500;font-size:22px;line-height:1.2;color:var(--ink)}
+  .cta-card-desc{font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.55;color:var(--ink);opacity:.84}
+  .cta-card-action{margin-top:auto;padding-top:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .cta-card.cta-report   {border-top-color:var(--good)}
+  .cta-card.cta-survey   {border-top-color:var(--accent)}
+  .cta-card.cta-workshop {border-top-color:var(--teal)}
+  .cta-card.cta-share    {border-top-color:var(--accent-warm)}
+  .cta-card.cta-report   .cta-card-action{color:var(--good)}
+  .cta-card.cta-workshop .cta-card-action{color:var(--teal)}
+  .cta-card.cta-share    .cta-card-action{color:var(--accent-warm)}
+
+  /* ===== DAILY STORY ===== */
+  .story-panel{
+    background:#ffffff;border:1px solid var(--line);border-radius:6px;
+    border-left:4px solid var(--accent-warm);
+    padding:28px 30px;
+    margin-top:4px;
+  }
+  .story-headline{
+    font-family:'Newsreader',serif;font-weight:500;font-style:italic;
+    font-size:clamp(22px,3vw,30px);line-height:1.2;color:var(--ink);margin-bottom:12px;
+  }
+  .story-body{font-family:'Newsreader',serif;font-size:16px;line-height:1.6;color:var(--ink);opacity:.92;max-width:780px;margin-bottom:18px}
+  .story-actions{display:flex;flex-wrap:wrap;gap:10px}
+  .story-action{
+    display:inline-block;padding:8px 14px;
+    background:transparent;border:1px solid var(--line);border-radius:3px;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);
+    text-decoration:none;transition:all .12s;
+  }
+  .story-action:hover{border-color:var(--accent);color:var(--accent)}
+  .story-action.primary{background:var(--accent-warm);color:#fff;border-color:var(--accent-warm)}
+  .story-action.primary:hover{background:var(--bad);color:#fff}
+
+  /* ===== AUDIENCE SECTIONS ===== */
+  .audience-header{
+    display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+    margin-bottom:14px;
+    padding-bottom:14px;border-bottom:2px solid var(--line);
+  }
+  .audience-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 12px;border-radius:99px;
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;
+    color:#fff;background:var(--ink);
+  }
+  .audience-pill.aud-families{background:var(--good)}
+  .audience-pill.aud-teachers{background:var(--teal)}
+  .audience-pill.aud-officials{background:var(--accent-warm)}
+  .audience-header h2{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(28px,3.4vw,40px);line-height:1.1;letter-spacing:-.015em;color:var(--ink);margin:0}
+  .audience-header h2 em{font-style:italic;color:var(--accent);font-weight:500}
+  .audience-sub{font-family:'Newsreader',serif;font-size:16px;line-height:1.5;color:var(--ink);opacity:.84;margin-bottom:24px;max-width:680px}
+
+  .families-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+  @media(max-width:900px){.families-grid{grid-template-columns:1fr}}
+  .families-panel{background:#ffffff;border:1px solid var(--line);border-radius:6px;padding:22px}
+  .families-panel h3{font-family:'Newsreader',serif;font-weight:500;font-size:20px;color:var(--ink);margin-bottom:10px}
+  .families-list li{font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:var(--ink);margin-bottom:6px;padding-left:18px;position:relative}
+  .families-list li::before{content:'●';position:absolute;left:0;color:var(--accent);font-size:9px;top:8px}
+
+  .mold-indicator{
+    margin-top:14px;padding:12px 14px;border-radius:4px;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.55;
+    background:rgba(95,168,168,0.08);border-left:3px solid var(--teal);color:var(--ink);
+  }
+  .mold-indicator.warn{background:rgba(232,160,74,0.10);border-left-color:var(--warn)}
+  .mold-indicator strong{color:var(--ink);font-weight:600}
+
+  .nearby-reports-feed{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+  .nearby-row{background:#ffffff;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink)}
+  .nearby-row b{font-family:'Inter',sans-serif;font-weight:500;color:var(--ink)}
+  .nearby-empty{padding:18px;background:#ffffff;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);text-align:center}
+
+  .teachers-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:900px){.teachers-grid{grid-template-columns:1fr}}
+
+  /* ===== SHAREABLE CARDS ===== */
+  .share-section{background:var(--bg3);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .share-templates{display:grid;grid-template-columns:repeat(4, 1fr);gap:14px;margin-top:22px}
+  @media(max-width:1000px){.share-templates{grid-template-columns:repeat(2, 1fr)}}
+  @media(max-width:560px){.share-templates{grid-template-columns:1fr}}
+  .share-template-pick{
+    background:#ffffff;border:1px solid var(--line);border-radius:5px;
+    padding:14px 16px;cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);
+    text-align:left;transition:all .15s;
+  }
+  .share-template-pick:hover{border-color:var(--accent);color:var(--accent)}
+  .share-template-pick.active{border-color:var(--accent-warm);background:rgba(194,85,57,0.08);color:var(--accent-warm)}
+
+  .share-preview-wrap{margin-top:22px;display:grid;grid-template-columns:480px 1fr;gap:24px;align-items:start}
+  @media(max-width:900px){.share-preview-wrap{grid-template-columns:1fr}}
+  .share-card{
+    width:480px;height:480px;
+    background:linear-gradient(140deg,#f8f3e6 0%,#efe7d3 100%);
+    border:1px solid var(--line);border-radius:8px;
+    padding:32px;display:flex;flex-direction:column;justify-content:space-between;
+    box-shadow:0 8px 24px rgba(0,0,0,0.10);
+    color:var(--ink);position:relative;overflow:hidden;
+    max-width:100%;
+  }
+  .share-card::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at 85% 15%, rgba(210,131,54,.20), transparent 55%);
+    pointer-events:none;
+  }
+  .share-card-header{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
+  .share-card-brand{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-warm);font-weight:600}
+  .share-card-stamp{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;color:var(--muted);text-align:right}
+  .share-card-main{position:relative;z-index:1}
+  .share-card-template{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .share-card-loc{font-family:'Newsreader',serif;font-style:italic;font-size:36px;line-height:1;color:var(--ink);margin-bottom:18px;font-weight:500}
+  .share-card-big{font-family:'Newsreader',serif;font-size:96px;line-height:0.95;font-weight:500;letter-spacing:-.02em;color:var(--ink)}
+  .share-card-big.sev-green{color:var(--good)}
+  .share-card-big.sev-yellow{color:var(--warn)}
+  .share-card-big.sev-orange{color:var(--accent-warm)}
+  .share-card-big.sev-red{color:var(--bad)}
+  .share-card-unit{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+  .share-card-line{font-family:'Newsreader',serif;font-size:18px;line-height:1.45;color:var(--ink);margin-top:14px;max-width:380px}
+  .share-card-foot{display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1}
+  .share-card-url{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink)}
+  .share-card-qr{width:64px;height:64px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:7px;color:var(--muted);padding:4px;line-height:1.0;text-align:center}
+  .share-card-spark{height:54px;margin-top:8px}
+  .share-controls{display:flex;flex-direction:column;gap:10px}
+  .share-controls .btn-primary{justify-content:center;text-align:center}
+  .share-controls .feedback{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--good);letter-spacing:.05em;opacity:0;transition:opacity .15s}
+  .share-controls .feedback.show{opacity:1}
+
+  /* ===== status bar additions ===== */
+  .statusbar .status-left > span.peak-counter{}
 </style>
 </head>
 <body>
@@ -386,25 +620,120 @@
 <!-- ===== STATUS BAR ===== -->
 <div class="statusbar">
   <div class="status-left">
-    <span><span class="live-dot loading" id="liveDot"></span><span id="liveLabel">CONNECTING…</span></span>
+    <span><span class="live-dot loading" id="liveDot"></span><span id="liveLabel" data-i18n="statusbar.connecting">CONNECTING…</span></span>
     <span><span class="status-label">Led by</span> <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a></span>
-    <span><span class="status-label">Sensors</span> <span class="status-val" id="sensorCount">—</span></span>
-    <span><span class="status-label">Reports</span> <span class="status-val" id="reportCount">—</span></span>
+    <span><span class="status-label" data-i18n="statusbar.sensors">Sensors</span> <span class="status-val" id="sensorCount">—</span></span>
+    <span><span class="status-label" data-i18n="statusbar.reports">Reports</span> <span class="status-val" id="reportCount">—</span></span>
   </div>
   <div class="status-right">
+    <button id="langToggle" class="lang-toggle" type="button" title="Toggle language">EN</button>
     <a href="./dashboard/" class="btn">📊 Data view</a>
-    <a href="#survey" class="btn primary">+ Take part</a>
+    <a href="#survey" class="btn primary" data-i18n="action.take_part">+ Take part</a>
   </div>
 </div>
 
-<!-- ===== HERO ===== -->
-<header class="hero">
+<!-- ===== HERO V2 — severity-first ===== -->
+<header class="hero-v2">
   <div class="crumb">A campaign by <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a> · <span style="color:var(--accent)">live</span></div>
-  <h1>Bali, <em>made visible.</em></h1>
-  <p class="lede-hero">
-    A community campaign putting open environmental sensors and citizen reports — about air, noise, water, waste, anything that affects how people live here — on one public map. The work begins with <strong>what residents tell us matters</strong>.
-  </p>
+
+  <div id="severity-band" class="hero-v2-band">
+    <span class="hero-v2-band-dot"></span>
+    <span id="severity-band-label" data-i18n="home.hero.checking">Reading Bali…</span>
+  </div>
+
+  <h1 class="hero-v2-headline" id="hero-headline">Bali, <em>made visible.</em></h1>
+
+  <div style="margin:18px 0 0">
+    <span id="hero-pm25-number" class="hero-v2-number">—</span>
+    <span class="hero-v2-unit">µg/m³ <span style="opacity:.6">·</span> PM2.5</span>
+  </div>
+  <p id="hero-plain-line" class="hero-v2-line" data-i18n="home.severity.unknown.text">Sensors are reporting across Bali. Pick a neighbourhood below to see specifics.</p>
+  <div id="hero-ctx" class="hero-v2-ctx"></div>
+
+  <div class="hero-v2-actions">
+    <a id="hero-btn-report" class="btn-primary" href="#" target="_blank" rel="noopener" data-i18n="home.hero.btn_report">Report what you see →</a>
+    <a class="btn" href="#cta" data-i18n="home.hero.btn_near_me">What's happening near me →</a>
+    <span class="hero-v2-locality">
+      <label for="hero-locality" style="color:var(--muted);font-size:9.5px;letter-spacing:.18em" data-i18n="home.hero.locality_prompt">Pick your neighbourhood</label>
+      <select id="hero-locality"></select>
+      <button class="geo-btn" id="hero-use-geo" type="button" title="Use my location" data-i18n="home.hero.use_my_location">Use my location</button>
+    </span>
+  </div>
 </header>
+
+<!-- ===== FOUR CTAs ===== -->
+<section id="cta" style="padding-bottom:36px">
+  <div class="section-label" data-i18n="home.cta.title">Four ways to take part</div>
+  <div class="cta-grid">
+    <a class="cta-card cta-report" id="cta-report-link" href="#" target="_blank" rel="noopener">
+      <div class="cta-card-num">01 · Now</div>
+      <div class="cta-card-title" data-i18n="home.cta.report.title">Report what you're seeing</div>
+      <div class="cta-card-desc" data-i18n="home.cta.report.desc">Smell smoke? See burning waste? Notice a smell that wasn't there yesterday? Send one WhatsApp message to our bot, our local team verifies, and it joins the public map.</div>
+      <div class="cta-card-action" data-i18n="home.cta.report.action">Open WhatsApp →</div>
+    </a>
+    <a class="cta-card cta-survey" id="cta-survey-link" href="#survey">
+      <div class="cta-card-num">02 · 5 min</div>
+      <div class="cta-card-title" data-i18n="home.cta.survey.title">Tell us what matters</div>
+      <div class="cta-card-desc" data-i18n="home.cta.survey.desc">The Phase 1 survey asks residents what environmental issues affect daily life. Eight questions, 5 minutes, shapes where we put sensors next.</div>
+      <div class="cta-card-action" data-i18n="home.cta.survey.action">Open the survey →</div>
+    </a>
+    <a class="cta-card cta-workshop" id="cta-workshop-link" href="https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form" target="_blank" rel="noopener">
+      <div class="cta-card-num">03 · Hands-on</div>
+      <div class="cta-card-title" data-i18n="home.cta.workshop.title">Get involved with sensors</div>
+      <div class="cta-card-desc" data-i18n="home.cta.workshop.desc">We run sensor-building workshops at Fab Lab Bali — assemble a low-cost air quality node in an afternoon, deploy it on your roof or in your classroom. Sign up to hear about the next workshop.</div>
+      <div class="cta-card-action" data-i18n="home.cta.workshop.action">Workshop signup →</div>
+    </a>
+    <a class="cta-card cta-share" href="#share">
+      <div class="cta-card-num">04 · 30 sec</div>
+      <div class="cta-card-title" data-i18n="home.cta.share.title">Share what's happening</div>
+      <div class="cta-card-desc" data-i18n="home.cta.share.desc">Generate a shareable card about today's air in your neighbourhood and post it where the conversation already lives — WhatsApp, Instagram, Telegram. Each share helps more people see the data.</div>
+      <div class="cta-card-action" data-i18n="home.cta.share.action">Create a card →</div>
+    </a>
+  </div>
+</section>
+
+<!-- ===== DAILY STORY ===== -->
+<section id="daily-story-section" style="padding-top:0">
+  <div class="section-label" data-i18n="home.story.section">Today's story · sensors meet residents</div>
+  <div id="daily-story" class="story-panel">
+    <div class="story-headline" data-i18n="home.story.fallback_title">When the data and the residents tell the same story</div>
+    <div class="story-body" data-i18n="home.story.fallback_body">Each day we pick the most-striking correlation between sensor peaks and citizen reports. When a PM spike has a matching report — burning waste, construction, traffic — the campaign treats it as a confirmed signal. Check back tomorrow.</div>
+    <div class="story-actions">
+      <a class="story-action primary" href="./dashboard/" data-i18n="home.story.read_data">See the data →</a>
+      <a class="story-action" id="story-report-link" href="#" target="_blank" rel="noopener" data-i18n="home.story.report_yours">Report what you're seeing →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== AUDIENCE: FAMILIES ===== -->
+<section style="padding-bottom:18px">
+  <div class="audience-header">
+    <span class="audience-pill aud-families" data-i18n="home.audience.families.label">For families and residents</span>
+    <h2 data-i18n="home.audience.families.title">Today in your neighbourhood</h2>
+  </div>
+  <p class="audience-sub" data-i18n="home.audience.families.subtitle">What's happening in the air where your kids play, sleep, study.</p>
+
+  <div class="families-grid">
+    <div class="families-panel">
+      <h3 data-i18n="home.families.nearby_reports">Most recent nearby reports</h3>
+      <div id="families-nearby" class="nearby-reports-feed">
+        <div class="nearby-empty" data-i18n="feed.empty">No citizen reports yet.</div>
+      </div>
+    </div>
+    <div class="families-panel">
+      <h3 data-i18n="home.families.guidance">Plain-language guidance</h3>
+      <ul class="families-list">
+        <li data-i18n="home.families.guidance_windows">Keep windows closed when PM2.5 is above 35 µg/m³.</li>
+        <li data-i18n="home.families.guidance_masks">Use a N95 / KF94 mask for kids and elderly when readings are unhealthy.</li>
+        <li data-i18n="home.families.guidance_humidity">Indoor humidity above 60% sustained → mold risk. Run a dehumidifier or open windows on dry days.</li>
+      </ul>
+      <div id="mold-indicator" class="mold-indicator">
+        <strong data-i18n="home.families.mold_label">Mold-risk indicator</strong><br>
+        <span id="mold-indicator-text" data-i18n="home.families.mold_ok">Humidity within safe range across the network.</span>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ===== MAP ===== -->
 <section class="map-section">
@@ -544,6 +873,32 @@
   </div>
 </section>
 
+<!-- ===== AUDIENCE: TEACHERS ===== -->
+<section style="padding-bottom:18px">
+  <div class="audience-header">
+    <span class="audience-pill aud-teachers" data-i18n="home.audience.teachers.label">For teachers and schools</span>
+    <h2 data-i18n="home.audience.teachers.title">Bring the data into your classroom</h2>
+  </div>
+  <p class="audience-sub" data-i18n="home.audience.teachers.subtitle">Real local data to teach the science of where students live.</p>
+
+  <div class="teachers-grid">
+    <div class="families-panel">
+      <h3 data-i18n="home.teachers.lesson_title">A lesson plan using local Bali air quality data</h3>
+      <p style="font-family:'Newsreader',serif;font-size:15px;line-height:1.55;color:var(--ink);margin:8px 0 14px" data-i18n="home.teachers.lesson_pitch">A 45-minute lesson where students compare your school's last-24h PM2.5 reading to the WHO daily guideline — then to a reference school in Barcelona via Smart Citizen's global network.</p>
+      <a class="btn-primary" href="./data/lesson_plan_v1.pdf" target="_blank" rel="noopener" data-i18n="home.teachers.lesson_download">Download the lesson plan (PDF) →</a>
+    </div>
+    <div class="families-panel">
+      <h3 data-i18n="home.teachers.workshop_title">Smart Citizen Bali for schools</h3>
+      <p style="font-family:'Newsreader',serif;font-size:15px;line-height:1.55;color:var(--ink);margin:8px 0 14px" data-i18n="home.teachers.workshop_pitch">A half-day workshop at Fab Lab Bali for one or two teachers per school. Build the sensor, install it on a classroom wall, integrate the live readings into a science unit.</p>
+      <a class="btn-primary" href="https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form" target="_blank" rel="noopener" data-i18n="home.cta.workshop.action">Workshop signup →</a>
+    </div>
+    <div class="families-panel" style="grid-column:1/-1">
+      <h3 data-i18n="home.teachers.example_title">A concrete example</h3>
+      <p style="font-family:'Newsreader',serif;font-size:15px;line-height:1.55;color:var(--ink);margin:8px 0 0" data-i18n="home.teachers.example_body">Your students measure PM2.5 in the schoolyard over a week. They calculate the average. They compare it to WHO's 5 µg/m³ annual guideline. Then they pull last week's average from a school in Barcelona via Smart Citizen's public API, and they discuss the difference. Citizenship through data.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ===== HOW IT WORKS ===== -->
 <section>
   <div class="section-label">How this works</div>
@@ -585,9 +940,37 @@
 }
 </style>
 
+<!-- ===== AUDIENCE: OFFICIALS ===== -->
+<section style="padding-bottom:18px">
+  <div class="audience-header">
+    <span class="audience-pill aud-officials" data-i18n="home.audience.officials.label">For policymakers and analysts</span>
+    <h2 data-i18n="home.audience.officials.title">Evidence you can act on</h2>
+  </div>
+  <p class="audience-sub" data-i18n="home.audience.officials.subtitle">Aggregate data, citation guidance, and direct contact with the campaign team.</p>
+
+  <div class="teachers-grid">
+    <div class="families-panel">
+      <h3 data-i18n="home.officials.downloads_title">Aggregate downloads</h3>
+      <p style="margin:8px 0 14px">
+        <a class="btn" href="./data/reports/index.json" target="_blank" rel="noopener" data-i18n="home.officials.csv_30d">Last 30 days CSV →</a>
+        &nbsp;<a class="btn" href="./data/reports/summary.json" target="_blank" rel="noopener" data-i18n="home.officials.summary_pdf">Monthly summary PDF →</a>
+      </p>
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:1.6">Updated nightly by Fab Lab Bali. Sources tagged: Smart Citizen · OpenAQ · resident reports.</p>
+    </div>
+    <div class="families-panel">
+      <h3 data-i18n="home.officials.cite_title">How to cite Smart Citizen Bali data</h3>
+      <p id="cite-body" style="font-family:'Newsreader',serif;font-style:italic;font-size:14.5px;line-height:1.55;color:var(--ink);margin:8px 0 14px">Smart Citizen Bali (Fab Lab Bali, 2026). Open environmental sensor network and citizen reports, Bali, Indonesia. Retrieved from https://mdg-bali.github.io/smartcitizenbali/ on [date].</p>
+      <p style="margin:14px 0 0">
+        <a class="btn" href="./dashboard/" data-i18n="home.officials.dashboard_link">Open the analytical dashboard →</a>
+      </p>
+      <p style="margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)"><span data-i18n="home.officials.contact">Direct engagement:</span> <a href="mailto:fablabbali@gmail.com">fablabbali@gmail.com</a></p>
+    </div>
+  </div>
+</section>
+
 <!-- ===== METHODOLOGY GENEALOGY ===== -->
 <section>
-  <div class="section-label">Who leads · where the methodology comes from</div>
+  <div class="section-label" data-i18n="home.officials.lineage_label">Who leads · where the methodology comes from</div>
   <h2>Local lead, <em>credited methodology.</em></h2>
   <div class="body-prose">
     <p><strong>Fab Lab Bali</strong> leads the campaign — local, accountable, run by people who live here. The methodology comes from the EU <a href="https://making-sense.eu" target="_blank">Making Sense</a> project (2015–2017, Fab Lab Barcelona / IAAC). Bali is its own place; the community here is the co-author of what this becomes.</p>
@@ -711,6 +1094,51 @@
   </p>
 </section>
 
+<!-- ===== SHAREABLE CARDS ===== -->
+<section id="share" class="share-section">
+  <div class="section-label" data-i18n="home.share.section">Shareable cards</div>
+  <h2 data-i18n="home.share.title">Make what's happening visible</h2>
+  <p class="audience-sub" style="margin-bottom:8px" data-i18n="home.share.subtitle">Pick a template, pick a neighbourhood, share where the conversation already is.</p>
+  <div class="share-templates" id="share-templates">
+    <button class="share-template-pick active" data-tpl="today" type="button">📍 <span data-tpl-label="today">Today in {{loc}}</span></button>
+    <button class="share-template-pick" data-tpl="week"  type="button">📈 <span data-tpl-label="week">This week in {{loc}}</span></button>
+    <button class="share-template-pick" data-tpl="mold"  type="button">💧 <span data-tpl-label="mold">Mold risk: {{loc}}</span></button>
+    <button class="share-template-pick" data-tpl="burn"  type="button">🔥 <span data-tpl-label="burn">Burning corridor: {{loc}}</span></button>
+  </div>
+  <div class="share-preview-wrap">
+    <div id="share-card" class="share-card">
+      <div class="share-card-header">
+        <div class="share-card-brand">SMART CITIZEN · BALI</div>
+        <div class="share-card-stamp" id="share-card-stamp">as of — WITA</div>
+      </div>
+      <div class="share-card-main">
+        <div class="share-card-template" id="share-card-tpl">Today in</div>
+        <div class="share-card-loc" id="share-card-loc">—</div>
+        <div id="share-card-big-wrap">
+          <div class="share-card-big" id="share-card-big">—</div>
+          <div class="share-card-unit">µg/m³ · PM2.5 · WHO 24h guideline: 15</div>
+        </div>
+        <div class="share-card-line" id="share-card-line">—</div>
+        <svg id="share-card-spark" class="share-card-spark" viewBox="0 0 380 60" preserveAspectRatio="none" style="display:none"></svg>
+      </div>
+      <div class="share-card-foot">
+        <div class="share-card-url">mdg-bali.github.io/smartcitizenbali</div>
+        <div class="share-card-qr">QR<br>code</div>
+      </div>
+    </div>
+    <div class="share-controls">
+      <button id="share-download" class="btn-primary" type="button" data-i18n="home.share.download">⬇ Download PNG</button>
+      <a id="share-whatsapp" class="btn-primary" style="background:#25d366;" href="#" target="_blank" rel="noopener" data-i18n="home.share.wa">Share on WhatsApp</a>
+      <button id="share-copy" class="btn" type="button" data-i18n="home.share.copy">Copy link</button>
+      <span id="share-feedback" class="feedback" data-i18n="home.share.copied">Copied</span>
+      <div style="margin-top:8px">
+        <label style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase" data-i18n="home.share.choose_loc">Choose neighbourhood</label><br>
+        <select id="share-locality" style="margin-top:6px;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:11px;background:#fff;color:var(--ink);width:100%;max-width:260px"></select>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ===== DATA VIEW LINK ===== -->
 <section style="text-align:center;background:var(--bg2)">
   <div class="section-label" style="justify-content:center">For the data nerds</div>
@@ -753,11 +1181,76 @@
 <script>
 'use strict';
 const D = window.SCB_DATA;
+const P = window.SCB_PEAKS;
+const I = window.SCB_I18N;
+const t = (key, vars) => I.t(key, null, null, vars);
 const REFRESH_MS = 5 * 60 * 1000;
 
-// Survey URL
+// Survey + WhatsApp endpoints. Bot number is a placeholder until the
+// production WhatsApp Business number lands; updating it here updates
+// every CTA on the page.
 const SURVEY_OPEN_URL  = 'https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form';
 const SURVEY_EMBED_URL = 'https://airtable.com/embed/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form';
+const WHATSAPP_BOT_NUMBER = '6281555000111';  // TODO: production WA Business number
+const WORKSHOP_SIGNUP_URL = 'https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form';
+
+function whatsappReportLink(prefill){
+  const text = encodeURIComponent(prefill || 'Hi Smart Citizen Bali — I want to report:');
+  return `https://wa.me/${WHATSAPP_BOT_NUMBER}?text=${text}`;
+}
+
+// ============================================================
+// BALI LOCALITIES — kept in sync with reports/murmurations_adapter.py
+// ============================================================
+const BALI_LOCALITIES = [
+  // Bukit pilot area
+  {key:'jimbaran', name:'Jimbaran', lat:-8.79, lng:115.16},
+  {key:'uluwatu', name:'Uluwatu', lat:-8.83, lng:115.08},
+  {key:'pecatu', name:'Pecatu', lat:-8.82, lng:115.12},
+  {key:'ungasan', name:'Ungasan', lat:-8.82, lng:115.16},
+  {key:'nusa_dua', name:'Nusa Dua', lat:-8.80, lng:115.23},
+  {key:'bukit', name:'Bukit (peninsula)', lat:-8.80, lng:115.15},
+  // Rest of Bali
+  {key:'canggu', name:'Canggu', lat:-8.65, lng:115.13},
+  {key:'seminyak', name:'Seminyak', lat:-8.69, lng:115.17},
+  {key:'kuta', name:'Kuta', lat:-8.72, lng:115.17},
+  {key:'sanur', name:'Sanur', lat:-8.69, lng:115.26},
+  {key:'denpasar', name:'Denpasar', lat:-8.66, lng:115.21},
+  {key:'ubud', name:'Ubud', lat:-8.51, lng:115.26},
+  {key:'tabanan', name:'Tabanan', lat:-8.54, lng:115.13},
+  {key:'gianyar', name:'Gianyar', lat:-8.55, lng:115.33},
+];
+
+// ============================================================
+// i18n WIRING
+// ============================================================
+function applyTranslations(){
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  // Buttons whose label format includes a placeholder
+  document.querySelectorAll('[data-tpl-label]').forEach(el => {
+    const k = el.getAttribute('data-tpl-label');
+    el.textContent = t('home.share.tpl_' + k, {loc: state.shareLocality?.name || '—'});
+  });
+  document.getElementById('langToggle').textContent = t('statusbar.lang_toggle');
+  // Repopulate dynamic blocks
+  populateLocalityDropdowns();
+  renderHeroSeverity();
+  renderDailyStory();
+  renderNearbyReports();
+  renderMoldIndicator();
+  renderShareCard();
+  updateCounts();   // refreshes the band label
+  // Update citation year
+  const cy = document.getElementById('cite-body');
+  if (cy) cy.textContent = t('home.officials.cite_body', {year: new Date().getFullYear()});
+}
+function toggleLanguage(){
+  I.setLang(I.currentLang() === 'en' ? 'id' : 'en');
+  applyTranslations();
+}
 
 // ============================================================
 // MAP
@@ -832,7 +1325,364 @@ function buildSensorPopup(s, isOffline){
     </div>`;
 }
 
-const state = {sensors:[], reports:[]};
+const state = {
+  sensors: [], reports: [], story: null,
+  heroLocality: null,    // {key,name,lat,lng} or null = Bali-wide
+  shareLocality: null,
+  shareTemplate: 'today',
+};
+
+// ============================================================
+// LOCALITY + SEVERITY
+// ============================================================
+const LOCALITY_KEY = 'scb-locality';
+
+function populateLocalityDropdowns(){
+  const heroSel  = document.getElementById('hero-locality');
+  const shareSel = document.getElementById('share-locality');
+  const options = [
+    `<option value="">${D.escapeHtml(t('home.hero.bali_wide'))}</option>`,
+    ...BALI_LOCALITIES.map(l => `<option value="${l.key}">${D.escapeHtml(l.name)}</option>`),
+  ].join('');
+  if (heroSel  && !heroSel.dataset.bound)  { heroSel.innerHTML  = options; heroSel.value  = state.heroLocality?.key  || ''; heroSel.dataset.bound = '1'; heroSel.addEventListener('change', onHeroLocalityChange); }
+  else if (heroSel) heroSel.innerHTML = options;
+  if (shareSel && !shareSel.dataset.bound) { shareSel.innerHTML = options; shareSel.value = state.shareLocality?.key || ''; shareSel.dataset.bound = '1'; shareSel.addEventListener('change', onShareLocalityChange); }
+  else if (shareSel) shareSel.innerHTML = options;
+  // Re-select after rerender
+  if (heroSel)  heroSel.value  = state.heroLocality?.key  || '';
+  if (shareSel) shareSel.value = state.shareLocality?.key || '';
+}
+
+function onHeroLocalityChange(e){
+  const key = e.target.value;
+  state.heroLocality = key ? BALI_LOCALITIES.find(l => l.key === key) : null;
+  try { localStorage.setItem(LOCALITY_KEY, key || ''); } catch(_){}
+  // Mirror to share by default
+  if (!state.shareLocality || state.shareLocality.key !== state.heroLocality?.key){
+    state.shareLocality = state.heroLocality;
+    const ss = document.getElementById('share-locality'); if (ss) ss.value = key || '';
+  }
+  renderHeroSeverity(); renderNearbyReports(); renderShareCard(); applyTplLabels();
+}
+function onShareLocalityChange(e){
+  const key = e.target.value;
+  state.shareLocality = key ? BALI_LOCALITIES.find(l => l.key === key) : null;
+  renderShareCard(); applyTplLabels();
+}
+
+function applyTplLabels(){
+  document.querySelectorAll('[data-tpl-label]').forEach(el => {
+    const k = el.getAttribute('data-tpl-label');
+    el.textContent = t('home.share.tpl_' + k, {loc: state.shareLocality?.name || t('home.hero.bali_wide')});
+  });
+}
+
+// Pick the locality closest to the visitor based on geolocation. Falls back
+// to whatever's in localStorage, else null (Bali-wide).
+function initLocality(){
+  try {
+    const stored = localStorage.getItem(LOCALITY_KEY);
+    if (stored){
+      const m = BALI_LOCALITIES.find(l => l.key === stored);
+      if (m) { state.heroLocality = m; state.shareLocality = m; return; }
+    }
+  } catch(_){}
+}
+function tryGeolocation(){
+  if (!('geolocation' in navigator)) return;
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = pos.coords.latitude, lng = pos.coords.longitude;
+      let best = null, bestKm = Infinity;
+      for (const l of BALI_LOCALITIES){
+        const km = P.distanceKm(lat, lng, l.lat, l.lng);
+        if (km < bestKm){ bestKm = km; best = l; }
+      }
+      if (best && bestKm < 50){
+        state.heroLocality = best;
+        state.shareLocality = best;
+        try { localStorage.setItem(LOCALITY_KEY, best.key); } catch(_){}
+        populateLocalityDropdowns();
+        renderHeroSeverity(); renderNearbyReports(); renderShareCard();
+      }
+    },
+    err => { /* user denied or unavailable — silent fallback */ },
+    { timeout: 4000, maximumAge: 5 * 60 * 1000 }
+  );
+}
+
+// Returns {band: 'green'|'yellow'|'orange'|'red'|'unknown', value:number|null, sensor:obj|null}
+function pickHeroReading(){
+  // Sensors active in last 14 days with a PM2.5 reading
+  const active = state.sensors.filter(s => D.isActive(s.lastReading) && s.reading && typeof s.reading.pm25 === 'number');
+  if (state.heroLocality){
+    // Closest active sensor in 10km
+    let pick = null, bestKm = Infinity;
+    for (const s of active){
+      const km = P.distanceKm(state.heroLocality.lat, state.heroLocality.lng, s.lat, s.lng);
+      if (km < bestKm){ bestKm = km; pick = s; }
+    }
+    if (pick && bestKm < 10) return { band: severityBand(pick.reading.pm25), value: pick.reading.pm25, sensor: pick };
+    return { band: 'unknown', value: null, sensor: null };
+  }
+  // Bali-wide: use the worst reading as the alert
+  if (!active.length) return { band: 'unknown', value: null, sensor: null };
+  const worst = active.reduce((m, s) => s.reading.pm25 > m.reading.pm25 ? s : m, active[0]);
+  return { band: severityBand(worst.reading.pm25), value: worst.reading.pm25, sensor: worst };
+}
+
+function severityBand(pm25){
+  if (pm25 == null || isNaN(pm25)) return 'unknown';
+  if (pm25 <= 12) return 'green';
+  if (pm25 <= 35) return 'yellow';
+  if (pm25 <= 55) return 'orange';
+  return 'red';
+}
+
+function renderHeroSeverity(){
+  const r = pickHeroReading();
+  const band = r.band;
+  const num = document.getElementById('hero-pm25-number');
+  const bandEl = document.getElementById('severity-band');
+  const bandLbl = document.getElementById('severity-band-label');
+  const line = document.getElementById('hero-plain-line');
+  const ctx = document.getElementById('hero-ctx');
+
+  const locName = state.heroLocality ? state.heroLocality.name : t('home.hero.bali_wide');
+
+  // Number + colour
+  if (r.value == null){
+    num.textContent = '—';
+    num.className = 'hero-v2-number';
+  } else {
+    num.textContent = r.value.toFixed(1);
+    num.className = 'hero-v2-number sev-' + band;
+  }
+
+  // Band pill
+  const bandKey = band === 'unknown' ? 'unknown' : band;
+  const bandLabelKey = `home.severity.${bandKey}.label`;
+  bandLbl.textContent = t(bandLabelKey);
+  bandLbl.setAttribute('data-i18n', bandLabelKey);
+  bandEl.className = 'hero-v2-band sev-' + band;
+
+  // Plain-language line
+  const lineKey = `home.severity.${bandKey}.text`;
+  line.textContent = t(lineKey, { loc: locName });
+  line.setAttribute('data-i18n', lineKey);
+
+  // Context
+  if (r.sensor && r.value != null){
+    const time = r.sensor.lastReading ? new Date(r.sensor.lastReading).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+    ctx.textContent = `${t('home.hero.peaked_at')} ${r.value.toFixed(1)} µg/m³${time ? ' · ' + time : ''} · ${r.sensor.name} · ${t('home.hero.who_guideline')}`;
+  } else {
+    ctx.textContent = t('home.hero.no_data');
+  }
+}
+
+// ============================================================
+// DAILY STORY
+// ============================================================
+async function fetchDailyStory(){
+  try {
+    const r = await fetch('./data/daily_story.json', { cache: 'no-cache' });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch(_){ return null; }
+}
+
+function renderDailyStory(){
+  if (!state.story) return;  // keep fallback strings from HTML
+  const panel = document.getElementById('daily-story');
+  if (!panel) return;
+  const lang = I.currentLang();
+  const headline = (lang === 'id' && state.story.headline_id) ? state.story.headline_id : state.story.headline;
+  const body     = (lang === 'id' && state.story.body_id)     ? state.story.body_id     : state.story.body;
+  const dataUrl   = state.story.sensor_url || './dashboard/';
+  const reportUrl = state.story.report_url;
+  panel.querySelector('.story-headline').textContent = headline;
+  panel.querySelector('.story-body').textContent     = body;
+  const acts = panel.querySelector('.story-actions');
+  acts.innerHTML = `
+    <a class="story-action primary" href="${D.escapeHtml(dataUrl)}">${D.escapeHtml(t('home.story.read_data'))}</a>
+    ${reportUrl ? `<a class="story-action" href="${D.escapeHtml(reportUrl)}">${D.escapeHtml(t('home.story.read_report'))}</a>` : ''}
+    <a class="story-action" href="${D.escapeHtml(whatsappReportLink())}" target="_blank" rel="noopener">${D.escapeHtml(t('home.story.report_yours'))}</a>
+  `;
+}
+
+// ============================================================
+// FAMILIES — nearby reports + mold indicator
+// ============================================================
+function renderNearbyReports(){
+  const el = document.getElementById('families-nearby');
+  if (!el) return;
+  const center = state.heroLocality;
+  let candidates = state.reports.slice();
+  if (center){
+    candidates = candidates
+      .map(r => ({...r, _km: (typeof r.lat === 'number') ? P.distanceKm(center.lat, center.lng, r.lat, r.lng) : Infinity}))
+      .filter(r => r._km <= 5)
+      .sort((a, b) => (b.submittedAt ? +new Date(b.submittedAt) : 0) - (a.submittedAt ? +new Date(a.submittedAt) : 0));
+  } else {
+    candidates.sort((a, b) => (b.submittedAt ? +new Date(b.submittedAt) : 0) - (a.submittedAt ? +new Date(a.submittedAt) : 0));
+  }
+  candidates = candidates.slice(0, 5);
+  if (!candidates.length){
+    el.innerHTML = `<div class="nearby-empty">${D.escapeHtml(t('feed.empty'))}</div>`;
+    return;
+  }
+  el.innerHTML = candidates.map(r => {
+    const time = I.formatRelative(r.submittedAt);
+    const cat = (r.category || 'other').replace(/_/g, ' ');
+    const dist = (typeof r._km === 'number' && isFinite(r._km)) ? ` · ${P.formatDistance(r._km)}` : '';
+    return `<div class="nearby-row">
+      <b>${D.escapeHtml(cat)}</b> · ${D.escapeHtml(r.locality || 'Bali')}${dist}
+      <div style="opacity:.7;margin-top:2px">${D.escapeHtml(time)}${r.description ? ' · ' + D.escapeHtml(r.description.slice(0, 80)) + ((r.description||'').length > 80 ? '…' : '') : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderMoldIndicator(){
+  const el = document.getElementById('mold-indicator-text');
+  if (!el) return;
+  const active = state.sensors.filter(s => D.isActive(s.lastReading) && s.reading && typeof s.reading.rh === 'number');
+  const high = active.filter(s => s.reading.rh > 60);
+  const indicator = document.getElementById('mold-indicator');
+  if (high.length && (high.length / Math.max(active.length, 1)) > 0.4){
+    el.textContent = t('home.families.mold_warning');
+    if (indicator) indicator.classList.add('warn');
+  } else {
+    el.textContent = t('home.families.mold_ok');
+    if (indicator) indicator.classList.remove('warn');
+  }
+}
+
+// ============================================================
+// SHAREABLE CARDS
+// ============================================================
+function renderShareCard(){
+  const card = document.getElementById('share-card');
+  if (!card) return;
+  const loc = state.shareLocality;
+  const locName = loc ? loc.name : t('home.hero.bali_wide');
+  const reading = pickShareReading(loc);
+  const tpl = state.shareTemplate;
+
+  document.getElementById('share-card-tpl').textContent = t('home.share.tpl_' + tpl, {loc: ''}).replace(/{{loc}}/g, '').replace(/[:·]\s*$/,'').trim() || tpl;
+  document.getElementById('share-card-loc').textContent = locName;
+  document.getElementById('share-card-stamp').textContent = t('home.share.as_of', {time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})});
+
+  const big = document.getElementById('share-card-big');
+  const bigWrap = document.getElementById('share-card-big-wrap');
+  const line = document.getElementById('share-card-line');
+  const spark = document.getElementById('share-card-spark');
+
+  if (tpl === 'today'){
+    bigWrap.style.display = '';
+    spark.style.display = 'none';
+    if (reading.value == null){
+      big.textContent = '—';
+      big.className = 'share-card-big';
+      line.textContent = t('home.hero.no_data');
+    } else {
+      big.textContent = reading.value.toFixed(1);
+      big.className = 'share-card-big sev-' + reading.band;
+      line.textContent = t(`home.severity.${reading.band}.text`, {loc: locName});
+    }
+  } else if (tpl === 'week'){
+    bigWrap.style.display = 'none';
+    spark.style.display = '';
+    drawSpark(spark, reading.weekSeries || synthSeries());
+    line.textContent = (reading.weekSeries && reading.weekSeries.length)
+      ? `Last 7 days · peak ${Math.max(...reading.weekSeries).toFixed(0)} µg/m³`
+      : 'Last 7 days · open the dashboard for the live series';
+  } else if (tpl === 'mold'){
+    bigWrap.style.display = '';
+    spark.style.display = 'none';
+    const rh = pickRH(loc);
+    big.textContent = rh != null ? rh.toFixed(0) + '%' : '—';
+    big.className = 'share-card-big ' + (rh > 60 ? 'sev-orange' : 'sev-green');
+    line.textContent = rh > 60 ? t('home.families.mold_warning') : t('home.families.mold_ok');
+  } else if (tpl === 'burn'){
+    bigWrap.style.display = '';
+    spark.style.display = 'none';
+    const reports = nearbyReports(loc, 2).filter(r => /burn|smoke|fire|rubbish/i.test((r.category||'') + ' ' + (r.description||'')));
+    big.textContent = reports.length;
+    big.className = 'share-card-big sev-' + (reports.length > 2 ? 'red' : reports.length ? 'orange' : 'green');
+    line.textContent = reports.length
+      ? `${reports.length} burning-related reports in ${locName} this week. Open the map for the corridor.`
+      : `No burning reports in ${locName} this week.`;
+  }
+
+  // Update WhatsApp share URL
+  const waText = encodeURIComponent(`${t('home.share.tpl_' + tpl, {loc: locName})} · Smart Citizen Bali · https://mdg-bali.github.io/smartcitizenbali/`);
+  document.getElementById('share-whatsapp').href = `https://wa.me/?text=${waText}`;
+}
+
+function pickShareReading(loc){
+  const active = state.sensors.filter(s => D.isActive(s.lastReading) && s.reading && typeof s.reading.pm25 === 'number');
+  if (loc){
+    let best = null, km = Infinity;
+    for (const s of active){
+      const d = P.distanceKm(loc.lat, loc.lng, s.lat, s.lng);
+      if (d < km){ km = d; best = s; }
+    }
+    if (best && km < 10) return { band: severityBand(best.reading.pm25), value: best.reading.pm25, sensor: best, weekSeries: null };
+    return { band: 'unknown', value: null, sensor: null, weekSeries: null };
+  }
+  if (!active.length) return { band: 'unknown', value: null, sensor: null, weekSeries: null };
+  const worst = active.reduce((m, s) => s.reading.pm25 > m.reading.pm25 ? s : m, active[0]);
+  return { band: severityBand(worst.reading.pm25), value: worst.reading.pm25, sensor: worst, weekSeries: null };
+}
+function pickRH(loc){
+  const active = state.sensors.filter(s => D.isActive(s.lastReading) && s.reading && typeof s.reading.rh === 'number');
+  if (loc){
+    let best = null, km = Infinity;
+    for (const s of active){
+      const d = P.distanceKm(loc.lat, loc.lng, s.lat, s.lng);
+      if (d < km){ km = d; best = s; }
+    }
+    return best && km < 10 ? best.reading.rh : null;
+  }
+  if (!active.length) return null;
+  const sorted = active.map(s => s.reading.rh).sort((a,b) => a-b);
+  return sorted[Math.floor(sorted.length / 2)];
+}
+function nearbyReports(loc, kmRadius){
+  if (!loc) return state.reports.slice(0, 20);
+  return state.reports.filter(r => typeof r.lat === 'number' && P.distanceKm(loc.lat, loc.lng, r.lat, r.lng) <= kmRadius);
+}
+function synthSeries(){
+  // Placeholder week sparkline when no historical fetch has happened yet.
+  return Array.from({length: 24}, (_, i) => 10 + 8 * Math.sin(i / 3) + (i % 5 === 0 ? 12 : 0));
+}
+function drawSpark(svg, values){
+  const W = 380, H = 60, pad = 4;
+  if (!values || values.length < 2){ svg.innerHTML = ''; return; }
+  const max = Math.max(...values), min = Math.min(...values);
+  const range = Math.max(max - min, 1);
+  const pts = values.map((v, i) => {
+    const x = pad + (i / (values.length - 1)) * (W - pad * 2);
+    const y = H - pad - ((v - min) / range) * (H - pad * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  svg.innerHTML = `
+    <polyline points="${pts}" fill="none" stroke="#c25539" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  `;
+}
+
+function downloadShareCard(){
+  const card = document.getElementById('share-card');
+  if (!window.html2canvas){ alert('Card renderer not loaded yet — please retry.'); return; }
+  window.html2canvas(card, { backgroundColor: null, scale: 2 }).then(canvas => {
+    const link = document.createElement('a');
+    const tpl = state.shareTemplate;
+    const loc = (state.shareLocality?.key || 'bali');
+    link.download = `scb-${tpl}-${loc}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+}
 
 function renderPins(){
   sensorLayer.clearLayers();
@@ -1169,11 +2019,19 @@ function updateCounts(){
   }
 }
 
-function setLive(state, msg){
+function setLive(stateName, msgKey){
   const dot = document.getElementById('liveDot');
   const lbl = document.getElementById('liveLabel');
-  dot.className = 'live-dot ' + (state==='ok'?'':state);
-  lbl.textContent = msg;
+  dot.className = 'live-dot ' + (stateName==='ok'?'':stateName);
+  // Accept either an i18n key (statusbar.live) or a plain string (back-compat)
+  const isKey = typeof msgKey === 'string' && msgKey.startsWith('statusbar.');
+  if (isKey){
+    lbl.setAttribute('data-i18n', msgKey);
+    lbl.textContent = t(msgKey);
+  } else {
+    lbl.removeAttribute('data-i18n');
+    lbl.textContent = msgKey;
+  }
 }
 
 function renderSourceDiag(){
@@ -1193,7 +2051,7 @@ function renderSourceDiag(){
 }
 
 async function loadAll(){
-  setLive('loading','SYNCING…');
+  setLive('loading','statusbar.syncing');
   try{
     const [sensors, reports] = await Promise.all([
       D.fetchAllSensors(),
@@ -1208,9 +2066,9 @@ async function loadAll(){
       const all = [...sensors, ...reports].map(p => [p.lat, p.lng]).filter(p => p[0]!=null);
       if(all.length > 1) map.fitBounds(L.latLngBounds(all), {padding:[40,40], maxZoom:13});
     }
-    setLive('ok','LIVE');
+    setLive('ok','statusbar.live');
   } catch(e){
-    console.error(e); setLive('error','ERROR');
+    console.error(e); setLive('error','statusbar.error');
     renderSourceDiag();
   }
 }
@@ -1224,8 +2082,68 @@ async function loadAll(){
 })();
 
 // ============================================================
+// HOME V2 — CTAs, share templates, geolocation wiring
+// ============================================================
+function wireHomeV2(){
+  // CTA links
+  const reportLink = document.getElementById('cta-report-link');
+  const heroReport = document.getElementById('hero-btn-report');
+  const storyReport = document.getElementById('story-report-link');
+  const waUrl = whatsappReportLink('Hi Smart Citizen Bali — I want to report:');
+  if (reportLink) reportLink.href = waUrl;
+  if (heroReport) heroReport.href = waUrl;
+  if (storyReport) storyReport.href = waUrl;
+  const surveyLink = document.getElementById('cta-survey-link');
+  if (surveyLink) surveyLink.href = SURVEY_OPEN_URL;
+
+  // Geolocation button
+  const geoBtn = document.getElementById('hero-use-geo');
+  if (geoBtn) geoBtn.addEventListener('click', tryGeolocation);
+
+  // Share template picker
+  document.querySelectorAll('.share-template-pick').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.share-template-pick').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.shareTemplate = btn.dataset.tpl;
+      renderShareCard();
+    });
+  });
+
+  // Share controls
+  const dl = document.getElementById('share-download');
+  if (dl) dl.addEventListener('click', downloadShareCard);
+  const copy = document.getElementById('share-copy');
+  if (copy) copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.origin + window.location.pathname + '#share');
+      const fb = document.getElementById('share-feedback');
+      if (fb){ fb.classList.add('show'); setTimeout(() => fb.classList.remove('show'), 1500); }
+    } catch(_){}
+  });
+
+  // Language toggle
+  const lt = document.getElementById('langToggle');
+  if (lt) lt.addEventListener('click', toggleLanguage);
+}
+
+// Hook into existing updateCounts to also refresh home v2 widgets
+const _origUpdateCounts = updateCounts;
+updateCounts = function(){
+  _origUpdateCounts();
+  renderHeroSeverity();
+  renderNearbyReports();
+  renderMoldIndicator();
+  renderShareCard();
+};
+
+// ============================================================
 // INIT
 // ============================================================
+initLocality();
+wireHomeV2();
+applyTranslations();
+(async () => { state.story = await fetchDailyStory(); renderDailyStory(); })();
 loadAll();
 setInterval(loadAll, REFRESH_MS);
 window.addEventListener('resize', () => map.invalidateSize());

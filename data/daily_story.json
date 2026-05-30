@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-05-30T00:00:00+08:00",
+  "expires_at": null,
+  "headline": "When the data and the residents tell the same story",
+  "headline_id": "Ketika data dan warga menceritakan kisah yang sama",
+  "body": "Each day Fab Lab Bali picks the most-striking correlation between a sensor peak and a citizen report — when the data and the residents tell the same story. Until today's story is selected, the dashboard's correlation engine remains the best place to see live peak-to-report matches as they happen.",
+  "body_id": "Setiap hari Fab Lab Bali memilih korelasi paling mencolok antara lonjakan sensor dan laporan warga — saat data dan warga menceritakan kisah yang sama. Sampai cerita hari ini dipilih, mesin korelasi di dasbor tetap menjadi tempat terbaik untuk melihat kecocokan lonjakan-ke-laporan langsung saat terjadi.",
+  "locality": null,
+  "sensor_url": "/dashboard/",
+  "report_url": null,
+  "actions": [
+    {"key": "data",   "url": "/dashboard/"},
+    {"key": "report", "url": "https://wa.me/6281555000111?text=Smart%20Citizen%20Bali"}
+  ]
+}
