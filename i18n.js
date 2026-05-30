@@ -14,6 +14,16 @@
 // Persistence: language preference is stored in localStorage under
 // 'scb-lang'. Default: 'en'.
 
+// Wrapped in an IIFE so the translator's internals (t, currentLang, setLang,
+// formatRelative, DICTIONARIES) stay private and ONLY window.SCB_I18N is
+// exposed — matching the module pattern already used by data.js and peaks.js.
+// Without this, `function t` leaked into global scope and collided with each
+// page's `const t = (...) => I.t(...)` wrapper, throwing "Identifier 't' has
+// already been declared" at script-instantiation time. V8 then discarded the
+// ENTIRE inline boot block on both home and dashboard, so the static HTML
+// rendered but nothing wired up: status stuck on "CONNECTING…", empty sensor
+// counts and neighbourhood dropdown, dead Report buttons.
+(function(){
 'use strict';
 
 const DICTIONARIES = {
@@ -405,3 +415,4 @@ function formatRelative(iso, lang){
 if (typeof window !== 'undefined'){
   window.SCB_I18N = { t, currentLang, setLang, formatRelative, DICTIONARIES };
 }
+})();
