@@ -90,6 +90,10 @@ const DICTIONARIES = {
     'home.hero.peaked_at':        'PM2.5 peaked at',
     'home.hero.who_guideline':    'WHO daily guideline: 5 µg/m³',
     'home.hero.no_data':          'No nearby sensor reporting · pick a neighbourhood, or check the Bali-wide view.',
+    'home.hero.no_nearby':        'No sensor near {{loc}} yet — pick a different neighbourhood, or check the Bali-wide view.',
+    'home.hero.median_across':    'median across',
+    'home.hero.active_sensors':   'active sensors',
+    'home.hero.worst_right_now':  'worst right now',
     'home.hero.btn_report':       'Report what you see →',
     'home.hero.btn_near_me':      'What\'s happening near me →',
 
@@ -109,6 +113,8 @@ const DICTIONARIES = {
     'home.cta.report.title':      'Report what you\'re seeing',
     'home.cta.report.desc':       'Smell smoke? See burning waste? Notice a smell that wasn\'t there yesterday? Send one WhatsApp message to our bot, our local team verifies, and it joins the public map.',
     'home.cta.report.action':     'Open WhatsApp →',
+    'home.cta.report.action_fallback': 'Open the survey (WhatsApp reporting opens in Phase 2) →',
+    'home.hero.btn_report_fallback':   'Take the survey → (reporting bot coming soon)',
     'home.cta.survey.title':      'Tell us what matters',
     'home.cta.survey.desc':       'The Phase 1 survey asks residents what environmental issues affect daily life. Eight questions, 5 minutes, shapes where we put sensors next.',
     'home.cta.survey.action':     'Open the survey →',
@@ -246,6 +252,10 @@ const DICTIONARIES = {
     'home.hero.peaked_at':        'PM2.5 memuncak di',
     'home.hero.who_guideline':    'Panduan harian WHO: 5 µg/m³',
     'home.hero.no_data':          'Tidak ada sensor terdekat · pilih daerah, atau lihat tampilan seluruh Bali.',
+    'home.hero.no_nearby':        'Belum ada sensor dekat {{loc}} — pilih daerah lain, atau lihat tampilan seluruh Bali.',
+    'home.hero.median_across':    'median dari',
+    'home.hero.active_sensors':   'sensor aktif',
+    'home.hero.worst_right_now':  'tertinggi sekarang',
     'home.hero.btn_report':       'Laporkan apa yang Anda lihat →',
     'home.hero.btn_near_me':      'Apa yang terjadi di sekitar saya →',
 
@@ -264,6 +274,8 @@ const DICTIONARIES = {
     'home.cta.report.title':      'Laporkan apa yang Anda lihat',
     'home.cta.report.desc':       'Tercium asap? Lihat sampah dibakar? Cium bau yang kemarin tidak ada? Kirim satu pesan WhatsApp ke bot kami, tim lokal kami verifikasi, lalu masuk ke peta publik.',
     'home.cta.report.action':     'Buka WhatsApp →',
+    'home.cta.report.action_fallback': 'Buka survei (pelaporan WhatsApp dibuka di Fase 2) →',
+    'home.hero.btn_report_fallback':   'Ikuti survei → (bot pelaporan segera hadir)',
     'home.cta.survey.title':      'Beri tahu kami apa yang penting',
     'home.cta.survey.desc':       'Survei Fase 1 menanyakan kepada warga isu lingkungan apa yang berdampak pada kehidupan sehari-hari. Delapan pertanyaan, 5 menit, menentukan letak sensor berikutnya.',
     'home.cta.survey.action':     'Buka survei →',
@@ -346,6 +358,11 @@ function currentLang(){
 function setLang(lang){
   if (!DICTIONARIES[lang]) return;
   try { localStorage.setItem(LANG_STORAGE_KEY, lang); } catch(_){}
+  // P1-1: keep the document language attribute in sync so screen readers
+  // switch pronunciation when the user toggles language.
+  if (typeof document !== 'undefined' && document.documentElement){
+    document.documentElement.lang = lang;
+  }
 }
 
 function t(key, lang, fallback, vars){

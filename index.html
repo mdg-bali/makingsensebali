@@ -7,6 +7,12 @@
 <meta name="description" content="A community campaign by Fab Lab Bali — open environmental sensors and citizen reports on one public map. The work begins with what residents tell us matters.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23e8a04a'/%3E%3C/svg%3E">
 
+<!-- CQ-3: preconnect to the third-party origins so DNS/TLS happens early. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css">
@@ -16,38 +22,87 @@
 <meta property="og:image" content="https://mdg-bali.github.io/smartcitizenbali/share/today.png">
 <meta name="twitter:card" content="summary_large_image">
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-<script src="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
-<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js" crossorigin=""></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- CQ-3: Leaflet bundle is below the fold; defer keeps it from blocking
+     paint. Map init below is gated on DOMContentLoaded so it waits for
+     these to finish loading. Our own scripts (data.js / peaks.js / i18n.js)
+     stay synchronous because the inline boot script reads them as globals. -->
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script defer src="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
+<script defer src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js" crossorigin=""></script>
+<!-- html2canvas removed from <head>: ~200 KB script only needed when a
+     user clicks "Download PNG". loadHtml2Canvas() lazy-loads it on demand. -->
 <script src="./data.js"></script>
 <script src="./peaks.js"></script>
 <script src="./i18n.js"></script>
 
 <style>
   :root{
-    /* Light, airy palette · warm paper background · saffron + teal accents */
-    --bg:#f8f3e6;          /* warm paper cream */
-    --bg2:#ffffff;          /* clean white cards */
-    --bg3:#efe7d3;          /* deeper cream surfaces */
-    --paper:#1a1b1f;        /* warm near-black for text on light */
-    --ink:#1a1b1f;          /* primary text */
-    --muted:#827a6a;        /* warm gray for secondary text */
-    --line:#d6cdb5;         /* pale tan dividers */
-    --accent:#d28336;       /* saffron — Bali sun */
-    --accent-warm:#c25539;  /* terracotta for emphasis */
-    --teal:#1e5959;         /* deep teal — water, mountain */
-    --good:#4f7d4a;         /* forest green */
-    --warn:#c98a2a;         /* honey amber */
-    --bad:#b94830;          /* brick red */
-    --crit:#7a2516;         /* deep burgundy */
-    --cream:#3a3328;        /* warm dark for "cream" emphasis on light */
+    /* Light, airy palette · warm paper background · saffron + teal accents.
+       Two token families per accent: --foo for decorative fills/large
+       graphics, --foo-text for any token used as text or as a button
+       background under white text. The -text variants are darkened to
+       satisfy WCAG 2.1 AA (≥4.5:1 normal, ≥3.0:1 large) against --bg/--bg2.
+       See docs/AUDIT.md Appendix A for ratios. */
+    --bg:#f8f3e6;
+    --bg2:#ffffff;
+    --bg3:#efe7d3;
+    --paper:#1a1b1f;
+    --ink:#1a1b1f;
+    --muted:#827a6a;        /* fill / decorative only — do not use for text */
+    --muted-text:#6e6555;   /* ≈4.6:1 on --bg, use for any muted body text */
+    --line:#d6cdb5;
+    --accent:#d28336;       /* saffron fills (dots, h1 em, rules) */
+    --accent-text:#a85f1c;  /* ≈4.6:1 with white — use for buttons + links */
+    --accent-warm:#c25539;  /* terracotta — passes large-text AA */
+    --teal:#1e5959;
+    --good:#4f7d4a;         /* status fills — large-only */
+    --good-text:#3f6839;    /* ≥4.5:1 — for body-size status text */
+    --warn:#c98a2a;         /* warning fill */
+    --warn-text:#9c6a1e;    /* ≈4.6:1 — for warning text */
+    --bad:#b94830;
+    --crit:#7a2516;
+    --cream:#3a3328;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--bg);color:var(--cream);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
   body{padding:0 0 60px}
-  a{color:var(--accent);text-decoration:none}
-  a:hover{color:#f0b362}
+  a{color:var(--accent-text);text-decoration:none}
+  a:hover{color:var(--accent-warm)}
+
+  /* P1-4: respect prefers-reduced-motion. Kills the live-dot pulse and
+     all hover/transition animations for users who've asked for less motion. */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+      animation-duration:.001ms!important;
+      animation-iteration-count:1!important;
+      transition-duration:.001ms!important;
+      scroll-behavior:auto!important;
+    }
+  }
+
+  /* P1-5: skip-link — first focusable element, visible on focus only. */
+  .skip-link{
+    position:absolute;left:-9999px;top:0;
+    background:var(--ink);color:#fff;padding:10px 14px;border-radius:0 0 4px 0;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;
+    z-index:2000;
+  }
+  .skip-link:focus{left:0}
+
+  /* P1-3: global focus-visible ring (paired with the few `outline:none` rules
+     elsewhere). Keep it subtle enough not to distract; high enough contrast
+     against both cream and white surfaces. */
+  :focus-visible{
+    outline:2px solid var(--accent-text);
+    outline-offset:2px;
+    border-radius:2px;
+  }
+  /* The locality select had outline:none with no replacement — restore. */
+  .hero-v2-locality select:focus-visible,
+  .hero-v2-locality button.geo-btn:focus-visible{
+    outline:2px solid var(--accent-text);
+    outline-offset:2px;
+  }
 
   /* ===== STATUS BAR ===== */
   .statusbar{
@@ -66,18 +121,18 @@
   .live-dot.error{background:var(--bad);animation:none}
   .live-dot.loading{background:var(--accent);animation:pulse 1s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-  .status-label{color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+  .status-label{color:var(--muted-text);letter-spacing:.1em;text-transform:uppercase}
   .status-val{color:var(--ink);font-weight:500}
   .btn{background:#ffffff;border:1px solid var(--line);color:var(--ink);
     padding:6px 12px;border-radius:3px;font-family:'IBM Plex Mono',monospace;
     font-size:10px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;
     transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
-  .btn:hover{border-color:var(--accent);color:var(--accent)}
-  .btn.primary{border-color:var(--accent);color:var(--accent);background:#ffffff}
-  .btn.primary:hover{background:var(--accent);color:#ffffff}
+  .btn:hover{border-color:var(--accent-text);color:var(--accent-text)}
+  .btn.primary{border-color:var(--accent-text);color:var(--accent-text);background:#ffffff}
+  .btn.primary:hover{background:var(--accent-text);color:#ffffff}
   .btn-primary{
     display:inline-block;padding:14px 28px;
-    background:var(--accent);color:#ffffff;
+    background:var(--accent-text);color:#ffffff;
     font-family:'IBM Plex Mono',monospace;font-size:12px;
     letter-spacing:.15em;text-transform:uppercase;font-weight:600;
     border:none;border-radius:3px;cursor:pointer;text-decoration:none;
@@ -92,9 +147,9 @@
       radial-gradient(circle at 80% 20%, rgba(210,131,54,.18), transparent 55%),
       radial-gradient(circle at 20% 80%, rgba(30,89,89,.10), transparent 55%);
   }
-  .crumb{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);
+  .crumb{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted-text);
     letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px}
-  .crumb a{color:var(--accent);text-decoration:none}
+  .crumb a{color:var(--accent-text);text-decoration:none}
   h1{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(42px,6.5vw,84px);
     line-height:1.02;letter-spacing:-.018em;margin-bottom:22px;color:var(--ink)}
   h1 em{font-style:italic;color:var(--accent);font-weight:500}
@@ -104,7 +159,7 @@
 
   /* ===== SECTIONS ===== */
   section{padding:56px 4vw;border-bottom:1px solid var(--line)}
-  .section-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);
+  .section-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted-text);
     letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px;
     display:flex;align-items:center;gap:12px}
   .section-label::before{content:'';width:24px;height:1px;background:var(--accent)}
@@ -127,15 +182,15 @@
   }
   #map{width:100%;height:100%;background:#e6e0cd}
   .leaflet-control-attribution{
-    background:rgba(255,255,255,0.88) !important;color:var(--muted) !important;
+    background:rgba(255,255,255,0.88) !important;color:var(--muted-text) !important;
     font-family:'IBM Plex Mono',monospace !important;font-size:9px !important;
   }
-  .leaflet-control-attribution a{color:var(--accent) !important}
+  .leaflet-control-attribution a{color:var(--accent-text) !important}
   .leaflet-control-zoom a{
     background:rgba(255,255,255,0.96) !important;color:var(--ink) !important;
     border:1px solid var(--line) !important;
   }
-  .leaflet-control-zoom a:hover{background:var(--bg3) !important;color:var(--accent) !important}
+  .leaflet-control-zoom a:hover{background:var(--bg3) !important;color:var(--accent-text) !important}
   .leaflet-popup-content-wrapper{
     background:#ffffff !important;color:var(--ink) !important;
     border:1px solid var(--line) !important;border-radius:4px !important;
@@ -143,7 +198,7 @@
   }
   .leaflet-popup-tip{background:#ffffff !important;border:1px solid var(--line) !important}
   .leaflet-popup-content{margin:14px 16px !important;font-family:'Inter',sans-serif !important;font-size:13px !important;line-height:1.5 !important;color:var(--ink) !important}
-  .leaflet-popup-close-button{color:var(--muted) !important}
+  .leaflet-popup-close-button{color:var(--muted-text) !important}
 
   .pin{
     width:26px;height:26px;border-radius:50%;
@@ -178,7 +233,7 @@
   .top-right-overlay{top:16px;right:16px;max-width:240px}
 
   .legend{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink)}
-  .legend-title{color:var(--muted);letter-spacing:.15em;text-transform:uppercase;font-size:10px;margin-bottom:10px}
+  .legend-title{color:var(--muted-text);letter-spacing:.15em;text-transform:uppercase;font-size:10px;margin-bottom:10px}
   .legend-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
   .legend-swatch{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid #ffffff;box-shadow:0 0 0 1.5px currentColor}
 
@@ -190,8 +245,8 @@
   .today-status{display:flex;align-items:center;gap:14px;margin-bottom:14px}
   .today-status-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
   .today-status-text{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase}
-  .today-status-text.good{color:var(--good)}
-  .today-status-text.warn{color:var(--warn)}
+  .today-status-text.good{color:var(--good-text)}
+  .today-status-text.warn{color:var(--warn-text)}
   .today-status-text.bad{color:var(--bad)}
   .today-headline{font-family:'Newsreader',serif;font-weight:500;font-size:22px;line-height:1.25;color:var(--ink);margin-bottom:14px}
 
@@ -212,7 +267,7 @@
   .panel-body{font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:var(--ink)}
   .stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:12px}
   .stat-row:last-child{border:none}
-  .stat-label{color:var(--muted)}
+  .stat-label{color:var(--muted-text)}
   .stat-val{color:var(--ink);font-weight:500}
 
   /* ===== LIVE READING (in "What this means" cards) ===== */
@@ -233,7 +288,7 @@
     font-size:42px;line-height:1;color:var(--ink);
   }
   .reading-now-value .unit{
-    font-size:18px;color:var(--muted);font-weight:400;margin-left:6px;
+    font-size:18px;color:var(--muted-text);font-weight:400;margin-left:6px;
   }
   .reading-now-verdict{
     font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);opacity:.78;
@@ -241,7 +296,7 @@
   }
   .reading-now-verdict b{color:var(--ink);opacity:1;font-weight:500}
   .reading-now.empty{background:rgba(130,122,106,0.05);border-color:rgba(130,122,106,0.2)}
-  .reading-now.empty .reading-now-value{color:var(--muted);font-size:24px}
+  .reading-now.empty .reading-now-value{color:var(--muted-text);font-size:24px}
 
   /* ===== GENEALOGY ===== */
   .genealogy{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
@@ -268,7 +323,7 @@
   /* ===== PULL QUOTE ===== */
   .pullquote{margin:32px 0;padding:32px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
   .pullquote p{font-family:'Newsreader',serif;font-style:italic;font-weight:400;font-size:clamp(22px,2.5vw,30px);line-height:1.35;color:var(--ink);max-width:880px}
-  .pullquote .attr{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:18px}
+  .pullquote .attr{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted-text);letter-spacing:.15em;text-transform:uppercase;margin-top:18px}
 
   /* ===== CONCERNS ===== */
   .concerns{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:24px}
@@ -283,12 +338,27 @@
 
   /* ===== CONTACT ===== */
   .contact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1080px;margin-top:18px}
+  /* Listen / Show / Act methodology cards */
+  .lsa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px;position:relative}
+  @media(max-width:800px){.lsa-grid{grid-template-columns:1fr}}
+  .lsa-panel{position:relative}
+  .lsa-badge{
+    position:absolute;top:-14px;left:24px;color:#fff;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;
+    padding:4px 10px;border-radius:2px;font-weight:500;
+  }
+  .lsa-badge-listen{background:var(--accent-text)}
+  .lsa-badge-show{background:var(--teal)}
+  .lsa-badge-act{background:var(--accent-warm)}
+  .lsa-foot{margin-top:32px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted-text);text-align:center}
+  .legend-foot{margin-top:12px;font-size:10px;color:var(--muted-text);line-height:1.55}
+  .legend-diag{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:10px;color:var(--muted-text);line-height:1.7}
   @media(max-width:800px){.contact-grid{grid-template-columns:1fr}}
   .contact-col h3{font-family:'Newsreader',serif;font-weight:500;font-size:19px;color:var(--ink);margin-bottom:10px}
   .contact-col p{font-family:'Inter',sans-serif;font-size:14.5px;line-height:1.6;color:var(--ink);opacity:.8}
 
   /* ===== FOOTER ===== */
-  footer{padding:48px 4vw;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:1.8;background:var(--bg3);border-top:1px solid var(--line)}
+  footer{padding:48px 4vw;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted-text);line-height:1.8;background:var(--bg3);border-top:1px solid var(--line)}
   footer a{color:var(--accent-warm)}
   footer h4{font-family:'Newsreader',serif;font-size:15px;font-weight:500;color:var(--ink);margin-bottom:12px;text-transform:none;letter-spacing:0}
   .foot-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:36px;margin-bottom:28px}
@@ -372,7 +442,7 @@
   .report-card-cat-dust{background:rgba(155,155,155,0.18); color:#555}
   .report-card-cat-other{background:rgba(130,122,106,0.14); color:#5a544a}
   .report-card-locality{
-    font-size:12px; color:var(--muted);
+    font-size:12px; color:var(--muted-text);
   }
   .report-card-desc{
     font-family:'Newsreader',serif;
@@ -384,7 +454,7 @@
   .report-card-time{
     font-family:'IBM Plex Mono',monospace;
     font-size:10px;
-    color:var(--muted);
+    color:var(--muted-text);
     letter-spacing:.08em;
     margin-top:auto;
   }
@@ -396,11 +466,11 @@
   /* Language toggle (matches dashboard) */
   .lang-toggle{
     background:transparent;border:1px solid var(--line);
-    color:var(--muted);padding:5px 9px;border-radius:3px;
+    color:var(--muted-text);padding:5px 9px;border-radius:3px;
     font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;
     cursor:pointer;transition:all .12s;
   }
-  .lang-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .lang-toggle:hover{border-color:var(--accent-text);color:var(--accent-text)}
 
   /* ===== SEVERITY-FIRST HERO ===== */
   .hero-v2{
@@ -415,12 +485,12 @@
     padding:6px 12px;border-radius:99px;
     font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;
     margin-bottom:18px;
-    border:1px solid var(--line);background:#ffffff;color:var(--muted);
+    border:1px solid var(--line);background:#ffffff;color:var(--muted-text);
   }
   .hero-v2-band-dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:var(--muted)}
-  .hero-v2-band.sev-green{border-color:var(--good); color:var(--good)}
+  .hero-v2-band.sev-green{border-color:var(--good-text); color:var(--good-text)}
   .hero-v2-band.sev-green .hero-v2-band-dot{background:var(--good)}
-  .hero-v2-band.sev-yellow{border-color:var(--warn); color:var(--warn)}
+  .hero-v2-band.sev-yellow{border-color:var(--warn-text); color:var(--warn-text)}
   .hero-v2-band.sev-yellow .hero-v2-band-dot{background:var(--warn)}
   .hero-v2-band.sev-orange{border-color:var(--accent-warm); color:var(--accent-warm)}
   .hero-v2-band.sev-orange .hero-v2-band-dot{background:var(--accent-warm)}
@@ -442,13 +512,13 @@
   .hero-v2-number.sev-yellow{color:var(--warn)}
   .hero-v2-number.sev-orange{color:var(--accent-warm)}
   .hero-v2-number.sev-red{color:var(--bad)}
-  .hero-v2-unit{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .hero-v2-unit{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.1em;color:var(--muted-text);text-transform:uppercase}
   .hero-v2-line{
     font-family:'Newsreader',serif;font-size:clamp(18px,2vw,22px);line-height:1.5;
     color:var(--ink);max-width:780px;margin:14px 0 6px;
   }
   .hero-v2-ctx{
-    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;color:var(--muted);
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;color:var(--muted-text);
     margin-bottom:24px;
   }
   .hero-v2-actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:8px}
@@ -462,7 +532,7 @@
     text-transform:uppercase;letter-spacing:.05em;padding-right:4px;outline:none;cursor:pointer;
   }
   .hero-v2-locality button.geo-btn{
-    background:none;border:none;color:var(--accent);font:inherit;cursor:pointer;padding:0 0 0 8px;border-left:1px solid var(--line);
+    background:none;border:none;color:var(--accent-text);font:inherit;cursor:pointer;padding:0 0 0 8px;border-left:1px solid var(--line);
   }
   .hero-v2-locality button.geo-btn:hover{color:var(--accent-warm)}
 
@@ -482,15 +552,15 @@
     border-top:3px solid var(--line);
   }
   .cta-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
-  .cta-card-num{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .cta-card-num{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-text)}
   .cta-card-title{font-family:'Newsreader',serif;font-weight:500;font-size:22px;line-height:1.2;color:var(--ink)}
   .cta-card-desc{font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.55;color:var(--ink);opacity:.84}
-  .cta-card-action{margin-top:auto;padding-top:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .cta-card-action{margin-top:auto;padding-top:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-text);font-weight:600}
   .cta-card.cta-report   {border-top-color:var(--good)}
   .cta-card.cta-survey   {border-top-color:var(--accent)}
   .cta-card.cta-workshop {border-top-color:var(--teal)}
   .cta-card.cta-share    {border-top-color:var(--accent-warm)}
-  .cta-card.cta-report   .cta-card-action{color:var(--good)}
+  .cta-card.cta-report   .cta-card-action{color:var(--good-text)}
   .cta-card.cta-workshop .cta-card-action{color:var(--teal)}
   .cta-card.cta-share    .cta-card-action{color:var(--accent-warm)}
 
@@ -513,7 +583,7 @@
     font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);
     text-decoration:none;transition:all .12s;
   }
-  .story-action:hover{border-color:var(--accent);color:var(--accent)}
+  .story-action:hover{border-color:var(--accent-text);color:var(--accent-text)}
   .story-action.primary{background:var(--accent-warm);color:#fff;border-color:var(--accent-warm)}
   .story-action.primary:hover{background:var(--bad);color:#fff}
 
@@ -554,7 +624,7 @@
   .nearby-reports-feed{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
   .nearby-row{background:#ffffff;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink)}
   .nearby-row b{font-family:'Inter',sans-serif;font-weight:500;color:var(--ink)}
-  .nearby-empty{padding:18px;background:#ffffff;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);text-align:center}
+  .nearby-empty{padding:18px;background:#ffffff;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted-text);text-align:center}
 
   .teachers-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
   @media(max-width:900px){.teachers-grid{grid-template-columns:1fr}}
@@ -570,7 +640,7 @@
     font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);
     text-align:left;transition:all .15s;
   }
-  .share-template-pick:hover{border-color:var(--accent);color:var(--accent)}
+  .share-template-pick:hover{border-color:var(--accent-text);color:var(--accent-text)}
   .share-template-pick.active{border-color:var(--accent-warm);background:rgba(194,85,57,0.08);color:var(--accent-warm)}
 
   .share-preview-wrap{margin-top:22px;display:grid;grid-template-columns:480px 1fr;gap:24px;align-items:start}
@@ -591,24 +661,24 @@
   }
   .share-card-header{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
   .share-card-brand{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-warm);font-weight:600}
-  .share-card-stamp{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;color:var(--muted);text-align:right}
+  .share-card-stamp{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;color:var(--muted-text);text-align:right}
   .share-card-main{position:relative;z-index:1}
-  .share-card-template{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .share-card-template{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-text);margin-bottom:6px}
   .share-card-loc{font-family:'Newsreader',serif;font-style:italic;font-size:36px;line-height:1;color:var(--ink);margin-bottom:18px;font-weight:500}
   .share-card-big{font-family:'Newsreader',serif;font-size:96px;line-height:0.95;font-weight:500;letter-spacing:-.02em;color:var(--ink)}
   .share-card-big.sev-green{color:var(--good)}
   .share-card-big.sev-yellow{color:var(--warn)}
   .share-card-big.sev-orange{color:var(--accent-warm)}
   .share-card-big.sev-red{color:var(--bad)}
-  .share-card-unit{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+  .share-card-unit{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-text);margin-top:6px}
   .share-card-line{font-family:'Newsreader',serif;font-size:18px;line-height:1.45;color:var(--ink);margin-top:14px;max-width:380px}
   .share-card-foot{display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1}
   .share-card-url{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink)}
-  .share-card-qr{width:64px;height:64px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:7px;color:var(--muted);padding:4px;line-height:1.0;text-align:center}
+  .share-card-qr{width:64px;height:64px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:7px;color:var(--muted-text);padding:4px;line-height:1.0;text-align:center}
   .share-card-spark{height:54px;margin-top:8px}
   .share-controls{display:flex;flex-direction:column;gap:10px}
   .share-controls .btn-primary{justify-content:center;text-align:center}
-  .share-controls .feedback{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--good);letter-spacing:.05em;opacity:0;transition:opacity .15s}
+  .share-controls .feedback{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--good-text);letter-spacing:.05em;opacity:0;transition:opacity .15s}
   .share-controls .feedback.show{opacity:1}
 
   /* ===== status bar additions ===== */
@@ -617,27 +687,31 @@
 </head>
 <body>
 
+<a href="#main" class="skip-link">Skip to main content</a>
+
 <!-- ===== STATUS BAR ===== -->
-<div class="statusbar">
+<nav class="statusbar" aria-label="Site status and primary navigation">
   <div class="status-left">
-    <span><span class="live-dot loading" id="liveDot"></span><span id="liveLabel" data-i18n="statusbar.connecting">CONNECTING…</span></span>
+    <span><span class="live-dot loading" id="liveDot" aria-hidden="true"></span><span id="liveLabel" data-i18n="statusbar.connecting" role="status" aria-live="polite">CONNECTING…</span></span>
     <span><span class="status-label">Led by</span> <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a></span>
-    <span><span class="status-label" data-i18n="statusbar.sensors">Sensors</span> <span class="status-val" id="sensorCount">—</span></span>
-    <span><span class="status-label" data-i18n="statusbar.reports">Reports</span> <span class="status-val" id="reportCount">—</span></span>
+    <span><span class="status-label" data-i18n="statusbar.sensors">Sensors</span> <span class="status-val" id="sensorCount" aria-live="polite">—</span></span>
+    <span><span class="status-label" data-i18n="statusbar.reports">Reports</span> <span class="status-val" id="reportCount" aria-live="polite">—</span></span>
   </div>
   <div class="status-right">
-    <button id="langToggle" class="lang-toggle" type="button" title="Toggle language">EN</button>
+    <button id="langToggle" class="lang-toggle" type="button" title="Toggle language" aria-label="Switch language to Bahasa Indonesia">EN</button>
     <a href="./dashboard/" class="btn">📊 Data view</a>
-    <a href="#survey" class="btn primary" data-i18n="action.take_part">+ Take part</a>
+    <a href="#cta" class="btn primary" data-i18n="action.take_part">+ Take part</a>
   </div>
-</div>
+</nav>
+
+<main id="main">
 
 <!-- ===== HERO V2 — severity-first ===== -->
 <header class="hero-v2">
-  <div class="crumb">A campaign by <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a> · <span style="color:var(--accent)">live</span></div>
+  <div class="crumb">A campaign by <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a> · <span style="color:var(--accent-text)">live</span></div>
 
-  <div id="severity-band" class="hero-v2-band">
-    <span class="hero-v2-band-dot"></span>
+  <div id="severity-band" class="hero-v2-band" role="status" aria-live="polite">
+    <span class="hero-v2-band-dot" aria-hidden="true"></span>
     <span id="severity-band-label" data-i18n="home.hero.checking">Reading Bali…</span>
   </div>
 
@@ -654,7 +728,7 @@
     <a id="hero-btn-report" class="btn-primary" href="#" target="_blank" rel="noopener" data-i18n="home.hero.btn_report">Report what you see →</a>
     <a class="btn" href="#cta" data-i18n="home.hero.btn_near_me">What's happening near me →</a>
     <span class="hero-v2-locality">
-      <label for="hero-locality" style="color:var(--muted);font-size:9.5px;letter-spacing:.18em" data-i18n="home.hero.locality_prompt">Pick your neighbourhood</label>
+      <label for="hero-locality" style="color:var(--muted-text);font-size:9.5px;letter-spacing:.18em" data-i18n="home.hero.locality_prompt">Pick your neighbourhood</label>
       <select id="hero-locality"></select>
       <button class="geo-btn" id="hero-use-geo" type="button" title="Use my location" data-i18n="home.hero.use_my_location">Use my location</button>
     </span>
@@ -736,19 +810,13 @@
 </section>
 
 <!-- ===== MAP ===== -->
+<!-- Map sits inside the Families audience section conceptually — keeps the
+     "what's around me" affordance close to the severity hero and the nearby
+     reports feed. The today-card overlay was removed: the severity hero
+     above renders the same network/locality status more clearly. -->
 <section class="map-section">
   <div class="map-container">
     <div id="map"></div>
-  </div>
-  <div class="map-overlay top-left-overlay">
-    <div class="today-card">
-      <div class="today-status">
-        <div class="today-status-dot" id="overall-dot" style="background:var(--good)"></div>
-        <div class="today-status-text good" id="overall-label">CHECKING…</div>
-      </div>
-      <div class="today-headline" id="today-headline">Reading Bali…</div>
-      <a href="#survey" class="btn primary" style="justify-content:center">+ Take part</a>
-    </div>
   </div>
   <div class="map-overlay top-right-overlay">
     <div class="map-overlay-card legend">
@@ -758,59 +826,21 @@
       <div class="legend-row"><div class="legend-swatch" style="background:var(--bad);box-shadow:0 0 0 2px var(--bad)"></div>Concern</div>
       <div class="legend-row"><div class="legend-swatch" style="background:linear-gradient(90deg,#d8b86a,#e08a2e,#d96a4f,#c4392b);box-shadow:none"></div>Reports density</div>
       <div class="legend-row"><div class="legend-swatch" style="background:transparent;border:2px dashed var(--muted);box-shadow:none"></div>Offline</div>
-      <div style="margin-top:12px;font-size:10px;color:var(--muted);line-height:1.55">Tap a sensor pin for details, or open a report from the feed below.</div>
-      <div id="sourceDiag" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);line-height:1.7"></div>
+      <div class="legend-foot">Tap a sensor pin for details.</div>
+      <div id="sourceDiag" class="legend-diag"></div>
     </div>
   </div>
 </section>
 
-<!-- ===== REPORTS FEED ===== -->
-<!-- Hidden by default; renderReportFeed() reveals it when reports load. -->
-<section id="reports-feed-section" style="display:none; padding:40px 4vw; border-bottom:1px solid var(--line); background:var(--bg2)">
-  <div class="section-label">What people are reporting</div>
-  <h2 style="margin-bottom:8px">Reports from <em>across Bali</em>.</h2>
-  <p style="font-size:14px; color:var(--muted); margin:0 0 24px; max-width:640px">
-    Citizen reports submitted via WhatsApp. The map above shows where attention is concentrating;
-    each card below is one report. Click a card to fly the map there.
-  </p>
-  <div id="reports-feed" class="reports-feed"></div>
-</section>
-
-<!-- ===== TODAY IN NUMBERS ===== -->
-<section style="padding:48px 4vw;border-bottom:1px solid var(--line)">
-  <div class="section-label">Today, in four numbers</div>
-  <h2 style="margin-bottom:32px">The state of <em>Bali's air</em>, as we measure it.</h2>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden">
-    <div style="padding:28px 22px;background:#ffffff">
-      <div class="panel-label">Active sensors</div>
-      <div style="font-family:'Newsreader',serif;font-weight:500;font-size:52px;line-height:1;color:var(--ink);margin:8px 0" id="num-active">—</div>
-      <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)">reporting in the last 14 days</div>
-    </div>
-    <div style="padding:28px 22px;background:#ffffff">
-      <div class="panel-label">Median PM<sub>2.5</sub></div>
-      <div style="font-family:'Newsreader',serif;font-weight:500;font-size:52px;line-height:1;color:var(--ink);margin:8px 0" id="num-median">—</div>
-      <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)">µg/m³ · network-wide</div>
-    </div>
-    <div style="padding:28px 22px;background:#ffffff">
-      <div class="panel-label">Worst reading right now</div>
-      <div style="font-family:'Newsreader',serif;font-weight:500;font-size:34px;line-height:1.1;color:var(--ink);margin:8px 0" id="num-worst-value">—</div>
-      <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)" id="num-worst-loc">—</div>
-    </div>
-    <div style="padding:28px 22px;background:#ffffff">
-      <div class="panel-label">Offline sensors</div>
-      <div style="font-family:'Newsreader',serif;font-weight:500;font-size:52px;line-height:1;color:var(--ink);margin:8px 0" id="num-offline">—</div>
-      <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)">silent for &gt;14 days</div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== WHAT THIS MEANS ===== -->
+<!-- ===== FAMILIES · reading translated =====
+     Was "What these numbers mean" (standalone). Demoted to a Families
+     sub-block — the four interpretation cards are exactly the plain-
+     language guidance moms need. "Today in four numbers" was deleted:
+     the severity hero above already shows the median/worst reading. -->
 <section>
-  <div class="section-label">What these numbers <em>mean</em></div>
-  <h2>The reading, <em>translated.</em></h2>
-  <div class="body-prose"><p>Numbers from sensors are abstract. The bands below ground them in everyday experience and known health thresholds. Where readings touch each band, that's what's happening in your air, your home, your sleep.</p></div>
-
-  <div class="panel-grid" style="margin-top:32px">
+  <div class="section-label">Reading the air, <em>translated</em></div>
+  <p style="font-family:'Newsreader',serif;font-size:16px;line-height:1.5;color:var(--ink);max-width:680px;margin-bottom:18px">Numbers from sensors are abstract. The bands below ground them in everyday experience and known health thresholds — air, mosquito risk, noise, heat.</p>
+  <div class="panel-grid">
 
     <!-- PM2.5 card -->
     <div class="panel" id="card-pm25">
@@ -899,46 +929,9 @@
   </div>
 </section>
 
-<!-- ===== HOW IT WORKS ===== -->
-<section>
-  <div class="section-label">How this works</div>
-  <h2>Listen. Show. <em>Act.</em></h2>
-  <div class="body-prose"><p>A simple three-step loop. We collect data, we make it visible, the community acts on what it sees.</p></div>
-
-  <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:14px;margin-top:32px;position:relative">
-    <div class="panel" style="position:relative">
-      <div style="position:absolute;top:-14px;left:24px;background:var(--accent);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;padding:4px 10px;border-radius:2px;font-weight:500">01 · LISTEN</div>
-      <div class="panel-title" style="margin-top:8px">Collect from two sources</div>
-      <div class="panel-desc" style="margin-bottom:0">
-        Open-hardware <strong>sensors</strong> across Bali measure air, noise, temperature, humidity — continuously.
-        And an <strong>AI-assisted reporting bot</strong> on Telegram (Phase 2) lets residents send what they see — burning trash, smoke, water, noise — in their own words.
-      </div>
-    </div>
-    <div class="panel" style="position:relative">
-      <div style="position:absolute;top:-14px;left:24px;background:var(--teal);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;padding:4px 10px;border-radius:2px;font-weight:500">02 · SHOW</div>
-      <div class="panel-title" style="margin-top:8px">Make it visible</div>
-      <div class="panel-desc" style="margin-bottom:0">
-        Both streams land on <strong>this public map</strong>. Every reading is compared against international health guidelines — WHO for air and noise, EPA and ASHRAE for indoor environments. Translated into plain language. No login, no tracking, no paywall.
-      </div>
-    </div>
-    <div class="panel" style="position:relative">
-      <div style="position:absolute;top:-14px;left:24px;background:var(--accent-warm);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;padding:4px 10px;border-radius:2px;font-weight:500">03 · ACT</div>
-      <div class="panel-title" style="margin-top:8px">Awareness → action</div>
-      <div class="panel-desc" style="margin-bottom:0">
-        Visibility is the start. From there: community workshops, advocacy with banjar and local government, behavior change in homes and schools. Fab Lab Bali coordinates the response loop with local partners.
-      </div>
-    </div>
-  </div>
-  <p style="margin-top:32px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);text-align:center">
-    Phase 1 (now): <a href="#survey" style="color:var(--accent-warm)">survey of matters of concern</a> · Phase 2: reporting bot · Phase 3: action with local partners
-  </p>
-</section>
-
-<style>
-@media(max-width:800px){
-  section[data-flow] > div, section > div[style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr !important}
-}
-</style>
+<!-- "How it works · Listen/Show/Act" moved below Officials block so the
+     methodology genealogy + phases land inside Officials (where the audit
+     and HOME_REVISION brief said they belong for the policymaker audience). -->
 
 <!-- ===== AUDIENCE: OFFICIALS ===== -->
 <section style="padding-bottom:18px">
@@ -955,7 +948,7 @@
         <a class="btn" href="./data/reports/index.json" target="_blank" rel="noopener" data-i18n="home.officials.csv_30d">Last 30 days CSV →</a>
         &nbsp;<a class="btn" href="./data/reports/summary.json" target="_blank" rel="noopener" data-i18n="home.officials.summary_pdf">Monthly summary PDF →</a>
       </p>
-      <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:1.6">Updated nightly by Fab Lab Bali. Sources tagged: Smart Citizen · OpenAQ · resident reports.</p>
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted-text);line-height:1.6">Updated nightly by Fab Lab Bali. Sources tagged: Smart Citizen · OpenAQ · resident reports.</p>
     </div>
     <div class="families-panel">
       <h3 data-i18n="home.officials.cite_title">How to cite Smart Citizen Bali data</h3>
@@ -963,7 +956,7 @@
       <p style="margin:14px 0 0">
         <a class="btn" href="./dashboard/" data-i18n="home.officials.dashboard_link">Open the analytical dashboard →</a>
       </p>
-      <p style="margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)"><span data-i18n="home.officials.contact">Direct engagement:</span> <a href="mailto:fablabbali@gmail.com">fablabbali@gmail.com</a></p>
+      <p style="margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted-text)"><span data-i18n="home.officials.contact">Direct engagement:</span> <a href="mailto:fablabbali@gmail.com">fablabbali@gmail.com</a></p>
     </div>
   </div>
 </section>
@@ -1017,6 +1010,41 @@
   </div>
 </section>
 
+<!-- ===== HOW IT WORKS (relocated from above Officials) ===== -->
+<section>
+  <div class="section-label">How this works</div>
+  <h2>Listen. Show. <em>Act.</em></h2>
+  <div class="body-prose"><p>A simple three-step loop. We collect data, we make it visible, the community acts on what it sees.</p></div>
+
+  <div class="lsa-grid">
+    <div class="panel lsa-panel">
+      <div class="lsa-badge lsa-badge-listen">01 · LISTEN</div>
+      <div class="panel-title" style="margin-top:8px">Collect from two sources</div>
+      <div class="panel-desc" style="margin-bottom:0">
+        Open-hardware <strong>sensors</strong> across Bali measure air, noise, temperature, humidity — continuously.
+        And an <strong>AI-assisted reporting bot</strong> on WhatsApp lets residents send what they see — burning trash, smoke, water, noise — in their own words.
+      </div>
+    </div>
+    <div class="panel lsa-panel">
+      <div class="lsa-badge lsa-badge-show">02 · SHOW</div>
+      <div class="panel-title" style="margin-top:8px">Make it visible</div>
+      <div class="panel-desc" style="margin-bottom:0">
+        Both streams land on <strong>this public map</strong>. Every reading is compared against international health guidelines — WHO for air and noise, EPA and ASHRAE for indoor environments. Translated into plain language. No login, no tracking, no paywall.
+      </div>
+    </div>
+    <div class="panel lsa-panel">
+      <div class="lsa-badge lsa-badge-act">03 · ACT</div>
+      <div class="panel-title" style="margin-top:8px">Awareness → action</div>
+      <div class="panel-desc" style="margin-bottom:0">
+        Visibility is the start. From there: community workshops, advocacy with banjar and local government, behavior change in homes and schools. Fab Lab Bali coordinates the response loop with local partners.
+      </div>
+    </div>
+  </div>
+  <p class="lsa-foot">
+    Phase 1 (now): <a href="#cta" style="color:var(--accent-warm)">survey of matters of concern</a> · Phase 2: reporting bot · Phase 3: action with local partners
+  </p>
+</section>
+
 <!-- ===== PULL QUOTE ===== -->
 <section style="padding:0 4vw">
   <div class="pullquote">
@@ -1025,74 +1053,12 @@
   </div>
 </section>
 
-<!-- ===== CONCERNS ===== -->
-<section id="concerns">
-  <div class="section-label">Phase 1 · matters of concern</div>
-  <h2>What should we <em>make visible?</em></h2>
-  <div class="body-prose"><p>Starting prompts. Pick any, or tell us what's missing.</p></div>
-  <div class="concerns">
-    <div class="concern"><span class="concern-icon">●</span><div class="concern-name">Burning waste</div></div>
-    <div class="concern"><span class="concern-icon">●</span><div class="concern-name">Air quality</div></div>
-    <div class="concern"><span class="concern-icon">●</span><div class="concern-name">Water</div></div>
-    <div class="concern"><span class="concern-icon">●</span><div class="concern-name">Noise</div></div>
-    <div class="concern"><span class="concern-icon">●</span><div class="concern-name">Heat &amp; humidity</div></div>
-    <div class="concern"><span class="concern-icon">●</span><div class="concern-name">Plastic &amp; solid waste</div></div>
-    <div class="concern"><span class="concern-icon">●</span><div class="concern-name">Soil &amp; agriculture</div></div>
-    <div class="concern"><span class="concern-icon">●</span><div class="concern-name">Light pollution</div></div>
-    <div class="concern"><span class="concern-icon">●</span><div class="concern-name">Other</div></div>
-  </div>
-</section>
-
-<!-- ===== SURVEY ===== -->
-<section id="survey">
-  <div class="section-label">Take the survey</div>
-  <h2>Tell us <em>what matters.</em></h2>
-  <div class="body-prose">
-    <p>Five minutes. Anonymous if you want. No technical knowledge needed. Your answers shape what we measure, in which language, and who the data goes to.</p>
-    <p style="margin-top:24px"><a class="btn-primary" id="surveyLink" href="#" target="_blank" rel="noopener" style="text-decoration:none">→ Open the survey</a></p>
-  </div>
-</section>
-
-<!-- ===== WHAT THE SURVEY ASKS ===== -->
-<section>
-  <div class="section-label">What the survey asks</div>
-  <h2>Eight questions.</h2>
-  <div class="body-prose">
-    <ol style="font-family:'Newsreader',serif;font-size:17px;line-height:1.6;padding-left:20px;color:var(--paper)">
-      <li>What environmental issue do you most want made visible?</li>
-      <li>Where? (neighborhood, road, school, beach)</li>
-      <li>Who is most affected?</li>
-      <li>What evidence already exists?</li>
-      <li>What would change if this were visible — and to whom?</li>
-      <li>Want to take part further? (host a sensor, report, translate, attend workshops)</li>
-      <li>Preferred languages.</li>
-      <li>Optional contact.</li>
-    </ol>
-  </div>
-</section>
-
-<!-- ===== GET INVOLVED ===== -->
-<section id="contact">
-  <div class="section-label">Get involved</div>
-  <h2>Beyond the survey.</h2>
-  <div class="contact-grid">
-    <div class="contact-col">
-      <h3>I have a sensor in Bali</h3>
-      <p>Smart Citizen Kit, PurpleAir, Sensor.Community — any open-data sensor. We'll add it to the map.</p>
-    </div>
-    <div class="contact-col">
-      <h3>School, NGO, or community group</h3>
-      <p>Host a sensor, co-run a workshop, or co-design the campaign with us.</p>
-    </div>
-    <div class="contact-col">
-      <h3>I want to translate</h3>
-      <p>Bahasa Indonesia from day one. Bahasa Bali if there's interest. Local contributors specifically welcome.</p>
-    </div>
-  </div>
-  <p style="margin-top:24px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)">
-    Email: <a href="mailto:fablabbali@gmail.com">fablabbali@gmail.com</a>
-  </p>
-</section>
+<!-- CONCERNS chips, standalone SURVEY section, EIGHT QUESTIONS, and the
+     three-column GET INVOLVED block were removed — their content is now
+     covered by CTAs 2 + 3 above the fold. The original survey form URL
+     still lives in the SURVEY_OPEN_URL constant and is wired to every
+     "Tell us what matters" entry point on the page. -->
+<a id="survey" aria-hidden="true"></a><!-- keep #survey anchor for older external links -->
 
 <!-- ===== SHAREABLE CARDS ===== -->
 <section id="share" class="share-section">
@@ -1132,7 +1098,7 @@
       <button id="share-copy" class="btn" type="button" data-i18n="home.share.copy">Copy link</button>
       <span id="share-feedback" class="feedback" data-i18n="home.share.copied">Copied</span>
       <div style="margin-top:8px">
-        <label style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase" data-i18n="home.share.choose_loc">Choose neighbourhood</label><br>
+        <label style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted-text);letter-spacing:.15em;text-transform:uppercase" data-i18n="home.share.choose_loc">Choose neighbourhood</label><br>
         <select id="share-locality" style="margin-top:6px;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:11px;background:#fff;color:var(--ink);width:100%;max-width:260px"></select>
       </div>
     </div>
@@ -1146,6 +1112,8 @@
   <div class="body-prose" style="margin:0 auto 24px"><p>The data view shows raw sensor readings, WHO and EPA standards, network coverage, and reports broken down by category.</p></div>
   <a href="./dashboard/" class="btn-primary">→ Open data view</a>
 </section>
+
+</main>
 
 <!-- ===== FOOTER ===== -->
 <footer>
@@ -1183,21 +1151,35 @@
 const D = window.SCB_DATA;
 const P = window.SCB_PEAKS;
 const I = window.SCB_I18N;
-const t = (key, vars) => I.t(key, null, null, vars);
+// Forward all args to I.t — supports both t(key, vars) and t(key, lang, fallback, vars).
+const t = (...args) => I.t(...args);
 const REFRESH_MS = 5 * 60 * 1000;
 
-// Survey + WhatsApp endpoints. Bot number is a placeholder until the
-// production WhatsApp Business number lands; updating it here updates
-// every CTA on the page.
+// Survey + WhatsApp endpoints. Update WHATSAPP_BOT_NUMBER once when the
+// production WA Business number lands — every CTA, the hero button, and
+// the daily-story footer all consume reportEndpoint() so the swap is one
+// line.
 const SURVEY_OPEN_URL  = 'https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form';
 const SURVEY_EMBED_URL = 'https://airtable.com/embed/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form';
-const WHATSAPP_BOT_NUMBER = '6281555000111';  // TODO: production WA Business number
+const WHATSAPP_BOT_NUMBER = '6281555000111';  // placeholder — see PLACEHOLDER_BOT_NUMBER
+const PLACEHOLDER_BOT_NUMBER = '6281555000111';
 const WORKSHOP_SIGNUP_URL = 'https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form';
 
-function whatsappReportLink(prefill){
+// AUDIT P0-1: routing the headline "Report what you see" CTA at a
+// placeholder WA number is worse than not routing it at all. While the
+// production WhatsApp Business number isn't live, every "Report" entry
+// point falls back to the survey URL — that is the real Phase 1 action.
+// When the production number arrives, set WHATSAPP_BOT_NUMBER above and
+// reportEndpoint() will switch every CTA to wa.me/<real-number> in one go.
+const REPORTING_LIVE = WHATSAPP_BOT_NUMBER !== PLACEHOLDER_BOT_NUMBER;
+
+function reportEndpoint(prefill){
+  if (!REPORTING_LIVE) return SURVEY_OPEN_URL;
   const text = encodeURIComponent(prefill || 'Hi Smart Citizen Bali — I want to report:');
   return `https://wa.me/${WHATSAPP_BOT_NUMBER}?text=${text}`;
 }
+// Keep the old name as an alias so older call sites still work.
+function whatsappReportLink(prefill){ return reportEndpoint(prefill); }
 
 // ============================================================
 // BALI LOCALITIES — kept in sync with reports/murmurations_adapter.py
@@ -1234,7 +1216,12 @@ function applyTranslations(){
     const k = el.getAttribute('data-tpl-label');
     el.textContent = t('home.share.tpl_' + k, {loc: state.shareLocality?.name || '—'});
   });
-  document.getElementById('langToggle').textContent = t('statusbar.lang_toggle');
+  // Language toggle: button text shows the *target* language (so the
+  // user knows what they'll switch into); aria-label spells out the action.
+  const lt = document.getElementById('langToggle');
+  lt.textContent = t('statusbar.lang_toggle');
+  lt.setAttribute('aria-label',
+    I.currentLang() === 'en' ? 'Switch language to Bahasa Indonesia' : 'Ganti bahasa ke English');
   // Repopulate dynamic blocks
   populateLocalityDropdowns();
   renderHeroSeverity();
@@ -1253,38 +1240,47 @@ function toggleLanguage(){
 }
 
 // ============================================================
-// MAP
+// MAP — initialised after Leaflet loads (it's deferred). All Leaflet
+// usage in this script reads `map`/`sensorLayer` after initMap() runs.
 // ============================================================
-if (typeof L.GestureHandling !== 'undefined') {
-  L.Map.addInitHook('addHandler', 'gestureHandling', L.GestureHandling);
-}
-const map = L.map('map', {
-  center: D.BALI_CENTER, zoom: 10,
-  zoomControl: true, attributionControl: true,
-  gestureHandling: true,
-  gestureHandlingOptions: {
-    text: {
-      touch: 'Use two fingers to move the map',
-      scroll: 'Use Ctrl + scroll to zoom the map',
-      scrollMac: 'Use ⌘ + scroll to zoom the map',
-    },
-    duration: 1500,
-  },
-});
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-  attribution: '© OpenStreetMap · © CARTO',
-  subdomains: 'abcd', maxZoom: 19,
-}).addTo(map);
-
-const sensorLayer = L.layerGroup().addTo(map);
-// Reports render as a heatmap layer (rebuilt each render cycle) instead
-// of per-report pins. Per-report detail moves to the feed section below
-// the map; clicking a feed card calls focusReport() to fly here and
-// open a popup at the exact coordinates.
+let map, sensorLayer;
 let reportHeatLayer = null;
-// One reusable popup for "I clicked a feed item, show me where it is"
-// — created lazily so leaflet is fully initialized.
 let reportFocusPopup = null;
+
+function initMap(){
+  if (typeof L === 'undefined'){
+    // Leaflet hasn't loaded yet — try again on next tick.
+    setTimeout(initMap, 50);
+    return false;
+  }
+  if (map) return true;  // already initialised
+  if (typeof L.GestureHandling !== 'undefined') {
+    L.Map.addInitHook('addHandler', 'gestureHandling', L.GestureHandling);
+  }
+  map = L.map('map', {
+    center: D.BALI_CENTER, zoom: 10,
+    zoomControl: true, attributionControl: true,
+    gestureHandling: true,
+    gestureHandlingOptions: {
+      text: {
+        touch: 'Use two fingers to move the map',
+        scroll: 'Use Ctrl + scroll to zoom the map',
+        scrollMac: 'Use ⌘ + scroll to zoom the map',
+      },
+      duration: 1500,
+    },
+  });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap · © CARTO',
+    subdomains: 'abcd', maxZoom: 19,
+  }).addTo(map);
+  sensorLayer = L.layerGroup().addTo(map);
+  // Defer-script timing can leave the map container 0×0 at init — force a
+  // size recompute on the next tick. Otherwise leaflet-heat's canvas tries
+  // to getImageData on a 0-wide canvas and throws (audit verification).
+  setTimeout(() => { if (map) map.invalidateSize(); }, 0);
+  return true;
+}
 
 function pinIcon(kind){
   return L.divIcon({
@@ -1411,25 +1407,19 @@ function tryGeolocation(){
   );
 }
 
-// Returns {band: 'green'|'yellow'|'orange'|'red'|'unknown', value:number|null, sensor:obj|null}
-function pickHeroReading(){
-  // Sensors active in last 14 days with a PM2.5 reading
-  const active = state.sensors.filter(s => D.isActive(s.lastReading) && s.reading && typeof s.reading.pm25 === 'number');
-  if (state.heroLocality){
-    // Closest active sensor in 10km
-    let pick = null, bestKm = Infinity;
-    for (const s of active){
-      const km = P.distanceKm(state.heroLocality.lat, state.heroLocality.lng, s.lat, s.lng);
-      if (km < bestKm){ bestKm = km; pick = s; }
-    }
-    if (pick && bestKm < 10) return { band: severityBand(pick.reading.pm25), value: pick.reading.pm25, sensor: pick };
-    return { band: 'unknown', value: null, sensor: null };
-  }
-  // Bali-wide: use the worst reading as the alert
-  if (!active.length) return { band: 'unknown', value: null, sensor: null };
-  const worst = active.reduce((m, s) => s.reading.pm25 > m.reading.pm25 ? s : m, active[0]);
-  return { band: severityBand(worst.reading.pm25), value: worst.reading.pm25, sensor: worst };
-}
+// ===== SHARED SEVERITY RESOLVER (audit P0-2 + CQ-4) ===========
+// One helper, two call sites (hero + share card). Was duplicated as
+// `pickHeroReading`/`pickShareReading` with subtly different gating;
+// drift between them gave us the "worst reading labelled network-wide"
+// bug. Now: locality picks the *closest* sensor within LOCALITY_RADIUS_KM;
+// Bali-wide returns the network *median* (with worst surfaced separately
+// so the hero ctx-line can still say "worst right now: X µg/m³ at Y").
+//
+// Returns:
+//   { band, value, sensor, mode, activeCount, worst? }
+//     mode = 'locality' | 'bali-median' | 'none'
+//     worst is populated only in 'bali-median' mode for the ctx-line
+const LOCALITY_RADIUS_KM = 5;   // tightened from 10 per audit P0-2
 
 function severityBand(pm25){
   if (pm25 == null || isNaN(pm25)) return 'unknown';
@@ -1439,15 +1429,42 @@ function severityBand(pm25){
   return 'red';
 }
 
+function resolveSeverityForView(opts){
+  const locality = opts && opts.locality;
+  const active = state.sensors.filter(s => D.isActive(s.lastReading) && s.reading && typeof s.reading.pm25 === 'number');
+  if (!active.length){
+    return { band:'unknown', value:null, sensor:null, mode:'none', activeCount:0 };
+  }
+  if (locality){
+    let pick = null, bestKm = Infinity;
+    for (const s of active){
+      const km = P.distanceKm(locality.lat, locality.lng, s.lat, s.lng);
+      if (km < bestKm){ bestKm = km; pick = s; }
+    }
+    if (pick && bestKm <= LOCALITY_RADIUS_KM){
+      return { band: severityBand(pick.reading.pm25), value: pick.reading.pm25, sensor: pick, mode:'locality', activeCount: active.length, distanceKm: bestKm };
+    }
+    // No nearby sensor — explicit fallback rather than silently using "worst".
+    return { band:'unknown', value:null, sensor:null, mode:'none', activeCount: active.length };
+  }
+  // Bali-wide: median is the honest headline number with N=2 nodes.
+  const vals = active.map(s => s.reading.pm25).sort((a,b) => a-b);
+  const median = vals[Math.floor(vals.length / 2)];
+  const worst = active.reduce((m, s) => s.reading.pm25 > m.reading.pm25 ? s : m, active[0]);
+  return { band: severityBand(median), value: median, sensor: null, mode:'bali-median', activeCount: active.length, worst };
+}
+
+// Back-compat shims — keep call sites working while we deprecate them.
+function pickHeroReading(){ return resolveSeverityForView({ locality: state.heroLocality }); }
+
 function renderHeroSeverity(){
-  const r = pickHeroReading();
+  const r = resolveSeverityForView({ locality: state.heroLocality });
   const band = r.band;
   const num = document.getElementById('hero-pm25-number');
   const bandEl = document.getElementById('severity-band');
   const bandLbl = document.getElementById('severity-band-label');
   const line = document.getElementById('hero-plain-line');
   const ctx = document.getElementById('hero-ctx');
-
   const locName = state.heroLocality ? state.heroLocality.name : t('home.hero.bali_wide');
 
   // Number + colour
@@ -1461,23 +1478,38 @@ function renderHeroSeverity(){
 
   // Band pill
   const bandKey = band === 'unknown' ? 'unknown' : band;
-  const bandLabelKey = `home.severity.${bandKey}.label`;
-  bandLbl.textContent = t(bandLabelKey);
-  bandLbl.setAttribute('data-i18n', bandLabelKey);
+  bandLbl.textContent = t(`home.severity.${bandKey}.label`);
+  bandLbl.setAttribute('data-i18n', `home.severity.${bandKey}.label`);
   bandEl.className = 'hero-v2-band sev-' + band;
 
-  // Plain-language line
-  const lineKey = `home.severity.${bandKey}.text`;
-  line.textContent = t(lineKey, { loc: locName });
-  line.setAttribute('data-i18n', lineKey);
-
-  // Context
-  if (r.sensor && r.value != null){
-    const time = r.sensor.lastReading ? new Date(r.sensor.lastReading).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
-    ctx.textContent = `${t('home.hero.peaked_at')} ${r.value.toFixed(1)} µg/m³${time ? ' · ' + time : ''} · ${r.sensor.name} · ${t('home.hero.who_guideline')}`;
+  // Plain-language line — locality miss gets the explicit fallback
+  if (state.heroLocality && r.mode === 'none'){
+    line.removeAttribute('data-i18n');
+    line.textContent = t('home.hero.no_nearby', null, `No sensor near ${locName} yet — pick a different neighbourhood, or check the Bali-wide view.`, {loc: locName});
   } else {
-    ctx.textContent = t('home.hero.no_data');
+    const lineKey = `home.severity.${bandKey}.text`;
+    line.textContent = t(lineKey, { loc: locName });
+    line.setAttribute('data-i18n', lineKey);
   }
+
+  // Context line — labelling now matches the actual mode (audit P0-2):
+  //   locality:    "closest sensor · X µg/m³ · 350m · 10:21 · ..."
+  //   bali-median: "median across N sensors · worst right now: Y µg/m³ at Z"
+  //   none:        "no nearby sensor (pick a locality)"
+  let ctxText = '';
+  if (r.mode === 'locality' && r.sensor){
+    const time = r.sensor.lastReading ? new Date(r.sensor.lastReading).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+    const dist = r.distanceKm != null ? P.formatDistance(r.distanceKm) : '';
+    ctxText = `${r.sensor.name} · ${dist}${time ? ' · ' + time : ''} · ${t('home.hero.who_guideline')}`;
+  } else if (r.mode === 'bali-median'){
+    const tail = r.worst
+      ? ` · ${t('home.hero.worst_right_now', null, 'worst right now')}: ${r.worst.reading.pm25.toFixed(1)} µg/m³ @ ${r.worst.name}`
+      : '';
+    ctxText = `${t('home.hero.median_across', null, 'median across', {n: r.activeCount})} ${r.activeCount} ${t('home.hero.active_sensors', null, 'active sensors')}${tail} · ${t('home.hero.who_guideline')}`;
+  } else {
+    ctxText = t('home.hero.no_data');
+  }
+  ctx.textContent = ctxText;
 }
 
 // ============================================================
@@ -1620,19 +1652,11 @@ function renderShareCard(){
 }
 
 function pickShareReading(loc){
-  const active = state.sensors.filter(s => D.isActive(s.lastReading) && s.reading && typeof s.reading.pm25 === 'number');
-  if (loc){
-    let best = null, km = Infinity;
-    for (const s of active){
-      const d = P.distanceKm(loc.lat, loc.lng, s.lat, s.lng);
-      if (d < km){ km = d; best = s; }
-    }
-    if (best && km < 10) return { band: severityBand(best.reading.pm25), value: best.reading.pm25, sensor: best, weekSeries: null };
-    return { band: 'unknown', value: null, sensor: null, weekSeries: null };
-  }
-  if (!active.length) return { band: 'unknown', value: null, sensor: null, weekSeries: null };
-  const worst = active.reduce((m, s) => s.reading.pm25 > m.reading.pm25 ? s : m, active[0]);
-  return { band: severityBand(worst.reading.pm25), value: worst.reading.pm25, sensor: worst, weekSeries: null };
+  // Same resolver as the hero — no drift. weekSeries placeholder kept
+  // for the share-card week template (still uses synthSeries() until the
+  // SC history fetch lands here too).
+  const r = resolveSeverityForView({ locality: loc });
+  return { ...r, weekSeries: null };
 }
 function pickRH(loc){
   const active = state.sensors.filter(s => D.isActive(s.lastReading) && s.reading && typeof s.reading.rh === 'number');
@@ -1671,20 +1695,59 @@ function drawSpark(svg, values){
   `;
 }
 
-function downloadShareCard(){
+// Lazy-load html2canvas on first card download. Caches the load promise so
+// repeated clicks share one network fetch.
+let _h2cLoader = null;
+function loadHtml2Canvas(){
+  if (window.html2canvas) return Promise.resolve(window.html2canvas);
+  if (_h2cLoader) return _h2cLoader;
+  _h2cLoader = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.async = true;
+    s.onload  = () => resolve(window.html2canvas);
+    s.onerror = () => reject(new Error('html2canvas failed to load'));
+    document.head.appendChild(s);
+  });
+  return _h2cLoader;
+}
+
+async function downloadShareCard(){
+  const btn = document.getElementById('share-download');
   const card = document.getElementById('share-card');
-  if (!window.html2canvas){ alert('Card renderer not loaded yet — please retry.'); return; }
-  window.html2canvas(card, { backgroundColor: null, scale: 2 }).then(canvas => {
+  if (!card) return;
+  const origLabel = btn ? btn.textContent : '';
+  try {
+    if (btn){ btn.disabled = true; btn.textContent = '…'; }
+    const h2c = await loadHtml2Canvas();
+    const canvas = await h2c(card, { backgroundColor: null, scale: 2 });
     const link = document.createElement('a');
     const tpl = state.shareTemplate;
     const loc = (state.shareLocality?.key || 'bali');
     link.download = `scb-${tpl}-${loc}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-  });
+  } catch (e){
+    console.error('[share]', e);
+    alert(t('home.share.download_failed', null, 'Could not generate the card. Try again in a moment.'));
+  } finally {
+    if (btn){ btn.disabled = false; btn.textContent = origLabel; }
+  }
 }
 
 function renderPins(){
+  if (!map || !sensorLayer) return;   // Leaflet hasn't loaded yet
+  // Sync canvas size with container — defer-script timing can leave the
+  // map 0-wide on first render. Without this, leaflet-heat tries to
+  // getImageData on a 0×0 canvas and the whole render path explodes.
+  map.invalidateSize();
+  const size = map.getSize();
+  if (size.x === 0 || size.y === 0){
+    // Container still has no width — give up on this render and try
+    // again on the next refresh tick. Don't add a heat layer; if we do,
+    // any subsequent map event will re-redraw it and re-throw.
+    return;
+  }
   sensorLayer.clearLayers();
   for(const s of state.sensors){
     let pinKind;
@@ -1707,14 +1770,21 @@ function renderPins(){
     .filter(r => typeof r.lat === 'number' && typeof r.lng === 'number')
     .map(r => [r.lat, r.lng, 0.85]);
   if (heatPoints.length && typeof L.heatLayer === 'function') {
-    reportHeatLayer = L.heatLayer(heatPoints, {
-      radius: 38, blur: 28, maxZoom: 16, minOpacity: 0.45,
-      // Warm saffron → red gradient — visually matches the page accent
-      // and reads as "concentration of citizen attention" rather than
-      // the cool blues a default heatmap gives you.
-      gradient: {0.2:'#d8b86a', 0.4:'#e08a2e', 0.65:'#d96a4f', 0.85:'#c4392b'},
-    });
-    reportHeatLayer.addTo(map);
+    try {
+      reportHeatLayer = L.heatLayer(heatPoints, {
+        radius: 38, blur: 28, maxZoom: 16, minOpacity: 0.45,
+        gradient: {0.2:'#d8b86a', 0.4:'#e08a2e', 0.65:'#d96a4f', 0.85:'#c4392b'},
+      });
+      reportHeatLayer.addTo(map);
+    } catch (e) {
+      // leaflet-heat crashes if the map canvas is 0-wide. Fully remove the
+      // half-added layer — otherwise the next map event (e.g. fitBounds →
+      // moveend) re-runs draw() on it and re-throws.
+      console.warn('[heat] addTo failed (will retry):', e.message);
+      try { if (reportHeatLayer) map.removeLayer(reportHeatLayer); } catch(_){}
+      reportHeatLayer = null;
+      setTimeout(() => { if (map) map.invalidateSize(); }, 100);
+    }
   }
 
   renderReportFeed();
@@ -1725,6 +1795,7 @@ function renderPins(){
 // this gives you the per-point detail without re-adding pins.
 function focusReport(r){
   if (typeof r.lat !== 'number' || typeof r.lng !== 'number') return;
+  if (!map) return;   // map not ready yet
   if (!reportFocusPopup) reportFocusPopup = L.popup({maxWidth: 320, autoClose: true});
   reportFocusPopup
     .setLatLng([r.lat, r.lng])
@@ -1877,68 +1948,47 @@ function buildReportPopup(r){
     </div>`;
 }
 
+// Network-wide statistics: feeds the statusbar counters and the four
+// "reading-now" mini-widgets inside the Families · Reading translated
+// panels (PM2.5, mosquito, noise, heat). The today-card map overlay
+// and "Today in four numbers" block were removed (audit P0-2 + restructure);
+// the hero severity widget covers their headline role.
 function updateCounts(){
   const sN = state.sensors.length, rN = state.reports.length;
   document.getElementById('sensorCount').textContent = sN;
   document.getElementById('reportCount').textContent = rN;
-  const head = document.getElementById('today-headline');
-  const dot = document.getElementById('overall-dot');
-  const lbl = document.getElementById('overall-label');
 
-  // Compute active vs offline
   const activeSensors = state.sensors.filter(s => D.isActive(s.lastReading));
-  const offlineSensors = state.sensors.filter(s => !D.isActive(s.lastReading));
 
-  // Active sensors with current PM2.5 reading
-  const pmReadings = activeSensors
-    .map(s => ({val: s.reading && s.reading.pm25, name: s.name, source: s.sourceLabel}))
-    .filter(o => o.val!=null && !isNaN(o.val));
-
-  let median = null, worst = null, overallCls = 'unknown';
-  if(pmReadings.length){
-    const vals = pmReadings.map(o => o.val).sort((a,b)=>a-b);
-    median = vals[Math.floor(vals.length/2)];
-    worst = pmReadings.reduce((m, x) => x.val > m.val ? x : m, pmReadings[0]);
-    overallCls = D.classifyPM25(median);
-  }
-
-  // Network medians for all indicators we care about
   function medianOf(key){
     const vals = activeSensors.map(s => s.reading && s.reading[key]).filter(v => v!=null && !isNaN(v));
     if(!vals.length) return null;
     vals.sort((a,b) => a-b);
     return vals[Math.floor(vals.length/2)];
   }
+  const medPM   = medianOf('pm25');
   const medTemp = medianOf('temp');
   const medRH   = medianOf('rh');
   const medNoise = medianOf('noise');
 
-  // Update "Today in numbers" panel
-  const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-  setText('num-active', activeSensors.length);
-  setText('num-offline', offlineSensors.length);
-
-  // ===== Live readings inside the "What this means" cards =====
   function fmt(v, dp){ return v == null ? '—' : v.toFixed(dp ?? 1); }
   function renderReading(elId, label, value, unit, verdictText, verdictColor, isEmpty){
     const el = document.getElementById(elId);
     if(!el) return;
     el.className = 'reading-now' + (isEmpty ? ' empty' : '');
-    if(isEmpty){
-      el.innerHTML = `<div class="reading-now-label">${label}</div><div class="reading-now-value">— <span class="unit">no data</span></div>`;
-    } else {
-      el.innerHTML = `<div class="reading-now-label">${label}</div><div class="reading-now-value">${value}${unit ? ' <span class="unit">' + unit + '</span>' : ''}</div><div class="reading-now-verdict" style="color:${verdictColor}">${verdictText}</div>`;
-    }
+    el.innerHTML = isEmpty
+      ? `<div class="reading-now-label">${label}</div><div class="reading-now-value">— <span class="unit">no data</span></div>`
+      : `<div class="reading-now-label">${label}</div><div class="reading-now-value">${value}${unit ? ' <span class="unit">' + unit + '</span>' : ''}</div><div class="reading-now-verdict" style="color:${verdictColor}">${verdictText}</div>`;
   }
 
   // PM2.5
-  if(median == null){
+  if(medPM == null){
     renderReading('ctx-pm25-current', 'Network median right now', null, null, null, null, true);
   } else {
-    const cls = D.classifyPM25(median);
-    const color = cls==='bad'?'var(--bad)':cls==='warn'?'var(--warn)':cls==='good'?'var(--good)':'var(--ink)';
+    const cls = D.classifyPM25(medPM);
+    const color = cls==='bad'?'var(--bad)':cls==='warn'?'var(--warn-text)':cls==='good'?'var(--good-text)':'var(--ink)';
     const verdict = cls==='bad'?'Above WHO 24h × 2 — sensitive groups affected.':cls==='warn'?'Above WHO 24h — moderate concern.':cls==='good'?'Within WHO 24h guideline.':'Mixed readings across sensors.';
-    renderReading('ctx-pm25-current', 'Network median right now', fmt(median), 'µg/m³', verdict, color, false);
+    renderReading('ctx-pm25-current', 'Network median right now', fmt(medPM), 'µg/m³', verdict, color, false);
   }
 
   // Mosquito
@@ -1947,11 +1997,11 @@ function updateCounts(){
   } else {
     let risk, color, note;
     const inTempRange = medTemp >= 26 && medTemp <= 30;
-    if(medRH < 60){ risk = 'LOW'; color = 'var(--good)'; note = 'Humidity below 60% — Aedes breeding declines.'; }
+    if(medRH < 60){ risk = 'LOW'; color = 'var(--good-text)'; note = 'Humidity below 60% — Aedes breeding declines.'; }
     else if(medRH >= 80){ risk = 'HIGH'; color = 'var(--crit)'; note = 'Also favours mold and dust mites.'; }
     else if(medRH >= 70 && inTempRange){ risk = 'HIGH'; color = 'var(--bad)'; note = 'Optimal Aedes breeding window for dengue.'; }
-    else if(medRH >= 60){ risk = 'MODERATE'; color = 'var(--warn)'; note = 'Empty standing water around your home.'; }
-    else { risk = 'LOW'; color = 'var(--good)'; note = ''; }
+    else if(medRH >= 60){ risk = 'MODERATE'; color = 'var(--warn-text)'; note = 'Empty standing water around your home.'; }
+    else { risk = 'LOW'; color = 'var(--good-text)'; note = ''; }
     renderReading('ctx-mosquito-current', 'Bali right now', `${fmt(medTemp)}°C · ${fmt(medRH,0)}% RH`, risk, note, color, false);
   }
 
@@ -1960,9 +2010,9 @@ function updateCounts(){
     renderReading('ctx-noise-current', 'Network median right now', null, null, null, null, true);
   } else {
     let color, note;
-    if(medNoise < 40){ color = 'var(--good)'; note = 'Comfortable indoor level.'; }
-    else if(medNoise < 55){ color = 'var(--warn)'; note = 'Above WHO indoor night — fine for daytime.'; }
-    else if(medNoise < 70){ color = 'var(--warn)'; note = 'Above EPA daytime intrusion threshold.'; }
+    if(medNoise < 40){ color = 'var(--good-text)'; note = 'Comfortable indoor level.'; }
+    else if(medNoise < 55){ color = 'var(--warn-text)'; note = 'Above WHO indoor night — fine for daytime.'; }
+    else if(medNoise < 70){ color = 'var(--warn-text)'; note = 'Above EPA daytime intrusion threshold.'; }
     else if(medNoise < 85){ color = 'var(--bad)'; note = 'Sustained exposure stresses the body.'; }
     else { color = 'var(--crit)'; note = 'Hearing damage risk with sustained exposure.'; }
     renderReading('ctx-noise-current', 'Network median right now', fmt(medNoise), 'dBA', note, color, false);
@@ -1973,49 +2023,11 @@ function updateCounts(){
     renderReading('ctx-heat-current', 'Network median right now', null, null, null, null, true);
   } else {
     let color, note;
-    if(medTemp < 26){ color = 'var(--good)'; note = 'Within ASHRAE work-comfort range.'; }
-    else if(medTemp <= 30){ color = 'var(--good)'; note = 'Tropical normal — acceptable with airflow.'; }
-    else if(medTemp <= 33){ color = 'var(--warn)'; note = 'Outdoor exertion gets harder.'; }
+    if(medTemp < 26){ color = 'var(--good-text)'; note = 'Within ASHRAE work-comfort range.'; }
+    else if(medTemp <= 30){ color = 'var(--good-text)'; note = 'Tropical normal — acceptable with airflow.'; }
+    else if(medTemp <= 33){ color = 'var(--warn-text)'; note = 'Outdoor exertion gets harder.'; }
     else { color = 'var(--bad)'; note = 'Heat-stress risk for outdoor workers.'; }
     renderReading('ctx-heat-current', 'Network median right now', fmt(medTemp), '°C', note, color, false);
-  }
-  if(median != null){
-    const cls = D.classifyPM25(median);
-    const color = cls==='bad'?'var(--bad)':cls==='warn'?'var(--warn)':cls==='good'?'var(--good)':'var(--paper)';
-    const el = document.getElementById('num-median');
-    if(el){ el.textContent = median.toFixed(1); el.style.color = color; }
-  } else {
-    setText('num-median', '—');
-  }
-  if(worst){
-    const cls = D.classifyPM25(worst.val);
-    const color = cls==='bad'?'var(--bad)':cls==='warn'?'var(--warn)':cls==='good'?'var(--good)':'var(--paper)';
-    const el = document.getElementById('num-worst-value');
-    if(el){ el.innerHTML = `${worst.val.toFixed(1)} <span style="font-size:18px;color:var(--muted);font-family:'IBM Plex Mono',monospace">µg/m³</span>`; el.style.color = color; }
-    setText('num-worst-loc', worst.name);
-  } else {
-    setText('num-worst-value', '—');
-    setText('num-worst-loc', '—');
-  }
-
-  if(sN === 0 && rN === 0){
-    head.textContent = 'No sensors in Bali yet. Be the first.';
-    dot.style.background = 'var(--muted)';
-    lbl.textContent = 'CHECKING…';
-    lbl.className = 'today-status-text good';
-  } else {
-    const cls2color = {good:'var(--good)', warn:'var(--warn)', bad:'var(--bad)', unknown:'var(--muted)'};
-    const cls2label = {good:'AIR LOOKS OK', warn:'WORTH ATTENTION', bad:'CONCERN', unknown:'LIVE'};
-    const cls2head = {
-      good:`${sN} sensors live · most readings within WHO 24h.`,
-      warn:`${sN} sensors live · some readings above WHO 24h.`,
-      bad:`${sN} sensors live · several readings above WHO 24h × 2.`,
-      unknown:`${sN} sensor${sN!==1?'s':''}, ${rN} report${rN!==1?'s':''} on the map.`,
-    };
-    dot.style.background = cls2color[overallCls];
-    lbl.textContent = cls2label[overallCls];
-    lbl.className = 'today-status-text ' + (overallCls==='unknown'?'good':overallCls);
-    head.textContent = cls2head[overallCls];
   }
 }
 
@@ -2047,7 +2059,7 @@ function renderSourceDiag(){
       rows.push(`<div style="color:${color}">${label}: ${info.count}</div>`);
     }
   }
-  el.innerHTML = `<div style="color:var(--muted);letter-spacing:.15em;text-transform:uppercase;font-size:9px;margin-bottom:6px">Sources</div>${rows.join('')}`;
+  el.innerHTML = `<div style="color:var(--muted-text);letter-spacing:.15em;text-transform:uppercase;font-size:9px;margin-bottom:6px">Sources</div>${rows.join('')}`;
 }
 
 async function loadAll(){
@@ -2064,7 +2076,7 @@ async function loadAll(){
     renderSourceDiag();
     if(sensors.length || reports.length){
       const all = [...sensors, ...reports].map(p => [p.lat, p.lng]).filter(p => p[0]!=null);
-      if(all.length > 1) map.fitBounds(L.latLngBounds(all), {padding:[40,40], maxZoom:13});
+      if(all.length > 1 && map) map.fitBounds(L.latLngBounds(all), {padding:[40,40], maxZoom:13});
     }
     setLive('ok','statusbar.live');
   } catch(e){
@@ -2073,13 +2085,8 @@ async function loadAll(){
   }
 }
 
-// ============================================================
-// SURVEY
-// ============================================================
-(function(){
-  const linkBtn = document.getElementById('surveyLink');
-  if(linkBtn && SURVEY_OPEN_URL) linkBtn.href = SURVEY_OPEN_URL;
-})();
+// (Legacy #surveyLink IIFE removed — the standalone Survey section is gone;
+// wireHomeV2() repoints the CTA-2 card href to SURVEY_OPEN_URL on boot.)
 
 // ============================================================
 // HOME V2 — CTAs, share templates, geolocation wiring
@@ -2089,10 +2096,31 @@ function wireHomeV2(){
   const reportLink = document.getElementById('cta-report-link');
   const heroReport = document.getElementById('hero-btn-report');
   const storyReport = document.getElementById('story-report-link');
-  const waUrl = whatsappReportLink('Hi Smart Citizen Bali — I want to report:');
-  if (reportLink) reportLink.href = waUrl;
-  if (heroReport) heroReport.href = waUrl;
-  if (storyReport) storyReport.href = waUrl;
+  const reportUrl = reportEndpoint('Hi Smart Citizen Bali — I want to report:');
+  if (reportLink) reportLink.href = reportUrl;
+  if (heroReport) heroReport.href = reportUrl;
+  if (storyReport) storyReport.href = reportUrl;
+
+  // P0-1: when WA isn't live yet, flag the "Report" CTAs so the action
+  // label is honest about routing to the survey instead. We rewrite the
+  // data-i18n attribute too, otherwise the next applyTranslations() call
+  // would clobber our fallback textContent back to "Open WhatsApp →".
+  // Once WHATSAPP_BOT_NUMBER changes, REPORTING_LIVE flips true and the
+  // original keys are used.
+  document.querySelectorAll('#cta-report-link, #hero-btn-report')
+    .forEach(el => el.setAttribute('data-state', REPORTING_LIVE ? 'live' : 'survey-fallback'));
+  if (!REPORTING_LIVE){
+    const action = document.querySelector('#cta-report-link .cta-card-action');
+    if (action){
+      action.setAttribute('data-i18n', 'home.cta.report.action_fallback');
+      action.textContent = t('home.cta.report.action_fallback');
+    }
+    if (heroReport){
+      heroReport.setAttribute('data-i18n', 'home.hero.btn_report_fallback');
+      heroReport.textContent = t('home.hero.btn_report_fallback');
+    }
+  }
+
   const surveyLink = document.getElementById('cta-survey-link');
   if (surveyLink) surveyLink.href = SURVEY_OPEN_URL;
 
@@ -2139,14 +2167,36 @@ updateCounts = function(){
 
 // ============================================================
 // INIT
+// Above-the-fold widgets (severity hero, CTAs, daily story, audience
+// sections) don't need Leaflet — boot them immediately. The map waits
+// for Leaflet (deferred); once it loads, we initMap() and reload the
+// pins. Sensors/reports fetching is independent and starts now.
 // ============================================================
-initLocality();
-wireHomeV2();
-applyTranslations();
-(async () => { state.story = await fetchDailyStory(); renderDailyStory(); })();
-loadAll();
-setInterval(loadAll, REFRESH_MS);
-window.addEventListener('resize', () => map.invalidateSize());
+function boot(){
+  initLocality();
+  wireHomeV2();
+  applyTranslations();
+  (async () => { state.story = await fetchDailyStory(); renderDailyStory(); })();
+
+  // Try map init now; if Leaflet isn't ready yet, the deferred scripts
+  // will fire their `load` event and we'll catch up.
+  initMap();
+  if (!map){
+    window.addEventListener('load', () => {
+      if (initMap()) renderPins();
+    }, { once: true });
+  }
+
+  loadAll();
+  setInterval(loadAll, REFRESH_MS);
+  window.addEventListener('resize', () => { if (map) map.invalidateSize(); });
+}
+
+if (document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', boot, { once: true });
+} else {
+  boot();
+}
 </script>
 </body>
 </html>
