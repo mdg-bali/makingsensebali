@@ -15,6 +15,8 @@
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js" crossorigin=""></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="../data.js"></script>
+<script src="../peaks.js"></script>
+<script src="../i18n.js"></script>
 
 <style>
   :root{
@@ -142,83 +144,129 @@
     .map-overlay{position:static;margin:14px 4vw 0;max-width:none !important}
   }
 
-  /* ===== REPORTS FEED ===== */
-  /* Dashboard theme is dark; cards adapt to the surrounding ink. */
-  .reports-feed{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
-    gap:14px;
-  }
-  .report-card{
-    display:flex;
-    flex-direction:column;
-    background:var(--bg2, #1a1d21);
-    border:1px solid var(--line, rgba(255,255,255,0.1));
-    border-radius:6px;
-    overflow:hidden;
+  /* ===== REPORTS FEED — compact, expand-in-place ===== */
+  .reports-feed{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .feed-row{
+    background:var(--bg2);
+    padding:11px 16px;
     cursor:pointer;
-    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    transition:background .12s ease;
+    display:flex;flex-direction:column;gap:6px;
     outline:none;
+    border-left:2px solid transparent;
   }
-  .report-card:hover, .report-card:focus-visible{
-    transform:translateY(-2px);
-    border-color:#e08a2e;
-    box-shadow:0 8px 24px rgba(0,0,0,0.35);
+  .feed-row:hover, .feed-row:focus-visible{background:var(--bg3);border-left-color:var(--accent)}
+  .feed-row.expanded{background:var(--bg3);border-left-color:var(--accent);padding-bottom:18px}
+  .feed-row-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px}
+  .feed-time{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:.05em;min-width:64px}
+  .feed-cat{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    padding:2px 7px;border-radius:3px;font-weight:600;
+    background:rgba(255,255,255,0.06);color:var(--cream);
   }
-  .report-card-thumb{
-    width:100%; height:140px; overflow:hidden;
+  .feed-cat-burning{background:rgba(196,57,43,0.20);color:#e8775d}
+  .feed-cat-trash{background:rgba(224,138,46,0.20);color:#e8a04a}
+  .feed-cat-water{background:rgba(58,122,184,0.22);color:#7fb1e0}
+  .feed-cat-construction{background:rgba(163,126,62,0.22);color:#caa05a}
+  .feed-cat-vehicle{background:rgba(91,141,239,0.18);color:#8eb5f5}
+  .feed-cat-industrial{background:rgba(122,58,140,0.22);color:#b67fc8}
+  .feed-cat-dust{background:rgba(155,155,155,0.22);color:#c7c0b0}
+  .feed-cat-other{background:rgba(255,255,255,0.08);color:#c9c0aa}
+  .feed-locality{color:var(--muted);font-size:11px}
+  .feed-preview{
+    font-family:'Inter',sans-serif;font-size:13px;line-height:1.45;
+    color:var(--cream);
+    overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;
+    margin:0;
+  }
+  .feed-row.expanded .feed-preview{display:none}
+  .feed-detail{display:none;margin-top:6px;padding-top:10px;border-top:1px solid var(--line);font-size:13.5px;line-height:1.55;color:var(--cream)}
+  .feed-row.expanded .feed-detail{display:block}
+  .feed-detail img{display:block;width:100%;max-width:380px;height:auto;border-radius:3px;border:1px solid var(--line);margin:8px 0 12px}
+  .feed-ai{margin-top:10px;padding:8px 11px;background:rgba(255,255,255,0.04);border-left:2px solid var(--accent);font-size:12.5px;line-height:1.55;font-style:italic}
+  .feed-ai-indicators{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.05em;margin-top:6px;font-style:normal}
+
+  .feed-filters{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 14px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+  .feed-chip{
+    background:transparent;border:1px solid var(--line);color:var(--cream);
+    padding:5px 10px;border-radius:3px;cursor:pointer;transition:all .12s;
+    font-family:inherit;font-size:inherit;letter-spacing:inherit;text-transform:inherit;
+  }
+  .feed-chip:hover{border-color:var(--accent);color:var(--accent)}
+  .feed-chip.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .feed-chip-label{color:var(--muted);padding:5px 4px 5px 0;align-self:center}
+  .feed-load-more{margin:14px auto 0;display:block}
+
+  /* ===== HISTORY CHARTS ===== */
+  .chart-block{margin-top:18px}
+  .chart-block-title{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .chart-block-title b{color:var(--paper);font-weight:500;letter-spacing:.05em;font-size:12px;text-transform:none}
+  .chart-block-title .peak-count{color:var(--accent);font-size:10px}
+  .chart-strip{
+    position:relative;
+    background:rgba(255,255,255,0.025);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:8px 10px;
+    height:130px;
+  }
+  .chart-strip canvas{display:block;width:100%!important;height:100%!important}
+  .chart-strip-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em}
+  .chart-section-title{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;margin:18px 0 8px;border-top:1px solid var(--line);padding-top:14px}
+
+  /* ===== CORRELATION CHIPS ===== */
+  .corr-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .corr-chip{
+    display:inline-flex;align-items:center;gap:6px;
     background:rgba(255,255,255,0.04);
+    border:1px solid var(--line);
+    padding:5px 10px;border-radius:3px;
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;
+    color:var(--cream);cursor:pointer;transition:all .12s;
   }
-  .report-card-thumb img{
-    width:100%; height:100%; object-fit:cover; display:block;
+  .corr-chip:hover{border-color:var(--accent);color:var(--accent)}
+  .corr-chip-strong{border-color:var(--bad);color:var(--bad)}
+  .corr-chip-strong:hover{background:rgba(217,106,79,0.12);color:var(--bad)}
+  .corr-prompt{
+    margin-top:10px;padding:10px 12px;
+    background:rgba(232,160,74,0.08);
+    border:1px dashed var(--accent);border-radius:4px;
+    font-size:12.5px;line-height:1.5;color:var(--cream);
   }
-  .report-card-body{
-    padding:14px 16px 16px;
-    display:flex; flex-direction:column; gap:8px;
-    min-height:80px;
+  .corr-prompt a{font-weight:600}
+  .corr-corroborates{
+    margin-top:10px;padding:10px 12px;
+    background:rgba(217,106,79,0.10);
+    border-left:3px solid var(--bad);
+    font-size:12.5px;line-height:1.5;color:var(--paper);
   }
-  .report-card-meta{
-    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+
+  /* ===== LANGUAGE TOGGLE ===== */
+  .lang-toggle{
+    background:transparent;border:1px solid var(--line);
+    color:var(--muted);padding:5px 9px;border-radius:3px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;
+    cursor:pointer;transition:all .12s;
   }
-  .report-card-cat{
-    font-family:'JetBrains Mono','IBM Plex Mono',monospace;
-    font-size:10px; letter-spacing:.12em; text-transform:uppercase;
-    padding:3px 8px; border-radius:3px;
-    background:rgba(224,138,46,0.15); color:#e8a04a; font-weight:600;
-  }
-  .report-card-cat-burning{background:rgba(196,57,43,0.18); color:#e8775d}
-  .report-card-cat-trash{background:rgba(224,138,46,0.18); color:#e8a04a}
-  .report-card-cat-water{background:rgba(58,122,184,0.22); color:#7fb1e0}
-  .report-card-cat-construction{background:rgba(163,126,62,0.22); color:#caa05a}
-  .report-card-cat-vehicle{background:rgba(91,141,239,0.18); color:#8eb5f5}
-  .report-card-cat-industrial{background:rgba(122,58,140,0.22); color:#b67fc8}
-  .report-card-cat-dust{background:rgba(155,155,155,0.22); color:#c7c0b0}
-  .report-card-cat-other{background:rgba(255,255,255,0.08); color:#c9c0aa}
-  .report-card-locality{font-size:12px; color:#8a948c}
-  .report-card-desc{
-    font-family:'Newsreader',serif;
-    font-size:14.5px; line-height:1.45;
-    color:#f4ede0; margin:0;
-  }
-  .report-card-time{
-    font-family:'JetBrains Mono','IBM Plex Mono',monospace;
-    font-size:10px; color:#8a948c; letter-spacing:.08em;
-    margin-top:auto;
-  }
+  .lang-toggle:hover{border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
 <body>
 
 <div class="statusbar">
   <div class="status-left">
-    <span><span class="live-dot loading" id="liveDot"></span><span id="liveLabel">CONNECTING…</span></span>
-    <span><span class="status-label">Sensors</span> <span class="status-val" id="sensorCount">—</span></span>
-    <span><span class="status-label">Active 24h</span> <span class="status-val" id="activeCount">—</span></span>
-    <span><span class="status-label">Reports</span> <span class="status-val" id="reportCount">—</span></span>
+    <span><span class="live-dot loading" id="liveDot"></span><span id="liveLabel" data-i18n="statusbar.connecting">CONNECTING…</span></span>
+    <span><span class="status-label" data-i18n="statusbar.sensors">Sensors</span> <span class="status-val" id="sensorCount">—</span></span>
+    <span><span class="status-label" data-i18n="statusbar.active_24h">Active 24h</span> <span class="status-val" id="activeCount">—</span></span>
+    <span><span class="status-label" data-i18n="statusbar.reports">Reports</span> <span class="status-val" id="reportCount">—</span></span>
+    <span><span class="status-label" data-i18n="statusbar.peaks_24h">Active peaks · 24h</span> <span class="status-val" id="peaks24Count">—</span></span>
+    <span><span class="status-label" data-i18n="statusbar.peaks_7d">Active peaks · 7d</span> <span class="status-val" id="peaks7Count">—</span></span>
   </div>
   <div class="status-right">
-    <a href="../" class="btn">← Home</a>
-    <a href="../#survey" class="btn primary">+ Take part</a>
+    <button id="langToggle" class="lang-toggle" type="button" title="Toggle language">EN</button>
+    <a href="../" class="btn" data-i18n="action.home">← Home</a>
+    <a href="../#survey" class="btn primary" data-i18n="action.take_part">+ Take part</a>
   </div>
 </div>
 
@@ -291,8 +339,10 @@
 <section>
   <div class="section-label">Citizen reports · feed</div>
   <h2>Latest <em>resident reports.</em></h2>
-  <div class="body-prose"><p>The map above shows density; the cards below are individual reports. Click any card to fly the map to that location and open its full detail.</p></div>
-  <div id="reports-feed" class="reports-feed" style="margin-top:18px"></div>
+  <div class="body-prose"><p>The map above shows density; the rows below are individual reports. Click any row to expand it inline, fly the map to that location, and see nearby sensor readings at the time of submission.</p></div>
+  <div id="feed-filters" class="feed-filters"></div>
+  <div id="reports-feed" class="reports-feed"></div>
+  <button id="feed-load-more" class="btn feed-load-more" type="button" style="display:none" data-i18n="feed.load_more">Load more</button>
 </section>
 
 <section>
@@ -428,7 +478,11 @@
 <script>
 'use strict';
 const D = window.SCB_DATA;
+const P = window.SCB_PEAKS;
+const I = window.SCB_I18N;
+const t = (key, fb) => I.t(key, null, fb != null ? fb : key);
 const REFRESH_MS = 5 * 60 * 1000;
+const FEED_PAGE_SIZE = 30;
 
 if (typeof L.GestureHandling !== 'undefined') {
   L.Map.addInitHook('addHandler', 'gestureHandling', L.GestureHandling);
@@ -447,9 +501,8 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
 }).addTo(map);
 
 const sensorLayer = L.layerGroup().addTo(map);
-// Reports → heatmap layer, rebuilt on each renderPins() call.
-// Per-report detail moves to the feed list rendered in the right panel.
 let reportHeatLayer = null;
+let chartInstances = [];   // teardown handles for Chart.js instances in the Selected panel
 
 function pinIcon(kind){
   return L.divIcon({className:'',
@@ -459,7 +512,34 @@ function pinIcon(kind){
 
 function fmt(v, dp=2){return v==null||isNaN(v)?'—':Number(v).toFixed(dp);}
 
-const state = {sensors:[], reports:[]};
+// ===== STATE =====
+// state.peaks: { [sensorId]: { peaks24: [...], peaks7d: [...], series: { [metric]: { id, name, unit, points24, points7d, peaks24, peaks7d } } } }
+// state.feedFilters: { window: 'all'|'24h'|'7d', category: string|null }
+// state.feedLimit: max items shown
+const state = {
+  sensors:[], reports:[], summary:null,
+  peaks: {},
+  feedFilters: { window: 'all', category: null },
+  feedLimit: FEED_PAGE_SIZE,
+  expandedReportId: null,
+};
+
+// ===== i18n APPLICATION =====
+function applyTranslations(){
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  document.getElementById('langToggle').textContent = t('statusbar.lang_toggle');
+  // Rerender dynamic blocks that depend on language
+  renderFeedFilters();
+  renderReportFeed();
+}
+function toggleLanguage(){
+  const cur = I.currentLang();
+  I.setLang(cur === 'en' ? 'id' : 'en');
+  applyTranslations();
+}
 
 function renderPins(){
   sensorLayer.clearLayers();
@@ -495,77 +575,199 @@ function renderPins(){
   renderReportFeed();
 }
 
-// Feed rendering — keyed off state.reports. Clicking a card flies the
-// map to that report's coords and calls selectReport(r) to fill the
-// detail pane below the map.
-function renderReportFeed(){
-  const container = document.getElementById('reports-feed');
-  if (!container) return;
-  const reports = state.reports.slice().sort((a, b) => {
+// ===== REPORTS FEED — compact, expand-in-place, filterable =====
+function filteredReports(){
+  const now = Date.now();
+  const winMs = state.feedFilters.window === '24h' ? 24*3600*1000
+              : state.feedFilters.window === '7d'  ? 7*24*3600*1000
+              : null;
+  return state.reports.filter(r => {
+    if (state.feedFilters.category && r.category !== state.feedFilters.category) return false;
+    if (winMs && r.submittedAt){
+      if (now - new Date(r.submittedAt).getTime() > winMs) return false;
+    }
+    return true;
+  }).sort((a, b) => {
     const ta = a.submittedAt ? +new Date(a.submittedAt) : 0;
     const tb = b.submittedAt ? +new Date(b.submittedAt) : 0;
     return tb - ta;
   });
-  if (!reports.length) {
-    container.innerHTML = '<div class="empty-state">No citizen reports yet.</div>';
+}
+
+function renderFeedFilters(){
+  const container = document.getElementById('feed-filters');
+  if (!container) return;
+  const cats = [...new Set(state.reports.map(r => r.category || 'other'))].sort();
+  const win = state.feedFilters.window;
+  const cat = state.feedFilters.category;
+  const chip = (label, active, attr, val) =>
+    `<button class="feed-chip ${active ? 'active' : ''}" data-${attr}="${val}" type="button">${label}</button>`;
+  container.innerHTML =
+    `<span class="feed-chip-label">${t('feed.filter_category')}:</span>` +
+    chip(t('feed.filter_all'),     !cat, 'cat', '__all') +
+    cats.map(c => chip(c.replace(/_/g,' '), cat===c, 'cat', c)).join('') +
+    `<span class="feed-chip-label" style="margin-left:14px">·</span>` +
+    chip(t('feed.filter_24h'),     win==='24h', 'win', '24h') +
+    chip(t('feed.filter_7d'),      win==='7d',  'win', '7d') +
+    chip(t('feed.filter_alltime'), win==='all', 'win', 'all');
+  container.querySelectorAll('[data-cat]').forEach(el => el.addEventListener('click', () => {
+    const v = el.dataset.cat;
+    state.feedFilters.category = v === '__all' ? null : v;
+    state.feedLimit = FEED_PAGE_SIZE;
+    renderFeedFilters(); renderReportFeed();
+  }));
+  container.querySelectorAll('[data-win]').forEach(el => el.addEventListener('click', () => {
+    state.feedFilters.window = el.dataset.win;
+    state.feedLimit = FEED_PAGE_SIZE;
+    renderFeedFilters(); renderReportFeed();
+  }));
+}
+
+function renderReportFeed(){
+  const container = document.getElementById('reports-feed');
+  if (!container) return;
+  const all = filteredReports();
+  if (!all.length){
+    container.innerHTML = `<div class="empty-state">${D.escapeHtml(t('feed.empty'))}</div>`;
+    document.getElementById('feed-load-more').style.display = 'none';
     return;
   }
-  container.innerHTML = reports.map((r, i) => {
-    const cat = (r.category || 'other').replace(/_/g, ' ');
-    const when = r.submittedAt ? new Date(r.submittedAt).toLocaleString() : '';
-    const desc = (r.description || '').slice(0, 180);
-    const photo = r.photoUrl
-      ? `<div class="report-card-thumb"><img src="${D.escapeHtml(r.photoUrl)}" alt="" loading="lazy"></div>`
-      : '';
-    return `
-      <article class="report-card" data-idx="${i}" tabindex="0" role="button">
-        ${photo}
-        <div class="report-card-body">
-          <div class="report-card-meta">
-            <span class="report-card-cat report-card-cat-${D.escapeHtml(r.category || 'other')}">${D.escapeHtml(cat)}</span>
-            ${r.locality ? `<span class="report-card-locality">${D.escapeHtml(r.locality)}</span>` : ''}
-          </div>
-          ${desc ? `<p class="report-card-desc">${D.escapeHtml(desc)}${(r.description || '').length > 180 ? '…' : ''}</p>` : ''}
-          <div class="report-card-time">${D.escapeHtml(when)}</div>
-        </div>
-      </article>`;
-  }).join('');
-  container.querySelectorAll('.report-card').forEach(el => {
-    const r = reports[parseInt(el.dataset.idx, 10)];
-    const open = () => {
-      // Pan the map to the report and fill the detail pane.
-      if (typeof r.lat === 'number' && typeof r.lng === 'number') {
-        map.flyTo([r.lat, r.lng], 16, {duration: 0.7});
-      }
-      selectReport(r);
-    };
-    el.addEventListener('click', open);
+  const shown = all.slice(0, state.feedLimit);
+  container.innerHTML = shown.map((r, i) => renderFeedRowHtml(r, i)).join('');
+  shown.forEach((r, i) => {
+    const el = container.querySelector(`.feed-row[data-idx="${i}"]`);
+    if (!el) return;
+    const toggle = () => toggleFeedRow(r, el);
+    el.addEventListener('click', toggle);
     el.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+    });
+  });
+  const moreBtn = document.getElementById('feed-load-more');
+  if (all.length > state.feedLimit){
+    moreBtn.style.display = 'inline-flex';
+    moreBtn.onclick = () => { state.feedLimit += FEED_PAGE_SIZE; renderReportFeed(); };
+  } else {
+    moreBtn.style.display = 'none';
+  }
+}
+
+function renderFeedRowHtml(r, idx){
+  const cat = (r.category || 'other');
+  const catLabel = cat.replace(/_/g, ' ');
+  const time = I.formatRelative(r.submittedAt);
+  const preview = (r.description || '').slice(0, 110);
+  const expanded = state.expandedReportId === r.id;
+  return `<article class="feed-row ${expanded ? 'expanded' : ''}" data-idx="${idx}" data-id="${D.escapeHtml(r.id)}" tabindex="0" role="button" aria-expanded="${expanded}">
+    <div class="feed-row-top">
+      <span class="feed-time">${D.escapeHtml(time)}</span>
+      <span class="feed-cat feed-cat-${D.escapeHtml(cat)}">${D.escapeHtml(catLabel)}</span>
+      ${r.locality ? `<span class="feed-locality">${D.escapeHtml(r.locality)}</span>` : ''}
+    </div>
+    ${preview ? `<p class="feed-preview">${D.escapeHtml(preview)}${(r.description||'').length > 110 ? '…' : ''}</p>` : ''}
+    <div class="feed-detail">${expanded ? renderFeedDetailHtml(r) : ''}</div>
+  </article>`;
+}
+
+function renderFeedDetailHtml(r){
+  const photo = r.photoUrl
+    ? `<img src="${D.escapeHtml(r.photoUrl)}" alt="" loading="lazy">`
+    : '';
+  const full = r.description ? `<div>${D.escapeHtml(r.description)}</div>` : '';
+  const ai = (r.aiDescription || (r.indicators && r.indicators.length))
+    ? `<div class="feed-ai">
+        ${r.aiDescription ? D.escapeHtml(r.aiDescription) : ''}
+        ${r.indicators && r.indicators.length
+          ? `<div class="feed-ai-indicators">Detected: ${D.escapeHtml(r.indicators.slice(0,4).join(', '))}</div>`
+          : ''}
+       </div>`
+    : '';
+  const nearby = renderNearbySensorsForReport(r);
+  return `${photo}${full}${ai}${nearby}`;
+}
+
+// Direction B: report → sensors. Looks up cached peaks per sensor, surfaces
+// any corroborating one strongly. Renders chips for sensors within 1km
+// and ±1h of the report time.
+function renderNearbySensorsForReport(r){
+  if (!r.submittedAt || typeof r.lat !== 'number' || typeof r.lng !== 'number') return '';
+  const getPeaks = (s) => {
+    const entry = state.peaks[s.id];
+    if (!entry) return [];
+    return entry.peaks7d || [];
+  };
+  const near = P.sensorsNear(state.sensors, r.submittedAt, r.lat, r.lng, 1, 1, getPeaks);
+  if (!near.length) return '';
+  const chips = near.map((n, i) => {
+    const strong = n.corroboratingPeak ? ' corr-chip-strong' : '';
+    const label = `${D.escapeHtml(n.sensor.name)} · ${P.formatDistance(n.distanceKm)}`;
+    const peakNote = n.corroboratingPeak
+      ? ` · ${P.metricLabel(n.corroboratingPeak.metric)} ${n.corroboratingPeak.value.toFixed(1)}${P.metricUnit(n.corroboratingPeak.metric)} (${P.formatDelta(n.corroboratingPeak.deltaMs, 'report')})`
+      : '';
+    return `<button class="corr-chip${strong}" data-corr-sid="${D.escapeHtml(n.sensor.id)}" type="button">${label}${peakNote}</button>`;
+  }).join('');
+  // If any nearby sensor has a corroborating peak, surface a strong banner.
+  const corroborator = near.find(n => n.corroboratingPeak);
+  const banner = corroborator
+    ? `<div class="corr-corroborates">
+         <b>${D.escapeHtml(t('peak.corroborates'))}</b> — ${D.escapeHtml(P.metricLabel(corroborator.corroboratingPeak.metric))}
+         spiked to ${corroborator.corroboratingPeak.value.toFixed(1)} ${P.metricUnit(corroborator.corroboratingPeak.metric)}
+         at ${D.escapeHtml(corroborator.sensor.name)} (${P.formatDistance(corroborator.distanceKm)} away,
+         ${P.formatDelta(corroborator.corroboratingPeak.deltaMs, 'report')}).
+       </div>`
+    : '';
+  return `${banner}
+    <div style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase">${D.escapeHtml(t('peak.nearby_sensors'))}</div>
+    <div class="corr-chips">${chips}</div>`;
+}
+
+function toggleFeedRow(r, el){
+  const wasExpanded = state.expandedReportId === r.id;
+  state.expandedReportId = wasExpanded ? null : r.id;
+  // Pan the map and open detail pane when expanding (not when collapsing)
+  if (!wasExpanded){
+    if (typeof r.lat === 'number' && typeof r.lng === 'number'){
+      map.flyTo([r.lat, r.lng], 16, { duration: 0.6 });
+    }
+    selectReport(r);
+  }
+  renderReportFeed();
+  // Wire up correlation chip clicks inside the just-rendered detail
+  document.querySelectorAll('[data-corr-sid]').forEach(b => {
+    b.addEventListener('click', ev => {
+      ev.stopPropagation();
+      const sid = b.dataset.corrSid;
+      const s = state.sensors.find(x => x.id === sid);
+      if (s){
+        map.setView([s.lat, s.lng], 14, { animate: true });
+        selectSensor(s);
+      }
     });
   });
 }
 
 async function selectSensor(s){
+  destroyCharts();
   document.getElementById('adv-detail-label').textContent = s.sourceLabel;
   document.getElementById('adv-detail-title').textContent = s.name;
   document.getElementById('adv-detail-desc').textContent =
     `${s.description || ''} · last reading: ${s.lastReading?new Date(s.lastReading).toLocaleString():'unknown'}`;
   document.getElementById('adv-detail-body').innerHTML =
-    `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">Loading sensor detail…</div>`;
+    `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${D.escapeHtml(t('detail.loading'))}</div>`;
 
   try {
     if(s.source === 'smartcitizen'){
-      // Smart Citizen requires an extra detail call to get current readings
       const detail = await D.fetchSmartCitizenDetail(s.rawId);
       renderSmartCitizenDetail(detail, s);
+      // History charts are SCK-only (Phase 1 scope). Fire-and-forget — the
+      // detail panel is interactive before charts finish loading.
+      fetchAndRenderHistory(detail, s);
     } else {
-      // OpenAQ etc. ship readings in the locations response — render directly
       renderCachedReading(s);
     }
   } catch(e){
     document.getElementById('adv-detail-body').innerHTML =
-      `<div class="empty-state">Could not fetch detail: ${D.escapeHtml(e.message)}</div>`;
+      `<div class="empty-state">${D.escapeHtml(t('detail.fetch_failed'))}: ${D.escapeHtml(e.message)}</div>`;
   }
   document.querySelector('.section-label').scrollIntoView({behavior:'smooth', block:'start'});
 }
@@ -576,7 +778,6 @@ function selectReport(r){
   const sev = r.severity ? ` · severity ${r.severity}` : '';
   document.getElementById('adv-detail-desc').textContent =
     `Category: ${r.category||'general'}${sev} · ${r.submittedAt?new Date(r.submittedAt).toLocaleString():''}`;
-  // Photo only renders when operator explicitly published it.
   const photoBlock = r.photoUrl
     ? `<a href="${D.escapeHtml(r.photoUrl)}" target="_blank" rel="noopener"
           style="display:block;margin:0 0 14px;line-height:0">
@@ -585,7 +786,6 @@ function selectReport(r){
                      border:1px solid var(--line)">
        </a>`
     : '';
-  // AI analysis block — only shows after the M1 worker has populated it.
   const aiBlock = (r.aiDescription || (r.indicators && r.indicators.length))
     ? `<div style="margin:14px 0 0;padding:10px 12px;
                    background:rgba(255,255,255,0.04);
@@ -605,7 +805,18 @@ function selectReport(r){
        </div>`
     : '';
   document.getElementById('adv-detail-body').innerHTML =
-    `${photoBlock}<div class="panel-body">${D.escapeHtml(r.description||'')}</div>${aiBlock}`;
+    `${photoBlock}<div class="panel-body">${D.escapeHtml(r.description||'')}</div>${aiBlock}${renderNearbySensorsForReport(r)}`;
+  // Wire chips inside detail pane
+  document.getElementById('adv-detail-body').querySelectorAll('[data-corr-sid]').forEach(b => {
+    b.addEventListener('click', () => {
+      const sid = b.dataset.corrSid;
+      const s = state.sensors.find(x => x.id === sid);
+      if (s){
+        map.setView([s.lat, s.lng], 14, {animate: true});
+        selectSensor(s);
+      }
+    });
+  });
 }
 
 function renderSmartCitizenDetail(detail, s){
@@ -622,17 +833,249 @@ function renderSmartCitizenDetail(detail, s){
     {label:'Noise',            v:findVal(['Noise']),          unit:'dBA',   threshold:55},
   ];
   const html = rows.map(r => {
-    if(!r.v) return `<div class="stat-row"><span class="stat-label">${r.label}</span><span class="stat-val" style="opacity:.4">no data</span></div>`;
+    if(!r.v) return `<div class="stat-row"><span class="stat-label">${r.label}</span><span class="stat-val" style="opacity:.4">${D.escapeHtml(t('history.no_data'))}</span></div>`;
     const v = r.v.value, over = r.threshold && v > r.threshold;
     return `<div class="stat-row"><span class="stat-label">${r.label}</span><span class="stat-val" style="${over?'color:var(--bad)':''}">${fmt(v)} ${r.unit}${over?' ⚠':''}</span></div>`;
   }).join('');
   document.getElementById('adv-detail-body').innerHTML = `
     <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:14px">Live · ${detail.data?.recorded_at?new Date(detail.data.recorded_at).toLocaleString():''}</div>
     ${html}
+    <div id="adv-detail-charts">
+      <div class="chart-section-title">${D.escapeHtml(t('history.title_24h'))} · ${D.escapeHtml(t('history.title_7d'))}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${D.escapeHtml(t('history.loading'))}</div>
+    </div>
     <div style="margin-top:18px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">
       Source: <a href="${D.escapeHtml(s.detailsUrl)}" target="_blank" rel="noopener">${D.escapeHtml(s.sourceLabel)} →</a><br>
       Sensors on device: ${sensors.length}
     </div>`;
+}
+
+// ===== HISTORY: fetch series for every classifiable sensor on the device,
+// detect peaks, render 24h + 7d strip charts, attach correlation chips. =====
+async function fetchAndRenderHistory(detail, sensorObj){
+  const deviceId = detail.id || sensorObj.rawId;
+  const sensors = (detail.data && detail.data.sensors) || detail.sensors || [];
+  const classified = sensors
+    .map(s => ({ raw: s, metric: P.classifyMetric(s.name) }))
+    .filter(x => x.metric);
+  if (!classified.length){
+    const slot = document.getElementById('adv-detail-charts');
+    if (slot) slot.innerHTML = `<div class="chart-section-title">History</div><div class="empty-state">${D.escapeHtml(t('history.empty'))}</div>`;
+    return;
+  }
+
+  const now = new Date();
+  const from24 = new Date(now.getTime() - 24 * 3600 * 1000).toISOString();
+  const from7  = new Date(now.getTime() -  7 * 24 * 3600 * 1000).toISOString();
+  const toIso  = now.toISOString();
+
+  // 24h: raw resolution (every reading). 7d: hourly rollup to keep payload sane.
+  const ids = classified.map(c => c.raw.id);
+  let pts24 = {}, pts7 = {};
+  try {
+    [pts24, pts7] = await Promise.all([
+      D.fetchSmartCitizenHistoryBulk(deviceId, ids, from24, toIso, null),
+      D.fetchSmartCitizenHistoryBulk(deviceId, ids, from7,  toIso, '1h'),
+    ]);
+  } catch(e){
+    const slot = document.getElementById('adv-detail-charts');
+    if (slot) slot.innerHTML = `<div class="empty-state">${D.escapeHtml(t('history.error'))} ${D.escapeHtml(e.message || '')}</div>`;
+    return;
+  }
+
+  // Build series objects + detect peaks per metric/window
+  const series = {};
+  const allPeaks24 = [], allPeaks7 = [];
+  for (const c of classified){
+    const m = c.metric;
+    const points24 = pts24[c.raw.id] || [];
+    const points7  = pts7[c.raw.id]  || [];
+    const peaks24 = P.detectPeaks(points24, m);
+    const peaks7  = P.detectPeaks(points7,  m);
+    allPeaks24.push(...peaks24);
+    allPeaks7.push(...peaks7);
+    series[m] = {
+      sensorId: c.raw.id,
+      sensorName: c.raw.name,
+      unit: c.raw.unit || P.metricUnit(m),
+      points24, points7, peaks24, peaks7,
+    };
+  }
+
+  // Stash on state for cross-component access (e.g. report → sensor lookup)
+  state.peaks[sensorObj.id] = {
+    deviceId,
+    peaks24: allPeaks24, peaks7d: allPeaks7,
+    series,
+  };
+  updatePeakCounters();
+
+  // Render
+  const slot = document.getElementById('adv-detail-charts');
+  if (!slot) return;
+  const metricsOrdered = Object.keys(series).sort((a, b) => {
+    // Prioritize PM2.5, then PM10, then everything else
+    const order = ['pm25','pm10','pm1','temp','rh','gas','pressure','noise'];
+    return order.indexOf(a) - order.indexOf(b);
+  });
+
+  const blocks = metricsOrdered.map(m => {
+    const ent = series[m];
+    const label = P.metricLabel(m);
+    const unit  = P.metricUnit(m);
+    const id24 = `ch24-${m}`, id7 = `ch7-${m}`;
+    return `
+      <div class="chart-block">
+        <div class="chart-block-title">
+          <b>${D.escapeHtml(label)}</b>
+          <span>${D.escapeHtml(t('history.title_24h'))}${ent.peaks24.length ? ` · <span class="peak-count">${ent.peaks24.length} peak${ent.peaks24.length>1?'s':''}</span>` : ''}</span>
+        </div>
+        <div class="chart-strip">${ent.points24.length ? `<canvas id="${id24}"></canvas>` : `<div class="chart-strip-empty">${D.escapeHtml(t('history.empty'))}</div>`}</div>
+        <div class="chart-block-title" style="margin-top:10px">
+          <b style="opacity:0">${D.escapeHtml(label)}</b>
+          <span>${D.escapeHtml(t('history.title_7d'))}${ent.peaks7.length ? ` · <span class="peak-count">${ent.peaks7.length} peak${ent.peaks7.length>1?'s':''}</span>` : ''}</span>
+        </div>
+        <div class="chart-strip">${ent.points7.length ? `<canvas id="${id7}"></canvas>` : `<div class="chart-strip-empty">${D.escapeHtml(t('history.empty'))}</div>`}</div>
+        <div id="corr-${m}"></div>
+      </div>`;
+  }).join('');
+
+  slot.innerHTML = `<div class="chart-section-title">History · ${D.escapeHtml(metricsOrdered.map(P.metricLabel).join(' · '))}</div>${blocks}`;
+
+  // Instantiate Chart.js for each metric
+  for (const m of metricsOrdered){
+    const ent = series[m];
+    if (ent.points24.length) drawStripChart(`ch24-${m}`, ent.points24, ent.peaks24, m, ent.unit);
+    if (ent.points7.length)  drawStripChart(`ch7-${m}`,  ent.points7,  ent.peaks7,  m, ent.unit);
+    // Direction A: peak → nearby reports
+    renderPeakCorrelations(`corr-${m}`, sensorObj, ent.peaks24.concat(ent.peaks7), m);
+  }
+}
+
+function drawStripChart(canvasId, points, peaks, metric, unit){
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || !points.length) return;
+
+  const peakKey = new Set(peaks.map(p => p.recordedAt));
+  const peakSeverity = new Map(peaks.map(p => [p.recordedAt, p.severity || 'warn']));
+  const peakColor = (sev) => sev === 'bad' ? '#d96a4f' : sev === 'warn' ? '#e8a04a' : '#5fa8a8';
+
+  // Category axis with formatted labels — avoids needing a Chart.js date adapter.
+  const labels = points.map(p => {
+    const d = new Date(p.recordedAt);
+    // Same day → just HH:mm. Otherwise dd/MM HH:mm.
+    const now = new Date();
+    const sameDay = d.toDateString() === now.toDateString();
+    return sameDay
+      ? d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+      : d.toLocaleDateString([], {day:'2-digit', month:'short'}) + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  });
+  const values = points.map(p => p.value);
+
+  const chart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: P.metricLabel(metric),
+        data: values,
+        borderColor: '#5fa8a8',
+        backgroundColor: 'rgba(95,168,168,0.10)',
+        borderWidth: 1.4,
+        fill: true,
+        tension: 0.25,
+        pointRadius: ctx => peakKey.has(points[ctx.dataIndex].recordedAt) ? 4 : 0,
+        pointBackgroundColor: ctx => peakKey.has(points[ctx.dataIndex].recordedAt) ? peakColor(peakSeverity.get(points[ctx.dataIndex].recordedAt)) : '#5fa8a8',
+        pointBorderColor:     ctx => peakKey.has(points[ctx.dataIndex].recordedAt) ? peakColor(peakSeverity.get(points[ctx.dataIndex].recordedAt)) : '#5fa8a8',
+        pointHoverRadius: 6,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      interaction: { mode: 'nearest', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15,20,23,0.95)',
+          borderColor: '#2a3138',
+          borderWidth: 1,
+          titleFont: { family: 'JetBrains Mono', size: 10 },
+          bodyFont:  { family: 'Inter', size: 12 },
+          callbacks: {
+            title: (items) => new Date(points[items[0].dataIndex].recordedAt).toLocaleString(),
+            label: (item) => {
+              const iso = points[item.dataIndex].recordedAt;
+              const peak = peaks.find(p => p.recordedAt === iso);
+              const v = item.parsed.y.toFixed(1) + ' ' + unit;
+              if (peak) return [v, '⚠ ' + peak.thresholdLabel];
+              return v;
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#8a948c', font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 6, maxRotation: 0, autoSkip: true },
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#8a948c', font: { family: 'JetBrains Mono', size: 9 } },
+        },
+      },
+    },
+  });
+  chartInstances.push(chart);
+}
+
+function destroyCharts(){
+  for (const c of chartInstances){ try { c.destroy(); } catch(_){} }
+  chartInstances = [];
+}
+
+// Direction A: for each peak in the sensor's series, list nearby reports.
+// If none, surface the "report this peak" prompt. Renders into containerId.
+function renderPeakCorrelations(containerId, sensorObj, peaks, metric){
+  const el = document.getElementById(containerId);
+  if (!el || !peaks.length) return;
+  // Take the most severe peak as anchor; older/lesser peaks can clutter the UI.
+  const sorted = peaks.slice().sort((a, b) => {
+    const sev = (p) => ({info:1,warn:2,bad:3,crit:4})[p.severity || 'warn'] || 2;
+    return sev(b) - sev(a) || new Date(b.recordedAt) - new Date(a.recordedAt);
+  });
+  const anchor = sorted[0];
+  const near = P.reportsNear(state.reports, anchor.recordedAt, sensorObj.lat, sensorObj.lng, 1, 2);
+  if (near.length){
+    const chips = near.slice(0, 4).map(n => {
+      const r = n.report;
+      const label = `${D.escapeHtml((r.category || 'report').replace(/_/g,' '))} · ${P.formatDistance(n.distanceKm)} · ${P.formatDelta(n.deltaMs, 'peak')}`;
+      return `<button class="corr-chip" data-corr-rid="${D.escapeHtml(r.id)}" type="button">${label}</button>`;
+    }).join('');
+    el.innerHTML = `
+      <div style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase">${D.escapeHtml(t('peak.nearby_reports'))}</div>
+      <div class="corr-chips">${chips}</div>`;
+    el.querySelectorAll('[data-corr-rid]').forEach(b => {
+      b.addEventListener('click', () => {
+        const rid = b.dataset.corrRid;
+        const r = state.reports.find(x => x.id === rid);
+        if (r){
+          state.expandedReportId = r.id;
+          renderReportFeed();
+          if (typeof r.lat === 'number') map.flyTo([r.lat, r.lng], 16, {duration: 0.6});
+          selectReport(r);
+          document.getElementById('reports-feed').scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      });
+    });
+  } else {
+    el.innerHTML = `
+      <div class="corr-prompt">
+        ${D.escapeHtml(t('peak.report_prompt'))}
+        <a href="../#survey">${D.escapeHtml(t('peak.report_link'))}</a>
+      </div>`;
+  }
 }
 
 function renderCachedReading(s){
@@ -747,14 +1190,29 @@ function updateStats(){
   }
 }
 
-function setLive(state, msg){
+function setLive(stateName, msgKey){
   const dot=document.getElementById('liveDot'), lbl=document.getElementById('liveLabel');
-  dot.className = 'live-dot ' + (state==='ok'?'':state);
-  lbl.textContent = msg;
+  dot.className = 'live-dot ' + (stateName==='ok'?'':stateName);
+  lbl.setAttribute('data-i18n', msgKey);
+  lbl.textContent = t(msgKey);
+}
+
+// Roll up cached peak counts across all sensors that have been inspected.
+// Counters only populate as users click sensors — initial value is "—".
+function updatePeakCounters(){
+  let count24 = 0, count7 = 0;
+  for (const entry of Object.values(state.peaks)){
+    count24 += (entry.peaks24 || []).length;
+    count7  += (entry.peaks7d || []).length;
+  }
+  const el24 = document.getElementById('peaks24Count');
+  const el7  = document.getElementById('peaks7Count');
+  if (el24) el24.textContent = count24 ? String(count24) : (Object.keys(state.peaks).length ? '0' : '—');
+  if (el7)  el7.textContent  = count7  ? String(count7)  : (Object.keys(state.peaks).length ? '0' : '—');
 }
 
 async function loadAll(){
-  setLive('loading','SYNCING…');
+  setLive('loading','statusbar.syncing');
   try{
     const [sensors, reports, summary] = await Promise.all([
       D.fetchAllSensors(),
@@ -762,15 +1220,19 @@ async function loadAll(){
       D.fetchReportsSummary ? D.fetchReportsSummary() : Promise.resolve(null),
     ]);
     state.sensors = sensors; state.reports = reports; state.summary = summary;
-    renderPins(); updateStats();
+    renderPins(); updateStats(); renderFeedFilters(); renderReportFeed();
     if(sensors.length || reports.length){
       const all = [...sensors, ...reports].map(p=>[p.lat,p.lng]).filter(p=>p[0]!=null);
       if(all.length > 1) map.fitBounds(L.latLngBounds(all), {padding:[40,40], maxZoom:13});
     }
-    setLive('ok','LIVE');
-  } catch(e){ console.error(e); setLive('error','ERROR'); }
+    setLive('ok','statusbar.live');
+  } catch(e){ console.error(e); setLive('error','statusbar.error'); }
 }
 
+// Boot
+document.getElementById('langToggle').addEventListener('click', toggleLanguage);
+applyTranslations();
+updatePeakCounters();
 loadAll();
 setInterval(loadAll, REFRESH_MS);
 window.addEventListener('resize', () => map.invalidateSize());

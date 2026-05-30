@@ -15,3 +15,6 @@ venv/
 
 # Local-only data — see reports/.gitignore for the bot's runtime data
 .env
+
+# Claude Code local settings (preview server config)
+.claude/
