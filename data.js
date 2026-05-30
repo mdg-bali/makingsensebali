@@ -224,6 +224,120 @@ async function fetchSmartCitizenDetail(rawId){
   return sckFetch(`/devices/${rawId}`);
 }
 
+// ------------------------------------------------------------
+// Historical readings (used for dashboard time-series charts)
+//
+// Smart Citizen's /v0/devices/{id}/readings endpoint takes:
+//   sensor_id  required, global sensor catalog ID
+//   from / to  ISO 8601 window bounds
+//   rollup     optional bucketing — '5m', '1h', etc.
+//
+// Response shape (observed):
+//   {
+//     device_id, sensor_key, sensor_id, rollup, from, to,
+//     readings: [[ ISO_timestamp, value ], ...],     // chronological
+//   }
+//
+// We normalize to [{ recordedAt, value }, ...] for the charting code.
+//
+// CACHING (localStorage):
+//   Key: scb-sckhist:{deviceId}:{sensorId}:{rollup}:{from}:{to}
+//   TTL: 5 minutes. Reduces SC API pressure when the dashboard auto-refreshes
+//   and when users toggle between sensors on the same device.
+// ------------------------------------------------------------
+const SCK_HISTORY_TTL_MS = 5 * 60 * 1000;
+const SCK_HISTORY_KEY_PREFIX = 'scb-sckhist:';
+
+function _historyCacheKey(deviceId, sensorId, fromIso, toIso, rollup){
+  return `${SCK_HISTORY_KEY_PREFIX}${deviceId}:${sensorId}:${rollup || 'raw'}:${fromIso}:${toIso}`;
+}
+
+function _historyCacheGet(key){
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    if (!obj || typeof obj.savedAt !== 'number') return null;
+    if (Date.now() - obj.savedAt > SCK_HISTORY_TTL_MS) {
+      localStorage.removeItem(key);
+      return null;
+    }
+    return Array.isArray(obj.points) ? obj.points : null;
+  } catch (_){
+    return null;
+  }
+}
+
+function _historyCachePut(key, points){
+  try {
+    localStorage.setItem(key, JSON.stringify({ savedAt: Date.now(), points }));
+  } catch (_){
+    // Quota exhausted — best-effort GC of our own keys, then give up silently.
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--){
+        const k = localStorage.key(i);
+        if (k && k.startsWith(SCK_HISTORY_KEY_PREFIX)) localStorage.removeItem(k);
+      }
+    } catch(_){}
+  }
+}
+
+// fetchSmartCitizenHistory(19651, 87, '2026-05-29T...', '2026-05-30T...', '5m')
+async function fetchSmartCitizenHistory(deviceId, sensorId, fromIso, toIso, rollup = null){
+  const cacheKey = _historyCacheKey(deviceId, sensorId, fromIso, toIso, rollup);
+  const cached = _historyCacheGet(cacheKey);
+  if (cached) return cached;
+
+  const params = new URLSearchParams();
+  params.set('sensor_id', String(sensorId));
+  params.set('from', fromIso);
+  params.set('to', toIso);
+  if (rollup) params.set('rollup', rollup);
+  const path = `/devices/${deviceId}/readings?${params.toString()}`;
+
+  let data;
+  try {
+    data = await sckFetch(path);
+  } catch (e){
+    console.warn(`[SCK history] device=${deviceId} sensor=${sensorId} failed:`, e.message);
+    return [];
+  }
+
+  // Defensive: the API has shipped multiple shapes over the years.
+  const rawReadings =
+    (Array.isArray(data && data.readings) && data.readings) ||
+    (Array.isArray(data) && data) ||
+    [];
+
+  const points = rawReadings.map(r => {
+    // Each reading is typically [iso, value] but some endpoints return objects.
+    if (Array.isArray(r)) return { recordedAt: r[0], value: typeof r[1] === 'number' ? r[1] : parseFloat(r[1]) };
+    if (r && typeof r === 'object'){
+      const recordedAt = r.recorded_at || r.timestamp || r[0];
+      const value = r.value != null ? r.value : r[1];
+      return { recordedAt, value: typeof value === 'number' ? value : parseFloat(value) };
+    }
+    return null;
+  }).filter(p => p && p.recordedAt && typeof p.value === 'number' && !isNaN(p.value));
+
+  _historyCachePut(cacheKey, points);
+  return points;
+}
+
+// Fetch history for ALL sensors on a device in parallel, returned as
+// { [sensorId]: [{recordedAt, value}, ...] }. Pass the sensor list from
+// the device's detail call. Used by the "Selected" panel.
+async function fetchSmartCitizenHistoryBulk(deviceId, sensorIds, fromIso, toIso, rollup = null){
+  const ids = Array.from(new Set(sensorIds.filter(id => id != null)));
+  const entries = await Promise.all(ids.map(async sid => {
+    const points = await fetchSmartCitizenHistory(deviceId, sid, fromIso, toIso, rollup);
+    return [sid, points];
+  }));
+  const out = {};
+  for (const [sid, points] of entries) out[sid] = points;
+  return out;
+}
+
 // ============================================================
 // ADAPTER: OpenAQ v3 (via Cloudflare Worker proxy)
 // https://api.openaq.org/v3 doesn't support CORS preflight for X-API-Key,
@@ -600,6 +714,7 @@ if(typeof window !== 'undefined'){
     BALI_BOUNDS, BALI_CENTER, EXCLUDED_DEVICE_IDS,
     escapeHtml, classifyPM25, inBali, isActive,
     fetchSmartCitizenSensors, fetchSmartCitizenDetail,
+    fetchSmartCitizenHistory, fetchSmartCitizenHistoryBulk,
     fetchOpenAQSensors,
     fetchPurpleAirSensors, fetchSensorCommunitySensors,
     fetchAllSensors,
