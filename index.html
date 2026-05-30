@@ -1161,8 +1161,10 @@ const REFRESH_MS = 5 * 60 * 1000;
 // line.
 const SURVEY_OPEN_URL  = 'https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form';
 const SURVEY_EMBED_URL = 'https://airtable.com/embed/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form';
-const WHATSAPP_BOT_NUMBER = '6281555000111';  // placeholder — see PLACEHOLDER_BOT_NUMBER
-const PLACEHOLDER_BOT_NUMBER = '6281555000111';
+// Production WhatsApp Business number for the Fab Lab Bali reporting bot.
+// Format: country code + number, no leading + (wa.me wants digits only).
+const WHATSAPP_BOT_NUMBER = '6285190890857';
+const PLACEHOLDER_BOT_NUMBER = '6281555000111';  // legacy placeholder, retained so REPORTING_LIVE gates correctly if rolled back
 const WORKSHOP_SIGNUP_URL = 'https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form';
 
 // AUDIT P0-1: routing the headline "Report what you see" CTA at a
@@ -1538,7 +1540,7 @@ function renderDailyStory(){
   acts.innerHTML = `
     <a class="story-action primary" href="${D.escapeHtml(dataUrl)}">${D.escapeHtml(t('home.story.read_data'))}</a>
     ${reportUrl ? `<a class="story-action" href="${D.escapeHtml(reportUrl)}">${D.escapeHtml(t('home.story.read_report'))}</a>` : ''}
-    <a class="story-action" href="${D.escapeHtml(whatsappReportLink())}" target="_blank" rel="noopener">${D.escapeHtml(t('home.story.report_yours'))}</a>
+    <a class="story-action" id="story-report-link" href="${D.escapeHtml(reportEndpoint())}" target="_blank" rel="noopener">${D.escapeHtml(t('home.story.report_yours'))}</a>
   `;
 }
 
