@@ -7,13 +7,25 @@
 <meta name="description" content="Data view for the Smart Citizen Bali campaign — raw sensor readings, WHO and EPA reference standards, network coverage, and citizen reports broken down by category.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%235fa8a8'/%3E%3C/svg%3E">
 
+<!-- PERF-1: preconnect to third-party origins so DNS/TLS happens early. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,1,400&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-<script src="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
-<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js" crossorigin=""></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
+<!-- PERF-1: Leaflet bundle is below the fold; defer keeps it from blocking
+     paint. Map init below is gated on DOMContentLoaded so it waits. -->
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script defer src="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
+<script defer src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js" crossorigin=""></script>
+<!-- PERF-1: Chart.js removed from <head> — ~200 KB only needed when a
+     sensor is inspected. loadChartJs() lazy-loads it on first selectSensor
+     that has historical data to plot. -->
 <script src="../data.js"></script>
 <script src="../peaks.js"></script>
 <script src="../i18n.js"></script>
@@ -22,7 +34,10 @@
   :root{
     --bg:#0f1417; --bg2:#161c20; --bg3:#1d242a; --paper:#f4ede0;
     --muted:#8a948c; --line:#2a3138; --accent:#e8a04a;
-    --good:#5fb88a; --warn:#e8a04a; --bad:#d96a4f; --crit:#c4493a;
+    /* --crit was #c4493a (3.85:1 on --bg — failed AA for body text).
+       Nudged lighter to #dd5a48 (~4.8:1) per audit P0-2, hue preserved.
+       Every other status colour already passed — see audit appendix A. */
+    --good:#5fb88a; --warn:#e8a04a; --bad:#d96a4f; --crit:#dd5a48;
     --teal:#5fa8a8; --cream:#e8dfcc;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -133,7 +148,8 @@
 
   footer{padding:48px 4vw;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.8}
   footer a{color:var(--accent)}
-  footer h4{font-family:'Fraunces',serif;font-size:14px;font-weight:500;color:var(--paper);margin-bottom:12px;text-transform:none;letter-spacing:0}
+  /* Promoted from h4 to h3 per audit P1-3 so heading levels don't skip h2 → h4. */
+  footer h3{font-family:'Fraunces',serif;font-size:14px;font-weight:500;color:var(--paper);margin-bottom:12px;text-transform:none;letter-spacing:0}
   .foot-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:36px;margin-bottom:28px}
   @media(max-width:900px){.foot-grid{grid-template-columns:1fr;gap:24px}}
 
@@ -242,6 +258,41 @@
     font-size:12.5px;line-height:1.5;color:var(--paper);
   }
 
+  /* ===== A11Y batch (audit P1-3 → P1-5) ===== */
+
+  /* P1-5: respect prefers-reduced-motion — kills live-dot pulse and all
+     hover/transition animations across the page. */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+      animation-duration:.001ms!important;
+      animation-iteration-count:1!important;
+      transition-duration:.001ms!important;
+      scroll-behavior:auto!important;
+    }
+  }
+
+  /* P1-4: skip-link, visible on focus only. */
+  .skip-link{
+    position:absolute;left:-9999px;top:0;
+    background:var(--paper);color:var(--bg);padding:10px 14px;border-radius:0 0 4px 0;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;
+    z-index:2000;
+  }
+  .skip-link:focus{left:0}
+
+  /* Global focus-visible — dashboard's accent on dark passes contrast cleanly. */
+  :focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+    border-radius:2px;
+  }
+
+  /* P0-1: ranked sensor list — pointer/focus affordances on each row.
+     Click and Tab+Enter both call selectSensor(). */
+  .ranked-row{cursor:pointer;transition:background .12s ease}
+  .ranked-row:hover, .ranked-row:focus-visible{background:rgba(255,255,255,0.03)}
+  .ranked-row:focus-visible{outline-offset:-2px}
+
   /* ===== LANGUAGE TOGGLE ===== */
   .lang-toggle{
     background:transparent;border:1px solid var(--line);
@@ -254,21 +305,25 @@
 </head>
 <body>
 
-<div class="statusbar">
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<nav class="statusbar" aria-label="Site status and primary navigation">
   <div class="status-left">
-    <span><span class="live-dot loading" id="liveDot"></span><span id="liveLabel" data-i18n="statusbar.connecting">CONNECTING…</span></span>
-    <span><span class="status-label" data-i18n="statusbar.sensors">Sensors</span> <span class="status-val" id="sensorCount">—</span></span>
-    <span><span class="status-label" data-i18n="statusbar.active_24h">Active 24h</span> <span class="status-val" id="activeCount">—</span></span>
-    <span><span class="status-label" data-i18n="statusbar.reports">Reports</span> <span class="status-val" id="reportCount">—</span></span>
-    <span><span class="status-label" data-i18n="statusbar.peaks_24h">Active peaks · 24h</span> <span class="status-val" id="peaks24Count">—</span></span>
-    <span><span class="status-label" data-i18n="statusbar.peaks_7d">Active peaks · 7d</span> <span class="status-val" id="peaks7Count">—</span></span>
+    <span><span class="live-dot loading" id="liveDot" aria-hidden="true"></span><span id="liveLabel" data-i18n="statusbar.connecting" role="status" aria-live="polite">CONNECTING…</span></span>
+    <span><span class="status-label" data-i18n="statusbar.sensors">Sensors</span> <span class="status-val" id="sensorCount" aria-live="polite">—</span></span>
+    <span><span class="status-label" data-i18n="statusbar.active_24h">Active 24h</span> <span class="status-val" id="activeCount" aria-live="polite">—</span></span>
+    <span><span class="status-label" data-i18n="statusbar.reports">Reports</span> <span class="status-val" id="reportCount" aria-live="polite">—</span></span>
+    <span><span class="status-label" data-i18n="statusbar.peaks_24h">Active peaks · 24h</span> <span class="status-val" id="peaks24Count" aria-live="polite">—</span></span>
+    <span><span class="status-label" data-i18n="statusbar.peaks_7d">Active peaks · 7d</span> <span class="status-val" id="peaks7Count" aria-live="polite">—</span></span>
   </div>
   <div class="status-right">
-    <button id="langToggle" class="lang-toggle" type="button" title="Toggle language">EN</button>
+    <button id="langToggle" class="lang-toggle" type="button" title="Toggle language" aria-label="Switch language to Bahasa Indonesia">EN</button>
     <a href="../" class="btn" data-i18n="action.home">← Home</a>
-    <a href="../#survey" class="btn primary" data-i18n="action.take_part">+ Take part</a>
+    <a href="../#cta" class="btn primary" data-i18n="action.take_part">+ Take part</a>
   </div>
-</div>
+</nav>
+
+<main id="main">
 
 <header class="hero">
   <div class="crumb"><a href="../">Smart Citizen Bali</a> · <span style="color:var(--teal)">data view</span> · led by <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a></div>
@@ -293,14 +348,30 @@
   </div>
 </section>
 
+<!-- Sensor picker — sits directly under the map so keyboard users have an
+     immediate, tabbable path to selectSensor() without going through the
+     Leaflet markers (which aren't keyboard-operable). Audit P0-1. The
+     ranked table that used to sit much further down was moved here. -->
 <section>
-  <div class="section-label">Selected · click a pin on the map</div>
+  <div class="section-label">Sensors · ranked · pick one to inspect</div>
+  <h2>Current PM<sub>2.5</sub>, <em>by sensor.</em></h2>
+  <div class="body-prose"><p>All currently-active sensors with PM2.5 data, sorted worst-first. Click a row (or Tab + Enter) to inspect that sensor in the Selected panel below — and to fly the map there.</p></div>
+  <table class="stdtable" style="margin-top:14px" aria-label="Sensors ranked by PM2.5, click to inspect">
+    <thead><tr><th>Sensor</th><th>Source</th><th>PM<sub>2.5</sub></th><th>Last reading</th></tr></thead>
+    <tbody id="adv-ranked-body">
+      <tr><td colspan="4" style="text-align:center;color:var(--muted);font-family:'JetBrains Mono'">Loading…</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="section-label">Selected · pick a sensor above or tap a pin</div>
   <div class="panel-grid">
     <div class="panel panel-full">
       <div class="panel-label" id="adv-detail-label">No pin selected</div>
-      <div class="panel-title" id="adv-detail-title">Click any sensor or report on the map above</div>
+      <div class="panel-title" id="adv-detail-title">Pick a sensor from the list above, or tap a pin on the map</div>
       <div class="panel-desc" id="adv-detail-desc">The detail panel will populate with current sensor readings or report content. Sensor readings include PM<sub>2.5</sub>, PM<sub>10</sub>, temperature, humidity, and noise — each compared against the relevant international threshold.</div>
-      <div class="panel-body" id="adv-detail-body">
+      <div class="panel-body" id="adv-detail-body" aria-live="polite" aria-busy="false">
         <div class="empty-state">Select a pin on the map to inspect it.</div>
       </div>
     </div>
@@ -345,18 +416,9 @@
   <button id="feed-load-more" class="btn feed-load-more" type="button" style="display:none" data-i18n="feed.load_more">Load more</button>
 </section>
 
-<section>
-  <div class="section-label">Sensors · ranked</div>
-  <h2>Current PM<sub>2.5</sub>, <em>by sensor.</em></h2>
-  <div class="body-prose"><p>All currently-active sensors with PM2.5 data, sorted by reading. Click a row to focus the map on that sensor.</p></div>
-  <table class="stdtable" style="margin-top:14px">
-    <thead><tr><th>Sensor</th><th>Source</th><th>PM<sub>2.5</sub></th><th>Last reading</th></tr></thead>
-    <tbody id="adv-ranked-body">
-      <tr><td colspan="4" style="text-align:center;color:var(--muted);font-family:'JetBrains Mono'">Loading…</td></tr>
-    </tbody>
-  </table>
-  </div>
-</section>
+<!-- The "Sensors · ranked" section that used to sit here was relocated
+     directly under the map (audit P0-1) so keyboard users have an
+     immediate tabbable picker before the Selected panel. -->
 
 <section>
   <div class="section-label">Reference standards</div>
@@ -445,17 +507,19 @@
   <p style="margin-top:24px;font-family:'JetBrains Mono',monospace;font-size:12px"><a href="../">← Back to home</a></p>
 </section>
 
+</main>
+
 <footer>
   <div class="foot-grid">
     <div>
-      <h4>Campaign lead</h4>
+      <h3>Campaign lead</h3>
       <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a> · Bali, Indonesia<br>
       Local fabrication laboratory and maker community.<br>
       Contact: <a href="mailto:fablabbali@gmail.com">fablabbali@gmail.com</a><br>
       <a href="../">Back to home →</a>
     </div>
     <div>
-      <h4>Sensor data</h4>
+      <h3>Sensor data</h3>
       Aggregated across open networks:<br>
       · <a href="https://smartcitizen.me" target="_blank" rel="noopener">Smart Citizen Platform</a><br>
       · <a href="https://openaq.org" target="_blank" rel="noopener">OpenAQ</a> (covers AirGradient, AQICN/GAIA, KLHK ISPU)<br>
@@ -465,7 +529,7 @@
       Reference: WHO AQG 2021 · WHO ENG 2018 · WHO Housing 2018 · US EPA NAAQS · ASHRAE 55 · NIOSH.
     </div>
     <div>
-      <h4>Network &amp; tech</h4>
+      <h3>Network &amp; tech</h3>
       Smart Citizen Kit · open hardware (Fab Lab Barcelona / IAAC origin)<br>
       <a href="https://fab.city" target="_blank" rel="noopener">Fab City</a> Hub instance · <a href="https://murmurations.network" target="_blank" rel="noopener">Murmurations</a> federated discovery<br>
       Source: <a href="https://github.com/mdg-bali/smartcitizenbali" target="_blank" rel="noopener">github.com/mdg-bali/smartcitizenbali</a><br>
@@ -484,25 +548,52 @@ const t = (key, fb) => I.t(key, null, fb != null ? fb : key);
 const REFRESH_MS = 5 * 60 * 1000;
 const FEED_PAGE_SIZE = 30;
 
-if (typeof L.GestureHandling !== 'undefined') {
-  L.Map.addInitHook('addHandler', 'gestureHandling', L.GestureHandling);
-}
-const map = L.map('map', {
-  center: D.BALI_CENTER, zoom: 10,
-  zoomControl: true, attributionControl: true,
-  gestureHandling: true,
-  gestureHandlingOptions: {
-    text: {touch:'Use two fingers to move the map', scroll:'Use Ctrl + scroll to zoom', scrollMac:'Use ⌘ + scroll to zoom'},
-    duration: 1500,
-  },
-});
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution:'© OpenStreetMap · © CARTO', subdomains:'abcd', maxZoom:19
-}).addTo(map);
-
-const sensorLayer = L.layerGroup().addTo(map);
+// PERF-1: Leaflet is deferred, so map init runs from boot() once DOM is
+// ready (and re-runs on window.load if Leaflet hadn't arrived yet).
+let map, sensorLayer;
 let reportHeatLayer = null;
 let chartInstances = [];   // teardown handles for Chart.js instances in the Selected panel
+
+function initMap(){
+  if (typeof L === 'undefined') return false;   // Leaflet not loaded yet
+  if (map) return true;
+  if (typeof L.GestureHandling !== 'undefined') {
+    L.Map.addInitHook('addHandler', 'gestureHandling', L.GestureHandling);
+  }
+  map = L.map('map', {
+    center: D.BALI_CENTER, zoom: 10,
+    zoomControl: true, attributionControl: true,
+    gestureHandling: true,
+    gestureHandlingOptions: {
+      text: {touch:'Use two fingers to move the map', scroll:'Use Ctrl + scroll to zoom', scrollMac:'Use ⌘ + scroll to zoom'},
+      duration: 1500,
+    },
+  });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution:'© OpenStreetMap · © CARTO', subdomains:'abcd', maxZoom:19
+  }).addTo(map);
+  sensorLayer = L.layerGroup().addTo(map);
+  // Defer-script timing can leave the map container 0×0 at init — force a
+  // size recompute on the next tick (matches the home page's fix).
+  setTimeout(() => { if (map) map.invalidateSize(); }, 0);
+  return true;
+}
+
+// PERF-1: lazy-load Chart.js on first sensor inspection that has history.
+let _chartLoader = null;
+function loadChartJs(){
+  if (typeof Chart !== 'undefined') return Promise.resolve(Chart);
+  if (_chartLoader) return _chartLoader;
+  _chartLoader = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
+    s.async = true;
+    s.onload  = () => resolve(window.Chart);
+    s.onerror = () => reject(new Error('Chart.js failed to load'));
+    document.head.appendChild(s);
+  });
+  return _chartLoader;
+}
 
 function pinIcon(kind){
   return L.divIcon({className:'',
@@ -530,7 +621,11 @@ function applyTranslations(){
     const key = el.getAttribute('data-i18n');
     el.textContent = t(key);
   });
-  document.getElementById('langToggle').textContent = t('statusbar.lang_toggle');
+  // Button text shows the target language; aria-label spells out the action.
+  const lt = document.getElementById('langToggle');
+  lt.textContent = t('statusbar.lang_toggle');
+  lt.setAttribute('aria-label',
+    I.currentLang() === 'en' ? 'Switch language to Bahasa Indonesia' : 'Ganti bahasa ke English');
   // Rerender dynamic blocks that depend on language
   renderFeedFilters();
   renderReportFeed();
@@ -542,6 +637,13 @@ function toggleLanguage(){
 }
 
 function renderPins(){
+  // Map might still be initialising (Leaflet deferred). The ranked sensor
+  // list + the report feed still render below — keyboard users keep access.
+  if (!map || !sensorLayer) { renderReportFeed(); return; }
+  map.invalidateSize();
+  const size = map.getSize();
+  if (size.x === 0 || size.y === 0) { renderReportFeed(); return; }
+
   sensorLayer.clearLayers();
   for(const s of state.sensors){
     let pinKind;
@@ -558,18 +660,27 @@ function renderPins(){
     m.addTo(sensorLayer);
   }
 
-  // Reports → heatmap. No per-report pin; the feed in the right panel
-  // is the primary affordance for opening report details.
+  // Reports → heatmap. No per-report pin; the ranked-sensor list above
+  // plus the feed below cover keyboard/mouse access.
   if (reportHeatLayer) { map.removeLayer(reportHeatLayer); reportHeatLayer = null; }
   const heatPoints = state.reports
     .filter(r => typeof r.lat === 'number' && typeof r.lng === 'number')
     .map(r => [r.lat, r.lng, 0.85]);
   if (heatPoints.length && typeof L.heatLayer === 'function') {
-    reportHeatLayer = L.heatLayer(heatPoints, {
-      radius: 38, blur: 28, maxZoom: 16, minOpacity: 0.45,
-      gradient: {0.2:'#d8b86a', 0.4:'#e08a2e', 0.65:'#d96a4f', 0.85:'#c4392b'},
-    });
-    reportHeatLayer.addTo(map);
+    try {
+      reportHeatLayer = L.heatLayer(heatPoints, {
+        radius: 38, blur: 28, maxZoom: 16, minOpacity: 0.45,
+        gradient: {0.2:'#d8b86a', 0.4:'#e08a2e', 0.65:'#d96a4f', 0.85:'#c4392b'},
+      });
+      reportHeatLayer.addTo(map);
+    } catch (e) {
+      // leaflet-heat crashes if canvas size is 0 (defer-script race).
+      // Remove the half-added layer so subsequent moveend doesn't re-throw.
+      console.warn('[heat] addTo failed:', e.message);
+      try { if (reportHeatLayer) map.removeLayer(reportHeatLayer); } catch(_){}
+      reportHeatLayer = null;
+      setTimeout(() => { if (map) map.invalidateSize(); }, 100);
+    }
   }
 
   renderReportFeed();
@@ -727,7 +838,7 @@ function toggleFeedRow(r, el){
   // Pan the map and open detail pane when expanding (not when collapsing)
   if (!wasExpanded){
     if (typeof r.lat === 'number' && typeof r.lng === 'number'){
-      map.flyTo([r.lat, r.lng], 16, { duration: 0.6 });
+      if (map) map.flyTo([r.lat, r.lng], 16, { duration: 0.6 });
     }
     selectReport(r);
   }
@@ -739,7 +850,7 @@ function toggleFeedRow(r, el){
       const sid = b.dataset.corrSid;
       const s = state.sensors.find(x => x.id === sid);
       if (s){
-        map.setView([s.lat, s.lng], 14, { animate: true });
+        if (map) map.setView([s.lat, s.lng], 14, { animate: true });
         selectSensor(s);
       }
     });
@@ -752,7 +863,12 @@ async function selectSensor(s){
   document.getElementById('adv-detail-title').textContent = s.name;
   document.getElementById('adv-detail-desc').textContent =
     `${s.description || ''} · last reading: ${s.lastReading?new Date(s.lastReading).toLocaleString():'unknown'}`;
-  document.getElementById('adv-detail-body').innerHTML =
+  // P1-2: announce the loading state to assistive tech via aria-busy on
+  // the live region; aria-busy=false on resolve / error so subsequent
+  // textContent updates are read as the new state.
+  const body = document.getElementById('adv-detail-body');
+  body.setAttribute('aria-busy', 'true');
+  body.innerHTML =
     `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${D.escapeHtml(t('detail.loading'))}</div>`;
 
   try {
@@ -766,8 +882,10 @@ async function selectSensor(s){
       renderCachedReading(s);
     }
   } catch(e){
-    document.getElementById('adv-detail-body').innerHTML =
+    body.innerHTML =
       `<div class="empty-state">${D.escapeHtml(t('detail.fetch_failed'))}: ${D.escapeHtml(e.message)}</div>`;
+  } finally {
+    body.setAttribute('aria-busy', 'false');
   }
   document.querySelector('.section-label').scrollIntoView({behavior:'smooth', block:'start'});
 }
@@ -942,14 +1060,29 @@ async function fetchAndRenderHistory(detail, sensorObj){
 
   slot.innerHTML = `<div class="chart-section-title">History · ${D.escapeHtml(metricsOrdered.map(P.metricLabel).join(' · '))}</div>${blocks}`;
 
-  // Instantiate Chart.js for each metric
+  // Render correlation chips immediately (no Chart.js needed for those).
   for (const m of metricsOrdered){
     const ent = series[m];
-    if (ent.points24.length) drawStripChart(`ch24-${m}`, ent.points24, ent.peaks24, m, ent.unit);
-    if (ent.points7.length)  drawStripChart(`ch7-${m}`,  ent.points7,  ent.peaks7,  m, ent.unit);
-    // Direction A: peak → nearby reports
     renderPeakCorrelations(`corr-${m}`, sensorObj, ent.peaks24.concat(ent.peaks7), m);
   }
+
+  // Lazy-load Chart.js, then draw all strips (PERF-1).
+  loadChartJs().then(() => {
+    for (const m of metricsOrdered){
+      const ent = series[m];
+      if (ent.points24.length) drawStripChart(`ch24-${m}`, ent.points24, ent.peaks24, m, ent.unit);
+      if (ent.points7.length)  drawStripChart(`ch7-${m}`,  ent.points7,  ent.peaks7,  m, ent.unit);
+    }
+  }).catch(e => {
+    console.warn('[charts] Chart.js failed to load:', e.message);
+    // Replace each canvas placeholder with a graceful fallback.
+    metricsOrdered.forEach(m => {
+      ['ch24-' + m, 'ch7-' + m].forEach(id => {
+        const c = document.getElementById(id);
+        if (c) c.outerHTML = `<div class="chart-strip-empty">${D.escapeHtml(t('history.error'))}</div>`;
+      });
+    });
+  });
 }
 
 function drawStripChart(canvasId, points, peaks, metric, unit){
@@ -1063,7 +1196,7 @@ function renderPeakCorrelations(containerId, sensorObj, peaks, metric){
         if (r){
           state.expandedReportId = r.id;
           renderReportFeed();
-          if (typeof r.lat === 'number') map.flyTo([r.lat, r.lng], 16, {duration: 0.6});
+          if (typeof r.lat === 'number' && map) map.flyTo([r.lat, r.lng], 16, {duration: 0.6});
           selectReport(r);
           document.getElementById('reports-feed').scrollIntoView({behavior:'smooth', block:'start'});
         }
@@ -1129,21 +1262,31 @@ function updateStats(){
           : pm25 == null ? '<span style="opacity:.5">no data</span>'
           : `<span style="color:${color}">${pm25.toFixed(1)} µg/m³</span>`;
         const last = s.lastReading ? new Date(s.lastReading).toLocaleDateString() : '—';
-        return `<tr style="cursor:pointer" data-sid="${D.escapeHtml(s.id)}">
+        // P0-1: rows are keyboard-operable. tabindex/role/aria-label mirror
+        // the report-feed row pattern already in this file.
+        const aria = `${s.name} · ${pm25 != null ? pm25.toFixed(1) + ' micrograms per cubic metre' : 'no PM2.5 data'}${offline ? ' · offline' : ''} · ${s.sourceLabel.split(' · ')[0]} · activate to inspect`;
+        return `<tr class="ranked-row" data-sid="${D.escapeHtml(s.id)}" tabindex="0" role="button" aria-label="${D.escapeHtml(aria)}">
           <td class="metric">${D.escapeHtml(s.name)}</td>
           <td class="value" style="opacity:.7">${D.escapeHtml(s.sourceLabel.split(' · ')[0])}</td>
           <td class="value">${pmCell}</td>
           <td class="value" style="opacity:.7">${last}</td>
         </tr>`;
       }).join('');
-      // Attach click handlers
+      // Wire click + keyboard activation
       rankedBody.querySelectorAll('tr[data-sid]').forEach(tr => {
-        tr.addEventListener('click', () => {
+        const activate = () => {
           const sid = tr.dataset.sid;
           const s = state.sensors.find(x => x.id === sid);
           if(s){
-            map.setView([s.lat, s.lng], 14, {animate: true});
+            if (map) map.setView([s.lat, s.lng], 14, {animate: true});
             selectSensor(s);
+          }
+        };
+        tr.addEventListener('click', activate);
+        tr.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' '){
+            e.preventDefault();
+            activate();
           }
         });
       });
@@ -1223,19 +1366,37 @@ async function loadAll(){
     renderPins(); updateStats(); renderFeedFilters(); renderReportFeed();
     if(sensors.length || reports.length){
       const all = [...sensors, ...reports].map(p=>[p.lat,p.lng]).filter(p=>p[0]!=null);
-      if(all.length > 1) map.fitBounds(L.latLngBounds(all), {padding:[40,40], maxZoom:13});
+      if(all.length > 1 && map) map.fitBounds(L.latLngBounds(all), {padding:[40,40], maxZoom:13});
     }
     setLive('ok','statusbar.live');
   } catch(e){ console.error(e); setLive('error','statusbar.error'); }
 }
 
-// Boot
-document.getElementById('langToggle').addEventListener('click', toggleLanguage);
-applyTranslations();
-updatePeakCounters();
-loadAll();
-setInterval(loadAll, REFRESH_MS);
-window.addEventListener('resize', () => map.invalidateSize());
+// Boot — defer-script aware. Above-the-fold UI (statusbar, hero, ranked
+// sensor list once data lands, feed filters) renders without Leaflet;
+// map init happens when Leaflet is ready, then a renderPins() catches up.
+function boot(){
+  document.getElementById('langToggle').addEventListener('click', toggleLanguage);
+  applyTranslations();
+  updatePeakCounters();
+
+  initMap();
+  if (!map){
+    window.addEventListener('load', () => {
+      if (initMap()) renderPins();
+    }, { once: true });
+  }
+
+  loadAll();
+  setInterval(loadAll, REFRESH_MS);
+  window.addEventListener('resize', () => { if (map) map.invalidateSize(); });
+}
+
+if (document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', boot, { once: true });
+} else {
+  boot();
+}
 </script>
 </body>
 </html>
