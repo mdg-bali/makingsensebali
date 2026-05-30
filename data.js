@@ -39,7 +39,7 @@ const EXCLUDED_DEVICE_IDS = new Set([]);
 // safety net — the pagination in fetchSmartCitizenSensors() below
 // should catch all Bali devices automatically. Only add here if a
 // sensor needs to appear even when world_map is broken / unreachable.
-const KNOWN_BALI_SCK_IDS = [19236, 19600, 19618];
+const KNOWN_BALI_SCK_IDS = [19236, 19600, 19618, 19651];
 
 // ============================================================
 // HELPERS

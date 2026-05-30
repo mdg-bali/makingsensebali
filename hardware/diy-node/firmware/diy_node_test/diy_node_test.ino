@@ -140,12 +140,15 @@ void loop() {
   bool printed = false;
 
   // --- BME680 ---
+  // Pressure is reported in kPa to match the Smart Citizen platform's unit
+  // convention (its catalog stores barometric pressure in kPa, not hPa).
+  // Multiply by 10 mentally if you want the more familiar hPa number.
   if (bme_present) {
     if (bme.performReading()) {
-      Serial.printf("[bme680]  T=%6.2f °C   RH=%5.2f %%   P=%7.2f hPa   Gas=%7.1f kΩ\n",
+      Serial.printf("[bme680]  T=%6.2f °C   RH=%5.2f %%   P=%7.3f kPa   Gas=%7.1f kΩ\n",
                     bme.temperature,
                     bme.humidity,
-                    bme.pressure / 100.0f,
+                    bme.pressure / 1000.0f,
                     bme.gas_resistance / 1000.0f);
       printed = true;
     } else {

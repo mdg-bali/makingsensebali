@@ -53,23 +53,32 @@
 // ============================================================================
 
 // WiFi
-const char* WIFI_SSID     = "CHANGE_ME";
-const char* WIFI_PASSWORD = "CHANGE_ME";
+const char* WIFI_SSID     = "DIEZSENENFAM";
+const char* WIFI_PASSWORD = "BaliLife-05";
 
 // Smart Citizen device token (from your device page on smartcitizen.me)
-const char* SC_DEVICE_TOKEN = "CHANGE_ME_DEVICE_TOKEN";
+const char* SC_DEVICE_TOKEN = "1d6fe0";
 
 // Smart Citizen sensor IDs — one per metric, copy from your device page
 // Each value below MUST match the numeric ID assigned to that sensor on
 // smartcitizen.me. If they don't match, readings land in the wrong slot
 // or get silently dropped. Leave any unused ID as 0 to skip publishing it.
-const int SC_ID_TEMP      = 0;  // °C       — BME680 temperature
-const int SC_ID_HUM       = 0;  // %RH      — BME680 humidity
-const int SC_ID_PRESSURE  = 0;  // hPa      — BME680 barometric pressure (optional)
-const int SC_ID_GAS       = 0;  // kΩ       — BME680 gas resistance (VOC indicator)
-const int SC_ID_PM1       = 0;  // µg/m³    — HM3301 PM1.0 (atmospheric)
-const int SC_ID_PM25      = 0;  // µg/m³    — HM3301 PM2.5 (atmospheric)
-const int SC_ID_PM10      = 0;  // µg/m³    — HM3301 PM10  (atmospheric)
+// Sensor IDs from the SC global catalog (/v0/sensors). The platform doesn't
+// have a BME680 entry, so we map to the closest semantic equivalents:
+//   - Temperature/Pressure → Bosch BMP280 entries (same Bosch family)
+//   - Humidity            → Sensirion SHT31 (BMP280 has no humidity channel)
+//   - PM1/2.5/10          → Plantower PMS5003 (HM3301 outputs same physical
+//                                              signal in same unit)
+//   - Gas resistance      → no good match. Leave at 0 (firmware skips it).
+//                           Ask Oscar to add a "Bosch BME680 - Gas resistance
+//                           [kΩ]" entry to the catalog and set this then.
+const int SC_ID_TEMP      = 174;  // ºC       — Bosch BMP280 - Temperature
+const int SC_ID_HUM       = 56;   // %RH      — Sensirion SHT31 - Humidity
+const int SC_ID_PRESSURE  = 175;  // kPa      — Bosch BMP280 - Pressure (SC platform stores pressure in kPa)
+const int SC_ID_GAS       = 0;    // kΩ       — BME680 gas resistance; no catalog entry, leave at 0 for now
+const int SC_ID_PM1       = 89;   // µg/m³    — Plantower PMS5003 - PM1
+const int SC_ID_PM25      = 87;   // µg/m³    — Plantower PMS5003 - PM2.5
+const int SC_ID_PM10      = 88;   // µg/m³    — Plantower PMS5003 - PM10
 
 // MQTT broker (do not change unless you're testing locally)
 const char* MQTT_HOST = "mqtt.smartcitizen.me";
@@ -179,7 +188,7 @@ void connectMQTT() {
   }
 }
 
-bool publishReadings(float tempC, float humRH, float pressureHPa, float gasKOhm,
+bool publishReadings(float tempC, float humRH, float pressureKPa, float gasKOhm,
                      uint16_t pm1, uint16_t pm25, uint16_t pm10) {
   if (!mqtt.connected()) return false;
 
@@ -205,7 +214,7 @@ bool publishReadings(float tempC, float humRH, float pressureHPa, float gasKOhm,
 
   addSensor(SC_ID_TEMP,     tempC);
   addSensor(SC_ID_HUM,      humRH);
-  addSensor(SC_ID_PRESSURE, pressureHPa);
+  addSensor(SC_ID_PRESSURE, pressureKPa);
   addSensor(SC_ID_GAS,      gasKOhm);
   addSensor(SC_ID_PM1,      (float)pm1);
   addSensor(SC_ID_PM25,     (float)pm25);
@@ -234,16 +243,16 @@ bool publishReadings(float tempC, float humRH, float pressureHPa, float gasKOhm,
 // SENSORS
 // ============================================================================
 
-bool readBME680(float &tempC, float &humRH, float &pressureHPa, float &gasKOhm) {
+bool readBME680(float &tempC, float &humRH, float &pressureKPa, float &gasKOhm) {
   // performReading() triggers a forced measurement and waits ~150 ms for the
   // gas heater. Returns false if the conversion failed.
   if (!bme.performReading()) {
     return false;
   }
-  tempC       = bme.temperature;            // °C
-  humRH       = bme.humidity;               // %RH
-  pressureHPa = bme.pressure / 100.0f;      // Pa → hPa
-  gasKOhm     = bme.gas_resistance / 1000.0f;  // Ω → kΩ
+  tempC       = bme.temperature;             // °C
+  humRH       = bme.humidity;                // %RH
+  pressureKPa = bme.pressure / 1000.0f;      // Pa → kPa (matches SC platform's kPa convention)
+  gasKOhm     = bme.gas_resistance / 1000.0f; // Ω → kΩ
   return !(isnan(tempC) || isnan(humRH));
 }
 
@@ -342,19 +351,19 @@ void loop() {
   if (now - lastPublish >= PUBLISH_INTERVAL_MS || lastPublish == 0) {
     lastPublish = now;
 
-    float tempC = NAN, humRH = NAN, pressureHPa = NAN, gasKOhm = NAN;
+    float tempC = NAN, humRH = NAN, pressureKPa = NAN, gasKOhm = NAN;
     uint16_t pm1 = 0, pm25 = 0, pm10 = 0;
 
-    bool bmeOk = readBME680(tempC, humRH, pressureHPa, gasKOhm);
+    bool bmeOk = readBME680(tempC, humRH, pressureKPa, gasKOhm);
     bool hmOk  = readHM3301(pm1, pm25, pm10);
 
-    Serial.printf("[read] T=%.2f°C  RH=%.2f%%  P=%.2fhPa  Gas=%.1fkΩ  "
+    Serial.printf("[read] T=%.2f°C  RH=%.2f%%  P=%.3fkPa  Gas=%.1fkΩ  "
                   "PM1=%u  PM2.5=%u  PM10=%u  (bme=%d hm=%d)\n",
-                  tempC, humRH, pressureHPa, gasKOhm,
+                  tempC, humRH, pressureKPa, gasKOhm,
                   pm1, pm25, pm10, bmeOk, hmOk);
 
     if (bmeOk || hmOk) {
-      publishReadings(tempC, humRH, pressureHPa, gasKOhm, pm1, pm25, pm10);
+      publishReadings(tempC, humRH, pressureKPa, gasKOhm, pm1, pm25, pm10);
     }
   }
 
