@@ -38,7 +38,7 @@ It is **fail-safe**: each stage is isolated; one failing never blocks the others
    ```
    (Confirm the NAS profiles path; on this deployment it's `/volume1/docker/aq-reporter/data/profiles/`.)
 
-4. **Edit the plist** `com.fabcity.makingsense-sync.plist` — fix `MSB_REPO_DIR`, `MSB_NAS_RSYNC_SRC`, the python path, and the log paths to match the mini. Optional: add `MSB_OPENAQ_KEY`; set `MSB_NARRATIVE` to `0` to ship structured roll-ups only (no exo paragraph).
+4. **Edit the plist** `com.fabcity.makingsense-sync.plist` — fix `MSB_REPO_DIR`, `MSB_NAS_RSYNC_SRC`, `MSB_NAS_PHOTOS_SRC` (the EXIF-stripped public photos, so the map can show them), the python path, and the log paths to match the mini. Optional: add `MSB_OPENAQ_KEY`; set `MSB_NARRATIVE` to `0` to ship structured roll-ups only (no exo paragraph).
 
 5. **Dry run** (everything except the push):
    ```

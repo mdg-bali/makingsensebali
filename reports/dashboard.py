@@ -327,7 +327,7 @@ BASE_HTML = """
       --muted: #6b6b6b;
       --rule: #e6e6e6;
     }
-    body { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+    body { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; color: var(--ink); }
     header.top { display: flex; align-items: baseline; justify-content: space-between;
                  padding-bottom: 1rem; border-bottom: 1px solid var(--rule); margin-bottom: 1.5rem; }
     header.top h1 { font-size: 1.25rem; margin: 0; letter-spacing: -0.01em; }
@@ -768,13 +768,13 @@ PENDING_TEMPLATE = """
           <span>📷 Publish photo too</span>
         </label>
         {% endif %}
-        <button type="submit" style="background:#1d6f1d; border:0;">Approve &amp; publish</button>
+        <button type="submit" style="background:#1d6f1d; border:0; color:#fff;">Approve &amp; publish</button>
       </form>
       <form method="post" action="{{ url_for('reject', report_id=r.id) }}" style="margin:0;">
         <button type="submit" class="contrast outline">Reject</button>
       </form>
       <a href="{{ url_for('report_detail', report_id=r.id) }}"
-         style="align-self:center; color:var(--muted);">View raw JSON →</a>
+         style="align-self:center; color:var(--muted);">View full report →</a>
     </div>
   </article>
   {% endfor %}
@@ -964,7 +964,7 @@ def _call_bot_admin(action: str, payload: Dict[str, Any]) -> bool:
 REPORTS_TEMPLATE = """
   <h2>Reports</h2>
   <p style="color: var(--muted);">Last {{ reports|length }} reports.
-     Click an ID to view raw JSON. Use <strong>Delete</strong> to take an
+     Click an ID to open the full report (photo + details). Use <strong>Delete</strong> to take an
      approved report off the public site (also removes its photo).</p>
 
   {% if reports %}
@@ -1114,13 +1114,66 @@ def report_detail(report_id: str):
     p = DATA_DIR / f"{report_id}.json"
     if not p.exists():
         abort(404)
+    try:
+        r = json.loads(p.read_text())
+    except json.JSONDecodeError:
+        abort(404)
+    ai = r.get("ai_analysis") or {}
+    loc = r.get("location") or {}
+    lat = loc.get("lat") if isinstance(loc, dict) else None
+    lon = loc.get("lon") if isinstance(loc, dict) else None
+    ctx = dict(
+        rid=report_id,
+        has_photo=bool(r.get("image_path")),
+        review_status=r.get("review_status") or "—",
+        photo_published=bool(r.get("photo_published")),
+        category=(ai.get("category") or r.get("category") or "—"),
+        severity=ai.get("severity") or "—",
+        locality=(_from_description(r.get("description", ""))
+                  or (loc.get("locality") if isinstance(loc, dict) else "") or "—"),
+        coords=(f"{lat:.5f}, {lon:.5f}"
+                if isinstance(lat, (int, float)) and isinstance(lon, (int, float)) else "—"),
+        incident_time=r.get("incident_time") or "—",
+        incident_basis=r.get("incident_time_basis") or "",
+        description=r.get("description") or "—",
+        ai_description=ai.get("description") or "",
+        ai_indicators=", ".join(ai.get("indicators") or []),
+        raw=json.dumps(r, indent=2, ensure_ascii=False),
+    )
     body = """
-      <h2 class="mono">{{ report_id }}</h2>
+      <style>
+        .rd-grid { display:grid; grid-template-columns: minmax(0,360px) 1fr; gap:1.5rem; align-items:start; }
+        .rd-photo img { width:100%; border:1px solid var(--rule); border-radius:4px; }
+        .rd-fields p { margin:0.45rem 0; }
+        .rd-fields .k { color: var(--muted); font-weight:600; margin-right:0.4rem; }
+        .rd-ai { background: var(--accent-soft); border-left:3px solid var(--accent);
+                 padding:0.5rem 0.75rem; margin-top:0.6rem; }
+        @media (max-width:720px){ .rd-grid { grid-template-columns:1fr; } }
+      </style>
+      <h2 class="mono">{{ rid }}</h2>
       <p><a href="{{ url_for('reports_view') }}">← Back to reports</a></p>
-      <pre style="background:#f6f6f6; padding:1rem; overflow:auto;">{{ raw }}</pre>
+      <div class="rd-grid">
+        <div class="rd-photo">
+          {% if has_photo %}
+            <img src="{{ url_for('report_image', report_id=rid) }}" alt="report photo">
+          {% else %}<div class="empty">no photo</div>{% endif %}
+        </div>
+        <div class="rd-fields">
+          <p><span class="k">Status</span>{{ review_status }}{% if photo_published %} · 📷 photo published{% endif %}</p>
+          <p><span class="k">Type</span>{{ category }}<span class="k" style="margin-left:1rem">Severity</span>{{ severity }}</p>
+          <p><span class="k">Where</span>{{ locality }} <span class="mono" style="color:var(--muted)">{{ coords }}</span></p>
+          <p><span class="k">Incident time</span>{{ incident_time }}{% if incident_basis %} <span style="color:var(--muted)">({{ incident_basis }})</span>{% endif %}</p>
+          <p><span class="k">Reporter note</span>{{ description }}</p>
+          {% if ai_description %}<p class="rd-ai">🤖 {{ ai_description }}</p>{% endif %}
+          {% if ai_indicators %}<p style="color:var(--muted)">🔍 {{ ai_indicators }}</p>{% endif %}
+        </div>
+      </div>
+      <details style="margin-top:1.5rem;">
+        <summary style="cursor:pointer; color:var(--muted)">Raw JSON</summary>
+        <pre style="background:#f6f6f6; padding:1rem; overflow:auto;">{{ raw }}</pre>
+      </details>
     """
-    return render(body, title="Report", active="reports", report_id=report_id,
-                  raw=p.read_text())
+    return render(body, title="Report", active="reports", **ctx)
 
 
 @app.get("/image/<report_id>")

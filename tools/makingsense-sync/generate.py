@@ -43,6 +43,9 @@ OPENAQ_API    = os.environ.get("MSB_OPENAQ_API", "https://api.openaq.org/v3")
 OPENAQ_KEY    = os.environ.get("MSB_OPENAQ_KEY", "")
 # NAS report source for rsync (mini→NAS over Tailscale; key set up by operator)
 NAS_RSYNC_SRC = os.environ.get("MSB_NAS_RSYNC_SRC", "")  # e.g. fablabbali@tx-nas-bali:/volume1/docker/aq-reporter/data/profiles/
+# NAS published-photo source — the EXIF-stripped public photos the bot writes on
+# approve+publish. These must travel to data/reports/photos/ for the map to show them.
+NAS_PHOTOS_SRC = os.environ.get("MSB_NAS_PHOTOS_SRC", "")  # e.g. fablabbali@tx-nas-bali:/volume1/docker/aq-reporter/data/profile_photos/
 # exo (local on the mini) for the optional area narrative
 EXO_URL       = os.environ.get("MSB_EXO_URL", "http://127.0.0.1:52415/v1/chat/completions")
 EXO_MODEL     = os.environ.get("MSB_EXO_MODEL", "mlx-community/gemma-4-e4b-it-6bit")
@@ -154,6 +157,21 @@ def sync_reports() -> int:
             log(f"  report rsync FAILED ({type(e).__name__}: {str(e)[:80]}) — keeping existing reports")
     else:
         log("  MSB_NAS_RSYNC_SRC unset — skipping report pull (using whatever is in data/reports/)")
+    # Pull the EXIF-stripped public photos (bot writes them on approve+publish).
+    # photo_path in each profile is "photos/<id>.jpg" relative to data/reports/.
+    if NAS_PHOTOS_SRC:
+        photos_dir = os.path.join(REPORTS_DIR, "photos")
+        os.makedirs(photos_dir, exist_ok=True)
+        try:
+            subprocess.run(
+                ["rsync", "-az", "--include=*.jpg", "--include=*.jpeg", "--exclude=*",
+                 NAS_PHOTOS_SRC, photos_dir + "/"],
+                check=True, timeout=120,
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            )
+            log(f"  photos synced → {photos_dir}")
+        except Exception as e:
+            log(f"  photo rsync FAILED ({type(e).__name__}: {str(e)[:80]})")
     profiles = sorted(f for f in os.listdir(REPORTS_DIR) if f.startswith("AQ_") and f.endswith(".json"))
     idx = {"count": len(profiles), "profiles": profiles,
            "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
