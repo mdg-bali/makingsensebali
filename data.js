@@ -551,9 +551,20 @@ const SOURCE_STATUS = {
   purpleair:        {count: 0, error: 'not configured'},
 };
 
+// Bound every source so one slow/hanging API (OpenAQ, Sensor.Community) can't
+// block the whole map render. The underlying fetch may still finish in the
+// background — we just stop waiting past the timeout and render what we have.
+const SOURCE_TIMEOUT_MS = 8000;
+function withTimeout(promise, ms, label){
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(
+      () => reject(new Error(`${label} timed out after ${ms}ms`)), ms)),
+  ]);
+}
 async function tracked(key, fn){
   try {
-    const r = await fn();
+    const r = await withTimeout(Promise.resolve().then(fn), SOURCE_TIMEOUT_MS, key);
     SOURCE_STATUS[key].count = r.length;
     SOURCE_STATUS[key].error = null;
     return r;
