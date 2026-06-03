@@ -302,6 +302,10 @@ MESSAGES = {
             "For example: _2pm today_, _yesterday evening_, _3 hours ago_.\n"
             "Or reply *skip* if you're not sure."
         ),
+        "photo_meta_used": (
+            "📸 I picked up some details (location and/or time) from the "
+            "photo itself — you'll confirm everything before sending."
+        ),
         "report_submitted": (
             "✅ *Report submitted, thank you!* 🙏\n\n"
             "Your report is pending team review before being published "
@@ -488,6 +492,10 @@ MESSAGES = {
             "Contoh: _jam 2 siang_, _kemarin malam_, _3 jam lalu_.\n"
             "Atau balas *lewati* jika tidak yakin."
         ),
+        "photo_meta_used": (
+            "📸 Saya mengambil beberapa detail (lokasi dan/atau waktu) dari "
+            "foto — Anda akan mengonfirmasi semuanya sebelum mengirim."
+        ),
         "report_submitted": (
             "✅ *Laporan terkirim, terima kasih!* 🙏\n\n"
             "Laporan Anda menunggu peninjauan tim sebelum dipublikasikan "
@@ -671,6 +679,10 @@ MESSAGES = {
             "🕒 ¿Aproximadamente cuándo ocurrió?\n\n"
             "Por ejemplo: _2pm hoy_, _ayer por la tarde_, _hace 3 horas_.\n"
             "O responde *omitir* si no estás seguro."
+        ),
+        "photo_meta_used": (
+            "📸 Tomé algunos datos (ubicación y/u hora) de la foto — "
+            "confirmarás todo antes de enviar."
         ),
         "report_submitted": (
             "✅ *¡Reporte enviado, gracias!* 🙏\n\n"

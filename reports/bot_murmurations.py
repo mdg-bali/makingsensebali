@@ -588,6 +588,65 @@ def parse_incident_time(text: str, now: Optional[datetime] = None) -> Optional[s
     return None
 
 
+def _gps_to_decimal(gps: Dict[Any, Any]):
+    """Convert an EXIF GPSInfo IFD (deg/min/sec rationals) to (lat, lon)."""
+    try:
+        def _dms(v):
+            d, m, s = v
+            return float(d) + float(m) / 60.0 + float(s) / 3600.0
+        lat = _dms(gps[2])
+        lon = _dms(gps[4])
+        if str(gps.get(1, "")).upper().startswith("S"):
+            lat = -lat
+        if str(gps.get(3, "")).upper().startswith("W"):
+            lon = -lon
+        return (round(lat, 6), round(lon, 6))
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def extract_photo_exif(image_path) -> Dict[str, Any]:
+    """Read GPS + capture-time from a photo's EXIF, if present.
+
+    Returns {'location': (lat, lon)} and/or {'incident_time': iso}, or {} when
+    there's no usable EXIF — the norm for WhatsApp 'photo' sends, which
+    re-encode and strip metadata. Capture time is read as Bali local (WITA).
+    Never raises.
+    """
+    out: Dict[str, Any] = {}
+    try:
+        from PIL import Image, ExifTags
+        with Image.open(image_path) as img:
+            ex = img.getexif()
+        if not ex:
+            return out
+        name_to_id = {v: k for k, v in ExifTags.TAGS.items()}
+        try:
+            exif_ifd = ex.get_ifd(0x8769)  # Exif sub-IFD (DateTimeOriginal)
+        except Exception:  # noqa: BLE001
+            exif_ifd = {}
+        dt_raw = exif_ifd.get(name_to_id.get("DateTimeOriginal")) or ex.get(
+            name_to_id.get("DateTime")
+        )
+        if isinstance(dt_raw, str) and len(dt_raw) >= 19:
+            try:
+                dt = datetime.strptime(dt_raw[:19], "%Y:%m:%d %H:%M:%S")
+                out["incident_time"] = dt.replace(tzinfo=_WITA).isoformat()
+            except ValueError:
+                pass
+        try:
+            gps = ex.get_ifd(0x8825)  # GPSInfo IFD
+        except Exception:  # noqa: BLE001
+            gps = {}
+        if gps:
+            ll = _gps_to_decimal(gps)
+            if ll and _valid_latlon(*ll):
+                out["location"] = ll
+    except Exception as e:  # noqa: BLE001 — never break the photo step
+        log.warning("EXIF read failed for %s: %s", image_path, e)
+    return out
+
+
 def parse_evolution_webhook(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
     Normalize an Evolution API message payload into our internal shape.
@@ -985,10 +1044,37 @@ class AQBot:
         session.draft["image_path"] = str(image_path)
         session.draft["media_key"] = media_id
         session.draft["mimetype"] = mime
-        # Photo done → location is the last mandatory step (3/3).
-        session.state = AWAIT_LOCATION
+
+        # Opportunistic: most WhatsApp photos arrive with EXIF stripped, but
+        # if GPS / capture-time survived (e.g. the image was sent as a
+        # document), use it to pre-fill and skip the matching question. The
+        # summary still shows everything for SEND/CANCEL, so a wrong reading
+        # is recoverable.
+        meta = extract_photo_exif(image_path)
+        filled = False
+        if meta.get("location"):
+            lat, lon = meta["location"]
+            session.draft["location"] = {"lat": lat, "lon": lon}
+            session.draft["location_basis"] = "exif"
+            filled = True
+        if meta.get("incident_time"):
+            session.draft["incident_time"] = meta["incident_time"]
+            session.draft["incident_time_basis"] = "exif"
+            filled = True
+        prefix = (t("photo_meta_used", lang) + "\n\n") if filled else ""
+
+        # Route to the first step the photo's metadata did NOT already fill.
+        if not session.draft.get("location"):
+            session.state = AWAIT_LOCATION
+            reply = prefix + t("photo_received", lang)
+        elif not session.draft.get("incident_time"):
+            session.state = AWAIT_INCIDENT_TIME
+            reply = prefix + t("ask_incident_time", lang)
+        else:
+            session.state = AWAIT_COMMENT
+            reply = prefix + t("ask_comment", lang)
         self.sessions.update(session)
-        return t("photo_received", lang)
+        return reply
 
     def _state_await_confirm(self, msg: Dict[str, Any], session) -> str:
         lang = session.lang or DEFAULT_LANG
@@ -1020,6 +1106,8 @@ class AQBot:
         lat = float(loc.get("lat") or 0.0)
         lon = float(loc.get("lon") or 0.0)
         time_text = d.get("incident_time_text", "")
+        if not time_text and d.get("incident_time_basis") == "exif" and d.get("incident_time"):
+            time_text = d["incident_time"][:16].replace("T", " ")
         time_line = (
             t("summary_time_line", lang, when=time_text) if time_text else ""
         )
@@ -1058,6 +1146,7 @@ class AQBot:
             "comment": comment,
             "description": comment,  # adapter-compat key
             "location": d.get("location"),
+            "location_basis": d.get("location_basis", "user"),
             "image_path": d.get("image_path"),
             "media_key": d.get("media_key"),
             "mimetype": d.get("mimetype"),
