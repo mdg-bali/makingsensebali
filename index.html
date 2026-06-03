@@ -1617,10 +1617,29 @@ function renderAreaReadout(){
     .map(([k,v]) => `${k.replace(/_/g,' ')} ×${v}`).join(' · ');
   const tags = (area.top_tags||[]).slice(0,5)
     .map(tg => `<span class="ar-tag">${D.escapeHtml(tg)}</span>`).join('');
+  // Nearby PM2.5 from the LIVE sensors already on the page (nearest kit with a
+  // reading, within ~10km of the area centroid). Falls back to the pre-baked
+  // areas.json value only if no live sensor is in range — so a stale snapshot
+  // with pm25=null no longer hides a sensor that is actually nearby.
+  let pm = null, pmKm = null;
+  if (typeof area.lat === 'number' && typeof area.lon === 'number' && Array.isArray(state.sensors)){
+    let best = Infinity, bestPm = null;
+    state.sensors.forEach(s => {
+      const v = (s.reading && typeof s.reading.pm25 === 'number') ? s.reading.pm25 : null;
+      if (v === null || typeof s.lat !== 'number' || typeof s.lng !== 'number') return;
+      const km = P.distanceKm(area.lat, area.lon, s.lat, s.lng);
+      if (km < best){ best = km; bestPm = v; }
+    });
+    if (bestPm !== null && best <= 10){ pm = Math.round(bestPm * 10) / 10; pmKm = best; }
+  }
+  if (pm === null && typeof area.pm25 === 'number') pm = area.pm25;
   let pmLine = 'No air sensor nearby yet.';
-  if (typeof area.pm25 === 'number'){
-    pmLine = `PM2.5 ${area.pm25} µg/m³` +
-      (area.pm25 > 15 ? ' — above WHO 24h guideline (15)' : ' — within WHO 24h guideline');
+  if (pm !== null){
+    const band = pm > 15 ? ' — above WHO 24h guideline (15)' : ' — within WHO 24h guideline';
+    const dist = (pmKm !== null && pmKm > 0.25)
+      ? ` · nearest sensor ${pmKm < 1 ? Math.round(pmKm * 1000) + ' m' : pmKm.toFixed(1) + ' km'}`
+      : '';
+    pmLine = `PM2.5 ${pm} µg/m³${band}${dist}`;
   }
   el.hidden = false;
   el.innerHTML = `
