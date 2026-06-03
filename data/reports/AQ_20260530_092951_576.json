@@ -1,0 +1,54 @@
+{
+  "linked_schemas": [
+    "environmental_observation-v1.0.0"
+  ],
+  "name": "Construction observation — Bukit, Bali",
+  "description": "",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260530_092951_576.json",
+  "latitude": -8.84260557,
+  "longitude": 115.19001665,
+  "geolocation": {
+    "lat": -8.84260557,
+    "lon": 115.19001665
+  },
+  "locality": "Bukit",
+  "region": "Bali",
+  "country_name": "Indonesia",
+  "country_iso_3166": "ID",
+  "tags": [
+    "air_quality",
+    "environment",
+    "community_report",
+    "planet_ai",
+    "construction",
+    "source:whatsapp",
+    "severity:low",
+    "bioregion:indo_pacific_coral_triangle",
+    "bukit_pilot"
+  ],
+  "status": "active",
+  "date_added": "2026-05-30T09:30:14.774226+00:00",
+  "observation_type": "photo",
+  "pollution_category": "construction",
+  "ai_analysis": {
+    "detected": true,
+    "confidence": 0.9,
+    "indicators": [
+      "dry dusty ground",
+      "construction debris",
+      "heavy transport truck",
+      "unfinished structures"
+    ],
+    "description": "A dusty construction site featuring a heavy truck and various piles of debris.",
+    "severity": "low",
+    "model_version": "exo:gemma-4-e4b-it-6bit"
+  },
+  "data_source": "whatsapp",
+  "planet_ai_node": "bali.fab.city",
+  "bioregion": "indo_pacific_coral_triangle",
+  "action_cycle": {
+    "observation_timestamp": "2026-05-30T09:30:14.774226+00:00",
+    "reported_timestamp": "2026-05-30T09:30:14.774226+00:00",
+    "response_status": "reported"
+  }
+}
