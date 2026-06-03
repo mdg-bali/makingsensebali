@@ -589,6 +589,65 @@ async function fetchAllSensors(){
 }
 
 // ============================================================
+// SNAPSHOT-FIRST LOADING (sensors + areas)
+// ============================================================
+// The mini's sync generator (tools/makingsense-sync/) writes data/sensors.json
+// and data/areas.json every ~15 min. Loading those static files is instant;
+// we only fall back to the live (slow) API fan-out when the snapshot is
+// absent — with a short localStorage cache so even that path is fast on
+// repeat visits. This degrades gracefully: before the generator is deployed,
+// behaviour is exactly the old live fetch.
+function dataBaseUrl(){
+  const path = window.location.pathname;
+  if(/\/dashboard\/?(index\.html)?$/.test(path)) return '../data';
+  return './data';
+}
+
+const SENSORS_CACHE_KEY = 'scb-sensors-cache-v1';
+const SENSORS_CACHE_TTL_MS = 10 * 60 * 1000;
+
+function _sensorsCacheGet(){
+  try{
+    const o = JSON.parse(localStorage.getItem(SENSORS_CACHE_KEY) || 'null');
+    if(!o || (Date.now() - o.savedAt) > SENSORS_CACHE_TTL_MS) return null;
+    return (Array.isArray(o.sensors) && o.sensors.length) ? o.sensors : null;
+  }catch(_){ return null; }
+}
+function _sensorsCachePut(sensors){
+  try{ localStorage.setItem(SENSORS_CACHE_KEY, JSON.stringify({savedAt: Date.now(), sensors})); }catch(_){}
+}
+
+async function fetchSensorsSnapshot(){
+  try{
+    const r = await fetch(`${dataBaseUrl()}/sensors.json`, {cache:'no-cache'});
+    if(!r.ok) return null;
+    const j = await r.json();
+    const s = Array.isArray(j.sensors) ? j.sensors : null;
+    return (s && s.length) ? s : null;
+  }catch(_){ return null; }
+}
+
+// Snapshot first (instant) → recent live cache → full live fan-out (cold path).
+async function fetchSensorsFast(){
+  const snap = await fetchSensorsSnapshot();
+  if(snap){ console.log(`[SCB] sensors from snapshot (${snap.length})`); return snap; }
+  const cached = _sensorsCacheGet();
+  if(cached){ console.log(`[SCB] sensors from cache (${cached.length})`); return cached; }
+  const live = await fetchAllSensors();
+  if(live && live.length) _sensorsCachePut(live);
+  return live;
+}
+
+async function fetchAreas(){
+  try{
+    const r = await fetch(`${dataBaseUrl()}/areas.json`, {cache:'no-cache'});
+    if(!r.ok) return [];
+    const j = await r.json();
+    return Array.isArray(j.areas) ? j.areas : [];
+  }catch(_){ return []; }
+}
+
+// ============================================================
 // REPORTS — citizen observations via WhatsApp bot
 // ============================================================
 // Approved reports from the Sense Making bot (reports/ component) are
@@ -717,7 +776,7 @@ if(typeof window !== 'undefined'){
     fetchSmartCitizenHistory, fetchSmartCitizenHistoryBulk,
     fetchOpenAQSensors,
     fetchPurpleAirSensors, fetchSensorCommunitySensors,
-    fetchAllSensors,
+    fetchAllSensors, fetchSensorsFast, fetchSensorsSnapshot, fetchAreas, dataBaseUrl,
     fetchReports, fetchReportsSummary, profileToReport, reportsBaseUrl,
     SOURCE_STATUS,  // exposed for in-page diagnostic
   };

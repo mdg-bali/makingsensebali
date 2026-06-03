@@ -1,0 +1,47 @@
+{
+  "generated_at": "2026-06-03T08:37:37.511595+00:00",
+  "areas": [
+    {
+      "locality": "Bali",
+      "lat": -1.733892,
+      "lon": 23.028286,
+      "report_count": 5,
+      "categories": {
+        "other": 4,
+        "burning": 1
+      },
+      "top_tags": [
+        "open fire",
+        "burning debris",
+        "smoke"
+      ],
+      "max_severity": "medium",
+      "pm25": null,
+      "summary": null
+    },
+    {
+      "locality": "Bukit",
+      "lat": -8.80369,
+      "lon": 115.149744,
+      "report_count": 10,
+      "categories": {
+        "trash": 4,
+        "other": 3,
+        "vehicle": 1,
+        "burning": 1,
+        "construction": 1
+      },
+      "top_tags": [
+        "various types of waste",
+        "pile of garbage",
+        "uncollected",
+        "outside",
+        "motorbike smoke",
+        "motorbike"
+      ],
+      "max_severity": "high",
+      "pm25": null,
+      "summary": null
+    }
+  ]
+}

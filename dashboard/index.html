@@ -1362,7 +1362,7 @@ async function loadAll(){
   setLive('loading','statusbar.syncing');
   try{
     const [sensors, reports, summary] = await Promise.all([
-      D.fetchAllSensors(),
+      D.fetchSensorsFast(),
       D.fetchReports(),
       D.fetchReportsSummary ? D.fetchReportsSummary() : Promise.resolve(null),
     ]);
