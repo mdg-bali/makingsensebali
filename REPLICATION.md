@@ -1,16 +1,16 @@
-# Replicating Smart Citizen [your city]
+# Replicating Making Sense [your place]
 
-A guide for **Fab City chapters with a host Fab Lab** who want to stand up their own bioregional instance of Smart Citizen — combining open-hardware sensors, public data networks, citizen reports, and a participatory survey under a single campaign.
+A guide for **Fab City chapters with a host Fab Lab** who want to stand up their own bioregional instance of Making Sense — combining open-hardware sensors, public data networks, citizen reports, and a participatory survey under a single campaign.
 
 The reference deployment is [Making Sense Bali](README.md), hosted by Fab Lab Bali within the Fab City Bali chapter. This document is the same campaign packaged as a kit. If you run a Fab City chapter and have a host Fab Lab willing to anchor the work, you can fork this repository, customize it for your bioregion, and deploy a working instance in roughly **3–6 months from decision to public launch**.
 
-If you don't have the Fab City + Fab Lab combination — or don't want to — most of the underlying tools are useful on their own: the [Smart Citizen Kit](https://smartcitizen.me/) for sensors, OpenAQ / Sensor.Community for open data, the [Sense Making reports toolkit](reports/) for bot infrastructure. You can use any of those without operating a "Smart Citizen [city]" campaign. The campaign name and the federated network it joins are reserved for Fab City chapter instances, for reasons of accountability and governance set out below.
+If you don't have the Fab City + Fab Lab combination — or don't want to — most of the underlying tools are useful on their own: the [Smart Citizen Kit](https://smartcitizen.me/) for sensors, OpenAQ / Sensor.Community for open data, the [Sense Making reports toolkit](reports/) for bot infrastructure. You can use any of those without operating a "Making Sense [place]" campaign. The campaign name and the federated network it joins are reserved for Fab City chapter instances, for reasons of accountability and governance set out below.
 
 ---
 
 ## 1. Is this for you?
 
-Smart Citizen [your city] requires four commitments. If any of these is shaky, fix it before starting the technical work — the technical work is the easy half.
+Making Sense [your place] requires four commitments. If any of these is shaky, fix it before starting the technical work — the technical work is the easy half.
 
 ### Required institutional anchors
 
@@ -28,14 +28,14 @@ Smart Citizen [your city] requires four commitments. If any of these is shaky, f
 
 - A turnkey product. You will make local decisions throughout — what neighborhoods to focus on, what language to operate in, what survey questions matter for your bioregion, what categories of pollution dominate your context.
 - A research project. The data is for community use first, research downstream. If your primary goal is academic publication, this kit is overengineered for your needs.
-- An advocacy campaign. Smart Citizen [your city] is participatory and evidence-building. It can feed advocacy, but the campaign itself is descriptive — it surfaces what residents notice, it doesn't pre-decide what the answer is.
+- An advocacy campaign. Making Sense [your place] is participatory and evidence-building. It can feed advocacy, but the campaign itself is descriptive — it surfaces what residents notice, it doesn't pre-decide what the answer is.
 - A short pilot. The federation network only works if instances stay alive across years. A Fab Lab signing on should expect to host the campaign for the long term.
 
 ---
 
 ## 2. The phases
 
-Smart Citizen [your city] runs in three overlapping phases. They aren't strictly sequential — Phase 2 starts while Phase 1 is still gathering responses; Phase 3 begins as soon as you have enough data to act on — but the order of starting matters.
+Making Sense [your place] runs in three overlapping phases. They aren't strictly sequential — Phase 2 starts while Phase 1 is still gathering responses; Phase 3 begins as soon as you have enough data to act on — but the order of starting matters.
 
 ### Phase 1 — Matters of concern (weeks 1–8)
 
@@ -77,7 +77,7 @@ The two channels feed the same map. A burning event shows up as a sensor reading
 
 ### Phase 3 — Response and learning (ongoing, starts as data accumulates)
 
-This is the phase the network is building toward and where Smart Citizen [your city] earns its keep. Data alone doesn't change anything; data interpreted by a community, with a named anchor, sometimes does.
+This is the phase the network is building toward and where Making Sense [your place] earns its keep. Data alone doesn't change anything; data interpreted by a community, with a named anchor, sometimes does.
 
 What "response" looks like depends on your local context. Common patterns:
 
@@ -85,7 +85,7 @@ What "response" looks like depends on your local context. Common patterns:
 - **Pattern surfacing** — monthly summaries identifying recurring events ("trash burning every Wednesday at the south beach") that point at sources
 - **Community organizing** — local action triggered by aggregated evidence (talking to the businesses doing the burning, organizing collective cleanups)
 - **Policy advocacy** — taking the aggregated data to local government, banjars / neighborhood councils, environmental agencies
-- **Federated learning** — when other Smart Citizen [city] instances exist, sharing patterns across bioregions (smoke corridor dynamics, monsoon-related water issues, etc.)
+- **Federated learning** — when other Making Sense [place] instances exist, sharing patterns across bioregions (smoke corridor dynamics, monsoon-related water issues, etc.)
 
 Phase 3 is the most local-context-dependent. We don't prescribe how to run it. We do require that you commit to running it — otherwise the campaign becomes data collection without consequence, which is corrosive to community trust.
 
@@ -93,7 +93,7 @@ Phase 3 is the most local-context-dependent. We don't prescribe how to run it. W
 
 ## 3. Components — what to fork, what to deploy, what to configure
 
-Smart Citizen [your city] is assembled from these parts:
+Making Sense [your place] is assembled from these parts:
 
 | Component | What you do | Effort |
 |---|---|---|
@@ -121,20 +121,20 @@ Before any code or hardware:
 - Confirm your Fab City chapter status. If you're not yet a chapter, talk to [Fab City](https://fab.city/) first.
 - Identify and confirm your host Fab Lab. Get explicit institutional commitment, not just enthusiasm.
 - Name your campaign lead. Get this in writing somewhere internal.
-- Decide your campaign name. Convention: **Smart Citizen [City]** — *Smart Citizen Barcelona*, *Smart Citizen Yucatán*, *Smart Citizen Bangalore*. Keep "Smart Citizen" prefix so the network is recognizable.
+- Decide your campaign name. Convention: **Making Sense [Place]** — *Making Sense Barcelona*, *Making Sense Yucatán*, *Making Sense Bangalore*. Keep the "Making Sense" prefix so the network is recognizable. One caution: this is the contemporary campaign **network**, distinct from the 2015–2017 EU **Making Sense** research project it descends from. Always credit that project *with its dates* in your lineage so the two don't blur — especially in Barcelona, where Fab Lab Barcelona ran the original EU pilot.
 
 ### Step 2 — Fork this repository
 
 ```bash
-git clone https://github.com/mdg-bali/smartcitizenbali your-org/smartcitizen-yourcity
-cd smartcitizen-yourcity
+git clone https://github.com/mdg-bali/makingsensebali your-org/makingsense-yourplace
+cd makingsense-yourplace
 
 # Update the remote to your own GitHub org
-git remote set-url origin git@github.com:your-org/smartcitizen-yourcity.git
+git remote set-url origin git@github.com:your-org/makingsense-yourplace.git
 git push -u origin main
 ```
 
-GitHub Pages: enable on your fork. The site goes live at `your-org.github.io/smartcitizen-yourcity/`.
+GitHub Pages: enable on your fork. The site goes live at `your-org.github.io/makingsense-yourplace/`.
 
 ### Step 3 — Customize the campaign site
 
@@ -259,27 +259,27 @@ Three references your fork should update consistently:
 - "Part of Fab City Bali" → part of your Fab City chapter
 - Tomas Diez as named lead → your named lead
 
-Keep references to Making Sense, Smart Citizen Kit, Fab Lab Barcelona / IAAC in the lineage — those are the shared upstream that all Smart Citizen [city] instances share.
+Keep references to Making Sense, Smart Citizen Kit, Fab Lab Barcelona / IAAC in the lineage — those are the shared upstream that all Making Sense [place] instances share.
 
 ---
 
 ## 6. Federation — joining the network
 
-Each Smart Citizen [city] instance is independent but discoverable. Federation happens through two mechanisms today and one in the future:
+Each Making Sense [place] instance is independent but discoverable. Federation happens through two mechanisms today and one in the future:
 
 ### Today — Murmurations
 
-Once you publish your `murmurations.json` and submit it to the [Murmurations Index](https://murmurations.network/), your campaign is discoverable in the broader Murmurations ecosystem. Any community-data network can query for `tags=smart citizen` or `tags=fab lab` and find your instance alongside Making Sense Bali, Smart Citizen Barcelona, and others.
+Once you publish your `murmurations.json` and submit it to the [Murmurations Index](https://murmurations.network/), your campaign is discoverable in the broader Murmurations ecosystem. Any community-data network can query for `tags=citizen sensing` or `tags=fab lab` and find your instance alongside Making Sense Bali, Making Sense Barcelona, and others.
 
 This is the lightest form of federation: your campaign is *findable* but each instance operates independently. No data sharing across nodes, no shared infrastructure.
 
 ### Today — bidirectional links
 
-Each Smart Citizen [city] site links to the others through the Fab City and Fab Lab networks. The lineage section in each campaign's README acknowledges the shared methodology and platform. The network becomes visible through citation, not through technical integration.
+Each Making Sense [place] site links to the others through the Fab City and Fab Lab networks. The lineage section in each campaign's README acknowledges the shared methodology and platform. The network becomes visible through citation, not through technical integration.
 
 ### Future — PLANETAI federation
 
-PLANETAI is the longer-term horizon: a federation layer that aggregates approved reports across Smart Citizen [city] instances, lets you query patterns across bioregions, and provides shared infrastructure (profile hosting, cross-instance discovery, optional AI services). PLANETAI infrastructure is not yet built — when it is, joining the federation is opt-in and configured in `reports/config.json`.
+PLANETAI is the longer-term horizon: a federation layer that aggregates approved reports across Making Sense [place] instances, lets you query patterns across bioregions, and provides shared infrastructure (profile hosting, cross-instance discovery, optional AI services). PLANETAI infrastructure is not yet built — when it is, joining the federation is opt-in and configured in `reports/config.json`.
 
 For now, design and operate your instance as if it will federate. The Murmurations schema is shared, the report shape is shared, the methodology is shared. When PLANETAI exists, the technical work to federate will be a config change, not a refactor.
 
@@ -287,7 +287,7 @@ For now, design and operate your instance as if it will federate. The Murmuratio
 
 ## 7. Where to get help
 
-- **Repository**: [github.com/mdg-bali/smartcitizenbali](https://github.com/mdg-bali/smartcitizenbali) — file issues, propose pull requests
+- **Repository**: [github.com/mdg-bali/makingsensebali](https://github.com/mdg-bali/makingsensebali) — file issues, propose pull requests
 - **Replication conversations**: [fablabbali@gmail.com](mailto:fablabbali@gmail.com) — the Fab Lab Bali inbox. Reach out before starting; a short call early saves weeks of guesswork.
 - **Fab City network**: [fab.city](https://fab.city/) — for chapter status, partner introductions
 - **Smart Citizen platform**: [smartcitizen.me](https://smartcitizen.me/) — hardware, account setup, sensor questions
@@ -301,10 +301,10 @@ If you're seriously considering replication, please reach out before starting. A
 All code in this repository: **MIT**.
 Documentation, schemas, surveys, and methodology: **CC-BY-SA 4.0**.
 
-If you fork and run a Smart Citizen [city], we ask three things:
+If you fork and run a Making Sense [place], we ask three things:
 
 1. **Credit the lineage.** Making Sense (Fab Lab Barcelona / IAAC, 2015–2017), Smart Citizen (co-founded by Tomas Diez and Alex Posada, 2012), Making Sense Bali (Fab Lab Bali, 2026) in your README and on your campaign site.
-2. **Keep the network legible.** Use the "Smart Citizen [city]" naming convention. Publish your Murmurations profile. Link to other instances.
+2. **Keep the network legible.** Use the "Making Sense [place]" naming convention. Publish your Murmurations profile. Link to other instances.
 3. **Share back.** Improvements to the code, the methodology, the docs — pull requests welcome. The kit gets better when each new instance contributes back what they learned.
 
 ---

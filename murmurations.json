@@ -3,8 +3,8 @@
     "organizations_schema-v1.0.0"
   ],
   "name": "Making Sense Bali",
-  "nickname": "smartcitizenbali",
-  "primary_url": "mdg-bali.github.io/smartcitizenbali/",
+  "nickname": "makingsensebali",
+  "primary_url": "mdg-bali.github.io/makingsensebali/",
   "tags": [
     "citizen sensing",
     "environmental monitoring",
@@ -33,19 +33,19 @@
     },
     {
       "name": "Live dashboard",
-      "url": "mdg-bali.github.io/smartcitizenbali/"
+      "url": "mdg-bali.github.io/makingsensebali/"
     },
     {
       "name": "Phase 1 survey · Matters of concern",
-      "url": "mdg-bali.github.io/smartcitizenbali/#survey"
+      "url": "mdg-bali.github.io/makingsensebali/#survey"
     },
     {
       "name": "Data view (sensors, standards, methodology)",
-      "url": "mdg-bali.github.io/smartcitizenbali/dashboard/"
+      "url": "mdg-bali.github.io/makingsensebali/dashboard/"
     },
     {
       "name": "Source code repository",
-      "url": "github.com/mdg-bali/smartcitizenbali"
+      "url": "github.com/mdg-bali/makingsensebali"
     },
     {
       "name": "Smart Citizen Kit · House node 19236",
@@ -73,7 +73,7 @@
   },
   "contact_details": {
     "email": "fablabbali@gmail.com",
-    "contact_form": "mdg-bali.github.io/smartcitizenbali/#contact"
+    "contact_form": "mdg-bali.github.io/makingsensebali/#contact"
   },
   "starts_at": 1764460800,
   "relationships": [

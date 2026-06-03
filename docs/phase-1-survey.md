@@ -1,6 +1,6 @@
 # Phase 1 — Matters of concern survey
 
-The design, methodology, and operational guide for the Phase 1 community survey of a Smart Citizen [city] campaign. Documents the live Bali survey as the reference design, with proposed enhancements for the next iteration.
+The design, methodology, and operational guide for the Phase 1 community survey of a Making Sense [place] campaign. Documents the live Bali survey as the reference design, with proposed enhancements for the next iteration.
 
 > **Live form**: [airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form](https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form)
 > **Base**: `appwQPP3ywSp4uu25` · Table: `Matters of Concern`
@@ -9,7 +9,7 @@ The design, methodology, and operational guide for the Phase 1 community survey 
 
 ## Why a Phase 1 survey
 
-Smart Citizen [city] doesn't start by deploying sensors or by writing a press release about air quality. It starts by asking residents what environmental issues *they* notice in their daily life. This grounding matters more than it might seem.
+Making Sense [place] doesn't start by deploying sensors or by writing a press release about air quality. It starts by asking residents what environmental issues *they* notice in their daily life. This grounding matters more than it might seem.
 
 The methodological lineage is **[Making Sense](https://making-sense.eu/)** (EU Horizon 2020, 2015–2017), which adapted Bruno Latour's "matters of concern" framing into a participatory citizen-sensing protocol. The core distinction is between *matters of fact* (what science measures — PM2.5, dB, ppm) and *matters of concern* (what people actually worry about — the smoke that wakes them up, the water that tastes wrong, the noise that makes their kids cry).
 
@@ -137,7 +137,7 @@ All seven should be **optional** in the form view — none required. The form's 
 
 For another Fab City chapter forking the Bali survey for their own bioregion, here's the Airtable schema you'll replicate. The base ID is per-deployment; the structure is shared.
 
-### Base: `Smart Citizen [Your City] · Matters of Concern`
+### Base: `Making Sense [Your Place] · Matters of Concern`
 
 ### Table: `Matters of Concern` — one row per submitted concern
 
@@ -230,7 +230,7 @@ Avoid paying for responses. It changes the demographic mix toward people who nee
 
 The single most-used outreach asset will be a short paragraph you adapt for each channel. Template:
 
-> 🌴 *Smart Citizen [City]* — Fab Lab [City]'s campaign on environmental issues in our neighborhoods.
+> 🌴 *Making Sense [Place]* — Fab Lab [City]'s campaign on environmental issues in our neighborhoods.
 >
 > We're asking residents what environmental issues affect their daily life — air, water, noise, waste, anything. This is *Phase 1*: building a picture of what neighbors actually notice, before we deploy any sensors. Your input shapes where we focus next.
 >

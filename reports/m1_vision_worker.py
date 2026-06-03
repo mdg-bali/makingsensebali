@@ -301,7 +301,7 @@ def _republish(node: PlanetAINode, report: Dict[str, Any]) -> None:
     would route through MurmurationsProfile.save(), which uses
     LOCAL_PROFILE_DIR = Path(__file__).parent / "profiles". For the
     worker running on the M1 Mac, __file__ resolves to
-    ~/Documents/.../smartcitizenbali/reports/, NOT the SMB-mounted NAS
+    ~/Documents/.../makingsensebali/reports/, NOT the SMB-mounted NAS
     profiles dir. The "republished" file would land in a folder nobody
     reads and the public dashboard would keep showing the pre-analysis
     profile. We build the profile via from_aq_report (which still

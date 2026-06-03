@@ -9,7 +9,7 @@
 
 ## 1. Why this revision
 
-The current dashboard at `mdg-bali.github.io/smartcitizenbali/dashboard/` works as a *snapshot* view: a map of sensors with their latest readings, a list of citizen reports rendered as cards, a few reference panels. It proves the campaign exists. It does not yet help anyone *interpret* what's happening environmentally in Bali.
+The current dashboard at `mdg-bali.github.io/makingsensebali/dashboard/` works as a *snapshot* view: a map of sensors with their latest readings, a list of citizen reports rendered as cards, a few reference panels. It proves the campaign exists. It does not yet help anyone *interpret* what's happening environmentally in Bali.
 
 The shift this revision delivers: from "what is the current PM2.5 reading at this pin" to "**what changed in this neighbourhood over the last day, and is that connected to what people are reporting?**" That question is what turns a dashboard into a tool a banjar coordinator, a Dinas Kesehatan analyst, or a parent worried about their kid's asthma can actually use.
 

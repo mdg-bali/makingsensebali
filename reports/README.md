@@ -34,7 +34,7 @@ home-deployable kit for the 2026 Fab City landscape.
 | | |
 |---|---|
 | **Reference deployment** | Making Sense Bali · Bali, Indonesia · pilot phase, Q2 2026 |
-| **Run by** | [Fab Lab Bali](https://fablabbali.com) as the reporting layer of [Making Sense Bali](https://mdg-bali.github.io/smartcitizenbali/) |
+| **Run by** | [Fab Lab Bali](https://fablabbali.com) as the reporting layer of [Making Sense Bali](https://mdg-bali.github.io/makingsensebali/) |
 | **Replication kit** | Available — see [REPLICATION.md](REPLICATION.md) |
 | **Planned next** | Pelapor Barcelona · Fab Lab Barcelona · 2026 H2 |
 | **Federation layer** | PLANETAI · planned, infrastructure not yet built |

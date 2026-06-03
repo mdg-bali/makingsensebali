@@ -295,4 +295,4 @@ What the campaign takes from the workshop: a new dot on the dashboard, the parti
 
 ## License
 
-Same as the parent campaign repo: code MIT, docs CC-BY-SA 4.0. Fork it for Smart Citizen [your city] and tell us what changed.
+Same as the parent campaign repo: code MIT, docs CC-BY-SA 4.0. Fork it for Making Sense [your place] and tell us what changed.

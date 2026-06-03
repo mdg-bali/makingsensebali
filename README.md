@@ -6,7 +6,7 @@ Making Sense Bali combines open-hardware environmental sensors, public data from
 
 The campaign is hosted and accountable to **[Fab Lab Bali](https://fablabbali.com)**, the local fabrication laboratory in Denpasar, as part of the **Fab City Bali** chapter of the global [Fab City](https://fab.city/) network. Methodologically the work descends from the **[Making Sense](https://making-sense.eu/)** project (EU Horizon 2020, Fab Lab Barcelona / IAAC and partners, 2015–2017) and uses the **[Smart Citizen Kit](https://smartcitizen.me/)** platform, co-founded by Tomas Diez and Alex Posada at Fab Lab Barcelona / IAAC in 2012. Making Sense Bali is led by Tomas Diez — Smart Citizen co-founder, now resident in Bali — and runs as an independent bioregional instance, in close relationship with the original projects.
 
-Live: **[mdg-bali.github.io/smartcitizenbali](https://mdg-bali.github.io/smartcitizenbali/)**
+Live: **[mdg-bali.github.io/makingsensebali](https://mdg-bali.github.io/makingsensebali/)**
 
 ---
 
@@ -14,7 +14,7 @@ Live: **[mdg-bali.github.io/smartcitizenbali](https://mdg-bali.github.io/smartci
 
 Three surfaces, one campaign:
 
-1. **The public site** at `mdg-bali.github.io/smartcitizenbali/` — the campaign's home: methodology, status, the live dashboard, the matters-of-concern survey, the residents' reports, attribution to the broader network.
+1. **The public site** at `mdg-bali.github.io/makingsensebali/` — the campaign's home: methodology, status, the live dashboard, the matters-of-concern survey, the residents' reports, attribution to the broader network.
 
 2. **The live dashboard** at `/dashboard/` — real-time environmental sensor readings aggregated from multiple open networks: Smart Citizen Kit deployments operated by the campaign, OpenAQ stations in Bali, Sensor.Community devices, PurpleAir (when configured). PM2.5, PM10, temperature, humidity, noise. Each pin shows source, last reading, links to the original platform.
 
@@ -77,6 +77,8 @@ Making Sense Bali sits within a specific lineage. It matters because it shapes w
 
 The original Smart Citizen platform and Fab Lab Barcelona are stewarded by other teams today; Making Sense Bali is independent but coordinated, not a satellite or franchise. Both projects continue, in different bioregions, under different teams, with overlapping methodology and a shared aesthetic of open hardware, open data, and community accountability.
 
+A naming note, since the words overlap: the replicable campaign **network** uses the **Making Sense [place]** convention — Making Sense Bali, Making Sense Barcelona, and so on. These contemporary campaigns carry the EU Making Sense methodology forward into new bioregions; they are *not* the 2015–2017 EU project itself, which remains the credited origin (always cited with its dates). The sensors, in turn, are **Smart Citizen Kits** — the open hardware — which is a separate thing again.
+
 Making Sense Bali's accountability structure:
 
 - **Host institution**: Fab Lab Bali
@@ -98,7 +100,7 @@ The campaign is currently in early Phase 1 → Phase 2 transition (Q2 2026):
 
 ---
 
-## Replicate it — Smart Citizen [your city]
+## Replicate it — Making Sense [your place]
 
 Making Sense Bali is intentionally replicable. Other Fab City chapters with a host Fab Lab can fork this campaign template for their bioregion.
 
@@ -112,19 +114,19 @@ Making Sense Bali is intentionally replicable. Other Fab City chapters with a ho
 
 The full replication guide is in **[REPLICATION.md](REPLICATION.md)**.
 
-Currently in conversation: **Smart Citizen Barcelona** (Fab Lab Barcelona, 2026 H2). Other Fab City chapters being approached include Yucatán, Montreal, Goa, and Santiago. Each Smart Citizen [city] is its own campaign, hosted by its own Fab Lab, anchored in its own bioregion, sharing methodology and federating discoverable data — that's the network the project is building toward, one chapter at a time.
+Currently in conversation: **Making Sense Barcelona** (Fab Lab Barcelona, 2026 H2). Other Fab City chapters being approached include Yucatán, Montreal, Goa, and Santiago. Each Making Sense [place] is its own campaign, hosted by its own Fab Lab, anchored in its own bioregion, sharing methodology and federating discoverable data — that's the network the project is building toward, one chapter at a time.
 
 ---
 
 ## Repository structure
 
-Everything lives in one repo so a Fab Lab forking Smart Citizen [their city]
+Everything lives in one repo so a Fab Lab forking Making Sense [their place]
 gets the whole stack with a single `git clone`.
 
 ```
 .
 ├── README.md              this file — campaign overview
-├── REPLICATION.md         how to stand up Smart Citizen [your city]
+├── REPLICATION.md         how to stand up Making Sense [your place]
 ├── docs/
 │   ├── methodology.md     Making Sense, adapted for bioregional deployment
 │   ├── phase-1-survey.md  running the matters-of-concern survey

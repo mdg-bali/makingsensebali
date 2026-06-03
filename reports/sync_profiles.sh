@@ -19,7 +19,7 @@
 #   AQ_SYNC_SOURCE         default: ./data/profiles/
 #   PLANETAI_TARGET        rsync target (e.g. user@host:/var/www/bali/profiles/)
 #                          leave empty to skip planetai sync
-#   GITHUB_REPO_DIR        local checkout of mdg-bali/smartcitizenbali
+#   GITHUB_REPO_DIR        local checkout of mdg-bali/makingsensebali
 #                          leave empty to skip github sync
 #   GITHUB_PROFILES_SUBDIR subdir inside the repo for profiles
 #                          default: data/reports
@@ -115,7 +115,7 @@ if [[ -n "$GITHUB_REPO_DIR" ]]; then
 
   if [[ ! -d "$GITHUB_REPO_DIR/.git" ]]; then
     log "  ERROR: $GITHUB_REPO_DIR is not a git repository"
-    log "  Clone the mdg-bali/smartcitizenbali repo there first, then re-run"
+    log "  Clone the mdg-bali/makingsensebali repo there first, then re-run"
     exit 1
   fi
 

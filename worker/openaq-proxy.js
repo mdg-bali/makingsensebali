@@ -71,7 +71,7 @@ export default {
     if (url.pathname === '/' || url.pathname === '/health') {
       return jsonResponse({
         ok: true,
-        service: 'smartcitizenbali-proxy',
+        service: 'makingsensebali-proxy',
         routes: [
           'GET /openaq/locations?bbox=...',
           'GET /openaq/locations/{id}/latest',
@@ -105,7 +105,7 @@ async function proxyOpenAQ(url, env, baseHeaders) {
       headers: {
         'X-API-Key': apiKey,
         'Accept': 'application/json',
-        'User-Agent': 'smartcitizenbali-proxy/1.0',
+        'User-Agent': 'makingsensebali-proxy/1.0',
       },
       cf: {
         // Cloudflare edge cache, ~60 seconds — cuts repeat API hits dramatically
@@ -138,7 +138,7 @@ async function proxySCK(url, env, baseHeaders) {
 
   const upstreamHeaders = {
     'Accept': 'application/json',
-    'User-Agent': 'smartcitizenbali-proxy/1.0',
+    'User-Agent': 'makingsensebali-proxy/1.0',
   };
   if (apiKey) upstreamHeaders['Authorization'] = `Bearer ${apiKey}`;
 
