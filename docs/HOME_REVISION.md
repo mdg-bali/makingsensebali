@@ -1,8 +1,8 @@
-# Smart Citizen Bali · Home Page Revision Brief (v2)
+# Making Sense Bali · Home Page Revision Brief (v2)
 
 **Status:** brief — not started.
 **Owner of execution:** Claude Code.
-**Owner of intent:** Tomas Diez (Smart Citizen Bali lead).
+**Owner of intent:** Tomas Diez (Making Sense Bali lead).
 **Companion brief:** [`docs/PLATFORM_REVISION.md`](PLATFORM_REVISION.md) — the dashboard revision that just shipped. The home page revision builds on the analytical capability that dashboard now provides, but addresses a different audience and a different mode of engagement.
 **Last updated:** 2026-05-30.
 
@@ -108,14 +108,14 @@ Below the hero + CTAs, three substantive sections — each clearly headed so the
 
 **For teachers and schools** — "Bring the data into your classroom"
 - "A lesson plan using local Bali air quality data" — short pitch + downloadable PDF (write a minimal v1 lesson plan if none exists; doesn't need to be elaborate, just real)
-- Workshop framing — "Smart Citizen Bali for schools" — even if it's aspirational, name what's being offered
+- Workshop framing — "Making Sense Bali for schools" — even if it's aspirational, name what's being offered
 - One concrete example: "Your students compare your school's PM2.5 to WHO's guideline, then to a school in Barcelona via Smart Citizen's global network"
 - The "Get involved with sensors" CTA repeated at the end of this section
 
 **For policymakers and analysts** — "Evidence you can act on"
 - The campaign's data-policy / lineage (much of the current "Local lead, credited methodology" section moves here)
 - Aggregate downloads — CSV of last 30 days, monthly summary PDF (can be auto-generated nightly via existing `generate_summary.py` infrastructure in `reports/`)
-- "How to cite Smart Citizen Bali data in policy" — short paragraph with the suggested citation format and contact email
+- "How to cite Making Sense Bali data in policy" — short paragraph with the suggested citation format and contact email
 - Link to the dashboard for live analysis
 - Contact line for direct engagement with the campaign team
 
@@ -129,7 +129,7 @@ This is the most novel piece of the revision and probably worth its own week.
 
 **Card templates (start with these four):**
 
-1. **"Today in [neighbourhood]"** — current PM2.5 + severity band + one-line interpretation + WHO guideline reference + Smart Citizen Bali logo + URL
+1. **"Today in [neighbourhood]"** — current PM2.5 + severity band + one-line interpretation + WHO guideline reference + Making Sense Bali logo + URL
 2. **"This week in [neighbourhood]"** — 7-day PM2.5 trend chart (sparkline) + peak count + most common report category + URL
 3. **"Mold risk: [neighbourhood]"** — RH trend + days above 60% RH + plain-language risk note + URL
 4. **"Burning corridor: [neighbourhood]"** — combined PM spike + report count + map snippet showing source area + URL
@@ -137,7 +137,7 @@ This is the most novel piece of the revision and probably worth its own week.
 Each card has:
 - The campaign's visual signature (palette + typography from the existing CSS variables)
 - A timestamp ("as of 14:32 WITA, 2026-05-30")
-- The Smart Citizen Bali wordmark + the short URL
+- The Making Sense Bali wordmark + the short URL
 - A QR code (small, corner) linking to the dashboard's relevant view
 
 **Rendering options:**
@@ -146,7 +146,7 @@ Option A (recommended for v1): client-side HTML canvas rendering. Cards built as
 
 Option B (Phase 2): Cloudflare Worker that renders an SVG → PNG on demand at a URL like `/share/today/canggu.png`. This lets the og:image meta tag on the site point at a fresh-rendered card, so when anyone shares the site URL anywhere, the link preview is a current, localised card. Higher-impact but more infrastructure.
 
-**Required acceptance:** a visitor in Canggu can click "Share what's happening" in the hero, see four card options, pick "Today in Canggu", and either download it or share to WhatsApp in two taps. The card looks distinctive enough that someone seeing it in a WhatsApp group recognises it as Smart Citizen Bali (not a generic air quality screenshot).
+**Required acceptance:** a visitor in Canggu can click "Share what's happening" in the hero, see four card options, pick "Today in Canggu", and either download it or share to WhatsApp in two taps. The card looks distinctive enough that someone seeing it in a WhatsApp group recognises it as Making Sense Bali (not a generic air quality screenshot).
 
 ### 3.5 Correlations made visible on the home page
 

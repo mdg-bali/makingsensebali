@@ -1,4 +1,4 @@
-# aq-bot — Bukit Air Quality Reporter
+# aq-bot — Making Sense Bali Air Quality Reporter
 #
 # Lean Python image. The bot has no heavy dependencies (no ML, no
 # image processing) — that all lives on the M1.

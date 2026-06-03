@@ -43,26 +43,67 @@ import requests
 
 # --- Configuration ---------------------------------------------------------
 
-BACKEND = os.environ.get("AQ_VISION_BACKEND", "mlx").lower()
+# Canonical home-AI topology (see ai_infra/CANONICAL_AI.md):
+#   - exo runs the Gemma 4 family on the Mac-mini/MacBook cluster and serves a
+#     SINGLE model for BOTH text and vision (Gemma 4 is multimodal). This is
+#     the canonical backend — OpenAI-compatible at /v1/chat/completions.
+#   - Anthropic Haiku is the cloud fallback when the cluster is unreachable.
+#
+# NOTE (2026-05-30): exo DOES do vision, but only once the loaded instance's
+# model-card carries a non-null vision config. A freshly placed Gemma-4
+# instance autodetects it from config.json; verified live — an image request
+# jumped prompt_tokens 25 -> 281 (~256 image tokens) and the model named the
+# colour. If images are ever silently ignored again (0 token delta), the
+# instance froze a stale card — reload it (DELETE /instance/{id} then
+# POST /place_instance) and vision comes back.
+#
+# Canonical defaults: primary=openai (exo), fallback=haiku. Env-overridable.
+# Set AQ_VISION_FALLBACK="" (empty) to disable cloud fallback entirely.
+BACKEND = os.environ.get("AQ_VISION_BACKEND", "openai").lower()
+# Canonical fallback = Google Gemini (multimodal, cloud) when the local exo
+# cluster is unreachable. exo demonstrated it can fall over under vision load
+# on the 16 GB mini, so the fallback is not optional — it keeps reports moving.
+FALLBACK_BACKEND = os.environ.get("AQ_VISION_FALLBACK", "gemini").lower()
+
+# Canonical OpenAI-compatible vision endpoint = exo. The worker runs on the
+# NAS, so this points at the mini over Tailscale. Use a stable hostname/IP the
+# NAS can always reach; never localhost (the worker is off-box).
+OPENAI_ENDPOINT = os.environ.get(
+    "AQ_OPENAI_ENDPOINT",
+    "http://100.112.110.7:52415/v1",
+)
+OPENAI_MODEL = os.environ.get("AQ_OPENAI_MODEL", "mlx-community/gemma-4-e4b-it-6bit")
+OPENAI_KEY = os.environ.get("AQ_OPENAI_KEY", "")  # exo needs none; set for hosted
 
 MLX_ENDPOINT = os.environ.get(
     "AQ_VISION_ENDPOINT",
     "http://localhost:8000/analyze",
 )
+# Ollama is retired in the canonical setup (Gemma-on-exo covers vision+text),
+# but the backend is kept for flexibility / other deployments.
 OLLAMA_ENDPOINT = os.environ.get(
     "AQ_OLLAMA_ENDPOINT",
     "http://localhost:11434",
 )
-OLLAMA_MODEL = os.environ.get("AQ_OLLAMA_MODEL", "moondream")
+OLLAMA_MODEL = os.environ.get("AQ_OLLAMA_MODEL", "qwen2.5vl:3b")
 
 ANTHROPIC_MODEL = os.environ.get(
     "AQ_ANTHROPIC_MODEL",
     "claude-haiku-4-5-20251001",
 )
 
+# Google Gemini fallback (Generative Language API). Key is supplied via env
+# (AQ_GEMINI_KEY or GOOGLE_API_KEY) — NEVER hard-coded here; this file is in git.
+GEMINI_KEY = os.environ.get("AQ_GEMINI_KEY", os.environ.get("GOOGLE_API_KEY", ""))
+GEMINI_MODEL = os.environ.get("AQ_GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_ENDPOINT = os.environ.get(
+    "AQ_GEMINI_ENDPOINT",
+    "https://generativelanguage.googleapis.com/v1beta",
+)
+
 REQUEST_TIMEOUT = float(os.environ.get("AQ_VISION_TIMEOUT", "30"))
 
-# Schema-aligned categories for the Bukit pilot. Keep this list short —
+# Schema-aligned categories for the Bali pilot. Keep this list short —
 # overstuffing the prompt with rare categories hurts classification.
 CATEGORIES = [
     "burning",       # open burning of trash / agricultural waste
@@ -83,36 +124,59 @@ SEVERITIES = ["low", "medium", "high", "critical"]
 
 def analyze_pollution_image(image_path: str) -> Dict[str, Any]:
     """
-    Classify a pollution image. Backend chosen by AQ_VISION_BACKEND.
+    Classify a pollution image.
 
-    Never raises. On any failure, returns a 'needs_review' result so the
-    bot can store the report and a human / fallback worker can revisit.
+    Runs the primary backend (AQ_VISION_BACKEND). If that fails — i.e. returns
+    a ':error' result (local server down, timeout, unreachable) — and a
+    distinct AQ_VISION_FALLBACK is configured, retries on the fallback so
+    citizen reports keep flowing when the local Mac mini is offline.
+
+    Never raises. If everything fails, returns a 'needs_review' result.
     """
     path = Path(image_path)
     if not path.exists():
         return _needs_review(f"image not found: {image_path}", model="none")
 
+    result = _dispatch(BACKEND, path)
+
+    failed = result.get("model_version", "").endswith(":error")
+    if failed and FALLBACK_BACKEND and FALLBACK_BACKEND != BACKEND:
+        primary_reason = result.get("description", "")
+        fb = _dispatch(FALLBACK_BACKEND, path)
+        # Tag the fallback result so reviewers can see it didn't come from the
+        # primary path (and why the primary was skipped).
+        if not fb.get("model_version", "").endswith(":error"):
+            fb["model_version"] = f"{fb['model_version']} (fallback; primary {BACKEND} down)"
+        return fb
+
+    return result
+
+
+def _dispatch(backend: str, path: Path) -> Dict[str, Any]:
+    """Run a single backend. Never raises — returns a ':error' dict on failure."""
     try:
-        if BACKEND == "mlx":
+        if backend in ("openai", "exo"):
+            return _analyze_via_openai(path)
+        if backend == "mlx":
             return _analyze_via_http(path, MLX_ENDPOINT, backend_label="mlx")
-        if BACKEND == "ollama":
+        if backend == "ollama":
             return _analyze_via_ollama(path)
-        if BACKEND == "haiku":
+        if backend == "gemini":
+            return _analyze_via_gemini(path)
+        if backend == "haiku":
             return _analyze_via_haiku(path)
-        if BACKEND == "mock":
+        if backend == "mock":
             return _analyze_via_mock(path)
-        return _needs_review(f"unknown AQ_VISION_BACKEND: {BACKEND}", model="none")
+        return _needs_review(f"unknown vision backend: {backend}", model="none")
     except requests.Timeout:
         return _needs_review(
-            f"{BACKEND} timed out after {REQUEST_TIMEOUT}s", model=BACKEND
+            f"{backend} timed out after {REQUEST_TIMEOUT}s", model=backend
         )
     except requests.ConnectionError as e:
-        return _needs_review(
-            f"{BACKEND} unreachable: {e}", model=BACKEND
-        )
+        return _needs_review(f"{backend} unreachable: {e}", model=backend)
     except Exception as e:  # noqa: BLE001 — last-resort: never crash the bot
         return _needs_review(
-            f"{BACKEND} error: {type(e).__name__}: {e}", model=BACKEND
+            f"{backend} error: {type(e).__name__}: {e}", model=backend
         )
 
 
@@ -164,6 +228,63 @@ def _analyze_via_http(path: Path, endpoint: str, backend_label: str) -> Dict[str
     return _coerce_result(body, model=body.get("model_version", backend_label))
 
 
+# --- Backend: OpenAI-compatible (exo / Gemma 4 vision) --------------------
+
+def _analyze_via_openai(path: Path) -> Dict[str, Any]:
+    """
+    POST an image to an OpenAI-compatible /v1/chat/completions endpoint.
+
+    This is the canonical path: exo serving Gemma 4 (multimodal) on the
+    cluster. The image rides as an `image_url` data-URL content part, which
+    exo turns into Gemma image tokens once the instance has a vision config
+    (verified: prompt_tokens 25 -> 281 on a real image).
+    """
+    img_b64 = _encode_image(path)
+    media = _guess_media_type(path)
+    headers = {"Content-Type": "application/json"}
+    if OPENAI_KEY:
+        headers["Authorization"] = f"Bearer {OPENAI_KEY}"
+    resp = requests.post(
+        f"{OPENAI_ENDPOINT.rstrip('/')}/chat/completions",
+        headers=headers,
+        json={
+            "model": OPENAI_MODEL,
+            # Gemma 4 is a REASONING model — it spends ~250 tokens in
+            # reasoning_content before the JSON, so give generous headroom or
+            # the answer gets starved and returns empty. _extract_json strips
+            # the ```json fence Gemma wraps its output in.
+            "max_tokens": 768,
+            "temperature": 0.1,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": _PROMPT},
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:{media};base64,{img_b64}"},
+                        },
+                    ],
+                }
+            ],
+        },
+        timeout=REQUEST_TIMEOUT,
+    )
+    resp.raise_for_status()
+    body = resp.json()
+    try:
+        text = body["choices"][0]["message"]["content"] or ""
+    except (KeyError, IndexError, TypeError):
+        text = ""
+    parsed = _extract_json(text)
+    model_label = f"exo:{OPENAI_MODEL.split('/')[-1]}"
+    if parsed is None:
+        return _needs_review(
+            f"exo/openai returned non-JSON: {text[:200]}", model=model_label
+        )
+    return _coerce_result(parsed, model=model_label)
+
+
 # --- Backend: Ollama -------------------------------------------------------
 
 def _analyze_via_ollama(path: Path) -> Dict[str, Any]:
@@ -189,6 +310,45 @@ def _analyze_via_ollama(path: Path) -> Dict[str, Any]:
             f"ollama returned non-JSON: {text[:200]}", model=f"ollama:{OLLAMA_MODEL}"
         )
     return _coerce_result(parsed, model=f"ollama:{OLLAMA_MODEL}")
+
+
+# --- Backend: Google Gemini (cloud fallback) ------------------------------
+
+def _analyze_via_gemini(path: Path) -> Dict[str, Any]:
+    """Google Gemini vision via the Generative Language API (REST + API key)."""
+    if not GEMINI_KEY:
+        return _needs_review("AQ_GEMINI_KEY not set", model=f"gemini:{GEMINI_MODEL}")
+    img_b64 = _encode_image(path)
+    media = _guess_media_type(path)
+    url = f"{GEMINI_ENDPOINT.rstrip('/')}/models/{GEMINI_MODEL}:generateContent?key={GEMINI_KEY}"
+    resp = requests.post(
+        url,
+        headers={"Content-Type": "application/json"},
+        json={
+            "contents": [
+                {
+                    "parts": [
+                        {"text": _PROMPT},
+                        {"inline_data": {"mime_type": media, "data": img_b64}},
+                    ]
+                }
+            ],
+            "generationConfig": {"temperature": 0.1, "maxOutputTokens": 768},
+        },
+        timeout=REQUEST_TIMEOUT,
+    )
+    resp.raise_for_status()
+    body = resp.json()
+    try:
+        text = body["candidates"][0]["content"]["parts"][0]["text"] or ""
+    except (KeyError, IndexError, TypeError):
+        text = ""
+    parsed = _extract_json(text)
+    if parsed is None:
+        return _needs_review(
+            f"gemini returned non-JSON: {text[:200]}", model=f"gemini:{GEMINI_MODEL}"
+        )
+    return _coerce_result(parsed, model=f"gemini:{GEMINI_MODEL}")
 
 
 # --- Backend: Anthropic Claude Haiku --------------------------------------

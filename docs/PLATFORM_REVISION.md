@@ -1,8 +1,8 @@
-# Smart Citizen Bali · Platform Revision Brief (v2)
+# Making Sense Bali · Platform Revision Brief (v2)
 
 **Status:** brief — not started.
 **Owner of execution:** Claude Code (or a developer working in the codebase). This document is the handover; everything Claude Code needs to do the work should be derivable from here plus the repo.
-**Owner of intent:** Tomas Diez (Smart Citizen Bali lead). Read [README.md](../README.md) first if you're unfamiliar with the campaign.
+**Owner of intent:** Tomas Diez (Making Sense Bali lead). Read [README.md](../README.md) first if you're unfamiliar with the campaign.
 **Last updated:** 2026-05-30.
 
 ---

@@ -1,4 +1,4 @@
-// Smart Citizen Bali — DIY Node SENSOR TEST
+// Making Sense Bali — DIY Node SENSOR TEST
 // Target: Seeed XIAO ESP32-S3
 // Sensors: BME680 (I2C 0x76) + Seeed Grove HM3301 (I2C 0x40, Plus kit only)
 //
@@ -79,7 +79,7 @@ void setup() {
 
   Serial.println();
   Serial.println("========================================");
-  Serial.println("Smart Citizen Bali — DIY Node SENSOR TEST");
+  Serial.println("Making Sense Bali — DIY Node SENSOR TEST");
   Serial.println("========================================");
   Serial.println();
 

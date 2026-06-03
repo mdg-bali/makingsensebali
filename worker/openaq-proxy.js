@@ -1,4 +1,4 @@
-// Smart Citizen Bali · Cloudflare Worker proxy
+// Making Sense Bali · Cloudflare Worker proxy
 // ---------------------------------------------
 // Solves the CORS issue for APIs that don't allow browser origins to call
 // them directly with custom headers (e.g. OpenAQ v3, PurpleAir).

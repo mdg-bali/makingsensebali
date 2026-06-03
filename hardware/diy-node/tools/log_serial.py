@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-log_serial.py — log Smart Citizen Bali DIY node readings from USB serial to CSV.
+log_serial.py — log Making Sense Bali DIY node readings from USB serial to CSV.
 
 Reads the test sketch's serial output (or the production sketch's serial
 diagnostics — same line format) and appends timestamped rows to a CSV.

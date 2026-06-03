@@ -1,4 +1,4 @@
-// Smart Citizen Bali — DIY Node firmware
+// Making Sense Bali — DIY Node firmware
 // Target: Seeed XIAO ESP32-S3
 // Sensors: BME680 (I2C 0x76) + Seeed Grove HM3301 (I2C 0x40)
 // Platform: publishes to mqtt.smartcitizen.me over TLS
@@ -308,7 +308,7 @@ bool readHM3301(uint16_t &pm1, uint16_t &pm25, uint16_t &pm10) {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.println("\n=== Smart Citizen Bali — DIY Node ===");
+  Serial.println("\n=== Making Sense Bali — DIY Node ===");
 
   // I2C on XIAO ESP32-S3 default pins: SDA=D4 (GPIO5), SCL=D5 (GPIO6).
   // Wire.begin() with no args uses those defaults.

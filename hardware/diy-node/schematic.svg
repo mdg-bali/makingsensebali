@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg viewBox="0 0 760 480" xmlns="http://www.w3.org/2000/svg" role="img" font-family="ui-monospace, 'SF Mono', monospace">
-  <title>Smart Citizen Bali DIY node wiring</title>
+  <title>Making Sense Bali DIY node wiring</title>
   <desc>Wiring schematic for XIAO ESP32-S3 connected to BME680 and Grove HM3301 PM2.5 sensor on a shared I2C bus.</desc>
   <style>
     .label { font-size: 11px; fill: #555; }
@@ -12,7 +12,7 @@
     .legend{ font-size: 11px; fill: #222; }
   </style>
 
-  <text x="20" y="26" class="title">Smart Citizen Bali — DIY Node · I²C bus only</text>
+  <text x="20" y="26" class="title">Making Sense Bali — DIY Node · I²C bus only</text>
   <text x="20" y="44" class="label">XIAO ESP32-S3 · BME680 (0x76) · HM3301 (0x40)</text>
 
   <!-- BME680 -->

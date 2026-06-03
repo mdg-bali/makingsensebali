@@ -1,4 +1,4 @@
-# Deploy guide — Bukit AQ Reporter
+# Deploy guide — Making Sense Bali Reporter
 
 Bring up the first PLANETAI Community-tier node on home infrastructure.
 

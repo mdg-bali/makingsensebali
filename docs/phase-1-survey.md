@@ -318,4 +318,4 @@ This document and the question design: **CC-BY-SA 4.0**. Fork it, adapt it for y
 
 ---
 
-Part of [Smart Citizen Bali](../README.md). For the full campaign context see the [parent README](../README.md). For replication see [REPLICATION.md](../REPLICATION.md).
+Part of [Making Sense Bali](../README.md). For the full campaign context see the [parent README](../README.md). For replication see [REPLICATION.md](../REPLICATION.md).

@@ -2,7 +2,7 @@
   "linked_schemas": [
     "organizations_schema-v1.0.0"
   ],
-  "name": "Smart Citizen Bali",
+  "name": "Making Sense Bali",
   "nickname": "smartcitizenbali",
   "primary_url": "mdg-bali.github.io/smartcitizenbali/",
   "tags": [
@@ -24,7 +24,7 @@
     "open hardware",
     "community led"
   ],
-  "description": "Smart Citizen Bali is a community-led environmental sensing campaign led by Fab Lab Bali (fablabbali.com), the local fabrication laboratory in Bali, Indonesia. The campaign aggregates open data from networked low-cost sensors (Smart Citizen Kit and others) and pairs that machine-generated data with citizen reports of locally observed environmental issues — burning waste, air quality events, noise, and other matters of concern raised by residents. Fab Lab Bali is the local host, anchor, and accountable institution; the campaign is conducted in Indonesia, by people in Indonesia, on environmental concerns identified by people in Indonesia. The work is methodologically descended from the EU Making Sense project (2015–2017, Fab Lab Barcelona / IAAC and partners), and applies that participatory citizen-sensing framework to the Bali context as a Fab City Hub instance — an integrated cycle of observation, computation, prototyping, learning, and mechanism, anchored in a specific bioregion.",
+  "description": "Making Sense Bali is a community-led environmental sensing campaign led by Fab Lab Bali (fablabbali.com), the local fabrication laboratory in Bali, Indonesia. The campaign aggregates open data from networked low-cost sensors (Smart Citizen Kit and others) and pairs that machine-generated data with citizen reports of locally observed environmental issues — burning waste, air quality events, noise, and other matters of concern raised by residents. Fab Lab Bali is the local host, anchor, and accountable institution; the campaign is conducted in Indonesia, by people in Indonesia, on environmental concerns identified by people in Indonesia. The work is methodologically descended from the EU Making Sense project (2015–2017, Fab Lab Barcelona / IAAC and partners), and applies that participatory citizen-sensing framework to the Bali context as a Fab City Hub instance — an integrated cycle of observation, computation, prototyping, learning, and mechanism, anchored in a specific bioregion.",
   "mission": "To make visible the environmental conditions that residents of Bali identify as their matters of concern, by combining open hardware sensing with community-led reporting, and to use that visibility to support local responses — from individual awareness to collective action to policy advocacy — under the leadership and accountability of Fab Lab Bali.",
   "urls": [
     {

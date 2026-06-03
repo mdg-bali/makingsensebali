@@ -234,6 +234,9 @@ def _retry_or_fail(job_path: Path) -> None:
         job = {}
     retries = int(job.get("retries", 0)) + 1
     job["retries"] = retries
+    # Backoff before requeue so a downed backend can't burn all retries in
+    # milliseconds and dump real reports to failed/. Grows with each retry.
+    time.sleep(min(60, 10 * retries))
     if retries >= MAX_RETRIES:
         log.error("%s exceeded %d retries — moving to failed/", job_path.name, MAX_RETRIES)
         try:

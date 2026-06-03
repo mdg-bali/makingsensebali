@@ -1,4 +1,4 @@
-// data.js — Smart Citizen Bali · sensor data layer
+// data.js — Making Sense Bali · sensor data layer
 // Aggregates environmental sensor data from multiple public networks for Bali.
 // Loaded by both index.html (home) and dashboard/index.html.
 //

@@ -1,8 +1,8 @@
 # Sense Making
 
-**The reports component of [Smart Citizen Bali](../README.md) — a WhatsApp-based citizen reporting toolkit for Fab City nodes and bioregional campaigns.**
+**The reports component of [Making Sense Bali](../README.md) — a WhatsApp-based citizen reporting toolkit for Fab City nodes and bioregional campaigns.**
 
-> This folder is one component of the Smart Citizen Bali campaign. For
+> This folder is one component of the Making Sense Bali campaign. For
 > the full campaign context — methodology, sensors, web presence, survey —
 > see the [parent repo's README](../README.md). What follows is the
 > technical reference for the reports component specifically.
@@ -33,8 +33,8 @@ home-deployable kit for the 2026 Fab City landscape.
 
 | | |
 |---|---|
-| **Reference deployment** | Pelapor Bukit · Bali, Indonesia · pilot phase, Q2 2026 |
-| **Run by** | [Fab Lab Bali](https://fablabbali.com) as the reporting layer of [Smart Citizen Bali](https://mdg-bali.github.io/smartcitizenbali/) |
+| **Reference deployment** | Making Sense Bali · Bali, Indonesia · pilot phase, Q2 2026 |
+| **Run by** | [Fab Lab Bali](https://fablabbali.com) as the reporting layer of [Making Sense Bali](https://mdg-bali.github.io/smartcitizenbali/) |
 | **Replication kit** | Available — see [REPLICATION.md](REPLICATION.md) |
 | **Planned next** | Pelapor Barcelona · Fab Lab Barcelona · 2026 H2 |
 | **Federation layer** | PLANETAI · planned, infrastructure not yet built |
@@ -49,12 +49,12 @@ explains the three-step flow:
 ```
 Resident → halo
 
-Bot     ← 🌴 Pelapor Bukit
+Bot     ← 🌴 Making Sense Bali
           🔒 Privacy is our top priority.
           Your phone number is NEVER STORED on our servers.
 
           This bot is run by Fab Lab Bali so residents can report
-          environmental and community issues in Bukit — trash on
+          environmental and community issues in your area — trash on
           streets, water leaks, smoke from burning, construction
           dust, vehicle pollution.
 
@@ -190,7 +190,7 @@ domain renewal, optional vision-API fallback).
 |---|---|
 | 2015–2017 | [Making Sense](https://making-sense.eu/) — EU Horizon 2020 citizen-sensing framework, led by Fab Lab Barcelona / IAAC and partners |
 | 2013–now | [Smart Citizen Kit](https://smartcitizen.me/) — open-hardware environmental sensor platform from Fab Lab Barcelona |
-| 2025–now | Smart Citizen Bali — campaign by Fab Lab Bali, the host campaign for the first Sense Making deployment |
+| 2025–now | Making Sense Bali — campaign by Fab Lab Bali, the host campaign for the first Sense Making deployment |
 | 2026–now | Sense Making — reporting kit factored out for bioregional replication |
 
 ---

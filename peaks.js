@@ -1,4 +1,4 @@
-// peaks.js — Smart Citizen Bali · peak/anomaly detection and correlation
+// peaks.js — Making Sense Bali · peak/anomaly detection and correlation
 // Loaded by dashboard/index.html. Pure functions, no DOM, no fetches.
 //
 // Two detection methods (per metric, per device):

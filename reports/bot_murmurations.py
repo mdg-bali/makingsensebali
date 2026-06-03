@@ -35,50 +35,30 @@ from murmurations_adapter import (
 )
 from vision_analyzer import analyze_pollution_image
 from sessions import (
+    AWAIT_LANGUAGE,
     AWAIT_CATEGORY,
-    AWAIT_DETAIL,
-    AWAIT_LOCATION,
     AWAIT_PHOTO,
+    AWAIT_LOCATION,
+    AWAIT_COMMENT,
     AWAIT_CONFIRM,
+    AWAIT_FEEDBACK,
     SessionStore,
 )
 from messages import (
-    CONSENT_PROMPT,
-    CONSENT_CONFIRMED,
+    t,
+    DEFAULT_LANG,
     CONSENT_KEYWORDS,
-    OPTOUT_CONFIRMED,
-    HELP_REPLY,
-    STATS_REPLY,
-    ABOUT_REPLY,
-    UNKNOWN_COMMAND,
-    LOCATION_INVALID,
-    AUDIO_RECEIVED,
-    # New guided-flow messages
-    CATEGORY_MENU,
     CATEGORY_MENU_ITEMS,
-    CATEGORY_CHOSEN,
     CATEGORY_EMOJI,
-    INVALID_CATEGORY,
-    DETAIL_SKIP_KEYWORDS,
-    ASK_LOCATION,
-    ASK_LOCATION_AFTER_SKIP,
-    ASK_PHOTO,
-    PHOTO_FETCH_FAILED,
-    REPORT_SUMMARY,
-    SUMMARY_DETAIL_LINE,
+    category_label,
+    format_category_menu,
+    parse_language_choice,
+    COMMENT_SKIP_KEYWORDS,
     CONFIRM_SEND_KEYWORDS,
     CONFIRM_CANCEL_KEYWORDS,
-    REPORT_SUBMITTED,
     POSTSUBMIT_NEW_KEYWORDS,
-    POSTSUBMIT_INFO_KEYWORDS,
-    POSTSUBMIT_STATS_KEYWORDS,
-    INFO_REPLY,
-    CANCEL_CONFIRMED,
-    WRONG_STEP_AWAIT_CATEGORY,
-    WRONG_STEP_AWAIT_DETAIL,
-    WRONG_STEP_AWAIT_LOCATION,
-    WRONG_STEP_AWAIT_PHOTO,
-    WRONG_STEP_AWAIT_CONFIRM,
+    POSTSUBMIT_LEARN_KEYWORDS,
+    POSTSUBMIT_FEEDBACK_KEYWORDS,
 )
 
 # --- Paths -----------------------------------------------------------------
@@ -95,6 +75,12 @@ VISION_QUEUE = ROOT / "vision_queue"
 CONFIG_FILE = ROOT / "config.json"
 CONSENT_FILE = ROOT / "consent.json"
 SESSIONS_FILE = ROOT / "sessions.json"
+# Anonymous feedback. JSON-lines; no phone numbers — only the sender_hash,
+# consistent with the privacy model. Lives inside the mounted, writable
+# reports dir (container: /app/reports). A .jsonl file won't match the
+# AQ_*.json / *.json globs the worker and dashboard use.
+FEEDBACK_DIR = ROOT / "reports"
+FEEDBACK_FILE = FEEDBACK_DIR / "feedback.jsonl"
 
 for d in (DATA_DIR, PROFILE_DIR, IMAGE_DIR, PROFILE_PHOTOS_DIR, VISION_QUEUE):
     d.mkdir(exist_ok=True)
@@ -175,6 +161,23 @@ def get_consent(sender: str) -> str:
 def set_consent(sender: str, status: str) -> None:
     state = _load_consent()
     state[_sender_key(sender)] = status
+    _save_consent(state)
+
+
+# Language preference is persisted alongside consent, keyed by a
+# "lang:" + sender_hash namespace inside the same file. Still hash-only —
+# no phone number is ever stored. This lets a returning user (whose
+# 24h draft session expired) keep their language without re-picking it.
+
+def get_lang_pref(sender: str) -> str:
+    return _load_consent().get("lang:" + _sender_key(sender), "")
+
+
+def set_lang_pref(sender: str, lang: str) -> None:
+    if not lang:
+        return
+    state = _load_consent()
+    state["lang:" + _sender_key(sender)] = lang
     _save_consent(state)
 
 
@@ -290,6 +293,25 @@ def enqueue_vision_job(report_id: str, image_path: Path) -> None:
     (VISION_QUEUE / f"{report_id}.json").write_text(json.dumps(job, indent=2))
 
 
+# --- Anonymous feedback ----------------------------------------------------
+
+def _append_feedback(lang: str, sender_hash: str, text: str) -> None:
+    """Append one anonymous feedback entry to feedback/feedback.jsonl.
+
+    Privacy: no phone number is ever written — only the same one-way
+    sender_hash used elsewhere, consistent with the report model.
+    """
+    FEEDBACK_DIR.mkdir(parents=True, exist_ok=True)
+    entry = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "lang": lang,
+        "sender_hash": sender_hash,
+        "text": text,
+    }
+    with FEEDBACK_FILE.open("a") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+
 # --- WhatsApp send (Evolution API) ----------------------------------------
 
 class WhatsAppSender:
@@ -381,6 +403,63 @@ _JID_RE = re.compile(r"^(\d+)@")
 def _phone_from_jid(jid: str) -> str:
     m = _JID_RE.match(jid or "")
     return f"+{m.group(1)}" if m else (jid or "unknown")
+
+
+# --- Flexible location parsing ---------------------------------------------
+# Users may send a WhatsApp location pin (handled directly in the state),
+# OR a text message: a Google Maps link, another map link, or plain
+# coordinates. parse_location_text() handles the text cases.
+
+# Shortened Google links we cannot resolve offline (need a network redirect).
+_SHORTLINK_RE = re.compile(
+    r"https?://(?:maps\.app\.goo\.gl|goo\.gl/maps)/\S+", re.IGNORECASE
+)
+
+# Coordinate-bearing query params and path markers in Google Maps URLs,
+# e.g. ?q=LAT,LNG  |  ?ll=LAT,LNG  |  /@LAT,LNG,17z  |  /place/.../@LAT,LNG
+_COORD_PAIR = r"(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)"
+_QLL_RE = re.compile(r"[?&](?:q|ll)=" + _COORD_PAIR, re.IGNORECASE)
+_AT_RE = re.compile(r"@" + _COORD_PAIR)
+# Bare "lat, lng" / "lat,lng" anywhere in plain text.
+_BARE_RE = re.compile(_COORD_PAIR)
+
+
+def _valid_latlon(lat: float, lon: float) -> bool:
+    return -90.0 <= lat <= 90.0 and -180.0 <= lon <= 180.0
+
+
+def parse_location_text(text: str):
+    """Extract (lat, lon) floats from a text message, or None.
+
+    Handles, in priority order:
+      1. Google Maps `?q=LAT,LNG` / `?ll=LAT,LNG` query params.
+      2. Google Maps `/@LAT,LNG,...` path coordinates (covers
+         maps.google.com/?q=..., google.com/maps/@..., and
+         google.com/maps/place/.../@...).
+      3. A bare `lat, lng` coordinate pair anywhere in the text.
+
+    Shortened links (maps.app.goo.gl, goo.gl/maps) carry NO coordinates
+    in the URL, so they can't be parsed offline — this returns None for
+    a shortlink that has no other coordinates, and the caller asks the
+    user to send the pin / expanded link instead.
+    """
+    if not text:
+        return None
+    for rx in (_QLL_RE, _AT_RE, _BARE_RE):
+        m = rx.search(text)
+        if m:
+            try:
+                lat = float(m.group(1))
+                lon = float(m.group(2))
+            except (TypeError, ValueError):
+                continue
+            if _valid_latlon(lat, lon):
+                return (lat, lon)
+    return None
+
+
+def _is_shortlink(text: str) -> bool:
+    return bool(_SHORTLINK_RE.search(text or ""))
 
 
 def parse_evolution_webhook(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -495,32 +574,72 @@ class AQBot:
         Returns a reply string if we should respond now without processing,
         or None if the caller may proceed with normal handling.
 
-        On a fresh consent grant we ALSO seed a new draft session and
-        append the category menu, so the user sees the report flow start
-        immediately rather than having to send a second message first.
+        Opening order, per Tomas's call:
+          1. Language picker (FIRST contact, before any consent) — the
+             session is seeded in AWAIT_LANGUAGE and the picker is shown.
+          2. Consent prompt, rendered in the chosen language.
+          3. On a fresh consent grant we seed the report flow (AWAIT_CATEGORY)
+             and append the category menu so the user starts immediately.
+
+        Language lives on the session (persisted); consent lives in
+        consent.json keyed by sender_hash (persisted across sessions). A
+        returning consented user whose session has expired is re-asked for
+        their language (one tap) so we always render in the right language.
         """
         sender = msg["sender"]
+        sender_hash = _sender_key(sender)
         status = get_consent(sender)
         text = (msg.get("text") or "").strip().lower()
 
         if text == "/optout":
+            lang = get_lang_pref(sender) or DEFAULT_LANG
             set_consent(sender, "optout")
             # If they had a draft in progress, drop it on opt-out.
-            self.sessions.clear(_sender_key(sender))
-            return OPTOUT_CONFIRMED
+            self.sessions.clear(sender_hash)
+            return t("optout_confirmed", lang)
+
+        # The remembered language preference (persisted across sessions).
+        lang_pref = get_lang_pref(sender)
+
+        # --- Step 1: language must be chosen on first contact ---
+        # Run the picker only when we don't yet know the user's language
+        # AND they aren't already in the middle of a flow with a language.
+        session = self.sessions.get(sender_hash)
+        session_lang = session.lang if session else ""
+        known_lang = session_lang or lang_pref
+
+        if not known_lang:
+            # Seed/keep a session in AWAIT_LANGUAGE so we know where we are.
+            if session is None:
+                session = self.sessions.start(
+                    sender_hash, lang="", state=AWAIT_LANGUAGE
+                )
+            chosen = parse_language_choice(text) if msg.get("type") == "text" else ""
+            if not chosen:
+                return t("language_picker", DEFAULT_LANG)
+            session.lang = chosen
+            self.sessions.update(session)
+            set_lang_pref(sender, chosen)
+            known_lang = chosen
+            # Language just chosen — fall through to consent in that language.
+
+        lang = known_lang
 
         if status == "granted":
             return None
 
-        # Anything else from an opted-out user re-prompts consent
+        # Have a language, awaiting consent (first grant or re-grant after optout).
         if text in CONSENT_KEYWORDS:
             set_consent(sender, "granted")
-            # Start a fresh draft so the very next message lands in
-            # the category step without needing a second prompt.
-            self.sessions.start(_sender_key(sender))
-            return CONSENT_CONFIRMED + "\n\n" + CATEGORY_MENU
+            # Start a fresh draft (preserving language) so the very next
+            # message lands in the category step.
+            self.sessions.start(sender_hash, lang=lang, state=AWAIT_CATEGORY)
+            return t("consent_confirmed", lang) + "\n\n" + self._category_menu(lang)
 
-        return CONSENT_PROMPT
+        return t("consent_prompt", lang)
+
+    def _category_menu(self, lang: str) -> str:
+        return t("category_menu", lang, menu=format_category_menu(lang))
 
     # ---- universal commands (work at any session state) -----------------
 
@@ -536,92 +655,126 @@ class AQBot:
             return None
         cmd = text.split()[0]
         sender_hash = _sender_key(msg["sender"])
+        # Language is settled by the time commands run (the consent gate
+        # guarantees a persisted preference). Prefer the live session's
+        # language, then the stored preference, then the default.
+        existing = self.sessions.get(sender_hash)
+        lang = (
+            (existing.lang if existing and existing.lang else "")
+            or get_lang_pref(msg["sender"])
+            or DEFAULT_LANG
+        )
 
         if cmd in ("/batal", "/cancel"):
             had_draft = self.sessions.has_active(sender_hash)
+            # Drop the draft; language is preserved via get_lang_pref().
             self.sessions.clear(sender_hash)
-            return CANCEL_CONFIRMED if had_draft else (
-                "Tidak ada laporan aktif untuk dibatalkan.\n"
-                "_No active report to cancel._\n\n"
-                "Ketik */baru* untuk mulai laporan, atau */info* untuk info.\n"
-                "_Type */new* to start a report, or */info* for info._"
-            )
+            if had_draft:
+                return t("cancel_confirmed", lang)
+            return t("no_active_to_cancel", lang)
 
         if cmd in ("/baru", "/new"):
-            self.sessions.start(sender_hash)
-            return CATEGORY_MENU
-
-        if cmd == "/info":
-            return INFO_REPLY
+            self.sessions.start(sender_hash, lang=lang, state=AWAIT_CATEGORY)
+            return self._category_menu(lang)
 
         if cmd == "/help":
-            return HELP_REPLY
+            return t("help_reply", lang)
 
         if cmd == "/about":
-            return ABOUT_REPLY
+            return t("about_reply", lang)
 
-        if cmd == "/stats":
-            return self._stats_reply()
-
-        return UNKNOWN_COMMAND
-
-    def _stats_reply(self) -> str:
-        today = datetime.now().strftime("%Y-%m-%d")
-        daily = DATA_DIR / f"reports_{today}.jsonl"
-        count = sum(1 for _ in daily.open()) if daily.exists() else 0
-        return STATS_REPLY.format(count=count)
+        return t("unknown_command", lang)
 
     # ---- guided-flow state handlers -------------------------------------
 
     def _state_await_category(self, msg: Dict[str, Any], session) -> str:
+        lang = session.lang or DEFAULT_LANG
         max_n = len(CATEGORY_MENU_ITEMS)
         if msg.get("type") != "text":
-            return WRONG_STEP_AWAIT_CATEGORY.format(max=max_n)
+            return t("wrong_step_category", lang, max=max_n)
         text = (msg.get("text") or "").strip()
         try:
             n = int(text)
         except ValueError:
-            return INVALID_CATEGORY.format(max=max_n)
+            return t("invalid_category", lang, max=max_n)
         if not (1 <= n <= max_n):
-            return INVALID_CATEGORY.format(max=max_n)
+            return t("invalid_category", lang, max=max_n)
 
-        key, emoji, bah, eng = CATEGORY_MENU_ITEMS[n - 1]
+        key, emoji, labels = CATEGORY_MENU_ITEMS[n - 1]
         session.draft["category"] = key
-        session.draft["category_label_bahasa"] = bah
-        session.draft["category_label_en"] = eng
-        session.state = AWAIT_DETAIL
-        self.sessions.update(session)
-        return CATEGORY_CHOSEN.format(
-            cat_emoji=emoji, cat_label=bah, cat_label_en=eng
-        )
-
-    def _state_await_detail(self, msg: Dict[str, Any], session) -> str:
-        if msg.get("type") != "text":
-            return WRONG_STEP_AWAIT_DETAIL
-        text = (msg.get("text") or "").strip()
-        session.state = AWAIT_LOCATION
-        if text.lower() in DETAIL_SKIP_KEYWORDS:
-            self.sessions.update(session)
-            return ASK_LOCATION_AFTER_SKIP
-        session.draft["description"] = text
-        self.sessions.update(session)
-        return ASK_LOCATION
-
-    def _state_await_location(self, msg: Dict[str, Any], session) -> str:
-        if msg.get("type") != "location":
-            return WRONG_STEP_AWAIT_LOCATION
-        lat = msg.get("latitude")
-        lon = msg.get("longitude")
-        if lat is None or lon is None:
-            return LOCATION_INVALID
-        session.draft["location"] = {"lat": lat, "lon": lon}
+        session.draft["category_label_bahasa"] = labels.get("id", key)
+        session.draft["category_label_en"] = labels.get("en", key)
+        # Photo comes BEFORE location in the new flow.
         session.state = AWAIT_PHOTO
         self.sessions.update(session)
-        return ASK_PHOTO
+        return t(
+            "category_chosen",
+            lang,
+            cat_emoji=emoji,
+            cat_label=category_label(key, lang),
+        )
+
+    def _state_await_location(self, msg: Dict[str, Any], session) -> str:
+        lang = session.lang or DEFAULT_LANG
+        latlon = None
+
+        if msg.get("type") == "location":
+            lat = msg.get("latitude")
+            lon = msg.get("longitude")
+            if lat is None or lon is None:
+                return t("location_invalid", lang)
+            latlon = (lat, lon)
+        elif msg.get("type") == "text":
+            text = msg.get("text") or ""
+            latlon = parse_location_text(text)
+            if latlon is None:
+                # A shortened map link carries no coordinates we can read
+                # offline — ask for the pin / expanded link instead.
+                if _is_shortlink(text):
+                    return t("location_link_unresolved", lang)
+                return t("location_invalid", lang)
+        else:
+            return t("wrong_step_location", lang)
+
+        lat, lon = latlon
+        session.draft["location"] = {"lat": float(lat), "lon": float(lon)}
+        session.state = AWAIT_COMMENT
+        self.sessions.update(session)
+        return t("ask_comment", lang)
+
+    def _state_await_comment(self, msg: Dict[str, Any], session) -> str:
+        """Optional one-line comment, or a skip keyword, then → confirm."""
+        lang = session.lang or DEFAULT_LANG
+        if msg.get("type") != "text":
+            # Non-text here: treat as wanting to skip the optional step but
+            # nudge — simplest is to just move on with no comment.
+            session.state = AWAIT_CONFIRM
+            self.sessions.update(session)
+            return self._format_summary(session)
+        text = (msg.get("text") or "").strip()
+        if text.lower() not in COMMENT_SKIP_KEYWORDS and text:
+            session.draft["comment"] = text
+        session.state = AWAIT_CONFIRM
+        self.sessions.update(session)
+        return self._format_summary(session)
+
+    def _state_await_feedback(self, msg: Dict[str, Any], session) -> str:
+        """Capture the next text as anonymous feedback, then re-show menu."""
+        lang = session.lang or DEFAULT_LANG
+        if msg.get("type") != "text":
+            # Only text is feedback; ignore other types but stay here.
+            return t("feedback_prompt", lang)
+        text = (msg.get("text") or "").strip()
+        if text:
+            _append_feedback(lang=lang, sender_hash=session.sender_hash, text=text)
+        # Done — clear the session and show the simplified menu again.
+        self.sessions.clear(session.sender_hash)
+        return t("feedback_thanks", lang)
 
     def _state_await_photo(self, msg: Dict[str, Any], session) -> str:
+        lang = session.lang or DEFAULT_LANG
         if msg.get("type") != "image":
-            return WRONG_STEP_AWAIT_PHOTO
+            return t("wrong_step_photo", lang)
 
         # Reserve a stable report id at photo time so the image file and
         # the eventual saved report share an id.
@@ -644,7 +797,7 @@ class AQBot:
                 "photo decrypt failed for sender_hash=%s media_id=%s — asking retry",
                 session.sender_hash, media_id,
             )
-            return PHOTO_FETCH_FAILED
+            return t("photo_fetch_failed", lang)
 
         # Pick extension from declared mimetype, falling back to JPEG —
         # WhatsApp basically always sends JPEG for camera/gallery photos.
@@ -660,47 +813,51 @@ class AQBot:
             image_path.write_bytes(image_bytes)
         except OSError as e:
             log.error("could not write image %s: %s", image_path, e)
-            return PHOTO_FETCH_FAILED
+            return t("photo_fetch_failed", lang)
 
         session.draft["image_path"] = str(image_path)
         session.draft["media_key"] = media_id
         session.draft["mimetype"] = mime
-        session.state = AWAIT_CONFIRM
+        # Photo done → location is the last mandatory step (3/3).
+        session.state = AWAIT_LOCATION
         self.sessions.update(session)
-        return self._format_summary(session)
+        return t("photo_received", lang)
 
     def _state_await_confirm(self, msg: Dict[str, Any], session) -> str:
+        lang = session.lang or DEFAULT_LANG
         if msg.get("type") != "text":
-            return WRONG_STEP_AWAIT_CONFIRM
+            return t("wrong_step_confirm", lang)
         text = (msg.get("text") or "").strip().lower()
         if text in CONFIRM_SEND_KEYWORDS:
             rid = self._commit_draft(session)
             self.sessions.clear(session.sender_hash)
             log.info("report submitted: %s", rid)
-            return REPORT_SUBMITTED
+            return t("report_submitted", lang)
         if text in CONFIRM_CANCEL_KEYWORDS:
             self.sessions.clear(session.sender_hash)
-            return CANCEL_CONFIRMED
-        return WRONG_STEP_AWAIT_CONFIRM
+            return t("cancel_confirmed", lang)
+        return t("wrong_step_confirm", lang)
 
     # ---- helpers -------------------------------------------------------
 
     def _format_summary(self, session) -> str:
+        lang = session.lang or DEFAULT_LANG
         d = session.draft
         cat_key = d.get("category", "other")
         emoji = CATEGORY_EMOJI.get(cat_key, "📋")
-        bah = d.get("category_label_bahasa", cat_key)
-        eng = d.get("category_label_en", cat_key)
-        detail = d.get("description", "")
-        detail_line = SUMMARY_DETAIL_LINE.format(detail=detail) if detail else ""
+        comment = d.get("comment", "")
+        comment_line = (
+            t("summary_comment_line", lang, comment=comment) if comment else ""
+        )
         loc = d.get("location") or {}
         lat = float(loc.get("lat") or 0.0)
         lon = float(loc.get("lon") or 0.0)
-        return REPORT_SUMMARY.format(
+        return t(
+            "report_summary",
+            lang,
             cat_emoji=emoji,
-            cat_label=bah,
-            cat_label_en=eng,
-            detail_line=detail_line,
+            cat_label=category_label(cat_key, lang),
+            comment_line=comment_line,
             lat=lat,
             lon=lon,
         )
@@ -714,13 +871,20 @@ class AQBot:
         """
         d = session.draft
         rid = d.get("id") or _new_report_id()
+        # The optional free-text is now called "comment". For backwards
+        # compatibility we ALSO write it to "description" — the key the
+        # Murmurations adapter reads (from_aq_report: report.get("description")
+        # and _extract_locality also keys off "description").
+        comment = d.get("comment", "")
         report = {
             "id": rid,
             "sender_hash": session.sender_hash,
+            "lang": session.lang or DEFAULT_LANG,
             "type": "photo",  # complete reports always include a photo
             "category": d.get("category"),
             "category_label_bahasa": d.get("category_label_bahasa"),
-            "description": d.get("description", ""),
+            "comment": comment,
+            "description": comment,  # adapter-compat key
             "location": d.get("location"),
             "image_path": d.get("image_path"),
             "media_key": d.get("media_key"),
@@ -770,8 +934,9 @@ class AQBot:
 
         Routing order:
           1. Allowlist gate (silent drop if not allowed)
-          2. Consent gate (and seed session on fresh grant)
-          3. Universal slash commands (/baru, /info, /help, /batal, ...)
+          2. Language + consent gate (picker first, then consent; seeds the
+             flow session on a fresh grant)
+          3. Universal slash commands (/baru, /help, /about, /batal, ...)
           4. Post-submit menu shortcuts (1/2/3) when no active session
           5. State-machine dispatch on the active draft session
         """
@@ -782,7 +947,7 @@ class AQBot:
             log.info("dropped (not in allowlist): %s", sender)
             return None
 
-        # 2. Consent
+        # 2. Language + consent
         gate = self._gate_consent(msg)
         if gate is not None:
             return gate
@@ -793,6 +958,9 @@ class AQBot:
             return cmd_reply
 
         sender_hash = _sender_key(sender)
+        # By this point the user is consented and has a known language
+        # preference (the gate guarantees it).
+        lang = get_lang_pref(sender) or DEFAULT_LANG
         session = self.sessions.get(sender_hash)
 
         # 4. Post-submit / no-active-session handling
@@ -800,27 +968,32 @@ class AQBot:
             if msg.get("type") == "text":
                 text = (msg.get("text") or "").strip().lower()
                 if text in POSTSUBMIT_NEW_KEYWORDS:
-                    self.sessions.start(sender_hash)
-                    return CATEGORY_MENU
-                if text in POSTSUBMIT_INFO_KEYWORDS:
-                    return INFO_REPLY
-                if text in POSTSUBMIT_STATS_KEYWORDS:
-                    return self._stats_reply()
+                    self.sessions.start(sender_hash, lang=lang, state=AWAIT_CATEGORY)
+                    return self._category_menu(lang)
+                if text in POSTSUBMIT_LEARN_KEYWORDS:
+                    # "Learn more" is just a link, already in the menu text;
+                    # repeat the simplified menu so the link is in reach.
+                    return t("report_submitted", lang)
+                if text in POSTSUBMIT_FEEDBACK_KEYWORDS:
+                    # Open a feedback-capture session (retains language).
+                    self.sessions.start(sender_hash, lang=lang, state=AWAIT_FEEDBACK)
+                    return t("feedback_prompt", lang)
             elif msg.get("type") == "audio":
                 # We don't process audio (yet) — let the user know but
                 # don't start a draft from it.
-                return AUDIO_RECEIVED
+                return t("audio_received", lang)
             # Default: start a fresh report flow.
-            self.sessions.start(sender_hash)
-            return CATEGORY_MENU
+            self.sessions.start(sender_hash, lang=lang, state=AWAIT_CATEGORY)
+            return self._category_menu(lang)
 
         # 5. State dispatch
         handlers = {
             AWAIT_CATEGORY: self._state_await_category,
-            AWAIT_DETAIL: self._state_await_detail,
-            AWAIT_LOCATION: self._state_await_location,
             AWAIT_PHOTO: self._state_await_photo,
+            AWAIT_LOCATION: self._state_await_location,
+            AWAIT_COMMENT: self._state_await_comment,
             AWAIT_CONFIRM: self._state_await_confirm,
+            AWAIT_FEEDBACK: self._state_await_feedback,
         }
         handler = handlers.get(session.state)
         if not handler:
@@ -829,13 +1002,13 @@ class AQBot:
                 "unknown session state %s for %s — restarting",
                 session.state, sender_hash,
             )
-            self.sessions.start(sender_hash)
-            return CATEGORY_MENU
+            self.sessions.start(sender_hash, lang=lang, state=AWAIT_CATEGORY)
+            return self._category_menu(lang)
 
         # Audio is never a valid step input — bail out before handler so
         # the user gets a clear "not supported yet" reply.
         if msg.get("type") == "audio":
-            return AUDIO_RECEIVED
+            return t("audio_received", session.lang or lang)
 
         return handler(msg, session)
 

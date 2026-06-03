@@ -7,7 +7,7 @@ A low-cost, fab-lab-buildable environmental node that publishes to the [Smart Ci
 
 Same firmware runs both — for Basic, you simply don't connect the HM3301 and leave its sensor IDs at 0 in the config. Assembly time in a workshop: ~2 hours for Basic, ~3 hours for Plus, from kit to live-on-the-dashboard.
 
-This node is the **workshop entry point** to the Smart Citizen Bali campaign. It is not a replacement for an official [Smart Citizen Kit](https://smartcitizen.me/store) (~USD 150) — it's a spatial-density complement. Be honest about that distinction with workshop participants.
+This node is the **workshop entry point** to the Making Sense Bali campaign. It is not a replacement for an official [Smart Citizen Kit](https://smartcitizen.me/store) (~USD 150) — it's a spatial-density complement. Be honest about that distinction with workshop participants.
 
 ## What this is — and isn't
 
@@ -116,7 +116,7 @@ This triangulation is a Plus-kit-only capability and a meaningful research outpu
 
 ## Where this fits — the campaign's sensor tiers
 
-The DIY node isn't a standalone instrument; it's one tier of a multi-fidelity sensing network. Smart Citizen Bali is built (or aims to be built) at four tiers, each lower tier referenced against the one above. That reference chain is what separates "the campaign published a dashboard" from "the campaign published data the regional government cited in a policy decision." Without it, every reading carries an asterisk; with it, the campaign can publish confidence intervals, derive event counts, and stand behind seasonal aggregates.
+The DIY node isn't a standalone instrument; it's one tier of a multi-fidelity sensing network. Making Sense Bali is built (or aims to be built) at four tiers, each lower tier referenced against the one above. That reference chain is what separates "the campaign published a dashboard" from "the campaign published data the regional government cited in a policy decision." Without it, every reading carries an asterisk; with it, the campaign can publish confidence intervals, derive event counts, and stand behind seasonal aggregates.
 
 | Tier | Hardware | Cost | Role | Typical count |
 |---|---|---|---|---|

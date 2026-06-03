@@ -1,4 +1,4 @@
-# docker-compose.yml — Bukit AQ Reporter on Synology DS725+
+# docker-compose.yml — Making Sense Bali Reporter on Synology DS725+
 #
 # Services:
 #   evolution-api  — WhatsApp transport (Baileys), official upstream image

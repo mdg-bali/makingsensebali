@@ -1,4 +1,4 @@
-// i18n.js — Smart Citizen Bali · translation layer
+// i18n.js — Making Sense Bali · translation layer
 // Tiny dictionary-backed t() function. No framework, no dependencies.
 //
 // Usage:
@@ -166,7 +166,7 @@ const DICTIONARIES = {
     'home.teachers.lesson_title':       'A lesson plan using local Bali air quality data',
     'home.teachers.lesson_pitch':       'A 45-minute lesson where students compare your school\'s last-24h PM2.5 reading to the WHO daily guideline — then to a reference school in Barcelona via Smart Citizen\'s global network.',
     'home.teachers.lesson_download':    'Download the lesson plan (PDF) →',
-    'home.teachers.workshop_title':     'Smart Citizen Bali for schools',
+    'home.teachers.workshop_title':     'Making Sense Bali for schools',
     'home.teachers.workshop_pitch':     'A half-day workshop at Fab Lab Bali for one or two teachers per school. Build the sensor, install it on a classroom wall, integrate the live readings into a science unit.',
     'home.teachers.example_title':      'A concrete example',
     'home.teachers.example_body':       'Your students measure PM2.5 in the schoolyard over a week. They calculate the average. They compare it to WHO\'s 5 µg/m³ annual guideline. Then they pull last week\'s average from a school in Barcelona via Smart Citizen\'s public API, and they discuss the difference. Citizenship through data.',
@@ -175,8 +175,8 @@ const DICTIONARIES = {
     'home.officials.downloads_title':   'Aggregate downloads',
     'home.officials.csv_30d':           'Last 30 days CSV →',
     'home.officials.summary_pdf':       'Monthly summary PDF →',
-    'home.officials.cite_title':        'How to cite Smart Citizen Bali data',
-    'home.officials.cite_body':         'Smart Citizen Bali (Fab Lab Bali, {{year}}). Open environmental sensor network and citizen reports, Bali, Indonesia. Retrieved from https://mdg-bali.github.io/smartcitizenbali/ on [date].',
+    'home.officials.cite_title':        'How to cite Making Sense Bali data',
+    'home.officials.cite_body':         'Making Sense Bali (Fab Lab Bali, {{year}}). Open environmental sensor network and citizen reports, Bali, Indonesia. Retrieved from https://mdg-bali.github.io/makingsensebali/ on [date].',
     'home.officials.dashboard_link':    'Open the analytical dashboard →',
     'home.officials.contact':           'Direct engagement:',
 
@@ -325,7 +325,7 @@ const DICTIONARIES = {
     'home.teachers.lesson_title':       'Rencana pelajaran menggunakan data udara Bali setempat',
     'home.teachers.lesson_pitch':       'Pelajaran 45 menit di mana siswa membandingkan PM2.5 sekolah Anda 24 jam terakhir dengan panduan harian WHO — lalu dengan sekolah referensi di Barcelona melalui jaringan global Smart Citizen.',
     'home.teachers.lesson_download':    'Unduh rencana pelajaran (PDF) →',
-    'home.teachers.workshop_title':     'Smart Citizen Bali untuk sekolah',
+    'home.teachers.workshop_title':     'Making Sense Bali untuk sekolah',
     'home.teachers.workshop_pitch':     'Lokakarya setengah hari di Fab Lab Bali untuk satu atau dua guru per sekolah. Rakit sensor, pasang di dinding kelas, integrasikan bacaan langsung ke dalam unit sains.',
     'home.teachers.example_title':      'Contoh konkret',
     'home.teachers.example_body':       'Siswa mengukur PM2.5 di halaman sekolah selama seminggu. Mereka menghitung rata-rata. Mereka bandingkan dengan panduan tahunan WHO 5 µg/m³. Lalu mereka ambil rata-rata pekan lalu dari sekolah di Barcelona melalui API publik Smart Citizen, dan mereka mendiskusikan selisihnya. Kewargaan melalui data.',
@@ -334,8 +334,8 @@ const DICTIONARIES = {
     'home.officials.downloads_title':   'Unduhan agregat',
     'home.officials.csv_30d':           'CSV 30 hari terakhir →',
     'home.officials.summary_pdf':       'Ringkasan bulanan PDF →',
-    'home.officials.cite_title':        'Cara mensitasi data Smart Citizen Bali',
-    'home.officials.cite_body':         'Smart Citizen Bali (Fab Lab Bali, {{year}}). Jaringan sensor lingkungan terbuka dan laporan warga, Bali, Indonesia. Diakses dari https://mdg-bali.github.io/smartcitizenbali/ pada [tanggal].',
+    'home.officials.cite_title':        'Cara mensitasi data Making Sense Bali',
+    'home.officials.cite_body':         'Making Sense Bali (Fab Lab Bali, {{year}}). Jaringan sensor lingkungan terbuka dan laporan warga, Bali, Indonesia. Diakses dari https://mdg-bali.github.io/makingsensebali/ pada [tanggal].',
     'home.officials.dashboard_link':    'Buka dasbor analitis →',
     'home.officials.contact':           'Engagement langsung:',
 

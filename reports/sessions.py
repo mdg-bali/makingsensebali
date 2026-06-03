@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Per-sender draft sessions for the Bukit AQ Reporter.
+Per-sender draft sessions for the Making Sense Bali reporter.
 
 Why this exists
 ---------------
@@ -16,11 +16,13 @@ X in the report flow, and what have they given me so far?" — one draft
 report being filled in step by step, committed when the user confirms.
 
 State machine (strict order, per Tomas's call):
+    await_language  → user picks 1/2/3 (en/id/es) — FIRST, before consent
     await_category  → user must reply with a menu number (1..N)
-    await_detail    → optional one-line free-text detail, or 'lanjut'/'skip'
-    await_location  → user must share a WhatsApp location pin
-    await_photo     → user must send a photo (photo is required, not optional)
+    await_photo     → user must send a photo (photo is required, comes first)
+    await_location  → location pin, Google Maps link, or typed coordinates
+    await_comment   → optional one-line comment, or 'skip'/'lewati'/'omitir'
     await_confirm   → user replies 'kirim' (send) or 'batal' (cancel)
+    await_feedback  → post-submit: next text captured anonymously as feedback
 
 Wrong-step messages get a polite reminder, NOT a new report.
 
@@ -43,18 +45,25 @@ log = logging.getLogger("aq-bot.sessions")
 
 # --- State constants -------------------------------------------------------
 
+AWAIT_LANGUAGE = "await_language"
 AWAIT_CATEGORY = "await_category"
-AWAIT_DETAIL = "await_detail"
-AWAIT_LOCATION = "await_location"
 AWAIT_PHOTO = "await_photo"
+AWAIT_LOCATION = "await_location"
+AWAIT_COMMENT = "await_comment"
 AWAIT_CONFIRM = "await_confirm"
+AWAIT_FEEDBACK = "await_feedback"
 
-# Order matters — used to print "Step N/4" prompts and to validate transitions.
+# Order matters — used to print step prompts and to validate transitions.
+# Mandatory user-visible steps are category → photo → location (1/3, 2/3,
+# 3/3). The comment step is optional and not numbered. Language is picked
+# before consent; feedback is a post-submit branch, not part of the linear
+# report flow.
 FLOW_ORDER = [
+    AWAIT_LANGUAGE,
     AWAIT_CATEGORY,
-    AWAIT_DETAIL,
-    AWAIT_LOCATION,
     AWAIT_PHOTO,
+    AWAIT_LOCATION,
+    AWAIT_COMMENT,
     AWAIT_CONFIRM,
 ]
 
@@ -70,7 +79,8 @@ class Session:
     """A user's in-progress draft report."""
 
     sender_hash: str
-    state: str = AWAIT_CATEGORY
+    state: str = AWAIT_LANGUAGE
+    lang: str = ""  # "" until the user picks en/id/es; then persisted
     draft: Dict[str, Any] = field(default_factory=dict)
     updated_at: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
@@ -144,10 +154,16 @@ class SessionStore:
     def get(self, sender_hash: str) -> Optional[Session]:
         return self._load_all().get(sender_hash)
 
-    def start(self, sender_hash: str) -> Session:
-        """Begin (or restart) a draft for this sender."""
+    def start(self, sender_hash: str, lang: str = "", state: str = AWAIT_CATEGORY) -> Session:
+        """Begin (or restart) a session for this sender.
+
+        `state` defaults to AWAIT_CATEGORY because callers normally start
+        the report flow after language + consent are already settled. Pass
+        AWAIT_LANGUAGE to begin with the language picker on first contact.
+        `lang` carries the chosen language forward when restarting a draft.
+        """
         sessions = self._load_all()
-        s = Session(sender_hash=sender_hash, state=AWAIT_CATEGORY, draft={})
+        s = Session(sender_hash=sender_hash, state=state, lang=lang, draft={})
         sessions[sender_hash] = s
         self._save_all()
         return s

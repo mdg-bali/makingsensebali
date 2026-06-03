@@ -1,16 +1,16 @@
-# Smart Citizen Bali
+# Making Sense Bali
 
 **A community-led environmental sensing campaign for Bali, anchored by Fab Lab Bali, within the Fab City Bali chapter.**
 
-Smart Citizen Bali combines open-hardware environmental sensors, public data from regional and global networks, and resident reports of locally observed environmental issues — burning waste, air quality events, water leaks, construction debris, noise, the matters of concern raised by people who actually live here. The work is done in Indonesia, by people in Indonesia, on concerns identified by people in Indonesia.
+Making Sense Bali combines open-hardware environmental sensors, public data from regional and global networks, and resident reports of locally observed environmental issues — burning waste, air quality events, water leaks, construction debris, noise, the matters of concern raised by people who actually live here. The work is done in Indonesia, by people in Indonesia, on concerns identified by people in Indonesia.
 
-The campaign is hosted and accountable to **[Fab Lab Bali](https://fablabbali.com)**, the local fabrication laboratory in Denpasar, as part of the **Fab City Bali** chapter of the global [Fab City](https://fab.city/) network. Methodologically the work descends from the **[Making Sense](https://making-sense.eu/)** project (EU Horizon 2020, Fab Lab Barcelona / IAAC and partners, 2015–2017) and uses the **[Smart Citizen Kit](https://smartcitizen.me/)** platform, co-founded by Tomas Diez and Alex Posada at Fab Lab Barcelona / IAAC in 2012. Smart Citizen Bali is led by Tomas Diez — Smart Citizen co-founder, now resident in Bali — and runs as an independent bioregional instance, in close relationship with the original projects.
+The campaign is hosted and accountable to **[Fab Lab Bali](https://fablabbali.com)**, the local fabrication laboratory in Denpasar, as part of the **Fab City Bali** chapter of the global [Fab City](https://fab.city/) network. Methodologically the work descends from the **[Making Sense](https://making-sense.eu/)** project (EU Horizon 2020, Fab Lab Barcelona / IAAC and partners, 2015–2017) and uses the **[Smart Citizen Kit](https://smartcitizen.me/)** platform, co-founded by Tomas Diez and Alex Posada at Fab Lab Barcelona / IAAC in 2012. Making Sense Bali is led by Tomas Diez — Smart Citizen co-founder, now resident in Bali — and runs as an independent bioregional instance, in close relationship with the original projects.
 
 Live: **[mdg-bali.github.io/smartcitizenbali](https://mdg-bali.github.io/smartcitizenbali/)**
 
 ---
 
-## What Smart Citizen Bali looks like
+## What Making Sense Bali looks like
 
 Three surfaces, one campaign:
 
@@ -18,13 +18,13 @@ Three surfaces, one campaign:
 
 2. **The live dashboard** at `/dashboard/` — real-time environmental sensor readings aggregated from multiple open networks: Smart Citizen Kit deployments operated by the campaign, OpenAQ stations in Bali, Sensor.Community devices, PurpleAir (when configured). PM2.5, PM10, temperature, humidity, noise. Each pin shows source, last reading, links to the original platform.
 
-3. **The reports layer** — residents send environmental observations to a WhatsApp bot ("Pelapor Bukit" in the Bali deployment). Each report is reviewed by the local operator before publication. Approved reports appear on the public site as community-sourced data alongside the sensor readings. Phone numbers are never stored.
+3. **The reports layer** — residents send environmental observations to a WhatsApp bot ("Making Sense Bali" in the Bali deployment). Each report is reviewed by the local operator before publication. Approved reports appear on the public site as community-sourced data alongside the sensor readings. Phone numbers are never stored.
 
 ---
 
 ## The methodology
 
-Smart Citizen Bali follows a phased Making Sense-derived approach, adapted for Bali:
+Making Sense Bali follows a phased Making Sense-derived approach, adapted for Bali:
 
 **Phase 1 — Matters of concern.** A survey, currently hosted on Airtable, asks residents what environmental issues affect their daily life. The output isn't a ranked list of "problems to solve" — it's a map of attention. Where do people notice burning waste? Where is the noise unbearable? Where does the water taste bad? The survey establishes that the campaign is responding to community-defined concerns, not imposing an external agenda.
 
@@ -36,7 +36,7 @@ Smart Citizen Bali follows a phased Making Sense-derived approach, adapted for B
 
 ## Components
 
-Smart Citizen Bali is assembled from these parts. Each has its own scope and its own deployment story:
+Making Sense Bali is assembled from these parts. Each has its own scope and its own deployment story:
 
 | Component | What it does | Where it lives |
 |---|---|---|
@@ -69,15 +69,15 @@ Full hardware documentation — BOMs, schematics, firmware, the calibration chai
 
 ## Lineage and governance
 
-Smart Citizen Bali sits within a specific lineage. It matters because it shapes who is accountable, what assumptions the campaign carries, and which network it federates with.
+Making Sense Bali sits within a specific lineage. It matters because it shapes who is accountable, what assumptions the campaign carries, and which network it federates with.
 
 - **2012–present** — Smart Citizen, co-founded by **Tomas Diez** and **Alex Posada** at Fab Lab Barcelona / IAAC. The open-hardware sensor platform that this campaign uses.
 - **2015–2017** — Making Sense (EU Horizon 2020), Fab Lab Barcelona / IAAC and partners (Waag, JKU Linz, University of Dundee). The participatory framework we apply.
-- **2026–present** — Smart Citizen Bali. Led by Tomas Diez (Smart Citizen co-founder, now resident in Bali), with Fab Lab Bali as institutional host and Fab City Bali as the chapter context.
+- **2026–present** — Making Sense Bali. Led by Tomas Diez (Smart Citizen co-founder, now resident in Bali), with Fab Lab Bali as institutional host and Fab City Bali as the chapter context.
 
-The original Smart Citizen platform and Fab Lab Barcelona are stewarded by other teams today; Smart Citizen Bali is independent but coordinated, not a satellite or franchise. Both projects continue, in different bioregions, under different teams, with overlapping methodology and a shared aesthetic of open hardware, open data, and community accountability.
+The original Smart Citizen platform and Fab Lab Barcelona are stewarded by other teams today; Making Sense Bali is independent but coordinated, not a satellite or franchise. Both projects continue, in different bioregions, under different teams, with overlapping methodology and a shared aesthetic of open hardware, open data, and community accountability.
 
-Smart Citizen Bali's accountability structure:
+Making Sense Bali's accountability structure:
 
 - **Host institution**: Fab Lab Bali
 - **Chapter context**: Fab City Bali
@@ -100,7 +100,7 @@ The campaign is currently in early Phase 1 → Phase 2 transition (Q2 2026):
 
 ## Replicate it — Smart Citizen [your city]
 
-Smart Citizen Bali is intentionally replicable. Other Fab City chapters with a host Fab Lab can fork this campaign template for their bioregion.
+Making Sense Bali is intentionally replicable. Other Fab City chapters with a host Fab Lab can fork this campaign template for their bioregion.
 
 **You will need:**
 

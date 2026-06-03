@@ -2,7 +2,7 @@
 
 A guide for **Fab City chapters with a host Fab Lab** who want to stand up their own bioregional instance of Smart Citizen — combining open-hardware sensors, public data networks, citizen reports, and a participatory survey under a single campaign.
 
-The reference deployment is [Smart Citizen Bali](README.md), hosted by Fab Lab Bali within the Fab City Bali chapter. This document is the same campaign packaged as a kit. If you run a Fab City chapter and have a host Fab Lab willing to anchor the work, you can fork this repository, customize it for your bioregion, and deploy a working instance in roughly **3–6 months from decision to public launch**.
+The reference deployment is [Making Sense Bali](README.md), hosted by Fab Lab Bali within the Fab City Bali chapter. This document is the same campaign packaged as a kit. If you run a Fab City chapter and have a host Fab Lab willing to anchor the work, you can fork this repository, customize it for your bioregion, and deploy a working instance in roughly **3–6 months from decision to public launch**.
 
 If you don't have the Fab City + Fab Lab combination — or don't want to — most of the underlying tools are useful on their own: the [Smart Citizen Kit](https://smartcitizen.me/) for sensors, OpenAQ / Sensor.Community for open data, the [Sense Making reports toolkit](reports/) for bot infrastructure. You can use any of those without operating a "Smart Citizen [city]" campaign. The campaign name and the federated network it joins are reserved for Fab City chapter instances, for reasons of accountability and governance set out below.
 
@@ -55,7 +55,7 @@ The campaign starts by asking residents what environmental issues affect their d
 - Survey duration — 3–8 weeks of active collection is typical
 - What "done" looks like — a response threshold, a time window, or both
 
-You can fork Smart Citizen Bali's survey questions as a starting point (see [docs/phase-1-survey.md](docs/phase-1-survey.md), and the **[live Bali survey form](https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form)** for reference). The Bali survey is itself a work in progress, iterating as we learn what questions get useful answers. Fork the questions you find useful, adapt or replace the rest — your bioregion's matters of concern are not Bali's.
+You can fork Making Sense Bali's survey questions as a starting point (see [docs/phase-1-survey.md](docs/phase-1-survey.md), and the **[live Bali survey form](https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form)** for reference). The Bali survey is itself a work in progress, iterating as we learn what questions get useful answers. Fork the questions you find useful, adapt or replace the rest — your bioregion's matters of concern are not Bali's.
 
 ### Phase 2 — Sensing and reporting (weeks 4–ongoing)
 
@@ -269,7 +269,7 @@ Each Smart Citizen [city] instance is independent but discoverable. Federation h
 
 ### Today — Murmurations
 
-Once you publish your `murmurations.json` and submit it to the [Murmurations Index](https://murmurations.network/), your campaign is discoverable in the broader Murmurations ecosystem. Any community-data network can query for `tags=smart citizen` or `tags=fab lab` and find your instance alongside Smart Citizen Bali, Smart Citizen Barcelona, and others.
+Once you publish your `murmurations.json` and submit it to the [Murmurations Index](https://murmurations.network/), your campaign is discoverable in the broader Murmurations ecosystem. Any community-data network can query for `tags=smart citizen` or `tags=fab lab` and find your instance alongside Making Sense Bali, Smart Citizen Barcelona, and others.
 
 This is the lightest form of federation: your campaign is *findable* but each instance operates independently. No data sharing across nodes, no shared infrastructure.
 
@@ -303,7 +303,7 @@ Documentation, schemas, surveys, and methodology: **CC-BY-SA 4.0**.
 
 If you fork and run a Smart Citizen [city], we ask three things:
 
-1. **Credit the lineage.** Making Sense (Fab Lab Barcelona / IAAC, 2015–2017), Smart Citizen (co-founded by Tomas Diez and Alex Posada, 2012), Smart Citizen Bali (Fab Lab Bali, 2026) in your README and on your campaign site.
+1. **Credit the lineage.** Making Sense (Fab Lab Barcelona / IAAC, 2015–2017), Smart Citizen (co-founded by Tomas Diez and Alex Posada, 2012), Making Sense Bali (Fab Lab Bali, 2026) in your README and on your campaign site.
 2. **Keep the network legible.** Use the "Smart Citizen [city]" naming convention. Publish your Murmurations profile. Link to other instances.
 3. **Share back.** Improvements to the code, the methodology, the docs — pull requests welcome. The kit gets better when each new instance contributes back what they learned.
 

@@ -1,260 +1,46 @@
 """
-All user-facing text the Bukit AQ Reporter ever sends.
+All user-facing text the Making Sense Bali reporter ever sends — trilingual.
 
-This file exists so a native Bahasa Indonesia speaker can review every
-message the bot will send to real users, in one place, without having
-to read Python code.
+This file exists so native speakers can review every message the bot
+will send to real users, in one place, without reading Python code.
+
+Languages: "en" (English), "id" (Bahasa Indonesia), "es" (Español).
+
+═══════════════════════════════════════════════════════════════════════
+ STRUCTURE
+═══════════════════════════════════════════════════════════════════════
+Every user-facing message is an entry in MESSAGES, keyed first by
+language code, then by a message id. To fetch a message in code, use:
+
+    t("category_menu", lang, max=7)
+
+`t(key, lang, **kwargs)` looks up MESSAGES[lang][key] (falling back to
+English if the language or key is missing), then .format(**kwargs)s it.
+
+Things in {curly_braces} are variables the code fills in (counts,
+categories, etc.) — keep them but you can move them around in the text.
+
+WhatsApp markdown reminders:
+  *bold*    _italic_    ~strike~    ```code```
 
 ═══════════════════════════════════════════════════════════════════════
  PLEASE REVIEW
 ═══════════════════════════════════════════════════════════════════════
-For each message below, please check:
-
-  1. Bahasa is grammatically correct and feels natural for Bukit users
-     (mixed local/expat communities — Balinese, Javanese, Indonesian
-     residents from elsewhere, foreign residents who read Bahasa).
-
-  2. Word choice is right — neither overly formal (kaku) nor too casual.
-     This bot is run by Fab Lab Bali, so it should feel community-led,
-     not bureaucratic and not slangy.
-
-  3. The English glosses (in _italics_) accurately match the Bahasa.
-
-  4. The tone of the consent prompt is honest and not threatening —
-     people should feel comfortable saying yes, but also feel free to
-     say no.
-
-  5. Technical terms — is "laporan" right for "report"? "Polusi" for
-     "pollution"? Or are there more colloquial words a banjar leader
-     would use?
-
-  6. Cultural concerns — is anything inadvertently rude, condescending,
-     or off-key for the Bukit context?
-
-  7. Emojis — keep them or remove them? They anchor the message
-     visually but may feel toy-ish in formal contexts.
-
-═══════════════════════════════════════════════════════════════════════
- HOW TO EDIT
-═══════════════════════════════════════════════════════════════════════
-Just rewrite any string below. Things in {curly_braces} are variables
-the code fills in (counts, categories, etc.) — keep them but you can
-move them around within the text.
-
-WhatsApp markdown reminders:
-  *bold*    _italic_    ~strike~    ```code```
+  • Bahasa: natural for Bali users (mixed local/expat), neither too
+    formal (kaku) nor slangy. Run by Fab Lab Bali — community-led,
+    not bureaucratic.
+  • Español: written by the assistant for Tomas (native speaker) to
+    review — warm, community-led, natural, matching the English tone.
+  • Consent tone: honest, not threatening — people should feel free to
+    say yes or no.
+  • Emojis: keep or drop? They anchor visually but may feel toy-ish.
 """
 
 # =====================================================================
-# CONSENT FLOW
-# =====================================================================
-# Shown on first contact, OR any time someone messages who hasn't yet
-# said SETUJU. Reminds opted-out users they need to re-grant.
-
-CONSENT_PROMPT = (
-    "🌴 *Pelapor Bukit*\n"
-    "_Bukit Reports_\n\n"
-    # --- Privacy first, prominently ---
-    "🔒 *Privasi adalah prioritas utama kami.*\n"
-    "Nomor telepon Anda *TIDAK DISIMPAN* di server kami. Laporan "
-    "dibagikan tanpa identitas pengirim.\n\n"
-    "_🔒 *Privacy is our top priority.*\n"
-    "Your phone number is *NEVER STORED* on our servers. Reports are "
-    "shared without sender identity._\n\n"
-    # --- What the bot is for ---
-    "Bot ini dijalankan oleh Fab Lab Bali agar warga dapat melaporkan "
-    "masalah lingkungan dan komunitas di Bukit — sampah di jalan, "
-    "kebocoran air, asap pembakaran, debu konstruksi, polusi kendaraan, "
-    "dan masalah serupa.\n\n"
-    "_This bot is run by Fab Lab Bali so residents can report "
-    "environmental and community issues in Bukit — trash on streets, "
-    "water leaks, smoke from burning, construction dust, vehicle "
-    "pollution, and similar concerns._\n\n"
-    # --- The 3 steps ---
-    "*Cara melapor (3 langkah):*\n"
-    "1️⃣ Tulis deskripsi masalah\n"
-    "2️⃣ Bagikan lokasi 📍\n"
-    "3️⃣ Kirim foto (opsional)\n\n"
-    "_*How to report (3 steps):*_\n"
-    "_1️⃣ Write a description of the issue_\n"
-    "_2️⃣ Share your location 📍_\n"
-    "_3️⃣ Send a photo (optional)_\n\n"
-    # --- Consent action ---
-    "Untuk melanjutkan, balas *SETUJU*.\n"
-    "_To continue, reply *AGREE*._\n\n"
-    "Untuk berhenti kapan saja, balas */optout*."
-)
-
-# Sent right after the user replies with one of CONSENT_KEYWORDS below.
-
-CONSENT_CONFIRMED = (
-    "✅ Terima kasih! Mari mulai laporan Anda.\n"
-    "_Thanks! Let's start your report._\n"
-    # The category menu is sent immediately after, in the same reply.
-)
-
-# Sent after /optout.
-
-OPTOUT_CONFIRMED = (
-    "👋 Anda telah keluar. Laporan Anda yang sudah ada tetap tersimpan "
-    "secara anonim. Kirim pesan apa pun untuk bergabung kembali.\n"
-    "_You have opted out. Existing anonymous reports remain stored. "
-    "Send any message to rejoin._"
-)
-
-# Words the bot accepts as "yes, I consent". Case-insensitive.
-# REVIEWER: should we add other Bahasa affirmatives? "boleh"? "iya"?
-# Should we accept Balinese-language words?
-CONSENT_KEYWORDS = {"setuju", "agree", "yes", "ya", "ok", "okay"}
-
-
-# =====================================================================
-# COMMANDS — replies to /help, /stats, /about, and unknown commands
+# Non-localized lookups (shared across languages)
 # =====================================================================
 
-HELP_REPLY = (
-    "🌴 *Cara melapor / How to report*\n\n"
-    "Bot akan memandu Anda dalam 4 langkah:\n"
-    "_The bot will guide you in 4 steps:_\n\n"
-    "1️⃣ Pilih jenis masalah dari menu\n"
-    "   _Pick the issue type from the menu_\n"
-    "2️⃣ Tulis detail singkat (opsional)\n"
-    "   _Write a short detail (optional)_\n"
-    "3️⃣ Bagikan lokasi 📍\n"
-    "   _Share your location 📍_\n"
-    "4️⃣ Kirim foto 📸\n"
-    "   _Send a photo 📸_\n\n"
-    "Lalu balas *KIRIM* untuk mengirim, atau *BATAL* untuk membatalkan.\n"
-    "_Then reply *SEND* to submit, or *CANCEL* to discard._\n\n"
-    "Perintah / commands:\n"
-    "/baru   — laporan baru / new report\n"
-    "/info   — info kampanye / campaign info\n"
-    "/stats  — laporan hari ini / today's reports\n"
-    "/about  — tentang / about\n"
-    "/batal  — batalkan laporan saat ini / cancel current report\n"
-    "/optout — berhenti / leave"
-)
-
-# {count} is filled in with today's report count
-STATS_REPLY = "📊 Hari ini / today: {count} laporan / reports."
-
-ABOUT_REPLY = (
-    "🌴 *Pelapor Bukit / Bukit Reports*\n"
-    "Fab Lab Bali · komunitas memantau lingkungan\n"
-    "_Fab Lab Bali · community environmental watch_\n\n"
-    "🔒 Nomor telepon tidak pernah disimpan.\n"
-    "_🔒 Phone numbers are never stored._"
-)
-
-UNKNOWN_COMMAND = "Perintah tidak dikenal. /help untuk daftar."
-
-
-# =====================================================================
-# PER-MESSAGE-TYPE ACKNOWLEDGMENTS
-# =====================================================================
-# These are the bot's first reply after a user sends each kind of
-# message. They should feel quick, warm, and tell the user what to do
-# next.
-
-# After a text-only report (step 1 done; ask for step 2 — location)
-TEXT_RECEIVED = (
-    "📝 Deskripsi diterima.\n"
-    "_Description received._\n\n"
-    "*Langkah 2/3:* Bagikan lokasi 📍\n"
-    "_*Step 2/3:* Share your location 📍_\n\n"
-    "(Lampiran → Lokasi → Kirim lokasi saat ini)\n"
-    "_(Attach → Location → Send current location)_"
-)
-
-# After a photo, before vision analysis arrives. The analysis follow-up
-# (see ANALYSIS_FOLLOWUP_* below) is sent later by the M1 worker.
-PHOTO_RECEIVED = (
-    "📸 Foto diterima — sedang dianalisis.\n"
-    "_Photo received — analyzing._\n\n"
-    "Jika belum, bagikan lokasi 📍 untuk melengkapi laporan.\n"
-    "_If not yet, share your location 📍 to complete the report._"
-)
-
-# After a location pin, when there's a pending report to merge it with
-LOCATION_RECEIVED_MERGED = (
-    "✅ Lokasi tersimpan — laporan Anda lengkap.\n"
-    "_Location saved — your report is complete._\n\n"
-    "*Opsional / Optional:* Langkah 3/3 — kirim foto 📸\n"
-    "_*Step 3/3:* Send a photo 📸_\n\n"
-    "Terima kasih atas kontribusi Anda! 🙏\n"
-    "_Thank you for your contribution!_"
-)
-
-# After a standalone location pin (no recent text/photo to merge with)
-LOCATION_RECEIVED_STANDALONE = (
-    "📍 Lokasi diterima.\n"
-    "_Location received._\n\n"
-    "*Mulai dengan deskripsi:* tulis apa yang Anda lihat di lokasi ini.\n"
-    "_*Start with a description:* write what you see at this location._"
-)
-
-# If a location message has no lat/lon (rare edge case)
-LOCATION_INVALID = "Lokasi tidak terbaca. Coba kirim lagi. / Location unreadable. Try again."
-
-# After a voice note (transcription not yet implemented)
-AUDIO_RECEIVED = (
-    "🎙️ Pesan suara diterima.\n"
-    "_Voice note received._\n\n"
-    "Fitur transkripsi otomatis akan segera tersedia. Untuk saat ini, "
-    "silakan tulis deskripsi singkat sebagai teks.\n"
-    "_Auto-transcription coming soon. For now, please write a short "
-    "description as text._"
-)
-
-
-# =====================================================================
-# VISION ANALYSIS FOLLOW-UP
-# =====================================================================
-# Sent by the M1 worker after a photo has been classified. Variables:
-#   {cat_emoji} — emoji for the detected category (see CATEGORY_EMOJI)
-#   {category}  — schema-valid category name in English
-#   {sev_emoji} — colored circle for severity (see SEVERITY_EMOJI)
-#   {severity}  — low / medium / high / critical
-#   {indicators_line} — optional "Terdeteksi: smoke, fire" line, or ""
-#   {description_line} — optional model description italic, or ""
-#
-# REVIEWER: should category names be translated to Bahasa
-# (burning -> pembakaran, trash -> sampah, vehicle -> kendaraan)?
-
-ANALYSIS_FOLLOWUP_TEMPLATE = (
-    "{cat_emoji} *Hasil analisis / Analysis*\n"
-    "Kategori / category: *{category}*\n"
-    "Tingkat / severity: {sev_emoji} {severity}"
-    "{indicators_line}"
-    "{description_line}"
-)
-
-# =====================================================================
-# APPROVAL NOTIFICATIONS
-# =====================================================================
-# Sent when an admin approves or rejects a report in the dashboard.
-# Optional — only sent if the bot has a way to reach the original sender
-# (notify_jid in the job file, similar to vision follow-up pattern).
-
-REPORT_APPROVED = (
-    "✅ Laporan Anda telah disetujui dan dipublikasikan secara anonim.\n"
-    "_Your report has been approved and published anonymously._\n\n"
-    "Terima kasih telah berkontribusi pada komunitas Bukit. 🙏\n"
-    "_Thank you for contributing to the Bukit community._"
-)
-
-REPORT_REJECTED = (
-    "ℹ️ Laporan Anda telah ditinjau tetapi tidak dipublikasikan saat ini.\n"
-    "_Your report was reviewed but not published at this time._\n\n"
-    "Ini tidak memengaruhi kemampuan Anda mengirim laporan lain.\n"
-    "_This does not affect your ability to send other reports._"
-)
-
-# Optional lines — added only when there's content. Leading \n included.
-ANALYSIS_INDICATORS_LINE = "\nTerdeteksi / detected: {indicators}"
-ANALYSIS_DESCRIPTION_LINE = "\n_{description}_"
-
-# Emoji by category — visual anchor in the reply
+# Emoji by category — visual anchor in replies
 CATEGORY_EMOJI = {
     "burning": "🔥",
     "trash": "🚮",
@@ -274,14 +60,6 @@ SEVERITY_EMOJI = {
     "high": "🟠",
     "critical": "🔴",
 }
-
-
-# =====================================================================
-# OPTIONAL: Bahasa category labels
-# =====================================================================
-# Right now the follow-up shows "Kategori: burning" in English.
-# REVIEWER: would Bukit users prefer to see the Bahasa label, e.g.
-# "Kategori: pembakaran"? If so, edit these and we'll wire them up:
 
 CATEGORY_BAHASA = {
     "burning": "pembakaran",
@@ -304,218 +82,652 @@ SEVERITY_BAHASA = {
 
 
 # =====================================================================
-# GUIDED REPORTING FLOW — strict-order state machine
+# Category menu items — keyed by language for the labels
 # =====================================================================
-# The bot walks the user through one report at a time:
-#   1. category menu  → user replies with a number 1..N
-#   2. optional detail  → free text, or 'lanjut'/'skip' to move on
-#   3. location pin    → required
-#   4. photo           → required
-#   5. confirm         → 'kirim' (send) or 'batal' (cancel)
-#
-# Wrong-type messages at any step get a polite reminder of what's next,
-# NOT a new partial report.
-
-# ---- step 1 of 4: choose category ----------------------------------------
-# Numbered list keyed by the same category names used by vision_analyzer
-# CATEGORIES. Order here is the order users see in WhatsApp.
+# The first element of each tuple is the schema category key (stable,
+# used by vision_analyzer). The labels are per-language.
+#   key, emoji, {"en": label, "id": label, "es": label}
 CATEGORY_MENU_ITEMS = [
-    ("burning",      "🔥",  "Pembakaran sampah",  "Burning trash"),
-    ("trash",        "🚮",  "Tumpukan sampah",    "Trash pile / dumping"),
-    ("water",        "💧",  "Polusi air",         "Water pollution"),
-    ("construction", "🏗️",  "Debu konstruksi",    "Construction dust"),
-    ("vehicle",      "🚗",  "Asap kendaraan",     "Vehicle smoke"),
-    ("industrial",   "🏭",  "Polusi industri",    "Industrial pollution"),
-    ("other",        "📋",  "Lain-lain",          "Other"),
+    ("burning",      "🔥",  {"en": "Burning trash",          "id": "Pembakaran sampah",  "es": "Quema de basura"}),
+    ("trash",        "🚮",  {"en": "Trash pile / dumping",   "id": "Tumpukan sampah",    "es": "Basura acumulada / vertido"}),
+    ("water",        "💧",  {"en": "Water pollution",        "id": "Polusi air",         "es": "Contaminación del agua"}),
+    ("construction", "🏗️",  {"en": "Construction dust",      "id": "Debu konstruksi",    "es": "Polvo de construcción"}),
+    ("vehicle",      "🚗",  {"en": "Vehicle smoke",          "id": "Asap kendaraan",     "es": "Humo de vehículos"}),
+    ("industrial",   "🏭",  {"en": "Industrial pollution",   "id": "Polusi industri",    "es": "Contaminación industrial"}),
+    ("other",        "📋",  {"en": "Other",                  "id": "Lain-lain",          "es": "Otro"}),
 ]
 
 
-def _format_category_menu() -> str:
+def category_label(category_key: str, lang: str) -> str:
+    """Localized label for a category key (defaults to English / the key)."""
+    for key, _emoji, labels in CATEGORY_MENU_ITEMS:
+        if key == category_key:
+            return labels.get(lang) or labels.get("en") or category_key
+    return category_key
+
+
+def format_category_menu(lang: str) -> str:
     lines = []
-    for idx, (_key, emoji, bah, eng) in enumerate(CATEGORY_MENU_ITEMS, start=1):
-        lines.append(f"  *{idx}.* {emoji} {bah} / _{eng}_")
+    for idx, (_key, emoji, labels) in enumerate(CATEGORY_MENU_ITEMS, start=1):
+        label = labels.get(lang) or labels.get("en")
+        lines.append(f"  *{idx}.* {emoji} {label}")
     return "\n".join(lines)
 
 
-CATEGORY_MENU = (
-    "*Langkah 1/4: Jenis masalah*\n"
-    "_*Step 1/4: Issue type*_\n\n"
-    "Apa yang Anda lihat? Balas dengan nomor:\n"
-    "_What do you see? Reply with a number:_\n\n"
-    f"{_format_category_menu()}"
-)
+# =====================================================================
+# Keyword sets (language-agnostic; accept all variants)
+# =====================================================================
 
-# Sent after the bot accepts a valid number. {cat_emoji} and {cat_label}
-# get filled in by the dispatcher.
-CATEGORY_CHOSEN = (
-    "{cat_emoji} *{cat_label}* dipilih.\n"
-    "_{cat_emoji} *{cat_label_en}* selected._\n\n"
-    "*Langkah 2/4: Detail singkat (opsional)*\n"
-    "_*Step 2/4: Short detail (optional)*_\n\n"
-    "Tulis satu kalimat tambahan (misal: _\"di pinggir Jalan Pantai \"_), "
-    "atau balas *LANJUT* untuk melewati langkah ini.\n"
-    "_Type one extra line (e.g. \"on the side of Pantai road\"), "
-    "or reply *NEXT* to skip this step._"
-)
+# Words the bot accepts as "yes, I consent". Case-insensitive.
+CONSENT_KEYWORDS = {"setuju", "agree", "yes", "ya", "ok", "okay", "si", "sí", "acepto"}
 
-INVALID_CATEGORY = (
-    "❓ Mohon balas dengan nomor (1–{max}).\n"
-    "_Please reply with a number (1–{max})._\n\n"
-    "Atau ketik */batal* untuk membatalkan.\n"
-    "_Or type */cancel* to abort._"
-)
-
-# Words that mean "skip the detail step and move on".
-DETAIL_SKIP_KEYWORDS = {"lanjut", "skip", "next", "lewati", "-"}
-
-# ---- step 3 of 4: location -----------------------------------------------
-ASK_LOCATION = (
-    "📝 Detail tersimpan.\n"
-    "_Detail saved._\n\n"
-    "*Langkah 3/4: Lokasi 📍*\n"
-    "_*Step 3/4: Location 📍*_\n\n"
-    "Bagikan lokasi WhatsApp Anda:\n"
-    "_Share your WhatsApp location:_\n"
-    "  📎 Lampiran → Lokasi → Kirim lokasi saat ini\n"
-    "  _📎 Attach → Location → Send current location_"
-)
-
-ASK_LOCATION_AFTER_SKIP = (
-    "⏭️ Dilewati.\n"
-    "_Skipped._\n\n"
-    "*Langkah 3/4: Lokasi 📍*\n"
-    "_*Step 3/4: Location 📍*_\n\n"
-    "Bagikan lokasi WhatsApp Anda:\n"
-    "_Share your WhatsApp location:_\n"
-    "  📎 Lampiran → Lokasi → Kirim lokasi saat ini\n"
-    "  _📎 Attach → Location → Send current location_"
-)
-
-# ---- step 4 of 4: photo --------------------------------------------------
-ASK_PHOTO = (
-    "📍 Lokasi tersimpan.\n"
-    "_Location saved._\n\n"
-    "*Langkah 4/4: Foto 📸*\n"
-    "_*Step 4/4: Photo 📸*_\n\n"
-    "Kirim satu foto masalah ini (wajib untuk analisis otomatis).\n"
-    "_Send one photo of the issue (required for auto-analysis)._"
-)
-
-# Sent when the bot couldn't fetch/decrypt the photo from WhatsApp.
-# WhatsApp media is E2EE; the bot decrypts via Evolution's
-# /chat/getBase64FromMediaMessage endpoint, which can fail (network,
-# instance restart, transient WhatsApp issue). User stays at step 4/4
-# so they can simply re-send the photo.
-PHOTO_FETCH_FAILED = (
-    "⚠️ Foto belum berhasil diunduh dari WhatsApp.\n"
-    "_Photo couldn't be downloaded from WhatsApp._\n\n"
-    "Silakan kirim foto sekali lagi.\n"
-    "_Please send the photo one more time._"
-)
-
-# ---- confirm / summary ---------------------------------------------------
-# {cat_emoji} {cat_label} {detail_line} {lat} {lon}
-REPORT_SUMMARY = (
-    "📋 *Ringkasan laporan / Report summary*\n\n"
-    "Jenis / type: {cat_emoji} {cat_label} / _{cat_label_en}_\n"
-    "{detail_line}"
-    "Lokasi / location: {lat:.5f}, {lon:.5f}\n"
-    "Foto / photo: ✅ tersimpan / saved\n\n"
-    "Balas *KIRIM* untuk mengirim ke tim Fab Lab Bali.\n"
-    "_Reply *SEND* to submit to the Fab Lab Bali team._\n\n"
-    "Atau *BATAL* untuk membatalkan.\n"
-    "_Or *CANCEL* to discard._"
-)
-
-# Optional detail line in summary
-SUMMARY_DETAIL_LINE = "Detail: _{detail}_\n"
+# Words that mean "skip the optional comment step".
+COMMENT_SKIP_KEYWORDS = {"lewati", "skip", "lanjut", "next", "-", "omitir", "saltar"}
 
 # Words accepted as "submit now"
-CONFIRM_SEND_KEYWORDS = {"kirim", "send", "ya", "yes", "ok", "submit"}
+CONFIRM_SEND_KEYWORDS = {"kirim", "send", "ya", "yes", "ok", "submit", "enviar", "si", "sí"}
 # Words accepted as "cancel"
-CONFIRM_CANCEL_KEYWORDS = {"batal", "cancel", "tidak", "no", "stop"}
+CONFIRM_CANCEL_KEYWORDS = {"batal", "cancel", "tidak", "no", "stop", "cancelar"}
 
-# ---- post-submit menu ----------------------------------------------------
-REPORT_SUBMITTED = (
-    "✅ *Laporan terkirim, terima kasih!* 🙏\n"
-    "_Report submitted, thank you!_\n\n"
-    "Laporan Anda menunggu peninjauan tim sebelum dipublikasikan "
-    "secara anonim.\n"
-    "_Your report is pending team review before being published "
-    "anonymously._\n\n"
-    "*Apa selanjutnya? / What next?*\n"
-    "  *1.* 📝 Laporkan masalah lain / Report another issue\n"
-    "  *2.* ℹ️  Info kampanye / Campaign info\n"
-    "  *3.* 📊 Statistik hari ini / Today's stats\n\n"
-    "Atau kunjungi situs kami / Or visit our site:\n"
-    "🔗 https://mdg-bali.github.io/smartcitizenbali/"
+# Post-submit menu shortcuts
+POSTSUBMIT_NEW_KEYWORDS = {"1", "baru", "new", "lagi", "another", "otro", "nuevo"}
+POSTSUBMIT_LEARN_KEYWORDS = {"2", "learn", "more", "info", "belajar", "aprender"}
+POSTSUBMIT_FEEDBACK_KEYWORDS = {"3", "feedback", "masukan", "comentario", "comentarios"}
+
+# Language picker — accepted answers per language code.
+LANG_PICK = {
+    "en": {"1", "en", "eng", "english", "inggris"},
+    "id": {"2", "id", "ind", "indonesia", "indonesian", "bahasa", "bahasa indonesia"},
+    "es": {"3", "es", "esp", "espanol", "español", "spanish", "castellano"},
+}
+
+
+def parse_language_choice(text: str) -> str:
+    """Map a free-text reply to a language code, or "" if not recognized."""
+    t_ = (text or "").strip().lower()
+    for code, accepted in LANG_PICK.items():
+        if t_ in accepted:
+            return code
+    return ""
+
+
+# =====================================================================
+# THE MESSAGE TABLE
+# =====================================================================
+# MESSAGES[lang][message_id] -> template string.
+
+MESSAGES = {
+    # -----------------------------------------------------------------
+    # ENGLISH
+    # -----------------------------------------------------------------
+    "en": {
+        # --- language picker (also exists per-language for re-prompts) ---
+        "language_picker": (
+            "🌴 *Making Sense Bali*\n\n"
+            "Choose your language / Pilih bahasa / Elige tu idioma:\n\n"
+            "  *1.* English\n"
+            "  *2.* Bahasa Indonesia\n"
+            "  *3.* Español\n\n"
+            "Reply 1, 2, or 3."
+        ),
+
+        # --- consent ---
+        "consent_prompt": (
+            "🌴 *Making Sense Bali*\n\n"
+            "🔒 *Privacy is our top priority.*\n"
+            "Your phone number is *NEVER STORED* on our servers. Reports are "
+            "shared without sender identity.\n\n"
+            "This bot is run by Fab Lab Bali so residents can report "
+            "environmental and community issues in your area — trash on streets, "
+            "water leaks, smoke from burning, construction dust, vehicle "
+            "pollution, and similar concerns.\n\n"
+            "*How to report (3 steps):*\n"
+            "1️⃣ Pick the issue type\n"
+            "2️⃣ Send a photo 📸\n"
+            "3️⃣ Share your location 📍\n\n"
+            "To continue, reply *AGREE*.\n\n"
+            "To stop at any time, reply */optout*."
+        ),
+        "consent_confirmed": "✅ Thanks! Let's start your report.\n",
+        "optout_confirmed": (
+            "👋 You have opted out. Existing anonymous reports remain stored. "
+            "Send any message to rejoin."
+        ),
+
+        # --- commands ---
+        "help_reply": (
+            "🌴 *How to report*\n\n"
+            "The bot guides you in 3 steps:\n\n"
+            "1️⃣ Pick the issue type from the menu\n"
+            "2️⃣ Send a photo 📸\n"
+            "3️⃣ Share your location 📍\n\n"
+            "You can then add an optional one-line comment, then reply "
+            "*SEND* to submit or *CANCEL* to discard.\n\n"
+            "Commands:\n"
+            "/baru   — new report\n"
+            "/about  — about\n"
+            "/batal  — cancel current report\n"
+            "/optout — leave"
+        ),
+        "about_reply": (
+            "🌴 *Making Sense Bali*\n"
+            "Fab Lab Bali · community environmental watch\n\n"
+            "🔒 Phone numbers are never stored."
+        ),
+        "unknown_command": "Unknown command. Type /help for the list.",
+
+        # --- per-message acknowledgments ---
+        "audio_received": (
+            "🎙️ Voice note received.\n\n"
+            "Auto-transcription is coming soon. For now, please write a short "
+            "comment as text, or continue the steps."
+        ),
+
+        # --- guided flow ---
+        "category_menu": (
+            "*Step 1/3: Issue type*\n\n"
+            "What do you see? Reply with a number:\n\n"
+            "{menu}"
+        ),
+        "category_chosen": (
+            "{cat_emoji} *{cat_label}* selected.\n\n"
+            "*Step 2/3: Photo 📸*\n\n"
+            "Send one photo of the issue (required for auto-analysis)."
+        ),
+        "invalid_category": (
+            "❓ Please reply with a number (1–{max}).\n\n"
+            "Or type */batal* to abort."
+        ),
+        "photo_received": (
+            "📸 Photo received.\n\n"
+            "*Step 3/3: Location 📍*\n\n"
+            "Share where this is, in any of these ways:\n"
+            "  📎 Attach → Location → Send current location\n"
+            "  🔗 Paste a Google Maps link\n"
+            "  📝 Or type the coordinates as `lat, lon`"
+        ),
+        "photo_fetch_failed": (
+            "⚠️ The photo couldn't be downloaded from WhatsApp.\n\n"
+            "Please send the photo one more time."
+        ),
+        "ask_comment": (
+            "✅ Location saved.\n\n"
+            "*Optional:* add a short comment (e.g. \"on the side of Pantai "
+            "road\"), or reply *SKIP* to continue."
+        ),
+        "location_invalid": (
+            "❓ I couldn't read that as a location.\n\n"
+            "Please send it in one of these ways:\n"
+            "  📎 Attach → Location → Send current location\n"
+            "  🔗 Paste a Google Maps link\n"
+            "  📝 Or type the coordinates as `lat, lon` "
+            "(e.g. `-8.8290, 115.0850`)"
+        ),
+        "location_link_unresolved": (
+            "🔗 That looks like a shortened map link I can't open here.\n\n"
+            "Please send the location pin instead (📎 Attach → Location), "
+            "or paste the coordinates as `lat, lon`, or the expanded link."
+        ),
+        "report_summary": (
+            "📋 *Report summary*\n\n"
+            "Type: {cat_emoji} {cat_label}\n"
+            "Photo: ✅ saved\n"
+            "Location: {lat:.5f}, {lon:.5f}\n"
+            "{comment_line}"
+            "\n"
+            "Reply *SEND* to submit to the Fab Lab Bali team.\n\n"
+            "Or *CANCEL* to discard."
+        ),
+        "summary_comment_line": "Comment: _{comment}_\n",
+        "report_submitted": (
+            "✅ *Report submitted, thank you!* 🙏\n\n"
+            "Your report is pending team review before being published "
+            "anonymously.\n\n"
+            "*What next?*\n"
+            "  *1.* 📝 Report another issue\n"
+            "  *2.* ℹ️  Learn more → https://mdg-bali.github.io/makingsensebali/\n"
+            "  *3.* 💬 Give feedback"
+        ),
+        "feedback_prompt": (
+            "💬 We'd love your feedback.\n\n"
+            "Type your message and it will be shared anonymously with the "
+            "Fab Lab Bali team (no phone number stored)."
+        ),
+        "feedback_thanks": (
+            "🙏 Thank you for your feedback!\n\n"
+            "*What next?*\n"
+            "  *1.* 📝 Report another issue\n"
+            "  *2.* ℹ️  Learn more → https://mdg-bali.github.io/makingsensebali/\n"
+            "  *3.* 💬 Give feedback"
+        ),
+        "cancel_confirmed": (
+            "🗑️ Report cancelled.\n\n"
+            "Type */baru* to start a new report."
+        ),
+        "no_active_to_cancel": (
+            "No active report to cancel.\n\n"
+            "Type */baru* to start a report."
+        ),
+
+        # --- wrong-step reminders ---
+        "wrong_step_category": (
+            "⏳ We're at *Step 1/3* — pick the issue type.\n\n"
+            "Reply with a number (1–{max}), or */batal* to abort."
+        ),
+        "wrong_step_photo": (
+            "⏳ We're at *Step 2/3* — send one photo 📸."
+        ),
+        "wrong_step_location": (
+            "⏳ We're at *Step 3/3* — share your location 📍.\n\n"
+            "📎 Attach → Location → Send current location, paste a Google "
+            "Maps link, or type the coordinates as `lat, lon`."
+        ),
+        "wrong_step_confirm": (
+            "⏳ Almost done — reply *SEND* to submit, or *CANCEL* to discard."
+        ),
+
+        # --- approval notifications ---
+        "report_approved": (
+            "✅ Your report has been approved and published anonymously.\n\n"
+            "Thank you for contributing to the Bali community. 🙏"
+        ),
+        "report_rejected": (
+            "ℹ️ Your report was reviewed but not published at this time.\n\n"
+            "This does not affect your ability to send other reports."
+        ),
+    },
+
+    # -----------------------------------------------------------------
+    # BAHASA INDONESIA
+    # -----------------------------------------------------------------
+    "id": {
+        "language_picker": (
+            "🌴 *Making Sense Bali*\n\n"
+            "Choose your language / Pilih bahasa / Elige tu idioma:\n\n"
+            "  *1.* English\n"
+            "  *2.* Bahasa Indonesia\n"
+            "  *3.* Español\n\n"
+            "Balas 1, 2, atau 3."
+        ),
+
+        "consent_prompt": (
+            "🌴 *Making Sense Bali*\n\n"
+            "🔒 *Privasi adalah prioritas utama kami.*\n"
+            "Nomor telepon Anda *TIDAK DISIMPAN* di server kami. Laporan "
+            "dibagikan tanpa identitas pengirim.\n\n"
+            "Bot ini dijalankan oleh Fab Lab Bali agar warga dapat melaporkan "
+            "masalah lingkungan dan komunitas di wilayah Anda — sampah di jalan, "
+            "kebocoran air, asap pembakaran, debu konstruksi, polusi kendaraan, "
+            "dan masalah serupa.\n\n"
+            "*Cara melapor (3 langkah):*\n"
+            "1️⃣ Pilih jenis masalah\n"
+            "2️⃣ Kirim foto 📸\n"
+            "3️⃣ Bagikan lokasi 📍\n\n"
+            "Untuk melanjutkan, balas *SETUJU*.\n\n"
+            "Untuk berhenti kapan saja, balas */optout*."
+        ),
+        "consent_confirmed": "✅ Terima kasih! Mari mulai laporan Anda.\n",
+        "optout_confirmed": (
+            "👋 Anda telah keluar. Laporan Anda yang sudah ada tetap tersimpan "
+            "secara anonim. Kirim pesan apa pun untuk bergabung kembali."
+        ),
+
+        "help_reply": (
+            "🌴 *Cara melapor*\n\n"
+            "Bot akan memandu Anda dalam 3 langkah:\n\n"
+            "1️⃣ Pilih jenis masalah dari menu\n"
+            "2️⃣ Kirim foto 📸\n"
+            "3️⃣ Bagikan lokasi 📍\n\n"
+            "Anda lalu dapat menambahkan satu kalimat komentar (opsional), "
+            "lalu balas *KIRIM* untuk mengirim atau *BATAL* untuk membatalkan.\n\n"
+            "Perintah:\n"
+            "/baru   — laporan baru\n"
+            "/about  — tentang\n"
+            "/batal  — batalkan laporan saat ini\n"
+            "/optout — berhenti"
+        ),
+        "about_reply": (
+            "🌴 *Making Sense Bali*\n"
+            "Fab Lab Bali · komunitas memantau lingkungan\n\n"
+            "🔒 Nomor telepon tidak pernah disimpan."
+        ),
+        "unknown_command": "Perintah tidak dikenal. Ketik /help untuk daftar.",
+
+        "audio_received": (
+            "🎙️ Pesan suara diterima.\n\n"
+            "Fitur transkripsi otomatis akan segera tersedia. Untuk saat ini, "
+            "silakan tulis komentar singkat sebagai teks, atau lanjutkan langkah."
+        ),
+
+        "category_menu": (
+            "*Langkah 1/3: Jenis masalah*\n\n"
+            "Apa yang Anda lihat? Balas dengan nomor:\n\n"
+            "{menu}"
+        ),
+        "category_chosen": (
+            "{cat_emoji} *{cat_label}* dipilih.\n\n"
+            "*Langkah 2/3: Foto 📸*\n\n"
+            "Kirim satu foto masalah ini (wajib untuk analisis otomatis)."
+        ),
+        "invalid_category": (
+            "❓ Mohon balas dengan nomor (1–{max}).\n\n"
+            "Atau ketik */batal* untuk membatalkan."
+        ),
+        "photo_received": (
+            "📸 Foto diterima.\n\n"
+            "*Langkah 3/3: Lokasi 📍*\n\n"
+            "Bagikan lokasinya, dengan salah satu cara berikut:\n"
+            "  📎 Lampiran → Lokasi → Kirim lokasi saat ini\n"
+            "  🔗 Tempel tautan Google Maps\n"
+            "  📝 Atau ketik koordinat sebagai `lat, lon`"
+        ),
+        "photo_fetch_failed": (
+            "⚠️ Foto belum berhasil diunduh dari WhatsApp.\n\n"
+            "Silakan kirim foto sekali lagi."
+        ),
+        "ask_comment": (
+            "✅ Lokasi tersimpan.\n\n"
+            "*Opsional:* tambahkan komentar singkat (misal: \"di pinggir Jalan "
+            "Pantai\"), atau balas *LEWATI* untuk melanjutkan."
+        ),
+        "location_invalid": (
+            "❓ Saya tidak dapat membaca itu sebagai lokasi.\n\n"
+            "Silakan kirim dengan salah satu cara berikut:\n"
+            "  📎 Lampiran → Lokasi → Kirim lokasi saat ini\n"
+            "  🔗 Tempel tautan Google Maps\n"
+            "  📝 Atau ketik koordinat sebagai `lat, lon` "
+            "(misal: `-8.8290, 115.0850`)"
+        ),
+        "location_link_unresolved": (
+            "🔗 Itu tampak seperti tautan peta yang dipersingkat yang tidak "
+            "dapat saya buka di sini.\n\n"
+            "Silakan kirim pin lokasi (📎 Lampiran → Lokasi), atau tempel "
+            "koordinat sebagai `lat, lon`, atau tautan lengkapnya."
+        ),
+        "report_summary": (
+            "📋 *Ringkasan laporan*\n\n"
+            "Jenis: {cat_emoji} {cat_label}\n"
+            "Foto: ✅ tersimpan\n"
+            "Lokasi: {lat:.5f}, {lon:.5f}\n"
+            "{comment_line}"
+            "\n"
+            "Balas *KIRIM* untuk mengirim ke tim Fab Lab Bali.\n\n"
+            "Atau *BATAL* untuk membatalkan."
+        ),
+        "summary_comment_line": "Komentar: _{comment}_\n",
+        "report_submitted": (
+            "✅ *Laporan terkirim, terima kasih!* 🙏\n\n"
+            "Laporan Anda menunggu peninjauan tim sebelum dipublikasikan "
+            "secara anonim.\n\n"
+            "*Apa selanjutnya?*\n"
+            "  *1.* 📝 Laporkan masalah lain\n"
+            "  *2.* ℹ️  Pelajari lebih lanjut → https://mdg-bali.github.io/makingsensebali/\n"
+            "  *3.* 💬 Beri masukan"
+        ),
+        "feedback_prompt": (
+            "💬 Kami senang menerima masukan Anda.\n\n"
+            "Tulis pesan Anda dan akan dibagikan secara anonim kepada tim "
+            "Fab Lab Bali (tanpa menyimpan nomor telepon)."
+        ),
+        "feedback_thanks": (
+            "🙏 Terima kasih atas masukan Anda!\n\n"
+            "*Apa selanjutnya?*\n"
+            "  *1.* 📝 Laporkan masalah lain\n"
+            "  *2.* ℹ️  Pelajari lebih lanjut → https://mdg-bali.github.io/makingsensebali/\n"
+            "  *3.* 💬 Beri masukan"
+        ),
+        "cancel_confirmed": (
+            "🗑️ Laporan dibatalkan.\n\n"
+            "Ketik */baru* untuk mulai laporan baru."
+        ),
+        "no_active_to_cancel": (
+            "Tidak ada laporan aktif untuk dibatalkan.\n\n"
+            "Ketik */baru* untuk mulai laporan."
+        ),
+
+        "wrong_step_category": (
+            "⏳ Kita di *Langkah 1/3* — pilih jenis masalah.\n\n"
+            "Balas dengan nomor (1–{max}), atau */batal* untuk membatalkan."
+        ),
+        "wrong_step_photo": (
+            "⏳ Kita di *Langkah 2/3* — kirim satu foto 📸."
+        ),
+        "wrong_step_location": (
+            "⏳ Kita di *Langkah 3/3* — bagikan lokasi 📍.\n\n"
+            "📎 Lampiran → Lokasi → Kirim lokasi saat ini, tempel tautan "
+            "Google Maps, atau ketik koordinat sebagai `lat, lon`."
+        ),
+        "wrong_step_confirm": (
+            "⏳ Hampir selesai — balas *KIRIM* untuk mengirim, atau *BATAL* "
+            "untuk membatalkan."
+        ),
+
+        "report_approved": (
+            "✅ Laporan Anda telah disetujui dan dipublikasikan secara anonim.\n\n"
+            "Terima kasih telah berkontribusi pada komunitas Bali. 🙏"
+        ),
+        "report_rejected": (
+            "ℹ️ Laporan Anda telah ditinjau tetapi tidak dipublikasikan saat ini.\n\n"
+            "Ini tidak memengaruhi kemampuan Anda mengirim laporan lain."
+        ),
+    },
+
+    # -----------------------------------------------------------------
+    # ESPAÑOL  (assistant-written — needs Tomas's review)
+    # -----------------------------------------------------------------
+    "es": {
+        "language_picker": (
+            "🌴 *Making Sense Bali*\n\n"
+            "Choose your language / Pilih bahasa / Elige tu idioma:\n\n"
+            "  *1.* English\n"
+            "  *2.* Bahasa Indonesia\n"
+            "  *3.* Español\n\n"
+            "Responde 1, 2 o 3."
+        ),
+
+        "consent_prompt": (
+            "🌴 *Making Sense Bali*\n\n"
+            "🔒 *Tu privacidad es nuestra prioridad.*\n"
+            "Tu número de teléfono *NUNCA SE GUARDA* en nuestros servidores. "
+            "Los reportes se comparten sin identificar a quien los envía.\n\n"
+            "Este bot lo gestiona Fab Lab Bali para que los vecinos puedan "
+            "reportar problemas ambientales y comunitarios en tu zona — basura "
+            "en las calles, fugas de agua, humo de quemas, polvo de obras, "
+            "humo de vehículos y problemas similares.\n\n"
+            "*Cómo reportar (3 pasos):*\n"
+            "1️⃣ Elige el tipo de problema\n"
+            "2️⃣ Envía una foto 📸\n"
+            "3️⃣ Comparte tu ubicación 📍\n\n"
+            "Para continuar, responde *ACEPTO*.\n\n"
+            "Para salir en cualquier momento, responde */optout*."
+        ),
+        "consent_confirmed": "✅ ¡Gracias! Empecemos tu reporte.\n",
+        "optout_confirmed": (
+            "👋 Has salido. Tus reportes anónimos ya enviados se conservan. "
+            "Envía cualquier mensaje para volver a unirte."
+        ),
+
+        "help_reply": (
+            "🌴 *Cómo reportar*\n\n"
+            "El bot te guía en 3 pasos:\n\n"
+            "1️⃣ Elige el tipo de problema del menú\n"
+            "2️⃣ Envía una foto 📸\n"
+            "3️⃣ Comparte tu ubicación 📍\n\n"
+            "Después puedes añadir un comentario breve (opcional) y responder "
+            "*ENVIAR* para mandarlo o *CANCELAR* para descartarlo.\n\n"
+            "Comandos:\n"
+            "/baru   — nuevo reporte\n"
+            "/about  — acerca de\n"
+            "/batal  — cancelar el reporte actual\n"
+            "/optout — salir"
+        ),
+        "about_reply": (
+            "🌴 *Making Sense Bali*\n"
+            "Fab Lab Bali · vigilancia ambiental comunitaria\n\n"
+            "🔒 Los números de teléfono nunca se guardan."
+        ),
+        "unknown_command": "Comando desconocido. Escribe /help para ver la lista.",
+
+        "audio_received": (
+            "🎙️ Nota de voz recibida.\n\n"
+            "La transcripción automática llegará pronto. Por ahora, escribe un "
+            "comentario breve como texto, o continúa con los pasos."
+        ),
+
+        "category_menu": (
+            "*Paso 1/3: Tipo de problema*\n\n"
+            "¿Qué ves? Responde con un número:\n\n"
+            "{menu}"
+        ),
+        "category_chosen": (
+            "{cat_emoji} *{cat_label}* seleccionado.\n\n"
+            "*Paso 2/3: Foto 📸*\n\n"
+            "Envía una foto del problema (necesaria para el análisis automático)."
+        ),
+        "invalid_category": (
+            "❓ Por favor responde con un número (1–{max}).\n\n"
+            "O escribe */batal* para cancelar."
+        ),
+        "photo_received": (
+            "📸 Foto recibida.\n\n"
+            "*Paso 3/3: Ubicación 📍*\n\n"
+            "Comparte dónde es, de cualquiera de estas formas:\n"
+            "  📎 Adjuntar → Ubicación → Enviar ubicación actual\n"
+            "  🔗 Pega un enlace de Google Maps\n"
+            "  📝 O escribe las coordenadas como `lat, lon`"
+        ),
+        "photo_fetch_failed": (
+            "⚠️ No se pudo descargar la foto desde WhatsApp.\n\n"
+            "Por favor envía la foto una vez más."
+        ),
+        "ask_comment": (
+            "✅ Ubicación guardada.\n\n"
+            "*Opcional:* añade un comentario breve (por ejemplo, \"al lado de "
+            "la calle Pantai\"), o responde *OMITIR* para continuar."
+        ),
+        "location_invalid": (
+            "❓ No pude leer eso como una ubicación.\n\n"
+            "Por favor envíala de una de estas formas:\n"
+            "  📎 Adjuntar → Ubicación → Enviar ubicación actual\n"
+            "  🔗 Pega un enlace de Google Maps\n"
+            "  📝 O escribe las coordenadas como `lat, lon` "
+            "(por ejemplo, `-8.8290, 115.0850`)"
+        ),
+        "location_link_unresolved": (
+            "🔗 Eso parece un enlace de mapa acortado que no puedo abrir aquí.\n\n"
+            "Por favor envía el pin de ubicación (📎 Adjuntar → Ubicación), "
+            "o pega las coordenadas como `lat, lon`, o el enlace completo."
+        ),
+        "report_summary": (
+            "📋 *Resumen del reporte*\n\n"
+            "Tipo: {cat_emoji} {cat_label}\n"
+            "Foto: ✅ guardada\n"
+            "Ubicación: {lat:.5f}, {lon:.5f}\n"
+            "{comment_line}"
+            "\n"
+            "Responde *ENVIAR* para mandarlo al equipo de Fab Lab Bali.\n\n"
+            "O *CANCELAR* para descartarlo."
+        ),
+        "summary_comment_line": "Comentario: _{comment}_\n",
+        "report_submitted": (
+            "✅ *¡Reporte enviado, gracias!* 🙏\n\n"
+            "Tu reporte está pendiente de revisión por el equipo antes de "
+            "publicarse de forma anónima.\n\n"
+            "*¿Qué sigue?*\n"
+            "  *1.* 📝 Reportar otro problema\n"
+            "  *2.* ℹ️  Saber más → https://mdg-bali.github.io/makingsensebali/\n"
+            "  *3.* 💬 Dejar un comentario"
+        ),
+        "feedback_prompt": (
+            "💬 Nos encantaría conocer tu opinión.\n\n"
+            "Escribe tu mensaje y se compartirá de forma anónima con el equipo "
+            "de Fab Lab Bali (sin guardar tu número de teléfono)."
+        ),
+        "feedback_thanks": (
+            "🙏 ¡Gracias por tu opinión!\n\n"
+            "*¿Qué sigue?*\n"
+            "  *1.* 📝 Reportar otro problema\n"
+            "  *2.* ℹ️  Saber más → https://mdg-bali.github.io/makingsensebali/\n"
+            "  *3.* 💬 Dejar un comentario"
+        ),
+        "cancel_confirmed": (
+            "🗑️ Reporte cancelado.\n\n"
+            "Escribe */baru* para empezar un nuevo reporte."
+        ),
+        "no_active_to_cancel": (
+            "No hay ningún reporte activo que cancelar.\n\n"
+            "Escribe */baru* para empezar un reporte."
+        ),
+
+        "wrong_step_category": (
+            "⏳ Estamos en el *Paso 1/3* — elige el tipo de problema.\n\n"
+            "Responde con un número (1–{max}), o */batal* para cancelar."
+        ),
+        "wrong_step_photo": (
+            "⏳ Estamos en el *Paso 2/3* — envía una foto 📸."
+        ),
+        "wrong_step_location": (
+            "⏳ Estamos en el *Paso 3/3* — comparte tu ubicación 📍.\n\n"
+            "📎 Adjuntar → Ubicación → Enviar ubicación actual, pega un enlace "
+            "de Google Maps, o escribe las coordenadas como `lat, lon`."
+        ),
+        "wrong_step_confirm": (
+            "⏳ Casi listo — responde *ENVIAR* para mandarlo, o *CANCELAR* "
+            "para descartarlo."
+        ),
+
+        "report_approved": (
+            "✅ Tu reporte ha sido aprobado y publicado de forma anónima.\n\n"
+            "Gracias por contribuir a la comunidad de Bali. 🙏"
+        ),
+        "report_rejected": (
+            "ℹ️ Tu reporte fue revisado pero no se publicó en este momento.\n\n"
+            "Esto no afecta tu posibilidad de enviar otros reportes."
+        ),
+    },
+}
+
+
+# =====================================================================
+# Vision analysis follow-up & approval — templates (kept trilingual via t())
+# =====================================================================
+# These are sent by the M1 worker / admin flow. The worker formats them
+# using t() with the report's stored lang (falling back to "en"/"id").
+
+# Optional indicator/description lines for the analysis follow-up.
+ANALYSIS_INDICATORS_LINE = "\nTerdeteksi / detected: {indicators}"
+ANALYSIS_DESCRIPTION_LINE = "\n_{description}_"
+
+ANALYSIS_FOLLOWUP_TEMPLATE = (
+    "{cat_emoji} *Hasil analisis / Analysis*\n"
+    "Kategori / category: *{category}*\n"
+    "Tingkat / severity: {sev_emoji} {severity}"
+    "{indicators_line}"
+    "{description_line}"
 )
 
-# Numeric shortcuts for the post-submit menu
-POSTSUBMIT_NEW_KEYWORDS = {"1", "baru", "new", "lagi", "another"}
-POSTSUBMIT_INFO_KEYWORDS = {"2", "info"}
-POSTSUBMIT_STATS_KEYWORDS = {"3", "stats", "statistik"}
 
-# ---- info / campaign reply ----------------------------------------------
-INFO_REPLY = (
-    "🌴 *Smart Citizen Bali*\n"
-    "Sebuah inisiatif Fab Lab Bali untuk memantau lingkungan secara "
-    "kolaboratif di Bukit.\n"
-    "_A Fab Lab Bali initiative for collaborative environmental "
-    "monitoring in the Bukit._\n\n"
-    "Apa yang kami lakukan:\n"
-    "_What we do:_\n"
-    "  • Mengumpulkan laporan warga tentang polusi dan masalah lingkungan\n"
-    "    _Collect citizen reports on pollution and environmental issues_\n"
-    "  • Memetakan dan menganalisis pola dengan komunitas\n"
-    "    _Map and analyze patterns together with the community_\n"
-    "  • Mendukung tindakan lokal dengan data terbuka\n"
-    "    _Support local action with open data_\n\n"
-    "🔗 *Lihat peta & data:* https://mdg-bali.github.io/smartcitizenbali/\n"
-    "_See the map & data at the link above._\n\n"
-    "Untuk laporan baru: ketik */baru*.\n"
-    "_For a new report: type */new*._"
-)
+# =====================================================================
+# Lookup helper
+# =====================================================================
 
-# ---- cancel --------------------------------------------------------------
-CANCEL_CONFIRMED = (
-    "🗑️ Laporan dibatalkan.\n"
-    "_Report cancelled._\n\n"
-    "Ketik */baru* untuk mulai laporan baru, atau */info* untuk info kampanye.\n"
-    "_Type */new* to start a new report, or */info* for campaign info._"
-)
+DEFAULT_LANG = "en"
 
-# ---- wrong-step reminders (strict order) ---------------------------------
-# Sent when a user sends a message type that doesn't match the current
-# state — e.g. a photo when we're awaiting a category number.
 
-WRONG_STEP_AWAIT_CATEGORY = (
-    "⏳ Kita di *Langkah 1/4* — pilih jenis masalah.\n"
-    "_We're at *Step 1/4* — pick the issue type._\n\n"
-    "Balas dengan nomor (1–{max}), atau */batal* untuk membatalkan.\n"
-    "_Reply with a number (1–{max}), or */cancel* to abort._"
-)
+def t(key: str, lang: str = DEFAULT_LANG, **kwargs: object) -> str:
+    """Return MESSAGES[lang][key].format(**kwargs).
 
-WRONG_STEP_AWAIT_DETAIL = (
-    "⏳ Kita di *Langkah 2/4* — tulis satu kalimat detail, "
-    "atau balas *LANJUT* untuk melewati.\n"
-    "_We're at *Step 2/4* — type one line of detail, "
-    "or reply *NEXT* to skip._"
-)
-
-WRONG_STEP_AWAIT_LOCATION = (
-    "⏳ Kita di *Langkah 3/4* — bagikan lokasi 📍.\n"
-    "_We're at *Step 3/4* — share your location 📍._\n\n"
-    "📎 Lampiran → Lokasi → Kirim lokasi saat ini.\n"
-    "_📎 Attach → Location → Send current location._"
-)
-
-WRONG_STEP_AWAIT_PHOTO = (
-    "⏳ Kita di *Langkah 4/4* — kirim satu foto 📸.\n"
-    "_We're at *Step 4/4* — send one photo 📸._"
-)
-
-WRONG_STEP_AWAIT_CONFIRM = (
-    "⏳ Hampir selesai — balas *KIRIM* untuk mengirim, atau *BATAL* untuk membatalkan.\n"
-    "_Almost done — reply *SEND* to submit, or *CANCEL* to discard._"
-)
+    Falls back to English if the language or the key is missing in the
+    requested language. Unknown keys raise KeyError so typos surface in
+    tests rather than silently sending nothing.
+    """
+    lang = lang if lang in MESSAGES else DEFAULT_LANG
+    table = MESSAGES.get(lang, MESSAGES[DEFAULT_LANG])
+    template = table.get(key)
+    if template is None:
+        template = MESSAGES[DEFAULT_LANG].get(key)
+    if template is None:
+        raise KeyError(f"unknown message key: {key!r}")
+    if kwargs:
+        return template.format(**kwargs)
+    return template

@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Data view · Smart Citizen Bali · Fab Lab Bali</title>
+<title>Data view · Making Sense Bali · Fab Lab Bali</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Data view for the Smart Citizen Bali campaign — raw sensor readings, WHO and EPA reference standards, network coverage, and citizen reports broken down by category.">
+<meta name="description" content="Data view for the Making Sense Bali campaign — raw sensor readings, WHO and EPA reference standards, network coverage, and citizen reports broken down by category.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%235fa8a8'/%3E%3C/svg%3E">
 
 <!-- PERF-1: preconnect to third-party origins so DNS/TLS happens early. -->
@@ -326,7 +326,7 @@
 <main id="main">
 
 <header class="hero">
-  <div class="crumb"><a href="../">Smart Citizen Bali</a> · <span style="color:var(--teal)">data view</span> · led by <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a></div>
+  <div class="crumb"><a href="../">Making Sense Bali</a> · <span style="color:var(--teal)">data view</span> · led by <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a></div>
   <h1>Data <em>view.</em></h1>
   <p class="lede-hero">Raw sensor readings, citizen reports broken down, and the international standards we measure against. Click any pin on the map to see its current values.</p>
 </header>
@@ -532,7 +532,7 @@
       <h3>Network &amp; tech</h3>
       Smart Citizen Kit · open hardware (Fab Lab Barcelona / IAAC origin)<br>
       <a href="https://fab.city" target="_blank" rel="noopener">Fab City</a> Hub instance · <a href="https://murmurations.network" target="_blank" rel="noopener">Murmurations</a> federated discovery<br>
-      Source: <a href="https://github.com/mdg-bali/smartcitizenbali" target="_blank" rel="noopener">github.com/mdg-bali/smartcitizenbali</a><br>
+      Source: <a href="https://github.com/mdg-bali/makingsensebali" target="_blank" rel="noopener">github.com/mdg-bali/makingsensebali</a><br>
       Technical partner: Meaningful Design Group<br>
       <span style="opacity:.6">Low-cost sensors. ±10–15% from regulatory-grade. Trends and relative magnitudes reliable.</span>
     </div>
@@ -1204,9 +1204,9 @@ function renderPeakCorrelations(containerId, sensorObj, peaks, metric){
     });
   } else {
     // Peak with no nearby report → encourage the user to file one via
-    // the WhatsApp bot. Pre-fills a "Smart Citizen Bali — peak in {metric}"
+    // the WhatsApp bot. Pre-fills a "Making Sense Bali — peak in {metric}"
     // hint so Fab Lab Bali can route + verify it.
-    const wa = `https://wa.me/6285190890857?text=${encodeURIComponent('Smart Citizen Bali — I just saw a peak in ' + (P.metricLabel(metric) || 'air quality') + ' near me. I want to report:')}`;
+    const wa = `https://wa.me/6285190890857?text=${encodeURIComponent('Making Sense Bali — I just saw a peak in ' + (P.metricLabel(metric) || 'air quality') + ' near me. I want to report:')}`;
     el.innerHTML = `
       <div class="corr-prompt">
         ${D.escapeHtml(t('peak.report_prompt'))}

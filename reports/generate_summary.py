@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 generate_summary.py — produce a templated daily/weekly summary of
-approved Bukit reports.
+approved Making Sense Bali reports.
 
 Reads sanitized profile JSONs from a source directory and writes a
 summary.json next to the public index.json. Output shape:
