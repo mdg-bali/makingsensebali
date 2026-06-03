@@ -49,6 +49,8 @@ AWAIT_LANGUAGE = "await_language"
 AWAIT_CATEGORY = "await_category"
 AWAIT_PHOTO = "await_photo"
 AWAIT_LOCATION = "await_location"
+AWAIT_INCIDENT_TIME = "await_incident_time"
+AWAIT_INCIDENT_TIME_DETAIL = "await_incident_time_detail"
 AWAIT_COMMENT = "await_comment"
 AWAIT_CONFIRM = "await_confirm"
 AWAIT_FEEDBACK = "await_feedback"
@@ -63,6 +65,8 @@ FLOW_ORDER = [
     AWAIT_CATEGORY,
     AWAIT_PHOTO,
     AWAIT_LOCATION,
+    AWAIT_INCIDENT_TIME,
+    AWAIT_INCIDENT_TIME_DETAIL,
     AWAIT_COMMENT,
     AWAIT_CONFIRM,
 ]

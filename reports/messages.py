@@ -129,6 +129,19 @@ CONFIRM_SEND_KEYWORDS = {"kirim", "send", "ya", "yes", "ok", "submit", "enviar",
 # Words accepted as "cancel"
 CONFIRM_CANCEL_KEYWORDS = {"batal", "cancel", "tidak", "no", "stop", "cancelar"}
 
+# Yes / No for the optional "did this just happen now?" incident-time step.
+INCIDENT_TIME_YES_KEYWORDS = {
+    "yes", "y", "yeah", "yep", "now", "just now",
+    "ya", "iya", "sekarang", "barusan",
+    "sí", "si", "ahora",
+}
+INCIDENT_TIME_NO_KEYWORDS = {
+    "no", "n", "nope", "not now", "earlier",
+    "tidak", "nggak", "enggak", "tadi",
+    "antes",
+}
+INCIDENT_TIME_SKIP_KEYWORDS = COMMENT_SKIP_KEYWORDS
+
 # Post-submit menu shortcuts
 POSTSUBMIT_NEW_KEYWORDS = {"1", "baru", "new", "lagi", "another", "otro", "nuevo"}
 POSTSUBMIT_LEARN_KEYWORDS = {"2", "learn", "more", "info", "belajar", "aprender"}
@@ -251,7 +264,6 @@ MESSAGES = {
             "Please send the photo one more time."
         ),
         "ask_comment": (
-            "✅ Location saved.\n\n"
             "*Optional:* add a short comment (e.g. \"on the side of Pantai "
             "road\"), or reply *SKIP* to continue."
         ),
@@ -273,12 +285,23 @@ MESSAGES = {
             "Type: {cat_emoji} {cat_label}\n"
             "Photo: ✅ saved\n"
             "Location: {lat:.5f}, {lon:.5f}\n"
+            "{time_line}"
             "{comment_line}"
             "\n"
             "Reply *SEND* to submit to the Fab Lab Bali team.\n\n"
             "Or *CANCEL* to discard."
         ),
         "summary_comment_line": "Comment: _{comment}_\n",
+        "summary_time_line": "When: {when}\n",
+        "ask_incident_time": (
+            "✅ Location saved.\n\n"
+            "*Did this just happen now?* Reply *yes* or *no*."
+        ),
+        "ask_incident_time_detail": (
+            "🕒 Roughly when did it happen?\n\n"
+            "For example: _2pm today_, _yesterday evening_, _3 hours ago_.\n"
+            "Or reply *skip* if you're not sure."
+        ),
         "report_submitted": (
             "✅ *Report submitted, thank you!* 🙏\n\n"
             "Your report is pending team review before being published "
@@ -426,7 +449,6 @@ MESSAGES = {
             "Silakan kirim foto sekali lagi."
         ),
         "ask_comment": (
-            "✅ Lokasi tersimpan.\n\n"
             "*Opsional:* tambahkan komentar singkat (misal: \"di pinggir Jalan "
             "Pantai\"), atau balas *LEWATI* untuk melanjutkan."
         ),
@@ -449,12 +471,23 @@ MESSAGES = {
             "Jenis: {cat_emoji} {cat_label}\n"
             "Foto: ✅ tersimpan\n"
             "Lokasi: {lat:.5f}, {lon:.5f}\n"
+            "{time_line}"
             "{comment_line}"
             "\n"
             "Balas *KIRIM* untuk mengirim ke tim Fab Lab Bali.\n\n"
             "Atau *BATAL* untuk membatalkan."
         ),
         "summary_comment_line": "Komentar: _{comment}_\n",
+        "summary_time_line": "Waktu: {when}\n",
+        "ask_incident_time": (
+            "✅ Lokasi tersimpan.\n\n"
+            "*Apakah ini baru saja terjadi?* Balas *ya* atau *tidak*."
+        ),
+        "ask_incident_time_detail": (
+            "🕒 Kira-kira kapan kejadiannya?\n\n"
+            "Contoh: _jam 2 siang_, _kemarin malam_, _3 jam lalu_.\n"
+            "Atau balas *lewati* jika tidak yakin."
+        ),
         "report_submitted": (
             "✅ *Laporan terkirim, terima kasih!* 🙏\n\n"
             "Laporan Anda menunggu peninjauan tim sebelum dipublikasikan "
@@ -601,7 +634,6 @@ MESSAGES = {
             "Por favor envía la foto una vez más."
         ),
         "ask_comment": (
-            "✅ Ubicación guardada.\n\n"
             "*Opcional:* añade un comentario breve (por ejemplo, \"al lado de "
             "la calle Pantai\"), o responde *OMITIR* para continuar."
         ),
@@ -623,12 +655,23 @@ MESSAGES = {
             "Tipo: {cat_emoji} {cat_label}\n"
             "Foto: ✅ guardada\n"
             "Ubicación: {lat:.5f}, {lon:.5f}\n"
+            "{time_line}"
             "{comment_line}"
             "\n"
             "Responde *ENVIAR* para mandarlo al equipo de Fab Lab Bali.\n\n"
             "O *CANCELAR* para descartarlo."
         ),
         "summary_comment_line": "Comentario: _{comment}_\n",
+        "summary_time_line": "Cuándo: {when}\n",
+        "ask_incident_time": (
+            "✅ Ubicación guardada.\n\n"
+            "*¿Acaba de ocurrir ahora?* Responde *sí* o *no*."
+        ),
+        "ask_incident_time_detail": (
+            "🕒 ¿Aproximadamente cuándo ocurrió?\n\n"
+            "Por ejemplo: _2pm hoy_, _ayer por la tarde_, _hace 3 horas_.\n"
+            "O responde *omitir* si no estás seguro."
+        ),
         "report_submitted": (
             "✅ *¡Reporte enviado, gracias!* 🙏\n\n"
             "Tu reporte está pendiente de revisión por el equipo antes de "

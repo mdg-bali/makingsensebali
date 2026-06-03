@@ -22,7 +22,9 @@ import json
 import logging
 import os
 import re
-from datetime import datetime, timezone
+import urllib.request
+import urllib.parse
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -39,6 +41,8 @@ from sessions import (
     AWAIT_CATEGORY,
     AWAIT_PHOTO,
     AWAIT_LOCATION,
+    AWAIT_INCIDENT_TIME,
+    AWAIT_INCIDENT_TIME_DETAIL,
     AWAIT_COMMENT,
     AWAIT_CONFIRM,
     AWAIT_FEEDBACK,
@@ -56,6 +60,9 @@ from messages import (
     COMMENT_SKIP_KEYWORDS,
     CONFIRM_SEND_KEYWORDS,
     CONFIRM_CANCEL_KEYWORDS,
+    INCIDENT_TIME_YES_KEYWORDS,
+    INCIDENT_TIME_NO_KEYWORDS,
+    INCIDENT_TIME_SKIP_KEYWORDS,
     POSTSUBMIT_NEW_KEYWORDS,
     POSTSUBMIT_LEARN_KEYWORDS,
     POSTSUBMIT_FEEDBACK_KEYWORDS,
@@ -462,6 +469,125 @@ def _is_shortlink(text: str) -> bool:
     return bool(_SHORTLINK_RE.search(text or ""))
 
 
+_BROWSER_UA = (
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) "
+    "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile Safari/604.1"
+)
+
+
+def resolve_shortlink(text: str, timeout: float = 8.0):
+    """Follow a maps.app.goo.gl / goo.gl/maps redirect and return (lat, lon).
+
+    The NAS can reach these hosts. Google may answer a non-browser request
+    with a consent interstitial that carries no coordinates — in that case
+    this returns None and the caller falls back to asking for the pin.
+    Never raises.
+    """
+    m = _SHORTLINK_RE.search(text or "")
+    if not m:
+        return None
+    url = m.group(0)
+    try:
+        req = urllib.request.Request(
+            url, headers={"User-Agent": _BROWSER_UA, "Accept-Language": "en"}
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            final = r.geturl() or ""
+            body = r.read(80000).decode("utf-8", "ignore")
+    except Exception as e:  # noqa: BLE001 — network/parse; never break the flow
+        log.warning("shortlink resolve failed (%s): %s", url[:60], e)
+        return None
+    # Expanded Maps URLs encode coords as /@LAT,LNG, ?q=LAT,LNG, or
+    # /search/LAT,+LNG (the '+' is a URL-encoded space). Decode + normalise
+    # so the shared coordinate matchers see a plain "LAT, LNG".
+    final_norm = urllib.parse.unquote(final).replace("+", " ")
+    ll = parse_location_text(final_norm)
+    if ll:
+        return ll
+    # Fall back to URL-shaped markers in the page body (not bare pairs, which
+    # would match noise in the HTML).
+    body_norm = urllib.parse.unquote(body)
+    for rx in (_QLL_RE, _AT_RE):
+        mm = rx.search(body_norm)
+        if mm:
+            try:
+                lat, lon = float(mm.group(1)), float(mm.group(2))
+            except (TypeError, ValueError):
+                continue
+            if _valid_latlon(lat, lon):
+                return (lat, lon)
+    return None
+
+
+# --- Incident-time parsing -------------------------------------------------
+# Incident times are interpreted in Bali local time (WITA, UTC+8) and stored
+# with that offset, so they line up with sensor timestamps for correlation.
+_WITA = timezone(timedelta(hours=8))
+_PART_OF_DAY = {
+    "morning": 8, "pagi": 8, "mañana": 8, "manana": 8,
+    "midday": 12, "noon": 12, "mediodia": 12,
+    "afternoon": 15, "siang": 13, "sore": 16, "tarde": 16,
+    "evening": 19, "malam": 20, "night": 21, "tonight": 21, "noche": 21,
+}
+
+
+def parse_incident_time(text: str, now: Optional[datetime] = None) -> Optional[str]:
+    """Best-effort parse of free text into an ISO timestamp (WITA).
+
+    Handles 'N hours/minutes ago' (en/id/es), an optional 'yesterday' shift,
+    an explicit clock time (2pm, 2:30 pm, 14:30), and rough parts of day
+    (morning/sore/noche...). Returns None when nothing is recognised — the
+    caller always keeps the raw text too, so a miss never loses information.
+    """
+    if not text:
+        return None
+    now = now or datetime.now(_WITA)
+    s = text.strip().lower()
+
+    if any(w in s for w in ("ago", "lalu", "hace")):
+        mh = re.search(r"(\d+)\s*(hours?|hrs?|jam|horas?)", s)
+        if mh:
+            return (now - timedelta(hours=int(mh.group(1)))).isoformat()
+        mm = re.search(r"(\d+)\s*(minutes?|mins?|menit|minutos?)", s)
+        if mm:
+            return (now - timedelta(minutes=int(mm.group(1)))).isoformat()
+
+    day = now - timedelta(days=1) if any(
+        w in s for w in ("yesterday", "kemarin", "ayer")
+    ) else now
+
+    hour = minute = None
+    ap = None
+    m1 = re.search(r"\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b", s)
+    if m1:
+        hour, minute, ap = int(m1.group(1)), int(m1.group(2) or 0), m1.group(3)
+    else:
+        m2 = re.search(r"\b(\d{1,2}):(\d{2})\b", s)
+        if m2:
+            hour, minute = int(m2.group(1)), int(m2.group(2))
+    if hour is not None:
+        if ap == "pm" and hour < 12:
+            hour += 12
+        elif ap == "am" and hour == 12:
+            hour = 0
+        elif ap is None and hour < 12 and any(
+            w in s for w in ("siang", "sore", "malam", "tarde", "noche")
+        ):
+            hour += 12
+        if 0 <= hour <= 23 and 0 <= minute <= 59:
+            return day.replace(
+                hour=hour, minute=minute, second=0, microsecond=0
+            ).isoformat()
+
+    for w, h in _PART_OF_DAY.items():
+        if w in s:
+            return day.replace(hour=h, minute=0, second=0, microsecond=0).isoformat()
+
+    if day != now:
+        return day.replace(hour=12, minute=0, second=0, microsecond=0).isoformat()
+    return None
+
+
 def parse_evolution_webhook(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
     Normalize an Evolution API message payload into our internal shape.
@@ -727,9 +853,12 @@ class AQBot:
         elif msg.get("type") == "text":
             text = msg.get("text") or ""
             latlon = parse_location_text(text)
+            if latlon is None and _is_shortlink(text):
+                # Resolve the shortened Google Maps link server-side.
+                latlon = resolve_shortlink(text)
             if latlon is None:
-                # A shortened map link carries no coordinates we can read
-                # offline — ask for the pin / expanded link instead.
+                # Couldn't read it — a shortlink that didn't resolve gets a
+                # more specific nudge; otherwise the generic location help.
                 if _is_shortlink(text):
                     return t("location_link_unresolved", lang)
                 return t("location_invalid", lang)
@@ -738,6 +867,44 @@ class AQBot:
 
         lat, lon = latlon
         session.draft["location"] = {"lat": float(lat), "lon": float(lon)}
+        session.state = AWAIT_INCIDENT_TIME
+        self.sessions.update(session)
+        return t("ask_incident_time", lang)
+
+    def _state_await_incident_time(self, msg: Dict[str, Any], session) -> str:
+        """Y/N: did this just happen now? Yes → use submission time;
+        No → ask for an approximate time."""
+        lang = session.lang or DEFAULT_LANG
+        if msg.get("type") != "text":
+            return t("ask_incident_time", lang)
+        ans = (msg.get("text") or "").strip().lower()
+        if ans in INCIDENT_TIME_YES_KEYWORDS:
+            session.draft["incident_time_basis"] = "now"
+            session.state = AWAIT_COMMENT
+            self.sessions.update(session)
+            return t("ask_comment", lang)
+        if ans in INCIDENT_TIME_NO_KEYWORDS:
+            session.state = AWAIT_INCIDENT_TIME_DETAIL
+            self.sessions.update(session)
+            return t("ask_incident_time_detail", lang)
+        # Unrecognised — re-ask the simple yes/no.
+        return t("ask_incident_time", lang)
+
+    def _state_await_incident_time_detail(self, msg: Dict[str, Any], session) -> str:
+        """Free-text approximate time, or a skip keyword. Always keeps the raw
+        text; stores a best-effort parsed timestamp alongside it."""
+        lang = session.lang or DEFAULT_LANG
+        if msg.get("type") != "text":
+            return t("ask_incident_time_detail", lang)
+        text = (msg.get("text") or "").strip()
+        if text and text.lower() not in INCIDENT_TIME_SKIP_KEYWORDS:
+            session.draft["incident_time_text"] = text
+            parsed = parse_incident_time(text)
+            if parsed:
+                session.draft["incident_time"] = parsed
+            session.draft["incident_time_basis"] = "user"
+        else:
+            session.draft["incident_time_basis"] = "unknown"
         session.state = AWAIT_COMMENT
         self.sessions.update(session)
         return t("ask_comment", lang)
@@ -852,12 +1019,17 @@ class AQBot:
         loc = d.get("location") or {}
         lat = float(loc.get("lat") or 0.0)
         lon = float(loc.get("lon") or 0.0)
+        time_text = d.get("incident_time_text", "")
+        time_line = (
+            t("summary_time_line", lang, when=time_text) if time_text else ""
+        )
         return t(
             "report_summary",
             lang,
             cat_emoji=emoji,
             cat_label=category_label(cat_key, lang),
             comment_line=comment_line,
+            time_line=time_line,
             lat=lat,
             lon=lon,
         )
@@ -889,6 +1061,10 @@ class AQBot:
             "image_path": d.get("image_path"),
             "media_key": d.get("media_key"),
             "mimetype": d.get("mimetype"),
+            "incident_time": d.get("incident_time")
+            or datetime.now(timezone.utc).isoformat(),
+            "incident_time_text": d.get("incident_time_text"),
+            "incident_time_basis": d.get("incident_time_basis", "now"),
             "ai_analysis": None,
             "status": "complete",
         }
@@ -991,6 +1167,8 @@ class AQBot:
             AWAIT_CATEGORY: self._state_await_category,
             AWAIT_PHOTO: self._state_await_photo,
             AWAIT_LOCATION: self._state_await_location,
+            AWAIT_INCIDENT_TIME: self._state_await_incident_time,
+            AWAIT_INCIDENT_TIME_DETAIL: self._state_await_incident_time_detail,
             AWAIT_COMMENT: self._state_await_comment,
             AWAIT_CONFIRM: self._state_await_confirm,
             AWAIT_FEEDBACK: self._state_await_feedback,
