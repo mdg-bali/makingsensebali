@@ -692,11 +692,122 @@
 
   /* ===== status bar additions ===== */
   .statusbar .status-left > span.peak-counter{}
+
+  /* ============================================================
+     STICKY TOPBAR — wraps the section-nav (primary) + statusbar
+     (utility) so they scroll and stick together as one unit. Sticky
+     lives on the wrapper, so the statusbar's own position:sticky is
+     neutralised (sticky-in-sticky resolves at the wrapper's top edge).
+     ============================================================ */
+  .topbar{position:sticky;top:0;z-index:1100}
+  .topbar .statusbar{position:static;top:auto;z-index:auto}
+
+  /* Primary section navigation — anchor links to the five sections + About.
+     Matches the cream/ink/green palette and the mono label treatment used
+     across the status bar and section labels. */
+  .sectionnav{
+    background:rgba(248,243,230,.96);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+    padding:0 4vw;
+    display:flex;align-items:center;gap:6px;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .sectionnav::-webkit-scrollbar{display:none}
+  .sectionnav-brand{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--accent-warm);
+    padding:13px 18px 13px 0;margin-right:6px;white-space:nowrap;flex-shrink:0;
+    border-right:1px solid var(--line);
+  }
+  .sectionnav-links{display:flex;align-items:center;gap:2px;flex:1}
+  .sectionnav a{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;
+    letter-spacing:.13em;text-transform:uppercase;color:var(--muted-text);
+    padding:14px 14px;white-space:nowrap;
+    border-bottom:2px solid transparent;transition:color .15s, border-color .15s;
+  }
+  .sectionnav a:hover{color:var(--accent-text)}
+  .sectionnav a:focus-visible{outline:2px solid var(--accent-text);outline-offset:-2px;border-radius:2px}
+  .sectionnav a.is-about{margin-left:auto;color:var(--ink)}
+  .sectionnav a.active{color:var(--ink);border-bottom-color:var(--accent)}
+  @media(max-width:760px){
+    .sectionnav-brand{display:none}
+    .sectionnav a{padding:12px 11px;font-size:10px;letter-spacing:.1em}
+    .sectionnav a.is-about{margin-left:0}
+  }
+
+  /* Anchor targets clear the combined sticky bar height so headings aren't
+     hidden under it. The bar wraps taller on narrow screens, so be generous. */
+  #survey, #report, #sensors, #dashboard, #about, #map{scroll-margin-top:120px}
+  @media(max-width:900px){
+    #survey, #report, #sensors, #dashboard, #about, #map{scroll-margin-top:150px}
+  }
+
+  /* About — condensed collapsibles. Tight summaries by default; full blocks
+     on demand. Reuses existing component styles inside each <details>. */
+  .about-intro{font-family:'Newsreader',serif;font-size:clamp(17px,2vw,21px);line-height:1.55;color:var(--ink);opacity:.9;max-width:760px;margin-bottom:8px}
+  .about-collapse{
+    border:1px solid var(--line);border-radius:6px;background:var(--bg2);
+    margin-top:14px;overflow:hidden;
+  }
+  .about-collapse > summary{
+    list-style:none;cursor:pointer;
+    padding:18px 22px;
+    display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--accent-warm);font-weight:600;
+  }
+  .about-collapse > summary::-webkit-details-marker{display:none}
+  .about-collapse > summary::after{
+    content:'+';margin-left:auto;font-size:18px;color:var(--muted-text);
+    line-height:1;transition:transform .15s;
+  }
+  .about-collapse[open] > summary::after{content:'–'}
+  .about-collapse > summary:hover{color:var(--accent-text)}
+  .about-collapse > summary:focus-visible{outline:2px solid var(--accent-text);outline-offset:-2px}
+  .about-collapse > summary .about-collapse-title{
+    font-family:'Newsreader',serif;font-size:20px;font-weight:500;letter-spacing:-.01em;
+    text-transform:none;color:var(--ink);
+  }
+  .about-collapse > summary .about-collapse-hint{
+    font-family:'Inter',sans-serif;font-size:12.5px;letter-spacing:0;text-transform:none;
+    color:var(--muted-text);font-weight:400;
+  }
+  .about-collapse-body{padding:4px 22px 24px}
+  .about-collapse-body > .genealogy,
+  .about-collapse-body > .phases,
+  .about-collapse-body > .lsa-grid,
+  .about-collapse-body > .teachers-grid{margin-top:8px}
+  .about-section-label{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted-text);
+    letter-spacing:.2em;text-transform:uppercase;margin:28px 0 10px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .about-section-label::before{content:'';width:24px;height:1px;background:var(--accent)}
 </style>
 </head>
 <body>
 
 <a href="#main" class="skip-link">Skip to main content</a>
+
+<!-- ===== STICKY TOPBAR: section nav (primary) + status bar (utility) =====
+     Both live in one sticky wrapper so they stick together as a single bar.
+     The section nav sits at the very top; the hero is the first thing below. -->
+<div class="topbar">
+
+<!-- ===== SECTION NAV ===== -->
+<nav class="sectionnav" aria-label="Section navigation">
+  <span class="sectionnav-brand">Making Sense Bali</span>
+  <div class="sectionnav-links">
+    <a href="#survey">Survey</a>
+    <a href="#report">Report</a>
+    <a href="#sensors">Sensors</a>
+    <a href="#map">Map</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#about" class="is-about">About</a>
+  </div>
+</nav>
 
 <!-- ===== STATUS BAR ===== -->
 <nav class="statusbar" aria-label="Site status and primary navigation">
@@ -712,6 +823,8 @@
     <a href="#cta" class="btn primary" data-i18n="action.take_part">+ Take part</a>
   </div>
 </nav>
+
+</div><!-- /.topbar -->
 
 <main id="main">
 
@@ -744,57 +857,50 @@
   </div>
 </header>
 
-<!-- ===== FOUR CTAs ===== -->
-<section id="cta" style="padding-bottom:36px">
-  <div class="section-label" data-i18n="home.cta.title">Four ways to take part</div>
-  <div class="cta-grid">
-    <a class="cta-card cta-report" id="cta-report-link" href="#" target="_blank" rel="noopener">
-      <div class="cta-card-num">01 · Now</div>
-      <div class="cta-card-title" data-i18n="home.cta.report.title">Report what you're seeing</div>
-      <div class="cta-card-desc" data-i18n="home.cta.report.desc">Smell smoke? See burning waste? Notice a smell that wasn't there yesterday? Send one WhatsApp message to our bot, our local team verifies, and it joins the public map.</div>
-      <div class="cta-card-action" data-i18n="home.cta.report.action">Open WhatsApp →</div>
-    </a>
+<!-- ============================================================
+     SURVEY (Phase 1) — tell us what matters
+     The four CTA cards that lived in one #cta grid are now split across the
+     sections they belong to: survey→here, report→#report, workshop→#sensors,
+     share→#about. The #cta anchor target is preserved as a bare anchor below
+     so the hero / status-bar / methodology links that point at #cta still land
+     on the primary "take part" action (the survey).
+     ============================================================ -->
+<a id="cta" aria-hidden="true"></a>
+<section id="survey">
+  <div class="section-label">Survey · Phase 1</div>
+  <h2>Tell us <em>what matters.</em></h2>
+  <div class="body-prose" style="margin-bottom:8px">
+    <p>The campaign begins with what residents say matters. Eight questions, five minutes — your answers shape where sensors go next.</p>
+  </div>
+  <div class="cta-grid" style="grid-template-columns:1fr;max-width:560px">
     <a class="cta-card cta-survey" id="cta-survey-link" href="#survey">
       <div class="cta-card-num">02 · 5 min</div>
       <div class="cta-card-title" data-i18n="home.cta.survey.title">Tell us what matters</div>
       <div class="cta-card-desc" data-i18n="home.cta.survey.desc">The Phase 1 survey asks residents what environmental issues affect daily life. Eight questions, 5 minutes, shapes where we put sensors next.</div>
       <div class="cta-card-action" data-i18n="home.cta.survey.action">Open the survey →</div>
     </a>
-    <a class="cta-card cta-workshop" id="cta-workshop-link" href="https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form" target="_blank" rel="noopener">
-      <div class="cta-card-num">03 · Hands-on</div>
-      <div class="cta-card-title" data-i18n="home.cta.workshop.title">Get involved with sensors</div>
-      <div class="cta-card-desc" data-i18n="home.cta.workshop.desc">We run sensor-building workshops at Fab Lab Bali — assemble a low-cost air quality node in an afternoon, deploy it on your roof or in your classroom. Sign up to hear about the next workshop.</div>
-      <div class="cta-card-action" data-i18n="home.cta.workshop.action">Workshop signup →</div>
-    </a>
-    <a class="cta-card cta-share" href="#share">
-      <div class="cta-card-num">04 · 30 sec</div>
-      <div class="cta-card-title" data-i18n="home.cta.share.title">Share what's happening</div>
-      <div class="cta-card-desc" data-i18n="home.cta.share.desc">Generate a shareable card about today's air in your neighbourhood and post it where the conversation already lives — WhatsApp, Instagram, Telegram. Each share helps more people see the data.</div>
-      <div class="cta-card-action" data-i18n="home.cta.share.action">Create a card →</div>
-    </a>
   </div>
 </section>
 
-<!-- ===== DAILY STORY ===== -->
-<section id="daily-story-section" style="padding-top:0">
-  <div class="section-label" data-i18n="home.story.section">Today's story · sensors meet residents</div>
-  <div id="daily-story" class="story-panel">
-    <div class="story-headline" data-i18n="home.story.fallback_title">When the data and the residents tell the same story</div>
-    <div class="story-body" data-i18n="home.story.fallback_body">Each day we pick the most-striking correlation between sensor peaks and citizen reports. When a PM spike has a matching report — burning waste, construction, traffic — the campaign treats it as a confirmed signal. Check back tomorrow.</div>
-    <div class="story-actions">
-      <a class="story-action primary" href="./dashboard/" data-i18n="home.story.read_data">See the data →</a>
-      <a class="story-action" id="story-report-link" href="#" target="_blank" rel="noopener" data-i18n="home.story.report_yours">Report what you're seeing →</a>
-    </div>
-  </div>
-</section>
-
-<!-- ===== AUDIENCE: FAMILIES ===== -->
-<section style="padding-bottom:18px">
+<!-- ============================================================
+     REPORT — WhatsApp report CTA + nearby reports feed + neighbourhood
+     read-out. (Was the "For families and residents" audience block.)
+     ============================================================ -->
+<section id="report" style="padding-bottom:18px">
   <div class="audience-header">
     <span class="audience-pill aud-families" data-i18n="home.audience.families.label">For families and residents</span>
     <h2 data-i18n="home.audience.families.title">Today in your neighbourhood</h2>
   </div>
   <p class="audience-sub" data-i18n="home.audience.families.subtitle">What's happening in the air where your kids play, sleep, study.</p>
+
+  <div class="cta-grid" style="grid-template-columns:1fr;max-width:560px;margin-bottom:24px">
+    <a class="cta-card cta-report" id="cta-report-link" href="#" target="_blank" rel="noopener">
+      <div class="cta-card-num">01 · Now</div>
+      <div class="cta-card-title" data-i18n="home.cta.report.title">Report what you're seeing</div>
+      <div class="cta-card-desc" data-i18n="home.cta.report.desc">Smell smoke? See burning waste? Notice a smell that wasn't there yesterday? Send one WhatsApp message to our bot, our local team verifies, and it joins the public map.</div>
+      <div class="cta-card-action" data-i18n="home.cta.report.action">Open WhatsApp →</div>
+    </a>
+  </div>
 
   <!-- Neighbourhood read-out: synthesised from citizen reports (categories +
        AI tags + severity) and nearby sensor PM2.5. Populated from data/areas.json
@@ -808,51 +914,16 @@
         <div class="nearby-empty" data-i18n="feed.empty">No citizen reports yet.</div>
       </div>
     </div>
-    <div class="families-panel">
-      <h3 data-i18n="home.families.guidance">Plain-language guidance</h3>
-      <ul class="families-list">
-        <li data-i18n="home.families.guidance_windows">Keep windows closed when PM2.5 is above 35 µg/m³.</li>
-        <li data-i18n="home.families.guidance_masks">Use a N95 / KF94 mask for kids and elderly when readings are unhealthy.</li>
-        <li data-i18n="home.families.guidance_humidity">Indoor humidity above 60% sustained → mold risk. Run a dehumidifier or open windows on dry days.</li>
-      </ul>
-      <div id="mold-indicator" class="mold-indicator">
-        <strong data-i18n="home.families.mold_label">Mold-risk indicator</strong><br>
-        <span id="mold-indicator-text" data-i18n="home.families.mold_ok">Humidity within safe range across the network.</span>
-      </div>
-    </div>
   </div>
 </section>
 
-<!-- ===== MAP ===== -->
-<!-- Map sits inside the Families audience section conceptually — keeps the
-     "what's around me" affordance close to the severity hero and the nearby
-     reports feed. The today-card overlay was removed: the severity hero
-     above renders the same network/locality status more clearly. -->
-<section class="map-section">
-  <div class="map-container">
-    <div id="map"></div>
-  </div>
-  <div class="map-overlay top-right-overlay">
-    <div class="map-overlay-card legend">
-      <div class="legend-title">Map key</div>
-      <div class="legend-row"><div class="legend-swatch" style="background:var(--good);box-shadow:0 0 0 2px var(--good)"></div>Air OK</div>
-      <div class="legend-row"><div class="legend-swatch" style="background:var(--warn);box-shadow:0 0 0 2px var(--warn)"></div>Attention</div>
-      <div class="legend-row"><div class="legend-swatch" style="background:var(--bad);box-shadow:0 0 0 2px var(--bad)"></div>Concern</div>
-      <div class="legend-row"><div class="legend-swatch" style="background:linear-gradient(90deg,#d8b86a,#e08a2e,#d96a4f,#c4392b);box-shadow:none"></div>Reports density</div>
-      <div class="legend-row"><div class="legend-swatch" style="background:transparent;border:2px dashed var(--muted);box-shadow:none"></div>Offline</div>
-      <div class="legend-foot">Tap a sensor pin for details.</div>
-      <div id="sourceDiag" class="legend-diag"></div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== FAMILIES · reading translated =====
-     Was "What these numbers mean" (standalone). Demoted to a Families
-     sub-block — the four interpretation cards are exactly the plain-
-     language guidance moms need. "Today in four numbers" was deleted:
-     the severity hero above already shows the median/worst reading. -->
-<section>
-  <div class="section-label">Reading the air, <em>translated</em></div>
+<!-- ============================================================
+     SENSORS — "Reading the air, translated" educational bands +
+     plain-language guidance + the sensor-building workshop CTA + a short
+     note on the open data sources / network.
+     ============================================================ -->
+<section id="sensors">
+  <div class="section-label">Sensors · reading the air, <em>translated</em></div>
   <p style="font-family:'Newsreader',serif;font-size:16px;line-height:1.5;color:var(--ink);max-width:680px;margin-bottom:18px">Numbers from sensors are abstract. The bands below ground them in everyday experience and known health thresholds — air, mosquito risk, noise, heat.</p>
   <div class="panel-grid">
 
@@ -915,47 +986,83 @@
     </div>
 
   </div>
-</section>
 
-<!-- ===== AUDIENCE: TEACHERS ===== -->
-<section style="padding-bottom:18px">
-  <div class="audience-header">
-    <span class="audience-pill aud-teachers" data-i18n="home.audience.teachers.label">For teachers and schools</span>
-    <h2 data-i18n="home.audience.teachers.title">Bring the data into your classroom</h2>
-  </div>
-  <p class="audience-sub" data-i18n="home.audience.teachers.subtitle">Real local data to teach the science of where students live.</p>
-
-  <div class="teachers-grid">
+  <!-- Plain-language guidance (was inside the Families block). Lives with the
+       sensor explainers because it tells residents what to do about the
+       readings above. -->
+  <div class="families-grid" style="grid-template-columns:1fr;max-width:720px;margin-top:24px">
     <div class="families-panel">
-      <h3 data-i18n="home.teachers.lesson_title">A lesson plan using local Bali air quality data</h3>
-      <p style="font-family:'Newsreader',serif;font-size:15px;line-height:1.55;color:var(--ink);margin:8px 0 14px" data-i18n="home.teachers.lesson_pitch">A 45-minute lesson where students compare your school's last-24h PM2.5 reading to the WHO daily guideline — then to a reference school in Barcelona via Smart Citizen's global network.</p>
-      <a class="btn-primary" href="./data/lesson_plan_v1.pdf" target="_blank" rel="noopener" data-i18n="home.teachers.lesson_download">Download the lesson plan (PDF) →</a>
-    </div>
-    <div class="families-panel">
-      <h3 data-i18n="home.teachers.workshop_title">Making Sense Bali for schools</h3>
-      <p style="font-family:'Newsreader',serif;font-size:15px;line-height:1.55;color:var(--ink);margin:8px 0 14px" data-i18n="home.teachers.workshop_pitch">A half-day workshop at Fab Lab Bali for one or two teachers per school. Build the sensor, install it on a classroom wall, integrate the live readings into a science unit.</p>
-      <a class="btn-primary" href="https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form" target="_blank" rel="noopener" data-i18n="home.cta.workshop.action">Workshop signup →</a>
-    </div>
-    <div class="families-panel" style="grid-column:1/-1">
-      <h3 data-i18n="home.teachers.example_title">A concrete example</h3>
-      <p style="font-family:'Newsreader',serif;font-size:15px;line-height:1.55;color:var(--ink);margin:8px 0 0" data-i18n="home.teachers.example_body">Your students measure PM2.5 in the schoolyard over a week. They calculate the average. They compare it to WHO's 5 µg/m³ annual guideline. Then they pull last week's average from a school in Barcelona via Smart Citizen's public API, and they discuss the difference. Citizenship through data.</p>
+      <h3 data-i18n="home.families.guidance">Plain-language guidance</h3>
+      <ul class="families-list">
+        <li data-i18n="home.families.guidance_windows">Keep windows closed when PM2.5 is above 35 µg/m³.</li>
+        <li data-i18n="home.families.guidance_masks">Use a N95 / KF94 mask for kids and elderly when readings are unhealthy.</li>
+        <li data-i18n="home.families.guidance_humidity">Indoor humidity above 60% sustained → mold risk. Run a dehumidifier or open windows on dry days.</li>
+      </ul>
+      <div id="mold-indicator" class="mold-indicator">
+        <strong data-i18n="home.families.mold_label">Mold-risk indicator</strong><br>
+        <span id="mold-indicator-text" data-i18n="home.families.mold_ok">Humidity within safe range across the network.</span>
+      </div>
     </div>
   </div>
+
+  <!-- Get involved with the sensor network (was CTA 03). -->
+  <div class="cta-grid" style="grid-template-columns:1fr;max-width:560px;margin-top:24px">
+    <a class="cta-card cta-workshop" id="cta-workshop-link" href="https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form" target="_blank" rel="noopener">
+      <div class="cta-card-num">03 · Hands-on</div>
+      <div class="cta-card-title" data-i18n="home.cta.workshop.title">Get involved with sensors</div>
+      <div class="cta-card-desc" data-i18n="home.cta.workshop.desc">We run sensor-building workshops at Fab Lab Bali — assemble a low-cost air quality node in an afternoon, deploy it on your roof or in your classroom. Sign up to hear about the next workshop.</div>
+      <div class="cta-card-action" data-i18n="home.cta.workshop.action">Workshop signup →</div>
+    </a>
+  </div>
+
+  <!-- Open data sources / network (plain summary; the authoritative list lives
+       in the footer). -->
+  <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted-text);line-height:1.7;margin-top:24px;max-width:720px">
+    Open hardware: Smart Citizen Kit (Fab Lab Barcelona / IAAC origin). Readings aggregated across open networks — Smart Citizen, OpenAQ (AirGradient, AQICN, KLHK) — alongside verified resident reports. Low-cost sensors: trends and relative magnitudes are reliable; absolute values are ±10–15% from regulatory-grade. Full source list in the footer.
+  </p>
 </section>
 
-<!-- "How it works · Listen/Show/Act" moved below Officials block so the
-     methodology genealogy + phases land inside Officials (where the audit
-     and HOME_REVISION brief said they belong for the policymaker audience). -->
+<!-- ============================================================
+     MAP — the live map block. (Relocated below Sensors so DOM order
+     matches the nav: Survey · Report · Sensors · Map · Dashboard.)
+     The "Map" nav link scrolls to #map (the Leaflet container below).
+     ============================================================ -->
+<section class="map-section">
+  <div class="map-container">
+    <div id="map"></div>
+  </div>
+  <div class="map-overlay top-right-overlay">
+    <div class="map-overlay-card legend">
+      <div class="legend-title">Map key</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:var(--good);box-shadow:0 0 0 2px var(--good)"></div>Air OK</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:var(--warn);box-shadow:0 0 0 2px var(--warn)"></div>Attention</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:var(--bad);box-shadow:0 0 0 2px var(--bad)"></div>Concern</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:linear-gradient(90deg,#d8b86a,#e08a2e,#d96a4f,#c4392b);box-shadow:none"></div>Reports density</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:transparent;border:2px dashed var(--muted);box-shadow:none"></div>Offline</div>
+      <div class="legend-foot">Tap a sensor pin for details.</div>
+      <div id="sourceDiag" class="legend-diag"></div>
+    </div>
+  </div>
+</section>
 
-<!-- ===== AUDIENCE: OFFICIALS ===== -->
-<section style="padding-bottom:18px">
-  <div class="audience-header">
+<!-- ============================================================
+     DASHBOARD — "Need more detail" + link to the data dashboard +
+     policymaker aggregate downloads. (Was the "For policymakers and
+     analysts" audience block + the standalone data-view block.)
+     ============================================================ -->
+<section id="dashboard" style="text-align:center;background:var(--bg2)">
+  <div class="section-label" style="justify-content:center">For the data nerds</div>
+  <h2>Need <em>more detail?</em></h2>
+  <div class="body-prose" style="margin:0 auto 24px"><p>The data view shows raw sensor readings, WHO and EPA standards, network coverage, and reports broken down by category.</p></div>
+  <a href="./dashboard/" class="btn-primary">→ Open data view</a>
+
+  <div class="audience-header" style="justify-content:center;margin-top:48px">
     <span class="audience-pill aud-officials" data-i18n="home.audience.officials.label">For policymakers and analysts</span>
     <h2 data-i18n="home.audience.officials.title">Evidence you can act on</h2>
   </div>
-  <p class="audience-sub" data-i18n="home.audience.officials.subtitle">Aggregate data, citation guidance, and direct contact with the campaign team.</p>
+  <p class="audience-sub" style="margin-left:auto;margin-right:auto" data-i18n="home.audience.officials.subtitle">Aggregate data, citation guidance, and direct contact with the campaign team.</p>
 
-  <div class="teachers-grid">
+  <div class="teachers-grid" style="text-align:left">
     <div class="families-panel">
       <h3 data-i18n="home.officials.downloads_title">Aggregate downloads</h3>
       <p style="margin:8px 0 14px">
@@ -975,14 +1082,83 @@
   </div>
 </section>
 
-<!-- ===== METHODOLOGY GENEALOGY ===== -->
-<section>
-  <div class="section-label" data-i18n="home.officials.lineage_label">Who leads · where the methodology comes from</div>
-  <h2>Local lead, <em>credited methodology.</em></h2>
-  <div class="body-prose">
-    <p><strong>Fab Lab Bali</strong> leads the campaign — local, accountable, run by people who live here. The methodology comes from the EU <a href="https://making-sense.eu" target="_blank">Making Sense</a> project (2015–2017, Fab Lab Barcelona / IAAC). Bali is its own place; the community here is the co-author of what this becomes.</p>
-  </div>
-  <div class="genealogy">
+<!-- ============================================================
+     ABOUT — condensed. The secondary content (teachers, methodology +
+     lineage, the 7 phases, Listen/Show/Act, today's story, the pull quote
+     and the shareable-card studio) lives here as tight summaries and
+     <details> collapsibles. All JS / i18n hooks preserved verbatim inside.
+     ============================================================ -->
+<section id="about">
+  <div class="section-label">About</div>
+  <h2>About this <em>campaign.</em></h2>
+  <p class="about-intro">Making Sense Bali is led by <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a> — open environmental sensors and verified citizen reports on one public map. We listen to what residents say matters, show it plainly, and act on it together. The detail below is optional reading.</p>
+
+  <!-- Today's story (dynamic — script renders into #daily-story). Kept open. -->
+  <details class="about-collapse" id="daily-story-section" open>
+    <summary>
+      <span class="about-collapse-title" data-i18n="home.story.section">Today's story · sensors meet residents</span>
+      <span class="about-collapse-hint">When the data and the residents tell the same story</span>
+    </summary>
+    <div class="about-collapse-body">
+      <div id="daily-story" class="story-panel" style="margin-top:8px">
+        <div class="story-headline" data-i18n="home.story.fallback_title">When the data and the residents tell the same story</div>
+        <div class="story-body" data-i18n="home.story.fallback_body">Each day we pick the most-striking correlation between sensor peaks and citizen reports. When a PM spike has a matching report — burning waste, construction, traffic — the campaign treats it as a confirmed signal. Check back tomorrow.</div>
+        <div class="story-actions">
+          <a class="story-action primary" href="./dashboard/" data-i18n="home.story.read_data">See the data →</a>
+          <a class="story-action" id="story-report-link" href="#" target="_blank" rel="noopener" data-i18n="home.story.report_yours">Report what you're seeing →</a>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- How it works · Listen / Show / Act -->
+  <details class="about-collapse">
+    <summary>
+      <span class="about-collapse-title">Listen. Show. Act.</span>
+      <span class="about-collapse-hint">How the campaign works, in three steps</span>
+    </summary>
+    <div class="about-collapse-body">
+      <div class="lsa-grid">
+        <div class="panel lsa-panel">
+          <div class="lsa-badge lsa-badge-listen">01 · LISTEN</div>
+          <div class="panel-title" style="margin-top:8px">Collect from two sources</div>
+          <div class="panel-desc" style="margin-bottom:0">
+            Open-hardware <strong>sensors</strong> across Bali measure air, noise, temperature, humidity — continuously.
+            And an <strong>AI-assisted reporting bot</strong> on WhatsApp lets residents send what they see — burning trash, smoke, water, noise — in their own words.
+          </div>
+        </div>
+        <div class="panel lsa-panel">
+          <div class="lsa-badge lsa-badge-show">02 · SHOW</div>
+          <div class="panel-title" style="margin-top:8px">Make it visible</div>
+          <div class="panel-desc" style="margin-bottom:0">
+            Both streams land on <strong>this public map</strong>. Every reading is compared against international health guidelines — WHO for air and noise, EPA and ASHRAE for indoor environments. Translated into plain language. No login, no tracking, no paywall.
+          </div>
+        </div>
+        <div class="panel lsa-panel">
+          <div class="lsa-badge lsa-badge-act">03 · ACT</div>
+          <div class="panel-title" style="margin-top:8px">Awareness → action</div>
+          <div class="panel-desc" style="margin-bottom:0">
+            Visibility is the start. From there: community workshops, advocacy with banjar and local government, behavior change in homes and schools. Fab Lab Bali coordinates the response loop with local partners.
+          </div>
+        </div>
+      </div>
+      <p class="lsa-foot">
+        Phase 1 (now): <a href="#cta" style="color:var(--accent-warm)">survey of matters of concern</a> · Phase 2: reporting bot · Phase 3: action with local partners
+      </p>
+    </div>
+  </details>
+
+  <!-- Methodology + lineage -->
+  <details class="about-collapse">
+    <summary>
+      <span class="about-collapse-title" data-i18n="home.officials.lineage_label">Who leads · where the methodology comes from</span>
+      <span class="about-collapse-hint">Fab Lab Bali · Making Sense · Smart Citizen</span>
+    </summary>
+    <div class="about-collapse-body">
+      <div class="body-prose" style="margin-top:8px">
+        <p><strong>Fab Lab Bali</strong> leads the campaign — local, accountable, run by people who live here. The methodology comes from the EU <a href="https://making-sense.eu" target="_blank">Making Sense</a> project (2015–2017, Fab Lab Barcelona / IAAC). Bali is its own place; the community here is the co-author of what this becomes.</p>
+      </div>
+      <div class="genealogy">
     <div class="ancestor">
       <div class="ancestor-label">Campaign lead</div>
       <div class="ancestor-name"><a href="https://www.fablabbali.com/" target="_blank" rel="noopener" style="border:none">Fab Lab Bali</a></div>
@@ -1004,128 +1180,122 @@
       <div class="ancestor-desc">Bioregional Hub framework + federated discovery for peer initiatives.</div>
     </div>
   </div>
-</section>
+      </div>
+  </details>
 
-<!-- ===== PHASES ===== -->
-<section>
-  <div class="section-label">The work, in seven phases</div>
-  <h2>Where we <em>are.</em></h2>
-  <div class="body-prose">
-    <p>We are in <strong>Phase 1 — Scoping</strong>. The survey below is how we do it.</p>
-  </div>
-  <div class="phases">
-    <div class="phase current"><div class="phase-num">01</div><div class="phase-title">Scoping</div><div class="phase-desc">Collect matters of concern. Decide what this campaign is about.</div></div>
-    <div class="phase"><div class="phase-num">02</div><div class="phase-title">Community</div><div class="phase-desc">Convene contributors — schools, banjar, NGOs, fab labs.</div></div>
-    <div class="phase"><div class="phase-num">03</div><div class="phase-title">Planning</div><div class="phase-desc">Co-design what to measure, where, how often.</div></div>
-    <div class="phase"><div class="phase-num">04</div><div class="phase-title">Sensing</div><div class="phase-desc">Deploy sensors and the citizen-reporting bot.</div></div>
-    <div class="phase"><div class="phase-num">05</div><div class="phase-title">Awareness</div><div class="phase-desc">Read the data together. Translate signals into shared understanding.</div></div>
-    <div class="phase"><div class="phase-num">06</div><div class="phase-title">Action</div><div class="phase-desc">Community decides response: visibility, advocacy, action.</div></div>
-    <div class="phase"><div class="phase-num">07</div><div class="phase-title">Reflection</div><div class="phase-desc">Document what worked, what didn't, what's next.</div></div>
-  </div>
-</section>
-
-<!-- ===== HOW IT WORKS (relocated from above Officials) ===== -->
-<section>
-  <div class="section-label">How this works</div>
-  <h2>Listen. Show. <em>Act.</em></h2>
-  <div class="body-prose"><p>A simple three-step loop. We collect data, we make it visible, the community acts on what it sees.</p></div>
-
-  <div class="lsa-grid">
-    <div class="panel lsa-panel">
-      <div class="lsa-badge lsa-badge-listen">01 · LISTEN</div>
-      <div class="panel-title" style="margin-top:8px">Collect from two sources</div>
-      <div class="panel-desc" style="margin-bottom:0">
-        Open-hardware <strong>sensors</strong> across Bali measure air, noise, temperature, humidity — continuously.
-        And an <strong>AI-assisted reporting bot</strong> on WhatsApp lets residents send what they see — burning trash, smoke, water, noise — in their own words.
+  <!-- The work, in seven phases -->
+  <details class="about-collapse">
+    <summary>
+      <span class="about-collapse-title">The work, in seven phases</span>
+      <span class="about-collapse-hint">We are in Phase 1 — Scoping</span>
+    </summary>
+    <div class="about-collapse-body">
+      <div class="phases">
+        <div class="phase current"><div class="phase-num">01</div><div class="phase-title">Scoping</div><div class="phase-desc">Collect matters of concern. Decide what this campaign is about.</div></div>
+        <div class="phase"><div class="phase-num">02</div><div class="phase-title">Community</div><div class="phase-desc">Convene contributors — schools, banjar, NGOs, fab labs.</div></div>
+        <div class="phase"><div class="phase-num">03</div><div class="phase-title">Planning</div><div class="phase-desc">Co-design what to measure, where, how often.</div></div>
+        <div class="phase"><div class="phase-num">04</div><div class="phase-title">Sensing</div><div class="phase-desc">Deploy sensors and the citizen-reporting bot.</div></div>
+        <div class="phase"><div class="phase-num">05</div><div class="phase-title">Awareness</div><div class="phase-desc">Read the data together. Translate signals into shared understanding.</div></div>
+        <div class="phase"><div class="phase-num">06</div><div class="phase-title">Action</div><div class="phase-desc">Community decides response: visibility, advocacy, action.</div></div>
+        <div class="phase"><div class="phase-num">07</div><div class="phase-title">Reflection</div><div class="phase-desc">Document what worked, what didn't, what's next.</div></div>
       </div>
     </div>
-    <div class="panel lsa-panel">
-      <div class="lsa-badge lsa-badge-show">02 · SHOW</div>
-      <div class="panel-title" style="margin-top:8px">Make it visible</div>
-      <div class="panel-desc" style="margin-bottom:0">
-        Both streams land on <strong>this public map</strong>. Every reading is compared against international health guidelines — WHO for air and noise, EPA and ASHRAE for indoor environments. Translated into plain language. No login, no tracking, no paywall.
-      </div>
-    </div>
-    <div class="panel lsa-panel">
-      <div class="lsa-badge lsa-badge-act">03 · ACT</div>
-      <div class="panel-title" style="margin-top:8px">Awareness → action</div>
-      <div class="panel-desc" style="margin-bottom:0">
-        Visibility is the start. From there: community workshops, advocacy with banjar and local government, behavior change in homes and schools. Fab Lab Bali coordinates the response loop with local partners.
-      </div>
-    </div>
-  </div>
-  <p class="lsa-foot">
-    Phase 1 (now): <a href="#cta" style="color:var(--accent-warm)">survey of matters of concern</a> · Phase 2: reporting bot · Phase 3: action with local partners
-  </p>
-</section>
+  </details>
 
-<!-- ===== PULL QUOTE ===== -->
-<section style="padding:0 4vw">
+  <!-- For teachers and schools -->
+  <details class="about-collapse">
+    <summary>
+      <span class="about-collapse-title">For teachers and schools</span>
+      <span class="about-collapse-hint">Bring the data into your classroom</span>
+    </summary>
+    <div class="about-collapse-body">
+      <div class="audience-header" style="border-bottom:none;margin-bottom:4px;padding-bottom:0">
+        <span class="audience-pill aud-teachers" data-i18n="home.audience.teachers.label">For teachers and schools</span>
+        <h2 data-i18n="home.audience.teachers.title">Bring the data into your classroom</h2>
+      </div>
+      <p class="audience-sub" data-i18n="home.audience.teachers.subtitle">Real local data to teach the science of where students live.</p>
+      <div class="teachers-grid">
+        <div class="families-panel">
+          <h3 data-i18n="home.teachers.lesson_title">A lesson plan using local Bali air quality data</h3>
+          <p style="font-family:'Newsreader',serif;font-size:15px;line-height:1.55;color:var(--ink);margin:8px 0 14px" data-i18n="home.teachers.lesson_pitch">A 45-minute lesson where students compare your school's last-24h PM2.5 reading to the WHO daily guideline — then to a reference school in Barcelona via Smart Citizen's global network.</p>
+          <a class="btn-primary" href="./data/lesson_plan_v1.pdf" target="_blank" rel="noopener" data-i18n="home.teachers.lesson_download">Download the lesson plan (PDF) →</a>
+        </div>
+        <div class="families-panel">
+          <h3 data-i18n="home.teachers.workshop_title">Making Sense Bali for schools</h3>
+          <p style="font-family:'Newsreader',serif;font-size:15px;line-height:1.55;color:var(--ink);margin:8px 0 14px" data-i18n="home.teachers.workshop_pitch">A half-day workshop at Fab Lab Bali for one or two teachers per school. Build the sensor, install it on a classroom wall, integrate the live readings into a science unit.</p>
+          <a class="btn-primary" href="https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form" target="_blank" rel="noopener" data-i18n="home.cta.workshop.action">Workshop signup →</a>
+        </div>
+        <div class="families-panel" style="grid-column:1/-1">
+          <h3 data-i18n="home.teachers.example_title">A concrete example</h3>
+          <p style="font-family:'Newsreader',serif;font-size:15px;line-height:1.55;color:var(--ink);margin:8px 0 0" data-i18n="home.teachers.example_body">Your students measure PM2.5 in the schoolyard over a week. They calculate the average. They compare it to WHO's 5 µg/m³ annual guideline. Then they pull last week's average from a school in Barcelona via Smart Citizen's public API, and they discuss the difference. Citizenship through data.</p>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- Pull quote — the methodology in one line. -->
   <div class="pullquote">
     <p>"A sensor without a matter of concern produces data without consequence. We're starting with <em>your concern</em> — and only then deciding what to measure."</p>
     <div class="attr">— Making Sense methodology, adapted for Bali</div>
   </div>
-</section>
 
-<!-- CONCERNS chips, standalone SURVEY section, EIGHT QUESTIONS, and the
-     three-column GET INVOLVED block were removed — their content is now
-     covered by CTAs 2 + 3 above the fold. The original survey form URL
-     still lives in the SURVEY_OPEN_URL constant and is wired to every
-     "Tell us what matters" entry point on the page. -->
-<a id="survey" aria-hidden="true"></a><!-- keep #survey anchor for older external links -->
-
-<!-- ===== SHAREABLE CARDS ===== -->
-<section id="share" class="share-section">
-  <div class="section-label" data-i18n="home.share.section">Shareable cards</div>
-  <h2 data-i18n="home.share.title">Make what's happening visible</h2>
-  <p class="audience-sub" style="margin-bottom:8px" data-i18n="home.share.subtitle">Pick a template, pick a neighbourhood, share where the conversation already is.</p>
-  <div class="share-templates" id="share-templates">
-    <button class="share-template-pick active" data-tpl="today" type="button">📍 <span data-tpl-label="today">Today in {{loc}}</span></button>
-    <button class="share-template-pick" data-tpl="week"  type="button">📈 <span data-tpl-label="week">This week in {{loc}}</span></button>
-    <button class="share-template-pick" data-tpl="mold"  type="button">💧 <span data-tpl-label="mold">Mold risk: {{loc}}</span></button>
-    <button class="share-template-pick" data-tpl="burn"  type="button">🔥 <span data-tpl-label="burn">Burning corridor: {{loc}}</span></button>
+  <!-- Share CTA (was CTA 04). Sits with the share-card studio it links to. -->
+  <div class="cta-grid" style="grid-template-columns:1fr;max-width:560px;margin-top:8px">
+    <a class="cta-card cta-share" href="#share">
+      <div class="cta-card-num">04 · 30 sec</div>
+      <div class="cta-card-title" data-i18n="home.cta.share.title">Share what's happening</div>
+      <div class="cta-card-desc" data-i18n="home.cta.share.desc">Generate a shareable card about today's air in your neighbourhood and post it where the conversation already lives — WhatsApp, Instagram, Telegram. Each share helps more people see the data.</div>
+      <div class="cta-card-action" data-i18n="home.cta.share.action">Create a card →</div>
+    </a>
   </div>
-  <div class="share-preview-wrap">
-    <div id="share-card" class="share-card">
-      <div class="share-card-header">
-        <div class="share-card-brand">MAKING SENSE · BALI</div>
-        <div class="share-card-stamp" id="share-card-stamp">as of — WITA</div>
-      </div>
-      <div class="share-card-main">
-        <div class="share-card-template" id="share-card-tpl">Today in</div>
-        <div class="share-card-loc" id="share-card-loc">—</div>
-        <div id="share-card-big-wrap">
-          <div class="share-card-big" id="share-card-big">—</div>
-          <div class="share-card-unit">µg/m³ · PM2.5 · WHO 24h guideline: 15</div>
+
+  <!-- Shareable-card studio (was the standalone #share section). Nested here
+       so the share-card functionality stays intact; #share remains the anchor
+       target for the hero / status-bar "share" affordances. -->
+  <div class="about-section-label" data-i18n="home.share.section">Shareable cards</div>
+  <section id="share" class="share-section" style="border:1px solid var(--line);border-radius:6px;padding:24px">
+    <h2 data-i18n="home.share.title">Make what's happening visible</h2>
+    <p class="audience-sub" style="margin-bottom:8px" data-i18n="home.share.subtitle">Pick a template, pick a neighbourhood, share where the conversation already is.</p>
+    <div class="share-templates" id="share-templates">
+      <button class="share-template-pick active" data-tpl="today" type="button">📍 <span data-tpl-label="today">Today in {{loc}}</span></button>
+      <button class="share-template-pick" data-tpl="week"  type="button">📈 <span data-tpl-label="week">This week in {{loc}}</span></button>
+      <button class="share-template-pick" data-tpl="mold"  type="button">💧 <span data-tpl-label="mold">Mold risk: {{loc}}</span></button>
+      <button class="share-template-pick" data-tpl="burn"  type="button">🔥 <span data-tpl-label="burn">Burning corridor: {{loc}}</span></button>
+    </div>
+    <div class="share-preview-wrap">
+      <div id="share-card" class="share-card">
+        <div class="share-card-header">
+          <div class="share-card-brand">MAKING SENSE · BALI</div>
+          <div class="share-card-stamp" id="share-card-stamp">as of — WITA</div>
         </div>
-        <div class="share-card-line" id="share-card-line">—</div>
-        <svg id="share-card-spark" class="share-card-spark" viewBox="0 0 380 60" preserveAspectRatio="none" style="display:none"></svg>
+        <div class="share-card-main">
+          <div class="share-card-template" id="share-card-tpl">Today in</div>
+          <div class="share-card-loc" id="share-card-loc">—</div>
+          <div id="share-card-big-wrap">
+            <div class="share-card-big" id="share-card-big">—</div>
+            <div class="share-card-unit">µg/m³ · PM2.5 · WHO 24h guideline: 15</div>
+          </div>
+          <div class="share-card-line" id="share-card-line">—</div>
+          <svg id="share-card-spark" class="share-card-spark" viewBox="0 0 380 60" preserveAspectRatio="none" style="display:none"></svg>
+        </div>
+        <div class="share-card-foot">
+          <div class="share-card-url">mdg-bali.github.io/makingsensebali</div>
+          <div class="share-card-qr">QR<br>code</div>
+        </div>
       </div>
-      <div class="share-card-foot">
-        <div class="share-card-url">mdg-bali.github.io/makingsensebali</div>
-        <div class="share-card-qr">QR<br>code</div>
+      <div class="share-controls">
+        <button id="share-download" class="btn-primary" type="button" data-i18n="home.share.download">⬇ Download PNG</button>
+        <a id="share-whatsapp" class="btn-primary" style="background:#25d366;" href="#" target="_blank" rel="noopener" data-i18n="home.share.wa">Share on WhatsApp</a>
+        <button id="share-copy" class="btn" type="button" data-i18n="home.share.copy">Copy link</button>
+        <span id="share-feedback" class="feedback" data-i18n="home.share.copied">Copied</span>
+        <div style="margin-top:8px">
+          <label style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted-text);letter-spacing:.15em;text-transform:uppercase" data-i18n="home.share.choose_loc">Choose neighbourhood</label><br>
+          <select id="share-locality" style="margin-top:6px;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:11px;background:#fff;color:var(--ink);width:100%;max-width:260px"></select>
+        </div>
       </div>
     </div>
-    <div class="share-controls">
-      <button id="share-download" class="btn-primary" type="button" data-i18n="home.share.download">⬇ Download PNG</button>
-      <a id="share-whatsapp" class="btn-primary" style="background:#25d366;" href="#" target="_blank" rel="noopener" data-i18n="home.share.wa">Share on WhatsApp</a>
-      <button id="share-copy" class="btn" type="button" data-i18n="home.share.copy">Copy link</button>
-      <span id="share-feedback" class="feedback" data-i18n="home.share.copied">Copied</span>
-      <div style="margin-top:8px">
-        <label style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted-text);letter-spacing:.15em;text-transform:uppercase" data-i18n="home.share.choose_loc">Choose neighbourhood</label><br>
-        <select id="share-locality" style="margin-top:6px;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:11px;background:#fff;color:var(--ink);width:100%;max-width:260px"></select>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== DATA VIEW LINK ===== -->
-<section style="text-align:center;background:var(--bg2)">
-  <div class="section-label" style="justify-content:center">For the data nerds</div>
-  <h2>Need <em>more detail?</em></h2>
-  <div class="body-prose" style="margin:0 auto 24px"><p>The data view shows raw sensor readings, WHO and EPA standards, network coverage, and reports broken down by category.</p></div>
-  <a href="./dashboard/" class="btn-primary">→ Open data view</a>
-</section>
+  </section>
+</section><!-- /#about -->
 
 </main>
 
