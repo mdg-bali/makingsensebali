@@ -512,7 +512,7 @@
   .hero-v2-number.sev-yellow{color:var(--warn)}
   .hero-v2-number.sev-orange{color:var(--accent-warm)}
   .hero-v2-number.sev-red{color:var(--bad)}
-  .hero-v2-unit{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.1em;color:var(--muted-text);text-transform:uppercase}
+  .hero-v2-unit{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.1em;color:var(--muted-text)}
   .hero-v2-line{
     font-family:'Newsreader',serif;font-size:clamp(18px,2vw,22px);line-height:1.5;
     color:var(--ink);max-width:780px;margin:14px 0 6px;
@@ -643,7 +643,9 @@
   .area-readout .ar-meta{font-size:12px;color:var(--muted-text,#777);margin-top:6px}
   .area-readout .ar-tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px}
   .area-readout .ar-tag{font-size:11px;background:var(--soft,#f1eee8);border-radius:10px;padding:2px 8px;color:var(--muted-text,#777)}
-  .area-readout .ar-sensor{font-size:12px;margin-top:7px;font-weight:600;color:var(--ink,#1e1e1e)}
+  .area-readout .ar-sensor{font-size:13px;margin-top:7px;font-weight:600;color:var(--ink,#1e1e1e)}
+  .area-readout .ar-air{font-size:12px;font-weight:700;margin-left:auto}
+  .area-readout .ar-activity{font-size:12px;color:var(--muted-text,#777);margin-top:7px}
   .nearby-row{background:#ffffff;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink)}
   .nearby-row b{font-family:'Inter',sans-serif;font-weight:500;color:var(--ink)}
   .nearby-empty{padding:18px;background:#ffffff;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted-text);text-align:center}
@@ -692,7 +694,7 @@
   .share-card-big.sev-yellow{color:var(--warn)}
   .share-card-big.sev-orange{color:var(--accent-warm)}
   .share-card-big.sev-red{color:var(--bad)}
-  .share-card-unit{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-text);margin-top:6px}
+  .share-card-unit{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.1em;color:var(--muted-text);margin-top:6px}
   .share-card-line{font-family:'Newsreader',serif;font-size:18px;line-height:1.45;color:var(--ink);margin-top:14px;max-width:380px}
   .share-card-foot{display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1}
   .share-card-url{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink)}
@@ -852,8 +854,8 @@
 
   <h1 class="hero-v2-headline" id="hero-headline">Bali, <em>made visible.</em></h1>
 
-  <div style="margin:18px 0 0">
-    <span id="hero-pm25-number" class="hero-v2-number">—</span>
+  <div id="hero-reading" style="margin:18px 0 0" hidden>
+    <span id="hero-pm25-number" class="hero-v2-number"></span>
     <span class="hero-v2-unit">µg/m³ <span style="opacity:.6">·</span> PM2.5</span>
   </div>
   <p id="hero-plain-line" class="hero-v2-line" data-i18n="home.severity.unknown.text">Sensors are reporting across Bali. Pick a neighbourhood below to see specifics.</p>
@@ -1068,7 +1070,7 @@
       <div class="legend-row"><div class="legend-swatch" style="background:var(--good);box-shadow:0 0 0 2px var(--good)"></div>Air OK</div>
       <div class="legend-row"><div class="legend-swatch" style="background:var(--warn);box-shadow:0 0 0 2px var(--warn)"></div>Attention</div>
       <div class="legend-row"><div class="legend-swatch" style="background:var(--bad);box-shadow:0 0 0 2px var(--bad)"></div>Concern</div>
-      <div class="legend-row"><div class="legend-swatch" style="background:linear-gradient(90deg,#d8b86a,#e08a2e,#d96a4f,#c4392b);box-shadow:none"></div>Reports density</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:linear-gradient(90deg,#f0d49a,#e8b15c,#dd8a3c,#cf7430);box-shadow:none"></div>Where residents report</div>
       <div class="legend-row"><div class="legend-swatch" style="background:transparent;border:2px dashed var(--muted);box-shadow:none"></div>Offline</div>
       <div class="legend-foot">Tap a sensor pin for details.</div>
       <div id="sourceDiag" class="legend-diag"></div>
@@ -1087,10 +1089,8 @@
   <div class="body-prose" style="margin:0 auto 24px"><p>The data view shows raw sensor readings, WHO and EPA standards, network coverage, and reports broken down by category.</p></div>
   <a href="./dashboard/" class="btn-primary">→ Open data view</a>
 
-  <div class="audience-header" style="justify-content:center;margin-top:48px">
-    <span class="audience-pill aud-officials" data-i18n="home.audience.officials.label">For policymakers and analysts</span>
-    <h2 data-i18n="home.audience.officials.title">Evidence you can act on</h2>
-  </div>
+  <div class="section-label" style="justify-content:center;margin-top:48px" data-i18n="home.audience.officials.label">For policymakers and analysts</div>
+  <h2 style="margin-top:6px" data-i18n="home.audience.officials.title">Evidence you can act on</h2>
   <p class="audience-sub" style="margin-left:auto;margin-right:auto" data-i18n="home.audience.officials.subtitle">Aggregate data, citation guidance, and direct contact with the campaign team.</p>
 
   <div class="teachers-grid" style="text-align:left">
@@ -1684,11 +1684,16 @@ function renderHeroSeverity(){
   const ctx = document.getElementById('hero-ctx');
   const locName = state.heroLocality ? state.heroLocality.name : t('home.hero.bali_wide');
 
-  // Number + colour
+  // Number + colour. When there's no resolved reading (still loading, or no
+  // active sensor) we hide the whole number+unit row rather than show a lone
+  // giant "—", which rendered as a broken bar with an empty void above it.
+  const readingRow = document.getElementById('hero-reading');
   if (r.value == null){
-    num.textContent = '—';
+    if (readingRow) readingRow.hidden = true;
+    num.textContent = '';
     num.className = 'hero-v2-number';
   } else {
+    if (readingRow) readingRow.hidden = false;
     num.textContent = r.value.toFixed(1);
     num.className = 'hero-v2-number sev-' + band;
   }
@@ -1812,8 +1817,10 @@ function renderAreaReadout(){
   if (!area) area = areas.slice().sort((a,b)=>(b.report_count||0)-(a.report_count||0))[0];
   if (!area){ el.hidden = true; return; }
 
-  const sevColors = { low:'#00A057', medium:'#E6A020', high:'#E62038' };
-  const sevColor = sevColors[area.max_severity] || 'var(--muted-text,#888)';
+  // Colour on this card always means AIR QUALITY (computed below from live
+  // PM2.5), never report volume — so a clean-air neighbourhood with many reports
+  // never lights up red. Report intensity is shown as neutral, labelled text.
+  const AIR_COLORS = { green:'var(--good)', yellow:'var(--warn)', orange:'var(--accent-warm)', red:'var(--bad)', unknown:'var(--muted-text)' };
   const cats = Object.entries(area.categories||{})
     .map(([k,v]) => `${k.replace(/_/g,' ')} ×${v}`).join(' · ');
   const tags = (area.top_tags||[]).slice(0,5)
@@ -1842,15 +1849,23 @@ function renderAreaReadout(){
       : '';
     pmLine = `PM2.5 ${pm} µg/m³${band}${dist}`;
   }
+  // Air quality owns the colour; report severity is muted and explicitly labelled.
+  const airBand = (pm !== null) ? severityBand(pm) : 'unknown';
+  const airColor = AIR_COLORS[airBand] || 'var(--muted-text)';
+  const airWord = { green:'good', yellow:'moderate', orange:'unhealthy for sensitive groups', red:'unhealthy' }[airBand] || null;
+  const reportsCount = `${area.report_count} report${area.report_count===1?'':'s'}`;
+  const worstReport = area.max_severity ? ` · most serious: ${D.escapeHtml(area.max_severity)}` : '';
   el.hidden = false;
+  el.style.borderLeftColor = airColor;
   el.innerHTML = `
     <div class="ar-head"><b>${D.escapeHtml(area.locality||'Bali')}</b>
-      <span class="ar-count">${area.report_count} report${area.report_count===1?'':'s'}</span>
-      <span class="ar-sev" style="color:${sevColor}">● ${D.escapeHtml(area.max_severity||'—')}</span></div>
+      ${airWord
+        ? `<span class="ar-air" style="color:${airColor}">● air: ${airWord}</span>`
+        : `<span class="ar-air" style="color:var(--muted-text)">○ no sensor nearby</span>`}</div>
+    <div class="ar-sensor" style="color:${airColor}">${D.escapeHtml(pmLine)}</div>
+    <div class="ar-meta ar-activity">${D.escapeHtml(reportsCount)}${cats ? ' · ' + D.escapeHtml(cats) : ''}${worstReport}</div>
     ${area.summary ? `<div class="ar-summary">${D.escapeHtml(area.summary)}</div>` : ''}
-    ${cats ? `<div class="ar-meta">${D.escapeHtml(cats)}</div>` : ''}
-    ${tags ? `<div class="ar-tags">${tags}</div>` : ''}
-    <div class="ar-sensor">${D.escapeHtml(pmLine)}</div>`;
+    ${tags ? `<div class="ar-tags">${tags}</div>` : ''}`;
 }
 
 // ============================================================
@@ -2144,12 +2159,14 @@ function renderPins(){
   if (reportHeatLayer) { map.removeLayer(reportHeatLayer); reportHeatLayer = null; }
   const heatPoints = state.reports
     .filter(r => typeof r.lat === 'number' && typeof r.lng === 'number')
-    .map(r => [r.lat, r.lng, 0.85]);
+    .map(r => [r.lat, r.lng, 0.6]);
   if (heatPoints.length && typeof L.heatLayer === 'function') {
     try {
       reportHeatLayer = L.heatLayer(heatPoints, {
-        radius: 38, blur: 28, maxZoom: 16, minOpacity: 0.45,
-        gradient: {0.2:'#d8b86a', 0.4:'#e08a2e', 0.65:'#d96a4f', 0.85:'#c4392b'},
+        radius: 38, blur: 28, maxZoom: 16, minOpacity: 0.4,
+        // Warm "activity" ramp that tops out at burnt orange — deliberately NOT
+        // the red used for air "Concern", so report density never reads as bad air.
+        gradient: {0.2:'#f0d49a', 0.5:'#e8b15c', 0.8:'#dd8a3c', 1.0:'#cf7430'},
       });
       reportHeatLayer.addTo(map);
     } catch (e) {
