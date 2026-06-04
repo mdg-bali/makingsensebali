@@ -623,6 +623,19 @@
 
   .nearby-reports-feed{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
   .area-readout{background:#ffffff;border:1px solid var(--line);border-left:3px solid var(--green,#00A057);border-radius:6px;padding:12px 14px;margin:10px 0 0;color:var(--ink)}
+  .sensor-explorer{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin:0 0 22px;color:var(--ink)}
+  .sensor-explorer .se-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .sensor-explorer .se-title{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-text)}
+  .sensor-explorer .se-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .sensor-explorer select{font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);max-width:60vw}
+  .sensor-explorer .se-toggle{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .sensor-explorer .se-toggle button{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;padding:6px 13px;border:0;background:#fff;color:var(--muted-text);cursor:pointer}
+  .sensor-explorer .se-toggle button.active{background:#00A057;color:#fff}
+  .sensor-explorer .se-chart{position:relative;width:100%}
+  .sensor-explorer .se-chart svg{width:100%;height:auto;display:block}
+  .sensor-explorer .se-msg{padding:30px 0;text-align:center;color:var(--muted-text);font-size:13px}
+  .sensor-explorer .se-legend{margin-top:8px;font-size:11.5px;color:var(--muted-text);display:flex;gap:16px;flex-wrap:wrap}
+  .sensor-explorer .se-legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
   .area-readout .ar-head{font-size:14px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
   .area-readout .ar-count{font-size:12px;color:var(--muted-text,#777)}
   .area-readout .ar-sev{font-size:12px;font-weight:700;margin-left:auto;text-transform:capitalize}
@@ -925,6 +938,24 @@
 <section id="sensors">
   <div class="section-label">Sensors · reading the air, <em>translated</em></div>
   <p style="font-family:'Newsreader',serif;font-size:16px;line-height:1.5;color:var(--ink);max-width:680px;margin-bottom:18px">Numbers from sensors are abstract. The bands below ground them in everyday experience and known health thresholds — air, mosquito risk, noise, heat.</p>
+
+  <!-- Live sensor history: pick a kit, toggle 24h / last-week, see its PM2.5
+       trace with citizen reports overlaid where they line up in time + place. -->
+  <div id="sensor-explorer" class="sensor-explorer">
+    <div class="se-head">
+      <div class="se-title">Live readings · sensor history</div>
+      <div class="se-controls">
+        <select id="se-select" aria-label="Choose a sensor"></select>
+        <div class="se-toggle">
+          <button type="button" data-win="24h" class="active">24h</button>
+          <button type="button" data-win="7d">Week</button>
+        </div>
+      </div>
+    </div>
+    <div id="se-chart" class="se-chart"><div class="se-msg">Loading sensor history…</div></div>
+    <div id="se-legend" class="se-legend"></div>
+  </div>
+
   <div class="panel-grid">
 
     <!-- PM2.5 card -->
@@ -1822,6 +1853,103 @@ function renderAreaReadout(){
     <div class="ar-sensor">${D.escapeHtml(pmLine)}</div>`;
 }
 
+// ============================================================
+// SENSOR HISTORY EXPLORER (#sensors) — per-kit 24h/7d PM2.5 trace with
+// citizen reports overlaid where they line up in time + place (the
+// peak↔report correlation). Loads the chosen sensor's history on demand.
+// ============================================================
+let _seWin = '24h';
+let _seInit = false;
+function _seSensors(){
+  return (state.sensors || []).filter(s => s.source === 'smartcitizen' && s.rawId != null && typeof s.lat === 'number');
+}
+function renderSensorExplorer(){
+  const wrap = document.getElementById('sensor-explorer');
+  if (!wrap) return;
+  const sel = document.getElementById('se-select');
+  const sensors = _seSensors();
+  if (sel){
+    const cur = sel.value;
+    sel.innerHTML = sensors.map(s => `<option value="${s.rawId}">${D.escapeHtml(s.name || ('Sensor ' + s.rawId))}</option>`).join('');
+    if (cur && sensors.some(s => String(s.rawId) === cur)) sel.value = cur;
+  }
+  if (!_seInit){
+    _seInit = true;
+    if (sel) sel.addEventListener('change', drawSensorChart);
+    wrap.querySelectorAll('.se-toggle button').forEach(b => b.addEventListener('click', () => {
+      _seWin = b.dataset.win;
+      wrap.querySelectorAll('.se-toggle button').forEach(x => x.classList.toggle('active', x === b));
+      drawSensorChart();
+    }));
+  }
+  const chart = document.getElementById('se-chart');
+  if (sensors.length) drawSensorChart();
+  else if (chart) chart.innerHTML = '<div class="se-msg">No sensors loaded yet.</div>';
+}
+
+async function drawSensorChart(){
+  const sel = document.getElementById('se-select');
+  const chart = document.getElementById('se-chart');
+  const legend = document.getElementById('se-legend');
+  if (!sel || !chart) return;
+  const rawId = parseInt(sel.value, 10);
+  const sensor = _seSensors().find(s => s.rawId === rawId);
+  if (!sensor){ chart.innerHTML = '<div class="se-msg">Pick a sensor.</div>'; return; }
+  chart.innerHTML = '<div class="se-msg">Loading history…</div>';
+  if (legend) legend.innerHTML = '';
+  const now = Date.now();
+  const win = _seWin === '7d' ? 7 * 24 * 3600 * 1000 : 24 * 3600 * 1000;
+  const fromT = now - win;
+  const rollup = _seWin === '7d' ? '1h' : null;
+  let pmId = null;
+  try {
+    const detail = await D.fetchSmartCitizenDetail(rawId);
+    const sl = (detail.data && detail.data.sensors) || detail.sensors || [];
+    const m = sl.find(x => /pm\s*2\.?5/i.test(x.name || ''));
+    pmId = m && m.id;
+  } catch(e){ chart.innerHTML = '<div class="se-msg">Couldn\'t load this sensor.</div>'; return; }
+  if (!pmId){ chart.innerHTML = '<div class="se-msg">No PM2.5 channel on this sensor.</div>'; return; }
+  let pts = [];
+  try { pts = await D.fetchSmartCitizenHistory(rawId, pmId, new Date(fromT).toISOString(), new Date(now).toISOString(), rollup); } catch(e){}
+  pts = (pts || []).filter(p => p && p.recordedAt && typeof p.value === 'number' && !isNaN(p.value));
+  if (pts.length < 2){ chart.innerHTML = '<div class="se-msg">No recent PM2.5 data in this window.</div>'; return; }
+  const reps = (state.reports || []).filter(r => {
+    if (typeof r.lat !== 'number') return false;
+    const t = r.submittedAt ? +new Date(r.submittedAt) : NaN;
+    if (isNaN(t) || t < fromT || t > now) return false;
+    return P.distanceKm(sensor.lat, sensor.lng, r.lat, r.lng) <= 5;
+  });
+  chart.innerHTML = _seSvg(pts, reps, fromT, now);
+  if (legend) legend.innerHTML =
+    '<span><span class="dot" style="background:#00A057"></span>PM2.5 µg/m³</span>' +
+    '<span><span class="dot" style="background:#999"></span>WHO 24h guideline (15)</span>' +
+    (reps.length ? '<span><span class="dot" style="background:#E55A3C"></span>citizen report (' + reps.length + ' nearby)</span>'
+                 : '<span style="opacity:.7">no nearby reports in this window</span>');
+}
+
+function _seSvg(pts, reps, fromT, toT){
+  const W = 700, H = 190, padL = 30, padR = 10, padT = 12, padB = 18;
+  const vals = pts.map(p => p.value);
+  const vmin = Math.min(0, ...vals);
+  const vmax = Math.max(15, ...vals) * 1.1;
+  const span = (toT - fromT) || 1;
+  const X = t => padL + ((t - fromT) / span) * (W - padL - padR);
+  const Y = v => padT + (1 - (v - vmin) / ((vmax - vmin) || 1)) * (H - padT - padB);
+  const path = pts.map((p, i) => (i ? 'L' : 'M') + X(+new Date(p.recordedAt)).toFixed(1) + ' ' + Y(p.value).toFixed(1)).join(' ');
+  const whoY = Y(15).toFixed(1);
+  const marks = reps.map(r => {
+    const x = X(+new Date(r.submittedAt)).toFixed(1);
+    return `<line x1="${x}" y1="${padT}" x2="${x}" y2="${H - padB}" stroke="#E55A3C" stroke-width="1" stroke-dasharray="2 3" opacity="0.85"/>` +
+           `<circle cx="${x}" cy="${padT + 4}" r="3.5" fill="#E55A3C"><title>${D.escapeHtml((r.category || 'report'))} · ${D.escapeHtml(r.locality || '')}</title></circle>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="PM2.5 history with citizen reports">` +
+    `<line x1="${padL}" y1="${whoY}" x2="${W - padR}" y2="${whoY}" stroke="#999" stroke-width="1" stroke-dasharray="4 4"/>` +
+    `<text x="2" y="${(+whoY) + 3}" font-size="9" fill="#999" font-family="monospace">15</text>` +
+    `<path d="${path}" fill="none" stroke="#00A057" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` +
+    marks +
+    `</svg>`;
+}
+
 function renderMoldIndicator(){
   const el = document.getElementById('mold-indicator-text');
   if (!el) return;
@@ -2325,6 +2453,7 @@ async function loadAll(){
     updateCounts();
     renderSourceDiag();
     renderAreaReadout();
+    renderSensorExplorer();
     if(sensors.length || reports.length){
       const all = [...sensors, ...reports].map(p => [p.lat, p.lng]).filter(p => p[0]!=null);
       if(all.length > 1 && map) map.fitBounds(L.latLngBounds(all), {padding:[40,40], maxZoom:13});
