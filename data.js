@@ -99,11 +99,16 @@ async function fetchSmartCitizenSensors(){
 
   const ids = new Set(KNOWN_BALI_SCK_IDS.filter(id => !EXCLUDED_DEVICE_IDS.has(id)));
 
-  // Pagination cap — Smart Citizen has ~5–10k devices globally, well under
-  // this ceiling. The cap exists to prevent a runaway loop if the API ever
-  // returns the same page indefinitely (cache poisoning etc.).
+  // Client-side world_map discovery is DISABLED. Scanning the global device
+  // list (up to 30×500) to find Bali sensors is slow and was exceeding the
+  // per-source timeout — which made the ENTIRE Smart Citizen source return
+  // empty (no sensors on the map at all). The known Bali kits load directly
+  // below (fast, well under the timeout). Full discovery of new Bali sensors
+  // belongs server-side in the sync generator, which writes the complete list
+  // to data/sensors.json without any client-time pressure. Set >0 only if you
+  // re-enable a bounded client scan.
   const SCK_PAGE_SIZE = 500;
-  const SCK_MAX_PAGES = 30;
+  const SCK_MAX_PAGES = 0;
 
   let pagesFetched = 0;
   let totalReturned = 0;
