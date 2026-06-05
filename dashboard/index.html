@@ -313,7 +313,9 @@ async function drawChart(){
   if(hist){
     var rid=(curSensor&&curSensor.rawId)?String(curSensor.rawId):String(KNOWN[0]);
     var entry=hist[rid]||hist[String(KNOWN[0])]||firstHist(hist);
-    if(entry){ var pairs=(win==='24h')?entry.h24:entry.d7; if(pairs&&pairs.length>=3){ renderChartPairs(pairs); return; } }
+    var pairs=entry?((win==='24h')?entry.h24:entry.d7):null;
+    if(!(pairs&&pairs.length>=3)){ for(var k in hist){ var e=hist[k], p=(win==='24h')?e.h24:e.d7; if(p&&p.length>=3){ pairs=p; break; } } }  /* chosen sensor empty for this window → fall to any with data */
+    if(pairs&&pairs.length>=3){ renderChartPairs(pairs); return; }
   }
   /* 2) live fallback through the worker — timed out so it never hangs */
   var primary=(curSensor&&curSensor.rawId)?Number(curSensor.rawId):KNOWN[0];
@@ -334,6 +336,7 @@ async function tryChart(rid){
   return false;
 }
 function renderChart(pts){
+  pts=pts.slice().sort(function(a,b){return new Date(a.recordedAt)-new Date(b.recordedAt);});  /* series arrives newest-first */
   var svg=document.getElementById('dchart'); var w=1040,h=360,pad=24,padB=40,n=pts.length;
   var vals=pts.map(function(p){return p.value;}), times=pts.map(function(p){return new Date(p.recordedAt).getTime();});
   var max=Math.max(Math.max.apply(null,vals)*1.12,18), t0=times[0], span=Math.max(1,times[n-1]-t0);

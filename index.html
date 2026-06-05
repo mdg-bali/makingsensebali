@@ -453,6 +453,7 @@ function pickHistKey(hist){
 }
 function drawSparkPairs(pairs, report){
   var svg=document.getElementById('spark'); if(!svg)return;
+  pairs=pairs.slice().sort(function(a,b){return new Date(a[0])-new Date(b[0]);});  /* series arrives newest-first */
   svg.innerHTML=_sparkSVG(pairs.map(function(p){return p[1];}), pairs.map(function(p){return new Date(p[0]).getTime();}), report);
 }
 async function tryStorySensor(rid, label){
@@ -475,6 +476,7 @@ function drawSparkIllustrative(baseline){
 }
 function drawSparkReal(pts,report){
   var svg=document.getElementById('spark'); if(!svg)return;
+  pts=pts.slice().sort(function(a,b){return new Date(a.recordedAt)-new Date(b.recordedAt);});  /* newest-first → chronological */
   svg.innerHTML=_sparkSVG(pts.map(function(p){return p.value;}), pts.map(function(p){return new Date(p.recordedAt).getTime();}), report);
 }
 function _fmtClock(ms){ try{ return new Date(ms).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Makassar'}); }catch(_){ return ''; } }
