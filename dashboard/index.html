@@ -2,1405 +2,360 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Data view · Making Sense Bali · Fab Lab Bali</title>
+<title>Data view — Making Sense Bali</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Data view for the Making Sense Bali campaign — raw sensor readings, WHO and EPA reference standards, network coverage, and citizen reports broken down by category.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%235fa8a8'/%3E%3C/svg%3E">
-
-<!-- PERF-1: preconnect to third-party origins so DNS/TLS happens early. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://unpkg.com">
-<link rel="preconnect" href="https://cdn.jsdelivr.net">
-<link rel="preconnect" href="https://cdnjs.cloudflare.com">
-
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,1,400&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css">
-
-<!-- PERF-1: Leaflet bundle is below the fold; defer keeps it from blocking
-     paint. Map init below is gated on DOMContentLoaded so it waits. -->
-<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-<script defer src="https://cdn.jsdelivr.net/npm/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
-<script defer src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js" crossorigin=""></script>
-<!-- PERF-1: Chart.js removed from <head> — ~200 KB only needed when a
-     sensor is inspected. loadChartJs() lazy-loads it on first selectSensor
-     that has historical data to plot. -->
-<script src="../data.js"></script>
-<script src="../peaks.js"></script>
-<script src="../i18n.js"></script>
-
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0f1417; --bg2:#161c20; --bg3:#1d242a; --paper:#f4ede0;
-    --muted:#8a948c; --line:#2a3138; --accent:#e8a04a;
-    /* --crit was #c4493a (3.85:1 on --bg — failed AA for body text).
-       Nudged lighter to #dd5a48 (~4.8:1) per audit P0-2, hue preserved.
-       Every other status colour already passed — see audit appendix A. */
-    --good:#5fb88a; --warn:#e8a04a; --bad:#d96a4f; --crit:#dd5a48;
-    --teal:#5fa8a8; --cream:#e8dfcc;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--cream);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
-  body{padding:0 0 60px}
-  a{color:var(--accent);text-decoration:none}
-  a:hover{color:#f0b362}
+:root{
+  --paper:#f4f1ea; --paper2:#eae6db; --card:#fbfaf6; --ink:#15171c; --ink-soft:#3c4049; --soft:#6a6e78; --line:#d8d3c6;
+  --mono:'IBM Plex Mono',monospace; --serif:'Newsreader',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+  --indigo:#3f5b86; --indigo-soft:#6f87b3; --indigo-tint:#e7ecf4;
+  --good:#3f8a5b; --warn:#c98a2a; --bad:#bb4a30; --crit:#7a2516;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--indigo)}
 
-  .statusbar{
-    position:sticky;top:0;z-index:1000;
-    background:rgba(15,20,23,.94);backdrop-filter:blur(12px);
-    border-bottom:1px solid var(--line);
-    padding:12px 4vw;
-    display:flex;justify-content:space-between;align-items:center;gap:20px;
-    font-family:'JetBrains Mono',monospace;font-size:11px;flex-wrap:wrap;
-  }
-  .status-left{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
-  .status-right{display:flex;gap:12px;align-items:center}
-  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--good);margin-right:8px;display:inline-block;animation:pulse 2s infinite}
-  .live-dot.error{background:var(--bad);animation:none}
-  .live-dot.loading{background:var(--accent);animation:pulse 1s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-  .status-label{color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
-  .status-val{color:var(--paper)}
-  .btn{background:transparent;border:1px solid var(--line);color:var(--cream);padding:6px 12px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
-  .btn:hover{border-color:var(--accent);color:var(--accent)}
-  .btn.primary{border-color:var(--accent);color:var(--accent)}
-  .btn.primary:hover{background:var(--accent);color:var(--bg)}
+.bar{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;justify-content:space-between;align-items:center;
+  padding:15px 5vw;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  background:rgba(244,241,234,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar .brand{font-weight:600;color:var(--indigo)}
+.bar-nav{display:flex;gap:20px;align-items:center}
+.bar-nav a{color:var(--ink);opacity:.72;transition:opacity .2s}
+.bar-nav a:hover{opacity:1}
+.bar-nav a.home{color:var(--indigo);opacity:1}
+.bar-nav a.here{color:var(--ink);opacity:1;border-bottom:2px solid var(--indigo);padding-bottom:2px}
+@media(max-width:640px){.bar-nav a.lbl{display:none}}
 
-  .hero{
-    padding:48px 4vw 32px;border-bottom:1px solid var(--line);
-    background:radial-gradient(circle at 80% 20%, rgba(95,168,168,.10), transparent 50%), radial-gradient(circle at 20% 80%, rgba(232,160,74,.06), transparent 50%);
-  }
-  .crumb{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px}
-  .crumb a{color:var(--accent)}
-  h1{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(34px,5vw,60px);line-height:.98;letter-spacing:-.02em;margin-bottom:18px;color:var(--paper)}
-  h1 em{font-style:italic;color:var(--teal);font-weight:400}
-  .lede-hero{font-family:'Fraunces',serif;font-size:clamp(17px,1.8vw,20px);line-height:1.5;color:var(--cream);max-width:780px}
+.head{background:linear-gradient(180deg,var(--indigo-tint),var(--paper) 88%);padding:18vh 5vw 8vh;border-bottom:1px solid var(--line)}
+.head-wrap{max-width:1100px;margin:0 auto}
+.head h1{font-family:var(--serif);font-weight:400;font-size:clamp(38px,6vw,76px);line-height:1.0;letter-spacing:-.02em;margin:16px 0 0}
+.head h1 em{font-style:italic;color:var(--indigo)}
+.head p{font-size:17px;line-height:1.65;color:var(--ink-soft);max-width:60ch;margin-top:22px}
+.asof{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--soft);margin-top:18px}
 
-  .map-section{position:relative;border-bottom:1px solid var(--line)}
-  .map-container{position:relative;height:calc(100vh - 200px);min-height:480px}
-  #map{width:100%;height:100%;background:#0a0e10}
-  .leaflet-control-attribution{background:rgba(15,20,23,0.8) !important;color:var(--muted) !important;font-family:'JetBrains Mono',monospace !important;font-size:9px !important}
-  .leaflet-control-attribution a{color:var(--accent) !important}
-  .leaflet-control-zoom a{background:rgba(22,28,32,0.95) !important;color:var(--cream) !important;border:1px solid var(--line) !important}
-  .leaflet-control-zoom a:hover{background:var(--bg3) !important;color:var(--accent) !important}
-  .leaflet-popup-content-wrapper{background:var(--bg2) !important;color:var(--cream) !important;border:1px solid var(--line) !important;border-radius:4px !important;box-shadow:0 8px 24px rgba(0,0,0,0.5) !important}
-  .leaflet-popup-tip{background:var(--bg2) !important;border:1px solid var(--line) !important}
-  .leaflet-popup-content{margin:14px 16px !important;font-family:'Inter',sans-serif !important;font-size:13px !important;line-height:1.5 !important}
+.sec{padding:8vh 5vw;border-bottom:1px solid var(--line)}
+.sec.tint{background:var(--paper2)}
+.wrap{max-width:1100px;margin:0 auto}
+.sl{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);display:flex;align-items:center;gap:12px;margin-bottom:26px}
+.sl::before{content:"";width:22px;height:2px;background:var(--indigo)}
+.sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3.2vw,38px);line-height:1.1;letter-spacing:-.01em}
 
-  .pin{width:26px;height:26px;border-radius:50%;border:2px solid #0a0e10;box-shadow:0 0 0 2px currentColor, 0 0 14px rgba(0,0,0,0.7), 0 4px 10px rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s}
-  .pin:hover{transform:scale(1.25)}
-  .pin-good{background:var(--good);color:var(--good)}
-  .pin-warn{background:var(--warn);color:var(--warn)}
-  .pin-bad{background:var(--bad);color:var(--bad)}
-  .pin-report{background:var(--accent);color:var(--accent)}
-  .pin-offline{background:transparent !important;border:2px dashed var(--cream);box-shadow:0 0 0 1px rgba(244,237,224,0.15), 0 4px 10px rgba(0,0,0,0.5) !important;color:var(--cream);opacity:.85}
-  .pin-offline::before{display:none}
-  .pin-sensor::before{content:'●';color:#0a0e10;font-size:10px}
-  .pin-report::before{content:'!';color:#0a0e10;font-size:13px;font-weight:700}
+/* metric cards */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:820px){.metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.metrics{grid-template-columns:1fr}}
+.metric{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;border-top:3px solid var(--indigo)}
+.metric .ml{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+.metric .mv{font-family:var(--serif);font-weight:400;font-size:46px;line-height:1;margin-top:10px;color:var(--ink)}
+.metric .mv small{font-size:15px;color:var(--soft);font-family:var(--mono);letter-spacing:.04em}
+.metric .msub{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.4}
+.metric.green{border-top-color:var(--good)} .metric.green .mv{color:var(--good)}
 
-  .map-overlay{position:absolute;z-index:500;pointer-events:auto}
-  .map-overlay-card{background:rgba(22,28,32,0.95);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:6px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,0.5)}
-  .top-left-overlay{top:16px;left:16px;max-width:340px}
-  .legend{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cream)}
-  .legend-title{color:var(--muted);letter-spacing:.15em;text-transform:uppercase;font-size:10px;margin-bottom:10px}
-  .legend-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-  .legend-swatch{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid var(--bg)}
+/* chart */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px}
+.panel-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.panel-top .pt-l{display:flex;align-items:center;gap:12px}
+select{font-family:var(--mono);font-size:12px;letter-spacing:.06em;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);cursor:pointer}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.toggle button{font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:8px 15px;border:0;background:var(--paper);color:var(--soft);cursor:pointer}
+.toggle button.on{background:var(--indigo);color:#fff}
+#dchart{width:100%;height:auto;display:block}
+.chart-foot{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--soft);margin-top:10px;display:flex;gap:18px;flex-wrap:wrap}
 
-  section{padding:56px 4vw;border-bottom:1px solid var(--line)}
-  .section-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:12px}
-  .section-label::before{content:'';width:24px;height:1px;background:var(--teal)}
-  h2{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(26px,3.2vw,38px);line-height:1.1;letter-spacing:-.015em;margin-bottom:18px;color:var(--paper)}
-  h2 em{font-style:italic;color:var(--teal)}
-  .body-prose{font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;color:var(--cream);max-width:760px}
-  .body-prose p{margin-bottom:12px}
+/* reference bands */
+.bands{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-top:8px}
+@media(max-width:820px){.bands{grid-template-columns:1fr}}
+.band-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 24px}
+.band-card h3{font-family:var(--serif);font-weight:400;font-size:21px;margin-bottom:4px}
+.band-card .src{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:14px}
+.scale-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px}
+.scale-row:last-child{border:0}
+.sw{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.scale-row b{color:var(--ink);font-weight:600;min-width:62px;display:inline-block}
+.scale-row span{color:var(--ink-soft)}
+.mini{display:flex;flex-direction:column;gap:10px}
+.mini .m{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.mini .m .mt{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
+.mini .m .mb{font-family:var(--serif);font-size:18px;margin-top:4px;line-height:1.2}
+.mini .m .md{font-size:12.5px;color:var(--ink-soft);margin-top:6px;line-height:1.5}
 
-  .panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-  @media(max-width:900px){.panel-grid{grid-template-columns:1fr}}
-  .panel{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:24px}
-  .panel-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px}
-  .panel-title{font-family:'Fraunces',serif;font-size:22px;color:var(--paper);margin-bottom:8px;font-weight:400}
-  .panel-desc{font-family:'Inter',sans-serif;font-size:13px;color:var(--cream);opacity:.85;line-height:1.55;margin-bottom:18px}
-  .panel-body{font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:var(--cream)}
-  .panel-full{grid-column:1/-1}
+/* reports by category */
+.cats{display:flex;flex-direction:column;gap:9px;margin-top:6px;max-width:640px}
+.cat{display:grid;grid-template-columns:120px 1fr 38px;align-items:center;gap:12px;font-family:var(--mono);font-size:12px}
+.cat .cn{color:var(--ink-soft);text-transform:capitalize}
+.cat .bar2{height:9px;background:var(--indigo-tint);border-radius:5px;overflow:hidden}
+.cat .bar2 i{display:block;height:100%;background:var(--indigo);border-radius:5px}
+.cat .cc{text-align:right;color:var(--ink);font-weight:500}
 
-  .stat-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:12px}
-  .stat-row:last-child{border:none}
-  .stat-label{color:var(--muted)}
-  .stat-val{color:var(--paper);font-weight:500}
+/* sources + downloads */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+@media(max-width:820px){.cols{grid-template-columns:1fr}}
+.col{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px 26px}
+.col h3{font-family:var(--serif);font-weight:400;font-size:21px;margin-bottom:14px}
+.col ul{list-style:none}
+.col li{font-family:var(--mono);font-size:12.5px;line-height:1.5;color:var(--ink-soft);padding:7px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}
+.col li:last-child{border:0}
+.col li b{color:var(--ink);font-weight:500}
+.col li .tag{color:var(--indigo)}
+.dl{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+.btn{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:13px 20px;border-radius:4px;cursor:pointer;border:1px solid var(--ink);display:inline-flex;gap:8px;align-items:center;transition:transform .15s,background .2s,color .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-ind{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.cite{font-family:var(--serif);font-style:italic;font-size:14.5px;line-height:1.6;color:var(--ink-soft);background:var(--paper2);border-left:3px solid var(--indigo);border-radius:0;padding:14px 16px;margin-top:14px}
 
-  .stdtable{width:100%;border-collapse:collapse;font-size:13px;margin-top:14px}
-  .stdtable th{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);font-weight:500}
-  .stdtable td{padding:14px 10px;border-bottom:1px solid var(--line);color:var(--cream);vertical-align:top}
-  .stdtable td.metric{font-family:'Fraunces',serif;font-size:16px;color:var(--paper)}
-  .stdtable td.value{font-family:'JetBrains Mono',monospace;color:var(--paper);font-size:11px}
-  @media(max-width:700px){
-    .stdtable th:nth-child(3),.stdtable td:nth-child(3){display:none}
-  }
+.close{background:var(--ink);color:var(--paper);padding:11vh 5vw;text-align:center}
+.close h2{font-family:var(--serif);font-weight:400;font-size:clamp(26px,4vw,46px);line-height:1.06;max-width:20ch;margin:0 auto;color:#f2ece0}
+.close h2 em{font-style:italic;color:var(--indigo-soft)}
+.close-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:30px}
+.btn-out{background:transparent;color:var(--paper);border-color:rgba(255,255,255,.4)}
+.foot{background:var(--ink);color:#7c7d83;padding:34px 5vw 56px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;line-height:1.9;text-align:center;border-top:1px solid #2a2d33}
+.foot a{color:#aab2c2}
 
-  .empty-state{padding:36px 24px;text-align:center;border:1px dashed var(--line);border-radius:6px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.05em;line-height:1.7}
-  .empty-state strong{color:var(--paper)}
-
-  .method-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);margin-top:14px;border-radius:4px;overflow:hidden}
-  .method-step{background:var(--bg3);padding:14px 12px;font-size:11px;line-height:1.4}
-  .method-step b{font-family:'Fraunces',serif;font-size:13px;color:var(--paper);font-weight:500;display:block;margin-bottom:4px}
-  @media(max-width:800px){.method-bar{grid-template-columns:repeat(2,1fr)}}
-
-  footer{padding:48px 4vw;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.8}
-  footer a{color:var(--accent)}
-  /* Promoted from h4 to h3 per audit P1-3 so heading levels don't skip h2 → h4. */
-  footer h3{font-family:'Fraunces',serif;font-size:14px;font-weight:500;color:var(--paper);margin-bottom:12px;text-transform:none;letter-spacing:0}
-  .foot-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:36px;margin-bottom:28px}
-  @media(max-width:900px){.foot-grid{grid-template-columns:1fr;gap:24px}}
-
-  @media(max-width:900px){
-    .statusbar{padding:10px 4vw;font-size:10px;gap:14px}
-    .status-left > span:nth-child(n+4){display:none}
-    .map-container{height:50vh;min-height:340px}
-    .map-overlay{position:static;margin:14px 4vw 0;max-width:none !important}
-  }
-
-  /* ===== REPORTS FEED — compact, expand-in-place ===== */
-  .reports-feed{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
-  .feed-row{
-    background:var(--bg2);
-    padding:11px 16px;
-    cursor:pointer;
-    transition:background .12s ease;
-    display:flex;flex-direction:column;gap:6px;
-    outline:none;
-    border-left:2px solid transparent;
-  }
-  .feed-row:hover, .feed-row:focus-visible{background:var(--bg3);border-left-color:var(--accent)}
-  .feed-row.expanded{background:var(--bg3);border-left-color:var(--accent);padding-bottom:18px}
-  .feed-row-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px}
-  .feed-time{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:.05em;min-width:64px}
-  .feed-cat{
-    font-family:'JetBrains Mono',monospace;
-    font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
-    padding:2px 7px;border-radius:3px;font-weight:600;
-    background:rgba(255,255,255,0.06);color:var(--cream);
-  }
-  .feed-cat-burning{background:rgba(196,57,43,0.20);color:#e8775d}
-  .feed-cat-trash{background:rgba(224,138,46,0.20);color:#e8a04a}
-  .feed-cat-water{background:rgba(58,122,184,0.22);color:#7fb1e0}
-  .feed-cat-construction{background:rgba(163,126,62,0.22);color:#caa05a}
-  .feed-cat-vehicle{background:rgba(91,141,239,0.18);color:#8eb5f5}
-  .feed-cat-industrial{background:rgba(122,58,140,0.22);color:#b67fc8}
-  .feed-cat-dust{background:rgba(155,155,155,0.22);color:#c7c0b0}
-  .feed-cat-other{background:rgba(255,255,255,0.08);color:#c9c0aa}
-  .feed-locality{color:var(--muted);font-size:11px}
-  .feed-preview{
-    font-family:'Inter',sans-serif;font-size:13px;line-height:1.45;
-    color:var(--cream);
-    overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;
-    margin:0;
-  }
-  .feed-row.expanded .feed-preview{display:none}
-  .feed-detail{display:none;margin-top:6px;padding-top:10px;border-top:1px solid var(--line);font-size:13.5px;line-height:1.55;color:var(--cream)}
-  .feed-row.expanded .feed-detail{display:block}
-  .feed-detail img{display:block;width:100%;max-width:380px;height:auto;border-radius:3px;border:1px solid var(--line);margin:8px 0 12px}
-  .feed-ai{margin-top:10px;padding:8px 11px;background:rgba(255,255,255,0.04);border-left:2px solid var(--accent);font-size:12.5px;line-height:1.55;font-style:italic}
-  .feed-ai-indicators{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.05em;margin-top:6px;font-style:normal}
-
-  .feed-filters{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 14px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase}
-  .feed-chip{
-    background:transparent;border:1px solid var(--line);color:var(--cream);
-    padding:5px 10px;border-radius:3px;cursor:pointer;transition:all .12s;
-    font-family:inherit;font-size:inherit;letter-spacing:inherit;text-transform:inherit;
-  }
-  .feed-chip:hover{border-color:var(--accent);color:var(--accent)}
-  .feed-chip.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
-  .feed-chip-label{color:var(--muted);padding:5px 4px 5px 0;align-self:center}
-  .feed-load-more{margin:14px auto 0;display:block}
-
-  /* ===== HISTORY CHARTS ===== */
-  .chart-block{margin-top:18px}
-  .chart-block-title{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
-  .chart-block-title b{color:var(--paper);font-weight:500;letter-spacing:.05em;font-size:12px;text-transform:none}
-  .chart-block-title .peak-count{color:var(--accent);font-size:10px}
-  .chart-strip{
-    position:relative;
-    background:rgba(255,255,255,0.025);
-    border:1px solid var(--line);
-    border-radius:4px;
-    padding:8px 10px;
-    height:130px;
-  }
-  .chart-strip canvas{display:block;width:100%!important;height:100%!important}
-  .chart-strip-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em}
-  .chart-section-title{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;margin:18px 0 8px;border-top:1px solid var(--line);padding-top:14px}
-
-  /* ===== CORRELATION CHIPS ===== */
-  .corr-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-  .corr-chip{
-    display:inline-flex;align-items:center;gap:6px;
-    background:rgba(255,255,255,0.04);
-    border:1px solid var(--line);
-    padding:5px 10px;border-radius:3px;
-    font-family:'JetBrains Mono',monospace;font-size:10.5px;
-    color:var(--cream);cursor:pointer;transition:all .12s;
-  }
-  .corr-chip:hover{border-color:var(--accent);color:var(--accent)}
-  .corr-chip-strong{border-color:var(--bad);color:var(--bad)}
-  .corr-chip-strong:hover{background:rgba(217,106,79,0.12);color:var(--bad)}
-  .corr-prompt{
-    margin-top:10px;padding:10px 12px;
-    background:rgba(232,160,74,0.08);
-    border:1px dashed var(--accent);border-radius:4px;
-    font-size:12.5px;line-height:1.5;color:var(--cream);
-  }
-  .corr-prompt a{font-weight:600}
-  .corr-corroborates{
-    margin-top:10px;padding:10px 12px;
-    background:rgba(217,106,79,0.10);
-    border-left:3px solid var(--bad);
-    font-size:12.5px;line-height:1.5;color:var(--paper);
-  }
-
-  /* ===== A11Y batch (audit P1-3 → P1-5) ===== */
-
-  /* P1-5: respect prefers-reduced-motion — kills live-dot pulse and all
-     hover/transition animations across the page. */
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{
-      animation-duration:.001ms!important;
-      animation-iteration-count:1!important;
-      transition-duration:.001ms!important;
-      scroll-behavior:auto!important;
-    }
-  }
-
-  /* P1-4: skip-link, visible on focus only. */
-  .skip-link{
-    position:absolute;left:-9999px;top:0;
-    background:var(--paper);color:var(--bg);padding:10px 14px;border-radius:0 0 4px 0;
-    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;
-    z-index:2000;
-  }
-  .skip-link:focus{left:0}
-
-  /* Global focus-visible — dashboard's accent on dark passes contrast cleanly. */
-  :focus-visible{
-    outline:2px solid var(--accent);
-    outline-offset:2px;
-    border-radius:2px;
-  }
-
-  /* P0-1: ranked sensor list — pointer/focus affordances on each row.
-     Click and Tab+Enter both call selectSensor(). */
-  .ranked-row{cursor:pointer;transition:background .12s ease}
-  .ranked-row:hover, .ranked-row:focus-visible{background:rgba(255,255,255,0.03)}
-  .ranked-row:focus-visible{outline-offset:-2px}
-
-  /* ===== LANGUAGE TOGGLE ===== */
-  .lang-toggle{
-    background:transparent;border:1px solid var(--line);
-    color:var(--muted);padding:5px 9px;border-radius:3px;
-    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;
-    cursor:pointer;transition:all .12s;
-  }
-  .lang-toggle:hover{border-color:var(--accent);color:var(--accent)}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .8s ease,transform .8s ease}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{transition:none;opacity:1;transform:none}}
 </style>
 </head>
 <body>
 
-<a href="#main" class="skip-link">Skip to main content</a>
+<div class="bar">
+  <div class="brand">Making Sense Bali</div>
+  <nav class="bar-nav">
+    <a class="home" href="../">← <span class="lbl">Live air</span></a>
+    <a href="../about.html" class="lbl">About</a>
+    <a class="here" href="#">Data</a>
+  </nav>
+</div>
 
-<nav class="statusbar" aria-label="Site status and primary navigation">
-  <div class="status-left">
-    <span><span class="live-dot loading" id="liveDot" aria-hidden="true"></span><span id="liveLabel" data-i18n="statusbar.connecting" role="status" aria-live="polite">CONNECTING…</span></span>
-    <span><span class="status-label" data-i18n="statusbar.sensors">Sensors</span> <span class="status-val" id="sensorCount" aria-live="polite">—</span></span>
-    <span><span class="status-label" data-i18n="statusbar.active_24h">Active 24h</span> <span class="status-val" id="activeCount" aria-live="polite">—</span></span>
-    <span><span class="status-label" data-i18n="statusbar.reports">Reports</span> <span class="status-val" id="reportCount" aria-live="polite">—</span></span>
-    <span><span class="status-label" data-i18n="statusbar.peaks_24h">Active peaks · 24h</span> <span class="status-val" id="peaks24Count" aria-live="polite">—</span></span>
-    <span><span class="status-label" data-i18n="statusbar.peaks_7d">Active peaks · 7d</span> <span class="status-val" id="peaks7Count" aria-live="polite">—</span></span>
+<header class="head">
+  <div class="head-wrap">
+    <div class="kicker rv in">The data view · for analysts &amp; policymakers</div>
+    <h1 class="rv in">Every reading. Every <em>standard.</em></h1>
+    <p class="rv in">The numbers behind the map — raw sensor history, international health thresholds, network coverage, and open downloads. Nothing hidden, nothing rounded for comfort. Low-cost sensors carry ±10–15% on absolute values; trends and relative magnitudes are reliable.</p>
+    <div class="asof rv in">Network snapshot · as of 4 Jun 2026, 17:55 WITA · auto-refreshes every 15 min</div>
   </div>
-  <div class="status-right">
-    <button id="langToggle" class="lang-toggle" type="button" title="Toggle language" aria-label="Switch language to Bahasa Indonesia">EN</button>
-    <a href="../" class="btn" data-i18n="action.home">← Home</a>
-    <a href="../#cta" class="btn primary" data-i18n="action.take_part">+ Take part</a>
-  </div>
-</nav>
-
-<main id="main">
-
-<header class="hero">
-  <div class="crumb"><a href="../">Making Sense Bali</a> · <span style="color:var(--teal)">data view</span> · led by <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a></div>
-  <h1>Data <em>view.</em></h1>
-  <p class="lede-hero">Raw sensor readings, citizen reports broken down, and the international standards we measure against. Click any pin on the map to see its current values.</p>
 </header>
 
-<section class="map-section">
-  <div class="map-container">
-    <div id="map"></div>
-  </div>
-  <div class="map-overlay top-left-overlay">
-    <div class="map-overlay-card legend">
-      <div class="legend-title">Layers · Bali</div>
-      <div class="legend-row"><div class="legend-swatch" style="background:var(--good);box-shadow:0 0 0 2px var(--good)"></div>Sensor (PM<sub>2.5</sub> &le; WHO 24h)</div>
-      <div class="legend-row"><div class="legend-swatch" style="background:var(--warn);box-shadow:0 0 0 2px var(--warn)"></div>Sensor (1–2× WHO)</div>
-      <div class="legend-row"><div class="legend-swatch" style="background:var(--bad);box-shadow:0 0 0 2px var(--bad)"></div>Sensor (&gt; 2× WHO)</div>
-      <div class="legend-row"><div class="legend-swatch" style="background:var(--accent);box-shadow:0 0 0 2px var(--accent)"></div>Citizen report (24h)</div>
-      <div class="legend-row"><div class="legend-swatch" style="background:transparent;border:2px dashed var(--muted);box-shadow:none"></div>Sensor offline (>14 days)</div>
-      <div style="margin-top:14px;font-size:10px;color:var(--muted);line-height:1.55">Sources: Smart Citizen · OpenAQ (AirGradient, AQICN, KLHK) · Sensor.Community · Fab Lab Bali reports.</div>
+<!-- network snapshot -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sl rv">Network right now</div>
+    <div class="metrics">
+      <div class="metric green rv"><div class="ml">Median PM2.5</div><div class="mv"><span id="m-median">–</span><small> µg/m³</small></div><div class="msub">network-wide median, active sensors</div></div>
+      <div class="metric rv"><div class="ml">Active sensors</div><div class="mv" id="m-sensors">–</div><div class="msub">Smart Citizen · OpenAQ</div></div>
+      <div class="metric rv"><div class="ml">Verified reports</div><div class="mv" id="m-reports">–</div><div class="msub">human-moderated before publishing</div></div>
+      <div class="metric rv"><div class="ml">Open data sources</div><div class="mv">3</div><div class="msub">+2 planned (PurpleAir, Sensor.Community)</div></div>
     </div>
   </div>
 </section>
 
-<!-- Sensor picker — sits directly under the map so keyboard users have an
-     immediate, tabbable path to selectSensor() without going through the
-     Leaflet markers (which aren't keyboard-operable). Audit P0-1. The
-     ranked table that used to sit much further down was moved here. -->
-<section>
-  <div class="section-label">Sensors · ranked · pick one to inspect</div>
-  <h2>Current PM<sub>2.5</sub>, <em>by sensor.</em></h2>
-  <div class="body-prose"><p>All currently-active sensors with PM2.5 data, sorted worst-first. Click a row (or Tab + Enter) to inspect that sensor in the Selected panel below — and to fly the map there.</p></div>
-  <table class="stdtable" style="margin-top:14px" aria-label="Sensors ranked by PM2.5, click to inspect">
-    <thead><tr><th>Sensor</th><th>Source</th><th>PM<sub>2.5</sub></th><th>Last reading</th></tr></thead>
-    <tbody id="adv-ranked-body">
-      <tr><td colspan="4" style="text-align:center;color:var(--muted);font-family:'JetBrains Mono'">Loading…</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<section>
-  <div class="section-label">Selected · pick a sensor above or tap a pin</div>
-  <div class="panel-grid">
-    <div class="panel panel-full">
-      <div class="panel-label" id="adv-detail-label">No pin selected</div>
-      <div class="panel-title" id="adv-detail-title">Pick a sensor from the list above, or tap a pin on the map</div>
-      <div class="panel-desc" id="adv-detail-desc">The detail panel will populate with current sensor readings or report content. Sensor readings include PM<sub>2.5</sub>, PM<sub>10</sub>, temperature, humidity, and noise — each compared against the relevant international threshold.</div>
-      <div class="panel-body" id="adv-detail-body" aria-live="polite" aria-busy="false">
-        <div class="empty-state">Select a pin on the map to inspect it.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="section-label">Network coverage</div>
-  <h2>Sensors and reports <em>across Bali.</em></h2>
-  <div class="panel-grid" style="margin-top:24px">
-    <div class="panel">
-      <div class="panel-label">Sensor network</div>
-      <div class="panel-title">Coverage by source</div>
-      <div class="panel-desc">Public environmental sensors aggregated across multiple open networks. Any compatible sensor in Bali can join — Smart Citizen, AirGradient (via OpenAQ), PurpleAir, Sensor.Community.</div>
-      <div class="panel-body" id="adv-sources-body">
-        <div class="stat-row"><span class="stat-label">Total sensors · Bali</span><span class="stat-val" id="adv-sck-count">—</span></div>
-        <div class="stat-row"><span class="stat-label">Active (last 14 days)</span><span class="stat-val" id="adv-active-count">—</span></div>
-      </div>
-      <div class="panel-body" id="adv-sources-breakdown" style="margin-top:14px"></div>
-    </div>
-    <div class="panel">
-      <div class="panel-label">Citizen reports · 24h</div>
-      <div class="panel-title">By category</div>
-      <div class="panel-desc">Reports submitted via WhatsApp bot, reviewed by Fab Lab Bali, surfaced on the map above as a density layer. Open any card below to fly the map there.</div>
-      <div class="panel-body" id="adv-reports-body">
-        <div class="empty-state">
-          <strong>No reports yet.</strong><br>
-          Be first — <a href="https://wa.me/6285190890857?text=Smart%20Citizen%20Bali%20%E2%80%94%20I%20want%20to%20report%3A" target="_blank" rel="noopener">message the WhatsApp reporting bot</a>, or <a href="../#cta">take the survey</a>.
+<!-- sensor history -->
+<section class="sec tint">
+  <div class="wrap">
+    <div class="sl rv">Sensor history</div>
+    <div class="panel rv">
+      <div class="panel-top">
+        <div class="pt-l">
+          <select id="dsel" aria-label="Choose a sensor"></select>
         </div>
+        <div class="toggle"><button class="on" data-win="24h" type="button">24 h</button><button data-win="7d" type="button">7 days</button></div>
+      </div>
+      <svg id="dchart" viewBox="0 0 1040 360" preserveAspectRatio="none" aria-label="Sensor PM2.5 time series against the WHO 24-hour guideline"></svg>
+      <div class="chart-foot"><span style="color:var(--indigo)">— PM2.5 µg/m³</span><span style="color:var(--soft)">- - WHO 24h guideline (15)</span><span style="color:var(--bad)">● resident report</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- reference standards -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sl rv">What the numbers mean · health thresholds</div>
+    <div class="bands">
+      <div class="band-card rv">
+        <h3>Air · PM2.5</h3>
+        <div class="src">WHO AQG 2021 · fine particles, µg/m³</div>
+        <div class="scale-row"><span class="sw" style="background:var(--good)"></span><b>0–5</b><span>WHO annual target · forest after rain</span></div>
+        <div class="scale-row"><span class="sw" style="background:var(--good);opacity:.6"></span><b>5–15</b><span>within WHO 24h · normal urban background</span></div>
+        <div class="scale-row"><span class="sw" style="background:var(--warn)"></span><b>15–35</b><span>above WHO 24h · roadside, light traffic</span></div>
+        <div class="scale-row"><span class="sw" style="background:var(--bad)"></span><b>35–55</b><span>sensitive groups affected · near a fire</span></div>
+        <div class="scale-row"><span class="sw" style="background:var(--crit)"></span><b>55+</b><span>unhealthy for everyone · indoor cooking smoke</span></div>
+      </div>
+      <div class="mini">
+        <div class="m rv"><div class="mt">Noise · WHO 2018</div><div class="mb">40 dB night / 30 dB indoor</div><div class="md">Chronic exposure above 40 dB at night is linked to cardiovascular strain and broken sleep.</div></div>
+        <div class="m rv"><div class="mt">Heat · tropical context</div><div class="mb">33+ °C with &gt;70% RH</div><div class="md">The heat-stress threshold for outdoor workers — not Europe's 24°C comfort band.</div></div>
+        <div class="m rv"><div class="mt">Humidity · mould risk</div><div class="mb">&gt;60% RH sustained</div><div class="md">Also the window where <em>Aedes</em> mosquitoes breed fastest. Indoor air matters as much as outdoor.</div></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===== REPORTS FEED ===== -->
-<section>
-  <div class="section-label">Citizen reports · feed</div>
-  <h2>Latest <em>resident reports.</em></h2>
-  <div class="body-prose"><p>The map above shows density; the rows below are individual reports. Click any row to expand it inline, fly the map to that location, and see nearby sensor readings at the time of submission.</p></div>
-  <div id="feed-filters" class="feed-filters"></div>
-  <div id="reports-feed" class="reports-feed"></div>
-  <button id="feed-load-more" class="btn feed-load-more" type="button" style="display:none" data-i18n="feed.load_more">Load more</button>
+<!-- reports by category -->
+<section class="sec tint">
+  <div class="wrap">
+    <div class="sl rv">Verified reports · last 30 days, by category</div>
+    <div class="cats" id="cat-list"><div class="cat"><span class="cn">loading reports…</span><span class="bar2"></span><span class="cc"></span></div></div>
+  </div>
 </section>
 
-<!-- The "Sensors · ranked" section that used to sit here was relocated
-     directly under the map (audit P0-1) so keyboard users have an
-     immediate tabbable picker before the Selected panel. -->
-
-<section>
-  <div class="section-label">Reference standards</div>
-  <h2>What we measure <em>against.</em></h2>
-  <div class="body-prose">
-    <p>All sensor readings on this dashboard are compared against international health-evidence-based thresholds. Where references differ, the strictest applicable value is used.</p>
-  </div>
-  <table class="stdtable">
-    <thead><tr><th>Indicator</th><th>Threshold</th><th>Period</th><th>Source</th></tr></thead>
-    <tbody>
-      <tr><td class="metric">PM<sub>2.5</sub></td><td class="value">15 µg/m³</td><td>24-hour mean</td><td>WHO Global AQG 2021</td></tr>
-      <tr><td class="metric">PM<sub>2.5</sub></td><td class="value">5 µg/m³</td><td>annual mean</td><td>WHO Global AQG 2021</td></tr>
-      <tr><td class="metric">PM<sub>10</sub></td><td class="value">45 µg/m³</td><td>24-hour mean</td><td>WHO Global AQG 2021</td></tr>
-      <tr><td class="metric">Indoor temperature</td><td class="value">18 – 24 °C (residential) · 22 – 26 °C (work)</td><td>continuous</td><td>WHO Housing 2018 · ASHRAE 55</td></tr>
-      <tr><td class="metric">Relative humidity</td><td class="value">30 – 60 %</td><td>continuous</td><td>EPA / ASHRAE 55</td></tr>
-      <tr><td class="metric">Noise · night indoor</td><td class="value">30 dB</td><td>L<sub>night</sub></td><td>WHO ENG 2018</td></tr>
-      <tr><td class="metric">Noise · night outdoor</td><td class="value">40 dB</td><td>L<sub>night</sub></td><td>WHO ENG 2018</td></tr>
-      <tr><td class="metric">Noise peaks</td><td class="value">85 dB</td><td>occupational ceiling</td><td>NIOSH</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<section>
-  <div class="section-label">Reading the data · health implications</div>
-  <h2>What the standards <em>actually mean</em>.</h2>
-  <div class="body-prose">
-    <p>Thresholds without context are abstractions. The following expands each indicator with what the published health evidence says — short-term effects, chronic risks, and the Bali-specific factors that change how to read these numbers.</p>
-  </div>
-
-  <div class="panel-grid" style="margin-top:24px">
-    <div class="panel">
-      <div class="panel-label">PM<sub>2.5</sub> · fine particulate</div>
-      <div class="panel-title">Why this specific number matters</div>
-      <div class="body-prose" style="margin-top:14px">
-        <p>Particles smaller than 2.5 micrometres — about one-thirtieth the width of a human hair — bypass the nose and throat, enter the deep lung, and cross into the bloodstream. <strong>Long-term exposure is associated with heart disease, stroke, chronic lung disease, lung cancer, and measurable reductions in life expectancy.</strong> Children, older adults, and people with cardiovascular or respiratory conditions are disproportionately affected.</p>
-        <p>Mixed-waste burning — particularly of plastics — emits PM<sub>2.5</sub> alongside dioxins, furans, polycyclic aromatic hydrocarbons, and heavy metals. <strong>Standard low-cost PM sensors capture only the particulate portion.</strong> The toxic organic compounds released in the same plume are not measured by the instruments behind this dashboard, and their absence from the record should not be read as their absence from the air.</p>
-        <p>WHO revised guidelines downward in 2021 to reflect updated evidence of harm at lower concentrations than previously thought safe. The annual target of 5 µg/m³ is what protects you over a lifetime; the 24-hour target of 15 µg/m³ protects you on individual days. Most populated Bali stations exceed the 24-hour guideline routinely.</p>
+<!-- sources + downloads -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sl rv">Coverage, sources &amp; downloads</div>
+    <div class="cols">
+      <div class="col rv">
+        <h3>Where the data comes from</h3>
+        <ul>
+          <li><b>Smart Citizen</b> <span class="tag">open hardware · live</span></li>
+          <li><b>OpenAQ</b> <span class="tag">AirGradient · AQICN · KLHK</span></li>
+          <li><b>Resident reports</b> <span class="tag">WhatsApp · human-verified</span></li>
+          <li><b>PurpleAir · Sensor.Community</b> <span class="tag">planned</span></li>
+          <li><b>Standards</b> <span class="tag">WHO · US EPA · ASHRAE</span></li>
+        </ul>
       </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-label">Climate · disease vectors</div>
-      <div class="panel-title">The mosquito-weather link</div>
-      <div class="body-prose" style="margin-top:14px">
-        <p><em>Aedes aegypti</em>, the mosquito that transmits <strong>dengue, Zika, chikungunya, and yellow fever</strong>, breeds fastest in warm humid conditions. Optimal: 26–30 °C with relative humidity above 70%. Bali sits inside this window for most of the year.</p>
-        <p>The relevant indoor factors are humidity (because eggs survive better in damp microclimates), temperature stability (warmth across the day rather than just peaks), and standing water in or near the home. Sensors can tell you the first two; only people can report the third.</p>
-        <p>Dengue is endemic in Bali and outbreaks track rainy-season humidity. The WHO/CDC guidance for resident communities is straightforward: keep indoor humidity below 60% where possible, empty containers that collect water, use repellent at dawn and dusk when <em>Aedes</em> bites. Higher-humidity weeks are when mosquito-control campaigns matter most.</p>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-label">Noise · sleep and cardiovascular</div>
-      <div class="panel-title">What you don't hear still matters</div>
-      <div class="body-prose" style="margin-top:14px">
-        <p>The WHO Environmental Noise Guidelines (2018) recommend night-time exposure stay below <strong>30 dB indoor and 40 dB outdoor</strong> — the levels where sleep architecture remains intact. Chronic exposure above these has measurable cardiovascular effects, even when the sleeper does not consciously notice the noise.</p>
-        <p>The metric that matters for residential health is <strong>L<sub>night</sub></strong> — the night-time average from 22:00 to 06:00 — not peak events. A single 80 dB scooter at 11pm is less harmful than a sustained 42 dB hum throughout the night.</p>
-        <p>For workspaces, the EPA daytime intrusion threshold of 55 dB and the NIOSH occupational ceiling of 85 dB are the relevant references. Above 85 dB sustained, hearing damage accumulates within hours.</p>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-label">Heat · tropical context</div>
-      <div class="panel-title">Why WHO indoor comfort doesn't fit Bali</div>
-      <div class="body-prose" style="margin-top:14px">
-        <p>WHO's 18–24 °C indoor comfort guideline reflects temperate-climate housing with central heating. In tropical climates, <strong>27–30 °C is the normal acceptable range</strong> with adequate air movement, and the body adapts to it within weeks of arrival.</p>
-        <p>The real heat-stress risk in Bali is sustained outdoor exposure above 33 °C with high humidity — the WBGT (Wet Bulb Globe Temperature) at which the body can no longer cool itself effectively through sweat. <strong>Outdoor workers, construction sites, and rice-field labor are the populations most exposed.</strong> Heat days compound through harvest season and are projected to increase under climate scenarios.</p>
-        <p>Indoor humidity above 60% in the tropics also creates conditions for mold growth, dust-mite proliferation, and respiratory irritation. A small dehumidifier in bedrooms during peak monsoon weeks is the simplest intervention.</p>
+      <div class="col rv">
+        <h3>Open downloads</h3>
+        <div class="dl">
+          <a class="btn btn-ind" href="../data/reports/index.json">Last 30 days · CSV →</a>
+          <a class="btn" href="../data/reports/summary.json">Monthly summary →</a>
+        </div>
+        <div class="cite">Making Sense Bali (Fab Lab Bali, 2026). Open environmental sensor network and citizen reports, Bali, Indonesia. Retrieved from mdg-bali.github.io/makingsensebali on [date].</div>
       </div>
     </div>
   </div>
 </section>
 
-<section>
-  <div class="section-label">Methodology · Making Sense framework</div>
-  <h2>How this campaign is <em>built.</em></h2>
-  <div class="body-prose">
-    <p>The campaign follows the EU Making Sense participatory methodology (Fab Lab Barcelona / IAAC, 2015–2017), adapted by Fab Lab Bali for the Indonesian context. We're currently in Phase 1.</p>
+<section class="close">
+  <h2 class="rv">The data is open. The <em>map is where it lives.</em></h2>
+  <div class="close-cta">
+    <a class="btn btn-out rv" href="../">← Back to the live air</a>
+    <a class="btn btn-out rv" href="../about.html">Why we measure → About</a>
   </div>
-  <div class="method-bar">
-    <div class="method-step" style="border-left:3px solid var(--accent)"><b>1 · Scoping</b>Collect matters of concern from the community. <em>Now.</em></div>
-    <div class="method-step"><b>2 · Community</b>Convene contributors — schools, banjar, NGOs, fab labs.</div>
-    <div class="method-step"><b>3 · Planning</b>Co-design what to measure, where, how often.</div>
-    <div class="method-step"><b>4 · Sensing</b>Deploy sensors and the citizen-reporting bot.</div>
-    <div class="method-step"><b>5+ · Awareness · Action · Reflection</b>Read together, decide responses, document for the next bioregion.</div>
-  </div>
-  <p style="margin-top:24px;font-family:'JetBrains Mono',monospace;font-size:12px"><a href="../">← Back to home</a></p>
 </section>
 
-</main>
-
-<footer>
-  <div class="foot-grid">
-    <div>
-      <h3>Campaign lead</h3>
-      <a href="https://www.fablabbali.com/" target="_blank" rel="noopener">Fab Lab Bali</a> · Bali, Indonesia<br>
-      Local fabrication laboratory and maker community.<br>
-      Contact: <a href="mailto:fablabbali@gmail.com">fablabbali@gmail.com</a><br>
-      <a href="../">Back to home →</a>
-    </div>
-    <div>
-      <h3>Sensor data</h3>
-      Aggregated across open networks:<br>
-      · <a href="https://smartcitizen.me" target="_blank" rel="noopener">Smart Citizen Platform</a><br>
-      · <a href="https://openaq.org" target="_blank" rel="noopener">OpenAQ</a> (covers AirGradient, AQICN/GAIA, KLHK ISPU)<br>
-      · <a href="https://map.purpleair.com" target="_blank" rel="noopener">PurpleAir</a> (planned)<br>
-      · <a href="https://sensor.community" target="_blank" rel="noopener">Sensor.Community</a> (planned)<br>
-      · <a href="https://baliair.pages.dev" target="_blank" rel="noopener">Bali Air Dispatch</a> — independent journalistic register, cross-referenced.<br><br>
-      Reference: WHO AQG 2021 · WHO ENG 2018 · WHO Housing 2018 · US EPA NAAQS · ASHRAE 55 · NIOSH.
-    </div>
-    <div>
-      <h3>Network &amp; tech</h3>
-      Smart Citizen Kit · open hardware (Fab Lab Barcelona / IAAC origin)<br>
-      <a href="https://fab.city" target="_blank" rel="noopener">Fab City</a> Hub instance · <a href="https://murmurations.network" target="_blank" rel="noopener">Murmurations</a> federated discovery<br>
-      Source: <a href="https://github.com/mdg-bali/makingsensebali" target="_blank" rel="noopener">github.com/mdg-bali/makingsensebali</a><br>
-      Technical partner: Meaningful Design Group<br>
-      <span style="opacity:.6">Low-cost sensors. ±10–15% from regulatory-grade. Trends and relative magnitudes reliable.</span>
-    </div>
-  </div>
+<footer class="foot">
+  Making Sense Bali — led by <a href="https://www.fablabbali.com/">Fab Lab Bali</a> · open hardware: Smart Citizen Kit (Fab Lab Barcelona / IAAC) · methodology: EU Making Sense · part of <a href="https://fab.city">Fab City</a> + Murmurations.
 </footer>
 
+<script src="../data.js"></script>
+<script src="../peaks.js"></script>
+<script src="../i18n.js"></script>
 <script>
-'use strict';
-const D = window.SCB_DATA;
-const P = window.SCB_PEAKS;
-const I = window.SCB_I18N;
-const t = (key, fb) => I.t(key, null, fb != null ? fb : key);
-const REFRESH_MS = 5 * 60 * 1000;
-const FEED_PAGE_SIZE = 30;
-
-// PERF-1: Leaflet is deferred, so map init runs from boot() once DOM is
-// ready (and re-runs on window.load if Leaflet hadn't arrived yet).
-let map, sensorLayer;
-let reportHeatLayer = null;
-let chartInstances = [];   // teardown handles for Chart.js instances in the Selected panel
-
-function initMap(){
-  if (typeof L === 'undefined') return false;   // Leaflet not loaded yet
-  if (map) return true;
-  if (typeof L.GestureHandling !== 'undefined') {
-    L.Map.addInitHook('addHandler', 'gestureHandling', L.GestureHandling);
-  }
-  map = L.map('map', {
-    center: D.BALI_CENTER, zoom: 10,
-    zoomControl: true, attributionControl: true,
-    gestureHandling: true,
-    gestureHandlingOptions: {
-      text: {touch:'Use two fingers to move the map', scroll:'Use Ctrl + scroll to zoom', scrollMac:'Use ⌘ + scroll to zoom'},
-      duration: 1500,
-    },
-  });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution:'© OpenStreetMap · © CARTO', subdomains:'abcd', maxZoom:19
-  }).addTo(map);
-  sensorLayer = L.layerGroup().addTo(map);
-  // Defer-script timing can leave the map container 0×0 at init — force a
-  // size recompute on the next tick (matches the home page's fix).
-  setTimeout(() => { if (map) map.invalidateSize(); }, 0);
-  return true;
-}
-
-// PERF-1: lazy-load Chart.js on first sensor inspection that has history.
-let _chartLoader = null;
-function loadChartJs(){
-  if (typeof Chart !== 'undefined') return Promise.resolve(Chart);
-  if (_chartLoader) return _chartLoader;
-  _chartLoader = new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
-    s.async = true;
-    s.onload  = () => resolve(window.Chart);
-    s.onerror = () => reject(new Error('Chart.js failed to load'));
-    document.head.appendChild(s);
-  });
-  return _chartLoader;
-}
-
-function pinIcon(kind){
-  return L.divIcon({className:'',
-    html:`<div class="pin pin-${kind} ${kind==='report'?'pin-report':'pin-sensor'}"></div>`,
-    iconSize:[24,24], iconAnchor:[12,12]});
-}
-
-function fmt(v, dp=2){return v==null||isNaN(v)?'—':Number(v).toFixed(dp);}
-
-// ===== STATE =====
-// state.peaks: { [sensorId]: { peaks24: [...], peaks7d: [...], series: { [metric]: { id, name, unit, points24, points7d, peaks24, peaks7d } } } }
-// state.feedFilters: { window: 'all'|'24h'|'7d', category: string|null }
-// state.feedLimit: max items shown
-const state = {
-  sensors:[], reports:[], summary:null,
-  peaks: {},
-  feedFilters: { window: 'all', category: null },
-  feedLimit: FEED_PAGE_SIZE,
-  expandedReportId: null,
-};
-
-// ===== i18n APPLICATION =====
-function applyTranslations(){
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    el.textContent = t(key);
-  });
-  // Button text shows the target language; aria-label spells out the action.
-  const lt = document.getElementById('langToggle');
-  lt.textContent = t('statusbar.lang_toggle');
-  lt.setAttribute('aria-label',
-    I.currentLang() === 'en' ? 'Switch language to Bahasa Indonesia' : 'Ganti bahasa ke English');
-  // Rerender dynamic blocks that depend on language
-  renderFeedFilters();
-  renderReportFeed();
-}
-function toggleLanguage(){
-  const cur = I.currentLang();
-  I.setLang(cur === 'en' ? 'id' : 'en');
-  applyTranslations();
-}
-
-function renderPins(){
-  // Map might still be initialising (Leaflet deferred). The ranked sensor
-  // list + the report feed still render below — keyboard users keep access.
-  if (!map || !sensorLayer) { renderReportFeed(); return; }
-  map.invalidateSize();
-  const size = map.getSize();
-  if (size.x === 0 || size.y === 0) { renderReportFeed(); return; }
-
-  sensorLayer.clearLayers();
-  for(const s of state.sensors){
-    let pinKind;
-    if(!D.isActive(s.lastReading)){
-      pinKind = 'offline';
-    } else {
-      const cls = D.classifyPM25(s.reading && s.reading.pm25);
-      pinKind = cls === 'unknown' ? 'good' : cls;
-    }
-    const m = L.marker([s.lat, s.lng], {icon: pinIcon(pinKind)});
-    m.on('click', () => selectSensor(s));
-    const offlinePrefix = pinKind === 'offline' ? '⚠ OFFLINE · ' : '';
-    m.bindPopup(`<b>${D.escapeHtml(s.name)}</b><br><span style="font-size:11px;color:#8a948c">${offlinePrefix}${D.escapeHtml(s.sourceLabel)} · click for details below</span>`);
-    m.addTo(sensorLayer);
-  }
-
-  // Reports → heatmap. No per-report pin; the ranked-sensor list above
-  // plus the feed below cover keyboard/mouse access.
-  if (reportHeatLayer) { map.removeLayer(reportHeatLayer); reportHeatLayer = null; }
-  const heatPoints = state.reports
-    .filter(r => typeof r.lat === 'number' && typeof r.lng === 'number')
-    .map(r => [r.lat, r.lng, 0.85]);
-  if (heatPoints.length && typeof L.heatLayer === 'function') {
-    try {
-      reportHeatLayer = L.heatLayer(heatPoints, {
-        radius: 38, blur: 28, maxZoom: 16, minOpacity: 0.45,
-        gradient: {0.2:'#d8b86a', 0.4:'#e08a2e', 0.65:'#d96a4f', 0.85:'#c4392b'},
-      });
-      reportHeatLayer.addTo(map);
-    } catch (e) {
-      // leaflet-heat crashes if canvas size is 0 (defer-script race).
-      // Remove the half-added layer so subsequent moveend doesn't re-throw.
-      console.warn('[heat] addTo failed:', e.message);
-      try { if (reportHeatLayer) map.removeLayer(reportHeatLayer); } catch(_){}
-      reportHeatLayer = null;
-      setTimeout(() => { if (map) map.invalidateSize(); }, 100);
-    }
-  }
-
-  renderReportFeed();
-}
-
-// ===== REPORTS FEED — compact, expand-in-place, filterable =====
-function filteredReports(){
-  const now = Date.now();
-  const winMs = state.feedFilters.window === '24h' ? 24*3600*1000
-              : state.feedFilters.window === '7d'  ? 7*24*3600*1000
-              : null;
-  return state.reports.filter(r => {
-    if (state.feedFilters.category && r.category !== state.feedFilters.category) return false;
-    if (winMs && r.submittedAt){
-      if (now - new Date(r.submittedAt).getTime() > winMs) return false;
-    }
-    return true;
-  }).sort((a, b) => {
-    const ta = a.submittedAt ? +new Date(a.submittedAt) : 0;
-    const tb = b.submittedAt ? +new Date(b.submittedAt) : 0;
-    return tb - ta;
-  });
-}
-
-function renderFeedFilters(){
-  const container = document.getElementById('feed-filters');
-  if (!container) return;
-  const cats = [...new Set(state.reports.map(r => r.category || 'other'))].sort();
-  const win = state.feedFilters.window;
-  const cat = state.feedFilters.category;
-  const chip = (label, active, attr, val) =>
-    `<button class="feed-chip ${active ? 'active' : ''}" data-${attr}="${val}" type="button">${label}</button>`;
-  container.innerHTML =
-    `<span class="feed-chip-label">${t('feed.filter_category')}:</span>` +
-    chip(t('feed.filter_all'),     !cat, 'cat', '__all') +
-    cats.map(c => chip(c.replace(/_/g,' '), cat===c, 'cat', c)).join('') +
-    `<span class="feed-chip-label" style="margin-left:14px">·</span>` +
-    chip(t('feed.filter_24h'),     win==='24h', 'win', '24h') +
-    chip(t('feed.filter_7d'),      win==='7d',  'win', '7d') +
-    chip(t('feed.filter_alltime'), win==='all', 'win', 'all');
-  container.querySelectorAll('[data-cat]').forEach(el => el.addEventListener('click', () => {
-    const v = el.dataset.cat;
-    state.feedFilters.category = v === '__all' ? null : v;
-    state.feedLimit = FEED_PAGE_SIZE;
-    renderFeedFilters(); renderReportFeed();
-  }));
-  container.querySelectorAll('[data-win]').forEach(el => el.addEventListener('click', () => {
-    state.feedFilters.window = el.dataset.win;
-    state.feedLimit = FEED_PAGE_SIZE;
-    renderFeedFilters(); renderReportFeed();
-  }));
-}
-
-function renderReportFeed(){
-  const container = document.getElementById('reports-feed');
-  if (!container) return;
-  const all = filteredReports();
-  if (!all.length){
-    container.innerHTML = `<div class="empty-state">${D.escapeHtml(t('feed.empty'))}</div>`;
-    document.getElementById('feed-load-more').style.display = 'none';
-    return;
-  }
-  const shown = all.slice(0, state.feedLimit);
-  container.innerHTML = shown.map((r, i) => renderFeedRowHtml(r, i)).join('');
-  shown.forEach((r, i) => {
-    const el = container.querySelector(`.feed-row[data-idx="${i}"]`);
-    if (!el) return;
-    const toggle = () => toggleFeedRow(r, el);
-    el.addEventListener('click', toggle);
-    el.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
-    });
-  });
-  const moreBtn = document.getElementById('feed-load-more');
-  if (all.length > state.feedLimit){
-    moreBtn.style.display = 'inline-flex';
-    moreBtn.onclick = () => { state.feedLimit += FEED_PAGE_SIZE; renderReportFeed(); };
-  } else {
-    moreBtn.style.display = 'none';
-  }
-}
-
-function renderFeedRowHtml(r, idx){
-  const cat = (r.category || 'other');
-  const catLabel = cat.replace(/_/g, ' ');
-  const time = I.formatRelative(r.submittedAt);
-  const preview = (r.description || '').slice(0, 110);
-  const expanded = state.expandedReportId === r.id;
-  return `<article class="feed-row ${expanded ? 'expanded' : ''}" data-idx="${idx}" data-id="${D.escapeHtml(r.id)}" tabindex="0" role="button" aria-expanded="${expanded}">
-    <div class="feed-row-top">
-      <span class="feed-time">${D.escapeHtml(time)}</span>
-      <span class="feed-cat feed-cat-${D.escapeHtml(cat)}">${D.escapeHtml(catLabel)}</span>
-      ${r.locality ? `<span class="feed-locality">${D.escapeHtml(r.locality)}</span>` : ''}
-    </div>
-    ${preview ? `<p class="feed-preview">${D.escapeHtml(preview)}${(r.description||'').length > 110 ? '…' : ''}</p>` : ''}
-    <div class="feed-detail">${expanded ? renderFeedDetailHtml(r) : ''}</div>
-  </article>`;
-}
-
-function renderFeedDetailHtml(r){
-  const photo = r.photoUrl
-    ? `<img src="${D.escapeHtml(r.photoUrl)}" alt="" loading="lazy">`
-    : '';
-  const full = r.description ? `<div>${D.escapeHtml(r.description)}</div>` : '';
-  const ai = (r.aiDescription || (r.indicators && r.indicators.length))
-    ? `<div class="feed-ai">
-        ${r.aiDescription ? D.escapeHtml(r.aiDescription) : ''}
-        ${r.indicators && r.indicators.length
-          ? `<div class="feed-ai-indicators">Detected: ${D.escapeHtml(r.indicators.slice(0,4).join(', '))}</div>`
-          : ''}
-       </div>`
-    : '';
-  const nearby = renderNearbySensorsForReport(r);
-  return `${photo}${full}${ai}${nearby}`;
-}
-
-// Direction B: report → sensors. Looks up cached peaks per sensor, surfaces
-// any corroborating one strongly. Renders chips for sensors within 1km
-// and ±1h of the report time.
-function renderNearbySensorsForReport(r){
-  if (!r.submittedAt || typeof r.lat !== 'number' || typeof r.lng !== 'number') return '';
-  const getPeaks = (s) => {
-    const entry = state.peaks[s.id];
-    if (!entry) return [];
-    return entry.peaks7d || [];
-  };
-  const near = P.sensorsNear(state.sensors, r.submittedAt, r.lat, r.lng, 1, 1, getPeaks);
-  if (!near.length) return '';
-  const chips = near.map((n, i) => {
-    const strong = n.corroboratingPeak ? ' corr-chip-strong' : '';
-    const label = `${D.escapeHtml(n.sensor.name)} · ${P.formatDistance(n.distanceKm)}`;
-    const peakNote = n.corroboratingPeak
-      ? ` · ${P.metricLabel(n.corroboratingPeak.metric)} ${n.corroboratingPeak.value.toFixed(1)}${P.metricUnit(n.corroboratingPeak.metric)} (${P.formatDelta(n.corroboratingPeak.deltaMs, 'report')})`
-      : '';
-    return `<button class="corr-chip${strong}" data-corr-sid="${D.escapeHtml(n.sensor.id)}" type="button">${label}${peakNote}</button>`;
-  }).join('');
-  // If any nearby sensor has a corroborating peak, surface a strong banner.
-  const corroborator = near.find(n => n.corroboratingPeak);
-  const banner = corroborator
-    ? `<div class="corr-corroborates">
-         <b>${D.escapeHtml(t('peak.corroborates'))}</b> — ${D.escapeHtml(P.metricLabel(corroborator.corroboratingPeak.metric))}
-         spiked to ${corroborator.corroboratingPeak.value.toFixed(1)} ${P.metricUnit(corroborator.corroboratingPeak.metric)}
-         at ${D.escapeHtml(corroborator.sensor.name)} (${P.formatDistance(corroborator.distanceKm)} away,
-         ${P.formatDelta(corroborator.corroboratingPeak.deltaMs, 'report')}).
-       </div>`
-    : '';
-  return `${banner}
-    <div style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase">${D.escapeHtml(t('peak.nearby_sensors'))}</div>
-    <div class="corr-chips">${chips}</div>`;
-}
-
-function toggleFeedRow(r, el){
-  const wasExpanded = state.expandedReportId === r.id;
-  state.expandedReportId = wasExpanded ? null : r.id;
-  // Pan the map and open detail pane when expanding (not when collapsing)
-  if (!wasExpanded){
-    if (typeof r.lat === 'number' && typeof r.lng === 'number'){
-      if (map) map.flyTo([r.lat, r.lng], 16, { duration: 0.6 });
-    }
-    selectReport(r);
-  }
-  renderReportFeed();
-  // Wire up correlation chip clicks inside the just-rendered detail
-  document.querySelectorAll('[data-corr-sid]').forEach(b => {
-    b.addEventListener('click', ev => {
-      ev.stopPropagation();
-      const sid = b.dataset.corrSid;
-      const s = state.sensors.find(x => x.id === sid);
-      if (s){
-        if (map) map.setView([s.lat, s.lng], 14, { animate: true });
-        selectSensor(s);
-      }
-    });
-  });
-}
-
-async function selectSensor(s){
-  destroyCharts();
-  document.getElementById('adv-detail-label').textContent = s.sourceLabel;
-  document.getElementById('adv-detail-title').textContent = s.name;
-  document.getElementById('adv-detail-desc').textContent =
-    `${s.description || ''} · last reading: ${s.lastReading?new Date(s.lastReading).toLocaleString():'unknown'}`;
-  // P1-2: announce the loading state to assistive tech via aria-busy on
-  // the live region; aria-busy=false on resolve / error so subsequent
-  // textContent updates are read as the new state.
-  const body = document.getElementById('adv-detail-body');
-  body.setAttribute('aria-busy', 'true');
-  body.innerHTML =
-    `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${D.escapeHtml(t('detail.loading'))}</div>`;
-
-  try {
-    if(s.source === 'smartcitizen'){
-      const detail = await D.fetchSmartCitizenDetail(s.rawId);
-      renderSmartCitizenDetail(detail, s);
-      // History charts are SCK-only (Phase 1 scope). Fire-and-forget — the
-      // detail panel is interactive before charts finish loading.
-      fetchAndRenderHistory(detail, s);
-    } else {
-      renderCachedReading(s);
-    }
-  } catch(e){
-    body.innerHTML =
-      `<div class="empty-state">${D.escapeHtml(t('detail.fetch_failed'))}: ${D.escapeHtml(e.message)}</div>`;
-  } finally {
-    body.setAttribute('aria-busy', 'false');
-  }
-  document.querySelector('.section-label').scrollIntoView({behavior:'smooth', block:'start'});
-}
-
-function selectReport(r){
-  document.getElementById('adv-detail-label').textContent = 'Citizen report';
-  document.getElementById('adv-detail-title').textContent = r.title || r.description || 'Report';
-  const sev = r.severity ? ` · severity ${r.severity}` : '';
-  document.getElementById('adv-detail-desc').textContent =
-    `Category: ${r.category||'general'}${sev} · ${r.submittedAt?new Date(r.submittedAt).toLocaleString():''}`;
-  const photoBlock = r.photoUrl
-    ? `<a href="${D.escapeHtml(r.photoUrl)}" target="_blank" rel="noopener"
-          style="display:block;margin:0 0 14px;line-height:0">
-         <img src="${D.escapeHtml(r.photoUrl)}" alt="report photo" loading="lazy"
-              style="width:100%;max-width:420px;height:auto;border-radius:3px;
-                     border:1px solid var(--line)">
-       </a>`
-    : '';
-  const aiBlock = (r.aiDescription || (r.indicators && r.indicators.length))
-    ? `<div style="margin:14px 0 0;padding:10px 12px;
-                   background:rgba(255,255,255,0.04);
-                   border-left:2px solid #e08a2e;
-                   font-size:12.5px;line-height:1.55;color:#f4ede0">
-         ${r.aiDescription
-           ? `<div style="font-style:italic;margin-bottom:${r.indicators && r.indicators.length ? '6px' : '0'}">
-                🤖 ${D.escapeHtml(r.aiDescription)}
-              </div>`
-           : ''}
-         ${r.indicators && r.indicators.length
-           ? `<div style="font-family:'JetBrains Mono','IBM Plex Mono',monospace;
-                          font-size:10.5px;color:#8a948c;letter-spacing:.05em">
-                Detected: <span style="color:#f4ede0">${D.escapeHtml(r.indicators.slice(0, 4).join(', '))}</span>
-              </div>`
-           : ''}
-       </div>`
-    : '';
-  document.getElementById('adv-detail-body').innerHTML =
-    `${photoBlock}<div class="panel-body">${D.escapeHtml(r.description||'')}</div>${aiBlock}${renderNearbySensorsForReport(r)}`;
-  // Wire chips inside detail pane
-  document.getElementById('adv-detail-body').querySelectorAll('[data-corr-sid]').forEach(b => {
-    b.addEventListener('click', () => {
-      const sid = b.dataset.corrSid;
-      const s = state.sensors.find(x => x.id === sid);
-      if (s){
-        map.setView([s.lat, s.lng], 14, {animate: true});
-        selectSensor(s);
-      }
-    });
-  });
-}
-
-function renderSmartCitizenDetail(detail, s){
-  const sensors = detail.data?.sensors || detail.sensors || [];
-  const findVal = names => {
-    const m = sensors.find(x => names.some(n => (x.name||'').includes(n)));
-    return m ? {value:m.value, unit:m.unit} : null;
-  };
-  const rows = [
-    {label:'PM<sub>2.5</sub>', v:findVal(['PM 2.5','PM2.5']), unit:'µg/m³', threshold:15},
-    {label:'PM<sub>10</sub>',  v:findVal(['PM 10','PM10']),   unit:'µg/m³', threshold:45},
-    {label:'Temperature',      v:findVal(['Temperature']),    unit:'°C',    threshold:null},
-    {label:'Humidity',         v:findVal(['Humidity']),       unit:'%',     threshold:60},
-    {label:'Noise',            v:findVal(['Noise']),          unit:'dBA',   threshold:55},
-  ];
-  const html = rows.map(r => {
-    if(!r.v) return `<div class="stat-row"><span class="stat-label">${r.label}</span><span class="stat-val" style="opacity:.4">${D.escapeHtml(t('history.no_data'))}</span></div>`;
-    const v = r.v.value, over = r.threshold && v > r.threshold;
-    return `<div class="stat-row"><span class="stat-label">${r.label}</span><span class="stat-val" style="${over?'color:var(--bad)':''}">${fmt(v)} ${r.unit}${over?' ⚠':''}</span></div>`;
-  }).join('');
-  document.getElementById('adv-detail-body').innerHTML = `
-    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:14px">Live · ${detail.data?.recorded_at?new Date(detail.data.recorded_at).toLocaleString():''}</div>
-    ${html}
-    <div id="adv-detail-charts">
-      <div class="chart-section-title">${D.escapeHtml(t('history.title_24h'))} · ${D.escapeHtml(t('history.title_7d'))}</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${D.escapeHtml(t('history.loading'))}</div>
-    </div>
-    <div style="margin-top:18px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">
-      Source: <a href="${D.escapeHtml(s.detailsUrl)}" target="_blank" rel="noopener">${D.escapeHtml(s.sourceLabel)} →</a><br>
-      Sensors on device: ${sensors.length}
-    </div>`;
-}
-
-// ===== HISTORY: fetch series for every classifiable sensor on the device,
-// detect peaks, render 24h + 7d strip charts, attach correlation chips. =====
-async function fetchAndRenderHistory(detail, sensorObj){
-  const deviceId = detail.id || sensorObj.rawId;
-  const sensors = (detail.data && detail.data.sensors) || detail.sensors || [];
-  const classified = sensors
-    .map(s => ({ raw: s, metric: P.classifyMetric(s.name) }))
-    .filter(x => x.metric);
-  if (!classified.length){
-    const slot = document.getElementById('adv-detail-charts');
-    if (slot) slot.innerHTML = `<div class="chart-section-title">History</div><div class="empty-state">${D.escapeHtml(t('history.empty'))}</div>`;
-    return;
-  }
-
-  const now = new Date();
-  const from24 = new Date(now.getTime() - 24 * 3600 * 1000).toISOString();
-  const from7  = new Date(now.getTime() -  7 * 24 * 3600 * 1000).toISOString();
-  const toIso  = now.toISOString();
-
-  // 24h: raw resolution (every reading). 7d: hourly rollup to keep payload sane.
-  const ids = classified.map(c => c.raw.id);
-  let pts24 = {}, pts7 = {};
-  try {
-    [pts24, pts7] = await Promise.all([
-      D.fetchSmartCitizenHistoryBulk(deviceId, ids, from24, toIso, null),
-      D.fetchSmartCitizenHistoryBulk(deviceId, ids, from7,  toIso, '1h'),
-    ]);
-  } catch(e){
-    const slot = document.getElementById('adv-detail-charts');
-    if (slot) slot.innerHTML = `<div class="empty-state">${D.escapeHtml(t('history.error'))} ${D.escapeHtml(e.message || '')}</div>`;
-    return;
-  }
-
-  // Build series objects + detect peaks per metric/window
-  const series = {};
-  const allPeaks24 = [], allPeaks7 = [];
-  for (const c of classified){
-    const m = c.metric;
-    const points24 = pts24[c.raw.id] || [];
-    const points7  = pts7[c.raw.id]  || [];
-    const peaks24 = P.detectPeaks(points24, m);
-    const peaks7  = P.detectPeaks(points7,  m);
-    allPeaks24.push(...peaks24);
-    allPeaks7.push(...peaks7);
-    series[m] = {
-      sensorId: c.raw.id,
-      sensorName: c.raw.name,
-      unit: c.raw.unit || P.metricUnit(m),
-      points24, points7, peaks24, peaks7,
-    };
-  }
-
-  // Stash on state for cross-component access (e.g. report → sensor lookup)
-  state.peaks[sensorObj.id] = {
-    deviceId,
-    peaks24: allPeaks24, peaks7d: allPeaks7,
-    series,
-  };
-  updatePeakCounters();
-
-  // Render
-  const slot = document.getElementById('adv-detail-charts');
-  if (!slot) return;
-  const metricsOrdered = Object.keys(series).sort((a, b) => {
-    // Prioritize PM2.5, then PM10, then everything else
-    const order = ['pm25','pm10','pm1','temp','rh','gas','pressure','noise'];
-    return order.indexOf(a) - order.indexOf(b);
-  });
-
-  const blocks = metricsOrdered.map(m => {
-    const ent = series[m];
-    const label = P.metricLabel(m);
-    const unit  = P.metricUnit(m);
-    const id24 = `ch24-${m}`, id7 = `ch7-${m}`;
-    return `
-      <div class="chart-block">
-        <div class="chart-block-title">
-          <b>${D.escapeHtml(label)}</b>
-          <span>${D.escapeHtml(t('history.title_24h'))}${ent.peaks24.length ? ` · <span class="peak-count">${ent.peaks24.length} peak${ent.peaks24.length>1?'s':''}</span>` : ''}</span>
-        </div>
-        <div class="chart-strip">${ent.points24.length ? `<canvas id="${id24}"></canvas>` : `<div class="chart-strip-empty">${D.escapeHtml(t('history.empty'))}</div>`}</div>
-        <div class="chart-block-title" style="margin-top:10px">
-          <b style="opacity:0">${D.escapeHtml(label)}</b>
-          <span>${D.escapeHtml(t('history.title_7d'))}${ent.peaks7.length ? ` · <span class="peak-count">${ent.peaks7.length} peak${ent.peaks7.length>1?'s':''}</span>` : ''}</span>
-        </div>
-        <div class="chart-strip">${ent.points7.length ? `<canvas id="${id7}"></canvas>` : `<div class="chart-strip-empty">${D.escapeHtml(t('history.empty'))}</div>`}</div>
-        <div id="corr-${m}"></div>
-      </div>`;
-  }).join('');
-
-  slot.innerHTML = `<div class="chart-section-title">History · ${D.escapeHtml(metricsOrdered.map(P.metricLabel).join(' · '))}</div>${blocks}`;
-
-  // Render correlation chips immediately (no Chart.js needed for those).
-  for (const m of metricsOrdered){
-    const ent = series[m];
-    renderPeakCorrelations(`corr-${m}`, sensorObj, ent.peaks24.concat(ent.peaks7), m);
-  }
-
-  // Lazy-load Chart.js, then draw all strips (PERF-1).
-  loadChartJs().then(() => {
-    for (const m of metricsOrdered){
-      const ent = series[m];
-      if (ent.points24.length) drawStripChart(`ch24-${m}`, ent.points24, ent.peaks24, m, ent.unit);
-      if (ent.points7.length)  drawStripChart(`ch7-${m}`,  ent.points7,  ent.peaks7,  m, ent.unit);
-    }
-  }).catch(e => {
-    console.warn('[charts] Chart.js failed to load:', e.message);
-    // Replace each canvas placeholder with a graceful fallback.
-    metricsOrdered.forEach(m => {
-      ['ch24-' + m, 'ch7-' + m].forEach(id => {
-        const c = document.getElementById(id);
-        if (c) c.outerHTML = `<div class="chart-strip-empty">${D.escapeHtml(t('history.error'))}</div>`;
-      });
-    });
-  });
-}
-
-function drawStripChart(canvasId, points, peaks, metric, unit){
-  const canvas = document.getElementById(canvasId);
-  if (!canvas || !points.length) return;
-
-  const peakKey = new Set(peaks.map(p => p.recordedAt));
-  const peakSeverity = new Map(peaks.map(p => [p.recordedAt, p.severity || 'warn']));
-  const peakColor = (sev) => sev === 'bad' ? '#d96a4f' : sev === 'warn' ? '#e8a04a' : '#5fa8a8';
-
-  // Category axis with formatted labels — avoids needing a Chart.js date adapter.
-  const labels = points.map(p => {
-    const d = new Date(p.recordedAt);
-    // Same day → just HH:mm. Otherwise dd/MM HH:mm.
-    const now = new Date();
-    const sameDay = d.toDateString() === now.toDateString();
-    return sameDay
-      ? d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
-      : d.toLocaleDateString([], {day:'2-digit', month:'short'}) + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  });
-  const values = points.map(p => p.value);
-
-  const chart = new Chart(canvas.getContext('2d'), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: P.metricLabel(metric),
-        data: values,
-        borderColor: '#5fa8a8',
-        backgroundColor: 'rgba(95,168,168,0.10)',
-        borderWidth: 1.4,
-        fill: true,
-        tension: 0.25,
-        pointRadius: ctx => peakKey.has(points[ctx.dataIndex].recordedAt) ? 4 : 0,
-        pointBackgroundColor: ctx => peakKey.has(points[ctx.dataIndex].recordedAt) ? peakColor(peakSeverity.get(points[ctx.dataIndex].recordedAt)) : '#5fa8a8',
-        pointBorderColor:     ctx => peakKey.has(points[ctx.dataIndex].recordedAt) ? peakColor(peakSeverity.get(points[ctx.dataIndex].recordedAt)) : '#5fa8a8',
-        pointHoverRadius: 6,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false,
-      interaction: { mode: 'nearest', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(15,20,23,0.95)',
-          borderColor: '#2a3138',
-          borderWidth: 1,
-          titleFont: { family: 'JetBrains Mono', size: 10 },
-          bodyFont:  { family: 'Inter', size: 12 },
-          callbacks: {
-            title: (items) => new Date(points[items[0].dataIndex].recordedAt).toLocaleString(),
-            label: (item) => {
-              const iso = points[item.dataIndex].recordedAt;
-              const peak = peaks.find(p => p.recordedAt === iso);
-              const v = item.parsed.y.toFixed(1) + ' ' + unit;
-              if (peak) return [v, '⚠ ' + peak.thresholdLabel];
-              return v;
-            },
-          },
-        },
-      },
-      scales: {
-        x: {
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#8a948c', font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 6, maxRotation: 0, autoSkip: true },
-        },
-        y: {
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#8a948c', font: { family: 'JetBrains Mono', size: 9 } },
-        },
-      },
-    },
-  });
-  chartInstances.push(chart);
-}
-
-function destroyCharts(){
-  for (const c of chartInstances){ try { c.destroy(); } catch(_){} }
-  chartInstances = [];
-}
-
-// Direction A: for each peak in the sensor's series, list nearby reports.
-// If none, surface the "report this peak" prompt. Renders into containerId.
-function renderPeakCorrelations(containerId, sensorObj, peaks, metric){
-  const el = document.getElementById(containerId);
-  if (!el || !peaks.length) return;
-  // Take the most severe peak as anchor; older/lesser peaks can clutter the UI.
-  const sorted = peaks.slice().sort((a, b) => {
-    const sev = (p) => ({info:1,warn:2,bad:3,crit:4})[p.severity || 'warn'] || 2;
-    return sev(b) - sev(a) || new Date(b.recordedAt) - new Date(a.recordedAt);
-  });
-  const anchor = sorted[0];
-  const near = P.reportsNear(state.reports, anchor.recordedAt, sensorObj.lat, sensorObj.lng, 1, 2);
-  if (near.length){
-    const chips = near.slice(0, 4).map(n => {
-      const r = n.report;
-      const label = `${D.escapeHtml((r.category || 'report').replace(/_/g,' '))} · ${P.formatDistance(n.distanceKm)} · ${P.formatDelta(n.deltaMs, 'peak')}`;
-      return `<button class="corr-chip" data-corr-rid="${D.escapeHtml(r.id)}" type="button">${label}</button>`;
-    }).join('');
-    el.innerHTML = `
-      <div style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase">${D.escapeHtml(t('peak.nearby_reports'))}</div>
-      <div class="corr-chips">${chips}</div>`;
-    el.querySelectorAll('[data-corr-rid]').forEach(b => {
-      b.addEventListener('click', () => {
-        const rid = b.dataset.corrRid;
-        const r = state.reports.find(x => x.id === rid);
-        if (r){
-          state.expandedReportId = r.id;
-          renderReportFeed();
-          if (typeof r.lat === 'number' && map) map.flyTo([r.lat, r.lng], 16, {duration: 0.6});
-          selectReport(r);
-          document.getElementById('reports-feed').scrollIntoView({behavior:'smooth', block:'start'});
-        }
-      });
-    });
-  } else {
-    // Peak with no nearby report → encourage the user to file one via
-    // the WhatsApp bot. Pre-fills a "Making Sense Bali — peak in {metric}"
-    // hint so Fab Lab Bali can route + verify it.
-    const wa = `https://wa.me/6285190890857?text=${encodeURIComponent('Making Sense Bali — I just saw a peak in ' + (P.metricLabel(metric) || 'air quality') + ' near me. I want to report:')}`;
-    el.innerHTML = `
-      <div class="corr-prompt">
-        ${D.escapeHtml(t('peak.report_prompt'))}
-        <a href="${wa}" target="_blank" rel="noopener">${D.escapeHtml(t('peak.report_link'))}</a>
-      </div>`;
-  }
-}
-
-function renderCachedReading(s){
-  const r = s.reading || {};
-  const rows = [
-    {label:'PM<sub>2.5</sub>', v:r.pm25, unit:'µg/m³', threshold:15},
-    {label:'PM<sub>10</sub>',  v:r.pm10, unit:'µg/m³', threshold:45},
-    {label:'Temperature',      v:r.temp, unit:'°C',    threshold:null},
-    {label:'Humidity',         v:r.rh,   unit:'%',     threshold:60},
-  ];
-  const html = rows.map(row => {
-    if(row.v == null) return `<div class="stat-row"><span class="stat-label">${row.label}</span><span class="stat-val" style="opacity:.4">no data</span></div>`;
-    const over = row.threshold && row.v > row.threshold;
-    return `<div class="stat-row"><span class="stat-label">${row.label}</span><span class="stat-val" style="${over?'color:var(--bad)':''}">${fmt(row.v)} ${row.unit}${over?' ⚠':''}</span></div>`;
-  }).join('');
-  document.getElementById('adv-detail-body').innerHTML = `
-    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:14px">Last reading · ${s.lastReading?new Date(s.lastReading).toLocaleString():'unknown'}</div>
-    ${html}
-    <div style="margin-top:18px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">
-      Source: <a href="${D.escapeHtml(s.detailsUrl)}" target="_blank" rel="noopener">${D.escapeHtml(s.sourceLabel)} →</a>
-    </div>`;
-}
-
-function updateStats(){
-  const sN = state.sensors.length, rN = state.reports.length;
-  document.getElementById('sensorCount').textContent = sN;
-  document.getElementById('reportCount').textContent = rN;
-  document.getElementById('adv-sck-count').textContent = sN;
-  const recent = state.sensors.filter(s => D.isActive(s.lastReading)).length;
-  document.getElementById('activeCount').textContent = recent;
-  document.getElementById('adv-active-count').textContent = recent;
-
-  // Ranked sensor list — sorted by PM2.5 desc (worst at top), then by name
-  const ranked = [...state.sensors].sort((a, b) => {
-    const av = (a.reading && a.reading.pm25) ?? -1;
-    const bv = (b.reading && b.reading.pm25) ?? -1;
-    if(av !== bv) return bv - av;
-    return (a.name || '').localeCompare(b.name || '');
-  });
-  const rankedBody = document.getElementById('adv-ranked-body');
-  if(rankedBody){
-    if(!ranked.length){
-      rankedBody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted)">No sensors yet.</td></tr>`;
-    } else {
-      rankedBody.innerHTML = ranked.map(s => {
-        const offline = !D.isActive(s.lastReading);
-        const pm25 = s.reading && s.reading.pm25;
-        const cls = D.classifyPM25(pm25);
-        const color = offline ? 'var(--muted)' : (cls==='bad'?'var(--bad)':cls==='warn'?'var(--warn)':cls==='good'?'var(--good)':'var(--paper)');
-        const pmCell = offline ? '<span style="color:var(--muted)">— offline</span>'
-          : pm25 == null ? '<span style="opacity:.5">no data</span>'
-          : `<span style="color:${color}">${pm25.toFixed(1)} µg/m³</span>`;
-        const last = s.lastReading ? new Date(s.lastReading).toLocaleDateString() : '—';
-        // P0-1: rows are keyboard-operable. tabindex/role/aria-label mirror
-        // the report-feed row pattern already in this file.
-        const aria = `${s.name} · ${pm25 != null ? pm25.toFixed(1) + ' micrograms per cubic metre' : 'no PM2.5 data'}${offline ? ' · offline' : ''} · ${s.sourceLabel.split(' · ')[0]} · activate to inspect`;
-        return `<tr class="ranked-row" data-sid="${D.escapeHtml(s.id)}" tabindex="0" role="button" aria-label="${D.escapeHtml(aria)}">
-          <td class="metric">${D.escapeHtml(s.name)}</td>
-          <td class="value" style="opacity:.7">${D.escapeHtml(s.sourceLabel.split(' · ')[0])}</td>
-          <td class="value">${pmCell}</td>
-          <td class="value" style="opacity:.7">${last}</td>
-        </tr>`;
-      }).join('');
-      // Wire click + keyboard activation
-      rankedBody.querySelectorAll('tr[data-sid]').forEach(tr => {
-        const activate = () => {
-          const sid = tr.dataset.sid;
-          const s = state.sensors.find(x => x.id === sid);
-          if(s){
-            if (map) map.setView([s.lat, s.lng], 14, {animate: true});
-            selectSensor(s);
-          }
-        };
-        tr.addEventListener('click', activate);
-        tr.addEventListener('keydown', e => {
-          if (e.key === 'Enter' || e.key === ' '){
-            e.preventDefault();
-            activate();
-          }
-        });
-      });
-    }
-  }
-
-  // Source breakdown
-  const bySource = {};
-  for(const s of state.sensors){
-    const key = s.sourceLabel.split(' · ')[0]; // top-level label
-    bySource[key] = (bySource[key] || 0) + 1;
-  }
-  const breakdown = document.getElementById('adv-sources-breakdown');
-  if(breakdown){
-    if(Object.keys(bySource).length){
-      breakdown.innerHTML =
-        `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px">By source</div>` +
-        Object.entries(bySource).sort((a,b)=>b[1]-a[1]).map(([src,n])=>
-          `<div class="stat-row"><span class="stat-label">${D.escapeHtml(src)}</span><span class="stat-val">${n}</span></div>`
-        ).join('');
-    } else {
-      breakdown.innerHTML = '';
-    }
-  }
-  if(rN > 0){
-    const byCat = {};
-    for(const r of state.reports) byCat[r.category||'general'] = (byCat[r.category||'general']||0)+1;
-    // Summary line (templated by generate_summary.py on the NAS) goes
-    // on top of the category breakdown. Falls through silently if the
-    // summary file isn't there — older deployments still render the
-    // categorized counts as before.
-    const summaryLine = state.summary && state.summary.line
-      ? `<div style="font-family:'Newsreader',serif;font-size:14px;color:var(--ink);
-                     line-height:1.5;margin-bottom:10px;padding-bottom:10px;
-                     border-bottom:1px solid var(--line)">
-           ${D.escapeHtml(state.summary.line)}
-         </div>`
-      : '';
-    document.getElementById('adv-reports-body').innerHTML =
-      summaryLine +
-      Object.entries(byCat).map(([cat,n])=>
-        `<div class="stat-row"><span class="stat-label">${D.escapeHtml(cat)}</span><span class="stat-val">${n}</span></div>`
-      ).join('');
-  }
-}
-
-function setLive(stateName, msgKey){
-  const dot=document.getElementById('liveDot'), lbl=document.getElementById('liveLabel');
-  dot.className = 'live-dot ' + (stateName==='ok'?'':stateName);
-  lbl.setAttribute('data-i18n', msgKey);
-  lbl.textContent = t(msgKey);
-}
-
-// Roll up cached peak counts across all sensors that have been inspected.
-// Counters only populate as users click sensors — initial value is "—".
-function updatePeakCounters(){
-  let count24 = 0, count7 = 0;
-  for (const entry of Object.values(state.peaks)){
-    count24 += (entry.peaks24 || []).length;
-    count7  += (entry.peaks7d || []).length;
-  }
-  const el24 = document.getElementById('peaks24Count');
-  const el7  = document.getElementById('peaks7Count');
-  if (el24) el24.textContent = count24 ? String(count24) : (Object.keys(state.peaks).length ? '0' : '—');
-  if (el7)  el7.textContent  = count7  ? String(count7)  : (Object.keys(state.peaks).length ? '0' : '—');
-}
-
-async function loadAll(){
-  setLive('loading','statusbar.syncing');
+var D=window.SCB_DATA||{}, win='24h', curSensor=null, sensorList=[], KNOWN=[19236,19600,19618,19651];
+function setT(id,t){ var e=document.getElementById(id); if(e) e.textContent=t; }
+function median(a){ if(!a.length) return null; var x=a.slice().sort(function(p,q){return p-q;}); return x[Math.floor(x.length/2)]; }
+function activeS(s){ return s.filter(function(x){ return x&&x.reading&&typeof x.reading.pm25==='number'&&(!D.isActive||D.isActive(x.lastReading)); }); }
+function clock(ms){ try{ return new Date(ms).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Makassar'}); }catch(_){ return ''; } }
+function day(ms){ try{ return new Date(ms).toLocaleDateString('en-GB',{weekday:'short',timeZone:'Asia/Makassar'}); }catch(_){ return ''; } }
+function msg(t){ return '<text x="520" y="180" text-anchor="middle" fill="#8a8fa0" font-family="IBM Plex Mono,monospace" font-size="13">'+t+'</text>'; }
+async function loadReports(){
+  var rs=[];
+  try{ rs=(await (D.fetchReports?D.fetchReports():[]))||[]; }catch(e){ console.warn('[reports] fetchReports threw:', e); }
+  if(rs.length) return rs;
   try{
-    const [sensors, reports, summary] = await Promise.all([
-      D.fetchSensorsFast(),
-      D.fetchReports(),
-      D.fetchReportsSummary ? D.fetchReportsSummary() : Promise.resolve(null),
-    ]);
-    state.sensors = sensors; state.reports = reports; state.summary = summary;
-    renderPins(); updateStats(); renderFeedFilters(); renderReportFeed();
-    if(sensors.length || reports.length){
-      const all = [...sensors, ...reports].map(p=>[p.lat,p.lng]).filter(p=>p[0]!=null);
-      if(all.length > 1 && map) map.fitBounds(L.latLngBounds(all), {padding:[40,40], maxZoom:13});
-    }
-    setLive('ok','statusbar.live');
-  } catch(e){ console.error(e); setLive('error','statusbar.error'); }
+    var base=(D.reportsBaseUrl?D.reportsBaseUrl():'./data/reports');
+    var ir=await fetch(base+'/index.json',{cache:'no-cache'});
+    if(!ir.ok){ console.warn('[reports] index.json HTTP '+ir.status); return rs; }
+    var idx=await ir.json(), files=(idx&&idx.profiles)||[];
+    var profs=await Promise.all(files.map(function(f){ return fetch(base+'/'+f).then(function(x){return x.ok?x.json():null;}).catch(function(){return null;}); }));
+    rs=profs.filter(Boolean).map(function(p){ return D.profileToReport?D.profileToReport(p):null; }).filter(Boolean);
+    console.log('[reports] direct loader recovered '+rs.length);
+  }catch(e){ console.warn('[reports] direct loader failed:', e); }
+  return rs;
+}
+var HIST=null, HIST_TRIED=false;
+async function getHistory(){
+  if(HIST_TRIED) return HIST;
+  HIST_TRIED=true;
+  try{ var base=(D.dataBaseUrl?D.dataBaseUrl():'./data'); var r=await fetch(base+'/history.json',{cache:'no-cache'}); if(r.ok){ var j=await r.json(); HIST=(j&&j.sensors)||null; } }catch(_){}
+  return HIST;
+}
+function withTimeout(p,ms){ return Promise.race([p, new Promise(function(_,rej){ setTimeout(function(){rej(new Error('timeout'));}, ms); })]); }
+function firstHist(hist){ var ks=Object.keys(hist); for(var i=0;i<ks.length;i++){ if(hist[ks[i]]&&hist[ks[i]].h24&&hist[ks[i]].h24.length>=3) return hist[ks[i]]; } return null; }
+function renderChartPairs(pairs){ renderChart(pairs.map(function(p){ return {value:p[1], recordedAt:p[0]}; })); }
+
+async function boot(){
+  var sensors=[]; try{ sensors=(await (D.fetchSensorsFast?D.fetchSensorsFast():[]))||[]; }catch(_){}
+  var act=activeS(sensors), med=median(act.map(function(s){return s.reading.pm25;}));
+  setT('m-median', med!=null?(Math.round(med*10)/10).toFixed(1):'–');
+  setT('m-sensors', act.length||'–');
+  sensorList=act.filter(function(s){ return s.source==='smartcitizen'&&s.rawId; });
+  var defIdx=0; for(var i=0;i<sensorList.length;i++){ if(KNOWN.indexOf(Number(sensorList[i].rawId))>=0){ defIdx=i; break; } }
+  var sel=document.getElementById('dsel');
+  if(sel){ sel.innerHTML=''; if(sensorList.length){ sensorList.forEach(function(s,i){ var o=document.createElement('option'); o.value=i; o.textContent=s.name; sel.appendChild(o); }); sel.selectedIndex=defIdx; } else { var o=document.createElement('option'); o.textContent='Smart Citizen · Bali'; sel.appendChild(o); } }
+  curSensor=sensorList.length?sensorList[defIdx]:{rawId:KNOWN[0],name:'Smart Citizen · Bali'};
+  drawChart();
+  var reports=await loadReports();
+  setT('m-reports', reports.length||'0');
+  renderCats(reports);
 }
 
-// Boot — defer-script aware. Above-the-fold UI (statusbar, hero, ranked
-// sensor list once data lands, feed filters) renders without Leaflet;
-// map init happens when Leaflet is ready, then a renderPins() catches up.
-function boot(){
-  document.getElementById('langToggle').addEventListener('click', toggleLanguage);
-  applyTranslations();
-  updatePeakCounters();
+function esc(s){ var v=(D.escapeHtml?D.escapeHtml(String(s)):String(s)); return v.replace(/_/g,' '); }
+function renderCats(reports){
+  var box=document.getElementById('cat-list'); if(!box) return;
+  if(!reports.length){ box.innerHTML='<div class="cat"><span class="cn">no verified reports yet</span><span class="bar2"></span><span class="cc">0</span></div>'; return; }
+  var counts={}; reports.forEach(function(r){ var c=r.category||'other'; counts[c]=(counts[c]||0)+1; });
+  var arr=Object.keys(counts).map(function(k){return [k,counts[k]];}).sort(function(a,b){return b[1]-a[1];});
+  var maxc=arr[0][1]||1;
+  box.innerHTML=arr.map(function(p){ var w=Math.round(p[1]/maxc*100); var col=(p[0]==='burning')?';background:var(--bad)':''; return '<div class="cat"><span class="cn">'+esc(p[0])+'</span><span class="bar2"><i style="width:'+w+'%'+col+'"></i></span><span class="cc">'+p[1]+'</span></div>'; }).join('');
+}
 
-  initMap();
-  if (!map){
-    window.addEventListener('load', () => {
-      if (initMap()) renderPins();
-    }, { once: true });
+async function drawChart(){
+  var svg=document.getElementById('dchart'); if(!svg) return;
+  svg.innerHTML=msg('loading sensor history…');
+  /* 1) pre-baked snapshot — instant, reliable */
+  var hist=await getHistory();
+  if(hist){
+    var rid=(curSensor&&curSensor.rawId)?String(curSensor.rawId):String(KNOWN[0]);
+    var entry=hist[rid]||hist[String(KNOWN[0])]||firstHist(hist);
+    if(entry){ var pairs=(win==='24h')?entry.h24:entry.d7; if(pairs&&pairs.length>=3){ renderChartPairs(pairs); return; } }
   }
-
-  loadAll();
-  setInterval(loadAll, REFRESH_MS);
-  window.addEventListener('resize', () => { if (map) map.invalidateSize(); });
+  /* 2) live fallback through the worker — timed out so it never hangs */
+  var primary=(curSensor&&curSensor.rawId)?Number(curSensor.rawId):KNOWN[0];
+  var cand=[primary]; KNOWN.forEach(function(id){ if(id!==primary) cand.push(id); });
+  for(var i=0;i<cand.length;i++){ if(await tryChart(cand[i])) return; }
+  svg.innerHTML=msg('live history is slow right now — the snapshot refreshes every 15 min');
+}
+async function tryChart(rid){
+  try{
+    var detail=await withTimeout(D.fetchSmartCitizenDetail(rid), 8000);
+    var list=(detail&&detail.data&&detail.data.sensors)||(detail&&detail.sensors)||[];
+    var pm=list.find(function(x){ return /pm\s*2\.?5/i.test(x.name||''); });
+    if(!pm) return false;
+    var to=new Date(), from=new Date(to.getTime()-(win==='24h'?24*3600*1000:7*24*3600*1000));
+    var pts=await withTimeout(D.fetchSmartCitizenHistory(rid, pm.id, from.toISOString(), to.toISOString(), win==='24h'?'1h':'3h'), 12000);
+    if(pts&&pts.length>=3){ renderChart(pts); return true; }
+  }catch(e){}
+  return false;
+}
+function renderChart(pts){
+  var svg=document.getElementById('dchart'); var w=1040,h=360,pad=24,padB=40,n=pts.length;
+  var vals=pts.map(function(p){return p.value;}), times=pts.map(function(p){return new Date(p.recordedAt).getTime();});
+  var max=Math.max(Math.max.apply(null,vals)*1.12,18), t0=times[0], span=Math.max(1,times[n-1]-t0);
+  function X(i){ return pad+(times[i]-t0)/span*(w-2*pad); } function Y(v){ return (h-padB)-(v/max)*((h-padB)-pad); }
+  var line=''; for(var i=0;i<n;i++){ line+=(i?'L':'M')+X(i).toFixed(1)+' '+Y(vals[i]).toFixed(1); }
+  var area='M'+X(0).toFixed(1)+' '+(h-padB)+'L'+line.slice(1)+'L'+X(n-1).toFixed(1)+' '+(h-padB)+'Z';
+  var who=Y(15).toFixed(1);
+  var tk=(win==='24h')?4:6, labels='';
+  for(var k=0;k<=tk;k++){ var idx=Math.round(k*(n-1)/tk), x=X(idx), lab=(win==='24h')?clock(times[idx]):day(times[idx]); labels+='<text x="'+x.toFixed(1)+'" y="'+(h-12)+'" text-anchor="middle" fill="#8a8fa0" font-family="IBM Plex Mono,monospace" font-size="11">'+lab+'</text>'; }
+  var pk=0,pi=0; for(var j=0;j<n;j++){ if(vals[j]>pk){pk=vals[j];pi=j;} }
+  var peak=''; if(pk>15){ var pxx=X(pi),pyy=Y(vals[pi]); peak='<circle cx="'+pxx.toFixed(1)+'" cy="'+pyy.toFixed(1)+'" r="4.5" fill="#3f5b86"/><text x="'+pxx.toFixed(1)+'" y="'+(pyy-9).toFixed(1)+'" text-anchor="middle" fill="#3f5b86" font-family="IBM Plex Mono,monospace" font-size="11">'+Math.round(pk)+' · '+clock(times[pi])+'</text>'; }
+  svg.innerHTML='<path d="'+area+'" fill="#e7ecf4" opacity="0.7"/>'+
+    '<line x1="'+pad+'" y1="'+who+'" x2="'+(w-pad)+'" y2="'+who+'" stroke="#8a8fa0" stroke-width="1" stroke-dasharray="4 5"/>'+
+    '<text x="'+(w-pad)+'" y="'+(parseFloat(who)-6).toFixed(1)+'" text-anchor="end" fill="#8a8fa0" font-family="IBM Plex Mono,monospace" font-size="11">WHO 15</text>'+
+    '<path d="'+line+'" fill="none" stroke="#3f5b86" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>'+labels+peak;
 }
 
-if (document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', boot, { once: true });
-} else {
-  boot();
-}
+document.querySelectorAll('.toggle button').forEach(function(b){ b.addEventListener('click',function(){ win=b.dataset.win; document.querySelectorAll('.toggle button').forEach(function(x){x.classList.toggle('on',x===b);}); drawChart(); }); });
+var dsel=document.getElementById('dsel'); if(dsel) dsel.addEventListener('change',function(){ var i=parseInt(dsel.value,10); if(!isNaN(i)&&sensorList[i]) curSensor=sensorList[i]; drawChart(); });
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.14});
+document.querySelectorAll('.rv:not(.in)').forEach(function(el){io.observe(el);});
+if(document.readyState!=='loading'){ boot(); } else { addEventListener('DOMContentLoaded', boot); }
 </script>
 </body>
 </html>

@@ -377,6 +377,15 @@ def publish(dry_run: bool) -> None:
         if dry_run:
             log(f"publish: DRY-RUN, would commit:\n{status}"); return
         git("commit", "-m", f"data: auto-sync {datetime.now(WITA).strftime('%Y-%m-%d %H:%M WITA')}")
+        # Stay in sync with site pushes from elsewhere (e.g. the Mac) before we
+        # push our data commit — otherwise the two diverge and this push fails.
+        try:
+            git("pull", "--rebase", "origin", "main")
+        except subprocess.CalledProcessError as e:
+            log(f"publish: pull --rebase failed, aborting + retrying next cycle: {e.stderr.strip()[:120]}")
+            try: git("rebase", "--abort")
+            except subprocess.CalledProcessError: pass
+            return
         git("push", "origin", "main")
         log("publish: pushed")
     except subprocess.CalledProcessError as e:
