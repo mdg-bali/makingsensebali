@@ -328,6 +328,18 @@ async function loadReports(){
   return rs;
 }
 
+/* Pre-baked sensor history (data/history.json) — instant + reliable. The live
+   Smart Citizen /readings endpoint hangs through the worker, so we never block
+   on it: snapshot first, live only as a timed-out fallback. */
+var HIST=null, HIST_TRIED=false;
+async function getHistory(){
+  if(HIST_TRIED) return HIST;
+  HIST_TRIED=true;
+  try{ var base=(D.dataBaseUrl?D.dataBaseUrl():'./data'); var r=await fetch(base+'/history.json',{cache:'no-cache'}); if(r.ok){ var j=await r.json(); HIST=(j&&j.sensors)||null; } }catch(_){}
+  return HIST;
+}
+function withTimeout(p,ms){ return Promise.race([p, new Promise(function(_,rej){ setTimeout(function(){rej(new Error('timeout'));}, ms); })]); }
+
 /* ---------- helpers ---------- */
 function activeSensors(){ return S.sensors.filter(function(s){ return s && s.reading && typeof s.reading.pm25==='number' && (!D.isActive || D.isActive(s.lastReading)); }); }
 function median(a){ if(!a.length) return null; var x=a.slice().sort(function(p,q){return p-q;}); return x[Math.floor(x.length/2)]; }
@@ -411,8 +423,18 @@ function renderReportsSummary(){
 function activeSCK(){ return activeSensors().filter(function(s){ return s.source==='smartcitizen' && s.rawId; }); }
 async function loadStoryChart(){
   drawSparkIllustrative(8);                       /* draw something immediately — never blank */
+  /* 1) pre-baked snapshot — instant, no slow worker call */
+  var hist=await getHistory();
+  if(hist){
+    var key=pickHistKey(hist);
+    if(key && hist[key] && hist[key].h24 && hist[key].h24.length>=3){
+      setText('story-sensor', (hist[key].name||'Smart Citizen')+' · PM2.5 · 24h');
+      drawSparkPairs(hist[key].h24, notableReport());
+      return;
+    }
+  }
+  /* 2) live fallback through the worker — timed out so it never hangs */
   var scks=activeSCK();
-  /* prefer the established kits (continuous history) over brand-new sparse nodes */
   var known=scks.filter(function(s){ return KNOWN_SCK.indexOf(Number(s.rawId))>=0; });
   var pool=known.length?known:scks, pick=null;
   if(pool.length){ pick=pool[0]; var r=notableReport(); if(r){ var best=1e9; pool.forEach(function(s){ var k=dkm(r.lat,r.lng,s.lat,s.lng); if(k<best){best=k;pick=s;} }); } }
@@ -421,14 +443,26 @@ async function loadStoryChart(){
   KNOWN_SCK.forEach(function(id){ if(!pick||Number(pick.rawId)!==id) cand.push({rid:id, label:'Smart Citizen · Bali'}); });
   for(var i=0;i<cand.length;i++){ if(await tryStorySensor(cand[i].rid, cand[i].label)) return; }
 }
+function pickHistKey(hist){
+  var keys=Object.keys(hist).filter(function(k){ return hist[k]&&Array.isArray(hist[k].h24)&&hist[k].h24.length>=3; });
+  if(!keys.length) return null;
+  var r=notableReport();
+  if(r){ var nearest=null,best=1e9; activeSCK().forEach(function(s){ if(keys.indexOf(String(s.rawId))<0) return; var k=dkm(r.lat,r.lng,s.lat,s.lng); if(k<best){best=k;nearest=String(s.rawId);} }); if(nearest) return nearest; }
+  for(var i=0;i<KNOWN_SCK.length;i++){ if(keys.indexOf(String(KNOWN_SCK[i]))>=0) return String(KNOWN_SCK[i]); }
+  return keys[0];
+}
+function drawSparkPairs(pairs, report){
+  var svg=document.getElementById('spark'); if(!svg)return;
+  svg.innerHTML=_sparkSVG(pairs.map(function(p){return p[1];}), pairs.map(function(p){return new Date(p[0]).getTime();}), report);
+}
 async function tryStorySensor(rid, label){
   try{
-    var detail=await D.fetchSmartCitizenDetail(rid);
+    var detail=await withTimeout(D.fetchSmartCitizenDetail(rid), 8000);
     var list=(detail&&detail.data&&detail.data.sensors)||(detail&&detail.sensors)||[];
     var pm=list.find(function(x){ return /pm\s*2\.?5/i.test(x.name||''); });
     if(!pm) return false;
     var to=new Date(), from=new Date(to.getTime()-24*3600*1000);
-    var pts=await D.fetchSmartCitizenHistory(rid, pm.id, from.toISOString(), to.toISOString(), '1h');
+    var pts=await withTimeout(D.fetchSmartCitizenHistory(rid, pm.id, from.toISOString(), to.toISOString(), '1h'), 12000);
     if(pts&&pts.length>=3){ setText('story-sensor', label+' · PM2.5 · 24h'); drawSparkReal(pts, notableReport()); return true; }
   }catch(_){}
   return false;

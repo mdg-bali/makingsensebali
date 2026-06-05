@@ -268,6 +268,16 @@ async function loadReports(){
   }catch(e){ console.warn('[reports] direct loader failed:', e); }
   return rs;
 }
+var HIST=null, HIST_TRIED=false;
+async function getHistory(){
+  if(HIST_TRIED) return HIST;
+  HIST_TRIED=true;
+  try{ var base=(D.dataBaseUrl?D.dataBaseUrl():'./data'); var r=await fetch(base+'/history.json',{cache:'no-cache'}); if(r.ok){ var j=await r.json(); HIST=(j&&j.sensors)||null; } }catch(_){}
+  return HIST;
+}
+function withTimeout(p,ms){ return Promise.race([p, new Promise(function(_,rej){ setTimeout(function(){rej(new Error('timeout'));}, ms); })]); }
+function firstHist(hist){ var ks=Object.keys(hist); for(var i=0;i<ks.length;i++){ if(hist[ks[i]]&&hist[ks[i]].h24&&hist[ks[i]].h24.length>=3) return hist[ks[i]]; } return null; }
+function renderChartPairs(pairs){ renderChart(pairs.map(function(p){ return {value:p[1], recordedAt:p[0]}; })); }
 
 async function boot(){
   var sensors=[]; try{ sensors=(await (D.fetchSensorsFast?D.fetchSensorsFast():[]))||[]; }catch(_){}
@@ -298,19 +308,27 @@ function renderCats(reports){
 async function drawChart(){
   var svg=document.getElementById('dchart'); if(!svg) return;
   svg.innerHTML=msg('loading sensor history…');
+  /* 1) pre-baked snapshot — instant, reliable */
+  var hist=await getHistory();
+  if(hist){
+    var rid=(curSensor&&curSensor.rawId)?String(curSensor.rawId):String(KNOWN[0]);
+    var entry=hist[rid]||hist[String(KNOWN[0])]||firstHist(hist);
+    if(entry){ var pairs=(win==='24h')?entry.h24:entry.d7; if(pairs&&pairs.length>=3){ renderChartPairs(pairs); return; } }
+  }
+  /* 2) live fallback through the worker — timed out so it never hangs */
   var primary=(curSensor&&curSensor.rawId)?Number(curSensor.rawId):KNOWN[0];
   var cand=[primary]; KNOWN.forEach(function(id){ if(id!==primary) cand.push(id); });
   for(var i=0;i<cand.length;i++){ if(await tryChart(cand[i])) return; }
-  svg.innerHTML=msg('no sensor history available right now');
+  svg.innerHTML=msg('live history is slow right now — the snapshot refreshes every 15 min');
 }
 async function tryChart(rid){
   try{
-    var detail=await D.fetchSmartCitizenDetail(rid);
+    var detail=await withTimeout(D.fetchSmartCitizenDetail(rid), 8000);
     var list=(detail&&detail.data&&detail.data.sensors)||(detail&&detail.sensors)||[];
     var pm=list.find(function(x){ return /pm\s*2\.?5/i.test(x.name||''); });
     if(!pm) return false;
     var to=new Date(), from=new Date(to.getTime()-(win==='24h'?24*3600*1000:7*24*3600*1000));
-    var pts=await D.fetchSmartCitizenHistory(rid, pm.id, from.toISOString(), to.toISOString(), win==='24h'?'1h':'3h');
+    var pts=await withTimeout(D.fetchSmartCitizenHistory(rid, pm.id, from.toISOString(), to.toISOString(), win==='24h'?'1h':'3h'), 12000);
     if(pts&&pts.length>=3){ renderChart(pts); return true; }
   }catch(e){}
   return false;

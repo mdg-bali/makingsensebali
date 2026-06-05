@@ -63,7 +63,17 @@ def log(msg: str) -> None:
 
 
 def _get_json(url: str, headers: dict | None = None):
-    req = urllib.request.Request(url, headers=headers or {})
+    # Smart Citizen sits behind Cloudflare, which 403s the default
+    # "Python-urllib/x.y" User-Agent. Send a normal browser UA (curl works for
+    # the same reason — the block is UA-specific, not IP- or auth-based).
+    h = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+    }
+    if headers:
+        h.update(headers)
+    req = urllib.request.Request(url, headers=h)
     with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as r:
         return json.loads(r.read().decode("utf-8", "ignore"))
 
@@ -136,6 +146,76 @@ def write_sensors(sensors: list) -> None:
     with open(os.path.join(DATA_DIR, "sensors.json"), "w") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
     log(f"sensors.json: {len(sensors)} sensors")
+
+
+# ----------------------------------------------------------------------------
+# 1b. HISTORY (per-kit PM2.5 time series, pre-baked)
+# The site's charts must NOT call Smart Citizen's /readings endpoint live — it
+# is slow/hangs through the Cloudflare worker. We fetch it here on the mini
+# (direct egress to api.smartcitizen.me, no worker) and write a static
+# data/history.json the charts load instantly. 24h @ 1h rollup + 7d @ 3h.
+# ----------------------------------------------------------------------------
+def _sck_pm25_sensor_id(detail: dict):
+    sensors = (detail.get("data") or {}).get("sensors") or detail.get("sensors") or []
+    for s in sensors:
+        nm = (s.get("name") or "")
+        if ("PM2.5" in nm or "PM 2.5" in nm) and s.get("id") is not None:
+            return s["id"]
+    return None
+
+
+def _fetch_readings(dev_id, sensor_id, frm, to, rollup):
+    q = urllib.parse.urlencode({"sensor_id": sensor_id, "from": frm, "to": to, "rollup": rollup})
+    j = _get_json(f"{SC_API}/devices/{dev_id}/readings?{q}")
+    raw = (j.get("readings") if isinstance(j, dict) else j) or []
+    out = []
+    for r in raw:
+        ts = val = None
+        if isinstance(r, list) and len(r) >= 2:
+            ts, val = r[0], r[1]
+        elif isinstance(r, dict):
+            ts, val = (r.get("recorded_at") or r.get("timestamp")), r.get("value")
+        try:
+            v = float(val)
+        except (TypeError, ValueError):
+            continue
+        if ts:
+            out.append([ts, round(v, 1)])
+    return out
+
+
+def fetch_history() -> dict:
+    now = datetime.now(timezone.utc)
+    to = now.isoformat()
+    h24_from = (now - timedelta(hours=24)).isoformat()
+    d7_from  = (now - timedelta(days=7)).isoformat()
+    sensors = {}
+    for sid in SCK_IDS:
+        try:
+            d = _get_json(f"{SC_API}/devices/{sid}")
+            pm = _sck_pm25_sensor_id(d)
+            if pm is None:
+                log(f"  history {sid}: no PM2.5 channel"); continue
+            h24 = _fetch_readings(sid, pm, h24_from, to, "1h")
+            d7  = _fetch_readings(sid, pm, d7_from,  to, "3h")
+            sensors[str(sid)] = {
+                "name": d.get("name") or f"Device {sid}",
+                "rawId": d.get("id", sid),
+                "pm25_sensor_id": pm,
+                "h24": h24, "d7": d7,
+            }
+            log(f"  history {sid}: 24h={len(h24)} 7d={len(d7)}")
+        except Exception as e:
+            log(f"  history {sid}: FAILED {type(e).__name__}: {str(e)[:80]}")
+    return sensors
+
+
+def write_history(sensors: dict) -> None:
+    payload = {"generated_at": datetime.now(timezone.utc).isoformat(), "sensors": sensors}
+    os.makedirs(DATA_DIR, exist_ok=True)
+    with open(os.path.join(DATA_DIR, "history.json"), "w") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+    log(f"history.json: {len(sensors)} kit histories")
 
 
 # ----------------------------------------------------------------------------
@@ -312,6 +392,10 @@ def main() -> int:
         write_sensors(fetch_sensors())
     except Exception as e:
         log(f"sensors stage FAILED: {type(e).__name__}: {str(e)[:120]}")
+    try:
+        write_history(fetch_history())
+    except Exception as e:
+        log(f"history stage FAILED: {type(e).__name__}: {str(e)[:120]}")
     try:
         sync_reports()
     except Exception as e:
