@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Data view — Making Sense Bali</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f4f1ea; --paper2:#eae6db; --card:#fbfaf6; --ink:#15171c; --ink-soft:#3c4049; --soft:#6a6e78; --line:#d8d3c6;
+  --mono:'IBM Plex Mono',monospace; --serif:'Newsreader',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+  --indigo:#3f5b86; --indigo-soft:#6f87b3; --indigo-tint:#e7ecf4;
+  --good:#3f8a5b; --warn:#c98a2a; --bad:#bb4a30; --crit:#7a2516;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--indigo)}
+
+.bar{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;justify-content:space-between;align-items:center;
+  padding:15px 5vw;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  background:rgba(244,241,234,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar .brand{font-weight:600;color:var(--indigo)}
+.bar-nav{display:flex;gap:20px;align-items:center}
+.bar-nav a{color:var(--ink);opacity:.72;transition:opacity .2s}
+.bar-nav a:hover{opacity:1}
+.bar-nav a.home{color:var(--indigo);opacity:1}
+.bar-nav a.here{color:var(--ink);opacity:1;border-bottom:2px solid var(--indigo);padding-bottom:2px}
+@media(max-width:640px){.bar-nav a.lbl{display:none}}
+
+.head{background:linear-gradient(180deg,var(--indigo-tint),var(--paper) 88%);padding:18vh 5vw 8vh;border-bottom:1px solid var(--line)}
+.head-wrap{max-width:1100px;margin:0 auto}
+.head h1{font-family:var(--serif);font-weight:400;font-size:clamp(38px,6vw,76px);line-height:1.0;letter-spacing:-.02em;margin:16px 0 0}
+.head h1 em{font-style:italic;color:var(--indigo)}
+.head p{font-size:17px;line-height:1.65;color:var(--ink-soft);max-width:60ch;margin-top:22px}
+.asof{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--soft);margin-top:18px}
+
+.sec{padding:8vh 5vw;border-bottom:1px solid var(--line)}
+.sec.tint{background:var(--paper2)}
+.wrap{max-width:1100px;margin:0 auto}
+.sl{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);display:flex;align-items:center;gap:12px;margin-bottom:26px}
+.sl::before{content:"";width:22px;height:2px;background:var(--indigo)}
+.sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3.2vw,38px);line-height:1.1;letter-spacing:-.01em}
+
+/* metric cards */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:820px){.metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.metrics{grid-template-columns:1fr}}
+.metric{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;border-top:3px solid var(--indigo)}
+.metric .ml{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+.metric .mv{font-family:var(--serif);font-weight:400;font-size:46px;line-height:1;margin-top:10px;color:var(--ink)}
+.metric .mv small{font-size:15px;color:var(--soft);font-family:var(--mono);letter-spacing:.04em}
+.metric .msub{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.4}
+.metric.green{border-top-color:var(--good)} .metric.green .mv{color:var(--good)}
+
+/* chart */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px}
+.panel-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.panel-top .pt-l{display:flex;align-items:center;gap:12px}
+select{font-family:var(--mono);font-size:12px;letter-spacing:.06em;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);cursor:pointer}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.toggle button{font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:8px 15px;border:0;background:var(--paper);color:var(--soft);cursor:pointer}
+.toggle button.on{background:var(--indigo);color:#fff}
+#dchart{width:100%;height:auto;display:block}
+.chart-foot{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--soft);margin-top:10px;display:flex;gap:18px;flex-wrap:wrap}
+
+/* reference bands */
+.bands{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-top:8px}
+@media(max-width:820px){.bands{grid-template-columns:1fr}}
+.band-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 24px}
+.band-card h3{font-family:var(--serif);font-weight:400;font-size:21px;margin-bottom:4px}
+.band-card .src{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:14px}
+.scale-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px}
+.scale-row:last-child{border:0}
+.sw{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.scale-row b{color:var(--ink);font-weight:600;min-width:62px;display:inline-block}
+.scale-row span{color:var(--ink-soft)}
+.mini{display:flex;flex-direction:column;gap:10px}
+.mini .m{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.mini .m .mt{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
+.mini .m .mb{font-family:var(--serif);font-size:18px;margin-top:4px;line-height:1.2}
+.mini .m .md{font-size:12.5px;color:var(--ink-soft);margin-top:6px;line-height:1.5}
+
+/* reports by category */
+.cats{display:flex;flex-direction:column;gap:9px;margin-top:6px;max-width:640px}
+.cat{display:grid;grid-template-columns:120px 1fr 38px;align-items:center;gap:12px;font-family:var(--mono);font-size:12px}
+.cat .cn{color:var(--ink-soft);text-transform:capitalize}
+.cat .bar2{height:9px;background:var(--indigo-tint);border-radius:5px;overflow:hidden}
+.cat .bar2 i{display:block;height:100%;background:var(--indigo);border-radius:5px}
+.cat .cc{text-align:right;color:var(--ink);font-weight:500}
+
+/* sources + downloads */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+@media(max-width:820px){.cols{grid-template-columns:1fr}}
+.col{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px 26px}
+.col h3{font-family:var(--serif);font-weight:400;font-size:21px;margin-bottom:14px}
+.col ul{list-style:none}
+.col li{font-family:var(--mono);font-size:12.5px;line-height:1.5;color:var(--ink-soft);padding:7px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}
+.col li:last-child{border:0}
+.col li b{color:var(--ink);font-weight:500}
+.col li .tag{color:var(--indigo)}
+.dl{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+.btn{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:13px 20px;border-radius:4px;cursor:pointer;border:1px solid var(--ink);display:inline-flex;gap:8px;align-items:center;transition:transform .15s,background .2s,color .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-ind{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.cite{font-family:var(--serif);font-style:italic;font-size:14.5px;line-height:1.6;color:var(--ink-soft);background:var(--paper2);border-left:3px solid var(--indigo);border-radius:0;padding:14px 16px;margin-top:14px}
+
+.close{background:var(--ink);color:var(--paper);padding:11vh 5vw;text-align:center}
+.close h2{font-family:var(--serif);font-weight:400;font-size:clamp(26px,4vw,46px);line-height:1.06;max-width:20ch;margin:0 auto;color:#f2ece0}
+.close h2 em{font-style:italic;color:var(--indigo-soft)}
+.close-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:30px}
+.btn-out{background:transparent;color:var(--paper);border-color:rgba(255,255,255,.4)}
+.foot{background:var(--ink);color:#7c7d83;padding:34px 5vw 56px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;line-height:1.9;text-align:center;border-top:1px solid #2a2d33}
+.foot a{color:#aab2c2}
+
+.rv{opacity:0;transform:translateY(22px);transition:opacity .8s ease,transform .8s ease}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{transition:none;opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="brand">Making Sense Bali</div>
+  <nav class="bar-nav">
+    <a class="home" href="redesign-concept.html">← <span class="lbl">Live air</span></a>
+    <a href="about-concept.html" class="lbl">About</a>
+    <a class="here" href="#">Data</a>
+  </nav>
+</div>
+
+<header class="head">
+  <div class="head-wrap">
+    <div class="kicker rv in">The data view · for analysts &amp; policymakers</div>
+    <h1 class="rv in">Every reading. Every <em>standard.</em></h1>
+    <p class="rv in">The numbers behind the map — raw sensor history, international health thresholds, network coverage, and open downloads. Nothing hidden, nothing rounded for comfort. Low-cost sensors carry ±10–15% on absolute values; trends and relative magnitudes are reliable.</p>
+    <div class="asof rv in">Network snapshot · as of 4 Jun 2026, 17:55 WITA · auto-refreshes every 15 min</div>
+  </div>
+</header>
+
+<!-- network snapshot -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sl rv">Network right now</div>
+    <div class="metrics">
+      <div class="metric green rv"><div class="ml">Median PM2.5</div><div class="mv"><span id="m-median">–</span><small> µg/m³</small></div><div class="msub">network-wide median, active sensors</div></div>
+      <div class="metric rv"><div class="ml">Active sensors</div><div class="mv" id="m-sensors">–</div><div class="msub">Smart Citizen · OpenAQ</div></div>
+      <div class="metric rv"><div class="ml">Verified reports</div><div class="mv" id="m-reports">–</div><div class="msub">human-moderated before publishing</div></div>
+      <div class="metric rv"><div class="ml">Open data sources</div><div class="mv">3</div><div class="msub">+2 planned (PurpleAir, Sensor.Community)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- sensor history -->
+<section class="sec tint">
+  <div class="wrap">
+    <div class="sl rv">Sensor history</div>
+    <div class="panel rv">
+      <div class="panel-top">
+        <div class="pt-l">
+          <select id="dsel" aria-label="Choose a sensor"></select>
+        </div>
+        <div class="toggle"><button class="on" data-win="24h" type="button">24 h</button><button data-win="7d" type="button">7 days</button></div>
+      </div>
+      <svg id="dchart" viewBox="0 0 1040 360" preserveAspectRatio="none" aria-label="Sensor PM2.5 time series against the WHO 24-hour guideline"></svg>
+      <div class="chart-foot"><span style="color:var(--indigo)">— PM2.5 µg/m³</span><span style="color:var(--soft)">- - WHO 24h guideline (15)</span><span style="color:var(--bad)">● resident report</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- reference standards -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sl rv">What the numbers mean · health thresholds</div>
+    <div class="bands">
+      <div class="band-card rv">
+        <h3>Air · PM2.5</h3>
+        <div class="src">WHO AQG 2021 · fine particles, µg/m³</div>
+        <div class="scale-row"><span class="sw" style="background:var(--good)"></span><b>0–5</b><span>WHO annual target · forest after rain</span></div>
+        <div class="scale-row"><span class="sw" style="background:var(--good);opacity:.6"></span><b>5–15</b><span>within WHO 24h · normal urban background</span></div>
+        <div class="scale-row"><span class="sw" style="background:var(--warn)"></span><b>15–35</b><span>above WHO 24h · roadside, light traffic</span></div>
+        <div class="scale-row"><span class="sw" style="background:var(--bad)"></span><b>35–55</b><span>sensitive groups affected · near a fire</span></div>
+        <div class="scale-row"><span class="sw" style="background:var(--crit)"></span><b>55+</b><span>unhealthy for everyone · indoor cooking smoke</span></div>
+      </div>
+      <div class="mini">
+        <div class="m rv"><div class="mt">Noise · WHO 2018</div><div class="mb">40 dB night / 30 dB indoor</div><div class="md">Chronic exposure above 40 dB at night is linked to cardiovascular strain and broken sleep.</div></div>
+        <div class="m rv"><div class="mt">Heat · tropical context</div><div class="mb">33+ °C with &gt;70% RH</div><div class="md">The heat-stress threshold for outdoor workers — not Europe's 24°C comfort band.</div></div>
+        <div class="m rv"><div class="mt">Humidity · mould risk</div><div class="mb">&gt;60% RH sustained</div><div class="md">Also the window where <em>Aedes</em> mosquitoes breed fastest. Indoor air matters as much as outdoor.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- reports by category -->
+<section class="sec tint">
+  <div class="wrap">
+    <div class="sl rv">Verified reports · last 30 days, by category</div>
+    <div class="cats" id="cat-list"><div class="cat"><span class="cn">loading reports…</span><span class="bar2"></span><span class="cc"></span></div></div>
+  </div>
+</section>
+
+<!-- sources + downloads -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sl rv">Coverage, sources &amp; downloads</div>
+    <div class="cols">
+      <div class="col rv">
+        <h3>Where the data comes from</h3>
+        <ul>
+          <li><b>Smart Citizen</b> <span class="tag">open hardware · live</span></li>
+          <li><b>OpenAQ</b> <span class="tag">AirGradient · AQICN · KLHK</span></li>
+          <li><b>Resident reports</b> <span class="tag">WhatsApp · human-verified</span></li>
+          <li><b>PurpleAir · Sensor.Community</b> <span class="tag">planned</span></li>
+          <li><b>Standards</b> <span class="tag">WHO · US EPA · ASHRAE</span></li>
+        </ul>
+      </div>
+      <div class="col rv">
+        <h3>Open downloads</h3>
+        <div class="dl">
+          <a class="btn btn-ind" href="./data/reports/index.json">Last 30 days · CSV →</a>
+          <a class="btn" href="./data/reports/summary.json">Monthly summary →</a>
+        </div>
+        <div class="cite">Making Sense Bali (Fab Lab Bali, 2026). Open environmental sensor network and citizen reports, Bali, Indonesia. Retrieved from mdg-bali.github.io/makingsensebali on [date].</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="close">
+  <h2 class="rv">The data is open. The <em>map is where it lives.</em></h2>
+  <div class="close-cta">
+    <a class="btn btn-out rv" href="redesign-concept.html">← Back to the live air</a>
+    <a class="btn btn-out rv" href="about-concept.html">Why we measure → About</a>
+  </div>
+</section>
+
+<footer class="foot">
+  Making Sense Bali — led by <a href="https://www.fablabbali.com/">Fab Lab Bali</a> · open hardware: Smart Citizen Kit (Fab Lab Barcelona / IAAC) · methodology: EU Making Sense · part of <a href="https://fab.city">Fab City</a> + Murmurations.
+</footer>
+
+<script src="./data.js"></script>
+<script src="./peaks.js"></script>
+<script src="./i18n.js"></script>
+<script>
+var D=window.SCB_DATA||{}, win='24h', curSensor=null, sensorList=[], KNOWN=[19236,19600,19618,19651];
+function setT(id,t){ var e=document.getElementById(id); if(e) e.textContent=t; }
+function median(a){ if(!a.length) return null; var x=a.slice().sort(function(p,q){return p-q;}); return x[Math.floor(x.length/2)]; }
+function activeS(s){ return s.filter(function(x){ return x&&x.reading&&typeof x.reading.pm25==='number'&&(!D.isActive||D.isActive(x.lastReading)); }); }
+function clock(ms){ try{ return new Date(ms).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Makassar'}); }catch(_){ return ''; } }
+function day(ms){ try{ return new Date(ms).toLocaleDateString('en-GB',{weekday:'short',timeZone:'Asia/Makassar'}); }catch(_){ return ''; } }
+function msg(t){ return '<text x="520" y="180" text-anchor="middle" fill="#8a8fa0" font-family="IBM Plex Mono,monospace" font-size="13">'+t+'</text>'; }
+async function loadReports(){
+  var rs=[];
+  try{ rs=(await (D.fetchReports?D.fetchReports():[]))||[]; }catch(e){ console.warn('[reports] fetchReports threw:', e); }
+  if(rs.length) return rs;
+  try{
+    var base=(D.reportsBaseUrl?D.reportsBaseUrl():'./data/reports');
+    var ir=await fetch(base+'/index.json',{cache:'no-cache'});
+    if(!ir.ok){ console.warn('[reports] index.json HTTP '+ir.status); return rs; }
+    var idx=await ir.json(), files=(idx&&idx.profiles)||[];
+    var profs=await Promise.all(files.map(function(f){ return fetch(base+'/'+f).then(function(x){return x.ok?x.json():null;}).catch(function(){return null;}); }));
+    rs=profs.filter(Boolean).map(function(p){ return D.profileToReport?D.profileToReport(p):null; }).filter(Boolean);
+    console.log('[reports] direct loader recovered '+rs.length);
+  }catch(e){ console.warn('[reports] direct loader failed:', e); }
+  return rs;
+}
+
+async function boot(){
+  var sensors=[]; try{ sensors=(await (D.fetchSensorsFast?D.fetchSensorsFast():[]))||[]; }catch(_){}
+  var act=activeS(sensors), med=median(act.map(function(s){return s.reading.pm25;}));
+  setT('m-median', med!=null?(Math.round(med*10)/10).toFixed(1):'–');
+  setT('m-sensors', act.length||'–');
+  sensorList=act.filter(function(s){ return s.source==='smartcitizen'&&s.rawId; });
+  var defIdx=0; for(var i=0;i<sensorList.length;i++){ if(KNOWN.indexOf(Number(sensorList[i].rawId))>=0){ defIdx=i; break; } }
+  var sel=document.getElementById('dsel');
+  if(sel){ sel.innerHTML=''; if(sensorList.length){ sensorList.forEach(function(s,i){ var o=document.createElement('option'); o.value=i; o.textContent=s.name; sel.appendChild(o); }); sel.selectedIndex=defIdx; } else { var o=document.createElement('option'); o.textContent='Smart Citizen · Bali'; sel.appendChild(o); } }
+  curSensor=sensorList.length?sensorList[defIdx]:{rawId:KNOWN[0],name:'Smart Citizen · Bali'};
+  drawChart();
+  var reports=await loadReports();
+  setT('m-reports', reports.length||'0');
+  renderCats(reports);
+}
+
+function esc(s){ var v=(D.escapeHtml?D.escapeHtml(String(s)):String(s)); return v.replace(/_/g,' '); }
+function renderCats(reports){
+  var box=document.getElementById('cat-list'); if(!box) return;
+  if(!reports.length){ box.innerHTML='<div class="cat"><span class="cn">no verified reports yet</span><span class="bar2"></span><span class="cc">0</span></div>'; return; }
+  var counts={}; reports.forEach(function(r){ var c=r.category||'other'; counts[c]=(counts[c]||0)+1; });
+  var arr=Object.keys(counts).map(function(k){return [k,counts[k]];}).sort(function(a,b){return b[1]-a[1];});
+  var maxc=arr[0][1]||1;
+  box.innerHTML=arr.map(function(p){ var w=Math.round(p[1]/maxc*100); var col=(p[0]==='burning')?';background:var(--bad)':''; return '<div class="cat"><span class="cn">'+esc(p[0])+'</span><span class="bar2"><i style="width:'+w+'%'+col+'"></i></span><span class="cc">'+p[1]+'</span></div>'; }).join('');
+}
+
+async function drawChart(){
+  var svg=document.getElementById('dchart'); if(!svg) return;
+  svg.innerHTML=msg('loading sensor history…');
+  var primary=(curSensor&&curSensor.rawId)?Number(curSensor.rawId):KNOWN[0];
+  var cand=[primary]; KNOWN.forEach(function(id){ if(id!==primary) cand.push(id); });
+  for(var i=0;i<cand.length;i++){ if(await tryChart(cand[i])) return; }
+  svg.innerHTML=msg('no sensor history available right now');
+}
+async function tryChart(rid){
+  try{
+    var detail=await D.fetchSmartCitizenDetail(rid);
+    var list=(detail&&detail.data&&detail.data.sensors)||(detail&&detail.sensors)||[];
+    var pm=list.find(function(x){ return /pm\s*2\.?5/i.test(x.name||''); });
+    if(!pm) return false;
+    var to=new Date(), from=new Date(to.getTime()-(win==='24h'?24*3600*1000:7*24*3600*1000));
+    var pts=await D.fetchSmartCitizenHistory(rid, pm.id, from.toISOString(), to.toISOString(), win==='24h'?'1h':'3h');
+    if(pts&&pts.length>=3){ renderChart(pts); return true; }
+  }catch(e){}
+  return false;
+}
+function renderChart(pts){
+  var svg=document.getElementById('dchart'); var w=1040,h=360,pad=24,padB=40,n=pts.length;
+  var vals=pts.map(function(p){return p.value;}), times=pts.map(function(p){return new Date(p.recordedAt).getTime();});
+  var max=Math.max(Math.max.apply(null,vals)*1.12,18), t0=times[0], span=Math.max(1,times[n-1]-t0);
+  function X(i){ return pad+(times[i]-t0)/span*(w-2*pad); } function Y(v){ return (h-padB)-(v/max)*((h-padB)-pad); }
+  var line=''; for(var i=0;i<n;i++){ line+=(i?'L':'M')+X(i).toFixed(1)+' '+Y(vals[i]).toFixed(1); }
+  var area='M'+X(0).toFixed(1)+' '+(h-padB)+'L'+line.slice(1)+'L'+X(n-1).toFixed(1)+' '+(h-padB)+'Z';
+  var who=Y(15).toFixed(1);
+  var tk=(win==='24h')?4:6, labels='';
+  for(var k=0;k<=tk;k++){ var idx=Math.round(k*(n-1)/tk), x=X(idx), lab=(win==='24h')?clock(times[idx]):day(times[idx]); labels+='<text x="'+x.toFixed(1)+'" y="'+(h-12)+'" text-anchor="middle" fill="#8a8fa0" font-family="IBM Plex Mono,monospace" font-size="11">'+lab+'</text>'; }
+  var pk=0,pi=0; for(var j=0;j<n;j++){ if(vals[j]>pk){pk=vals[j];pi=j;} }
+  var peak=''; if(pk>15){ var pxx=X(pi),pyy=Y(vals[pi]); peak='<circle cx="'+pxx.toFixed(1)+'" cy="'+pyy.toFixed(1)+'" r="4.5" fill="#3f5b86"/><text x="'+pxx.toFixed(1)+'" y="'+(pyy-9).toFixed(1)+'" text-anchor="middle" fill="#3f5b86" font-family="IBM Plex Mono,monospace" font-size="11">'+Math.round(pk)+' · '+clock(times[pi])+'</text>'; }
+  svg.innerHTML='<path d="'+area+'" fill="#e7ecf4" opacity="0.7"/>'+
+    '<line x1="'+pad+'" y1="'+who+'" x2="'+(w-pad)+'" y2="'+who+'" stroke="#8a8fa0" stroke-width="1" stroke-dasharray="4 5"/>'+
+    '<text x="'+(w-pad)+'" y="'+(parseFloat(who)-6).toFixed(1)+'" text-anchor="end" fill="#8a8fa0" font-family="IBM Plex Mono,monospace" font-size="11">WHO 15</text>'+
+    '<path d="'+line+'" fill="none" stroke="#3f5b86" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>'+labels+peak;
+}
+
+document.querySelectorAll('.toggle button').forEach(function(b){ b.addEventListener('click',function(){ win=b.dataset.win; document.querySelectorAll('.toggle button').forEach(function(x){x.classList.toggle('on',x===b);}); drawChart(); }); });
+var dsel=document.getElementById('dsel'); if(dsel) dsel.addEventListener('change',function(){ var i=parseInt(dsel.value,10); if(!isNaN(i)&&sensorList[i]) curSensor=sensorList[i]; drawChart(); });
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.14});
+document.querySelectorAll('.rv:not(.in)').forEach(function(el){io.observe(el);});
+if(document.readyState!=='loading'){ boot(); } else { addEventListener('DOMContentLoaded', boot); }
+</script>
+</body>
+</html>

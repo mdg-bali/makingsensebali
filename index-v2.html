@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Making Sense Bali — the air, made visible</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The air where you are, right now. Open sensors and resident reports across Bali, on one living map. A Fab Lab Bali campaign.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%233f8a5b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<style>
+:root{
+  --paper:#f6efe1; --paper2:#efe6d2; --ink:#16171a; --ink-soft:#3a3a3e;
+  --mono:'IBM Plex Mono',monospace; --serif:'Newsreader',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+  --good:#3f8a5b; --teal:#1e5959;
+  --aq:#3f8a5b; --sky-top:#cfe0dd; --sky-mid:#eef0e6; --sky-low:#f6e6c8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+
+.bar{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;justify-content:space-between;align-items:center;
+  padding:16px 5vw;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink);transition:background .4s,box-shadow .4s}
+.bar.solid{background:rgba(246,239,225,.9);backdrop-filter:blur(10px);border-bottom:1px solid rgba(0,0,0,.07)}
+.bar .brand{font-weight:600;color:var(--aq);transition:color .6s}
+.bar-right{display:flex;align-items:center;gap:22px}
+.bar-nav{display:flex;gap:18px}
+.bar-nav a{color:var(--ink);opacity:.72;transition:opacity .2s}
+.bar-nav a:hover{opacity:1}
+.bar .live{display:flex;align-items:center;gap:8px}
+.bar .dot{width:7px;height:7px;border-radius:50%;background:var(--aq);animation:pulse 2.4s infinite;transition:background .6s}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,138,91,.5)}70%{box-shadow:0 0 0 9px rgba(63,138,91,0)}100%{box-shadow:0 0 0 0 rgba(63,138,91,0)}}
+@media(max-width:720px){.bar-nav{display:none}}
+
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;
+  background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 52%,var(--sky-low) 100%);transition:background 1.2s ease}
+#air{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero-inner{position:relative;z-index:5;width:90vw;max-width:1180px;margin:0 auto;padding:120px 0 90px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft);opacity:.85}
+.headline{font-family:var(--serif);font-weight:400;font-size:clamp(48px,9vw,116px);line-height:.96;letter-spacing:-.02em;margin:18px 0 0}
+.headline em{font-style:italic;color:var(--aq);transition:color .6s}
+.readout{display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap;margin:40px 0 0}
+.num{font-family:var(--serif);font-weight:400;font-size:clamp(96px,17vw,210px);line-height:.8;letter-spacing:-.04em;color:var(--aq);transition:color .6s;display:inline-block;transform-origin:50% 70%;animation:breathe 5s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.025);opacity:.92}}
+.num-side{padding-bottom:14px}
+.unit{font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+.verdict{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(22px,2.9vw,34px);line-height:1.25;max-width:19ch;margin-top:6px}
+.subline{font-family:var(--sans);font-size:16px;line-height:1.6;color:var(--ink-soft);max-width:52ch;margin:26px 0 0}
+.subline b{color:var(--ink);font-weight:500}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin:34px 0 0}
+.btn{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:15px 24px;border-radius:3px;cursor:pointer;transition:transform .15s,background .2s,color .2s;border:1px solid var(--ink);display:inline-flex;gap:9px;align-items:center}
+.btn:hover{transform:translateY(-2px)}
+.btn:disabled{opacity:.55;cursor:default;transform:none}
+.btn-fill{background:var(--ink);color:var(--paper)}
+.btn-ghost{background:transparent;color:var(--ink)}
+button.btn{font-family:var(--mono)}
+.locnote{font-family:var(--mono);font-size:11px;letter-spacing:.03em;color:var(--ink-soft);opacity:.78;margin-top:16px;max-width:58ch;line-height:1.6}
+.scrollcue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:5;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);opacity:.7;display:flex;flex-direction:column;align-items:center;gap:8px}
+.scrollcue span{display:block;width:1px;height:34px;background:var(--ink-soft);animation:drop 2s ease-in-out infinite;transform-origin:top}
+@keyframes drop{0%,100%{transform:scaleY(.4);opacity:.3}50%{transform:scaleY(1);opacity:.8}}
+
+.rv{opacity:0;transform:translateY(26px);transition:opacity .9s ease,transform .9s ease}
+.rv.in{opacity:1;transform:none}
+
+.story{background:#111619;color:#ece3d2;padding:14vh 5vw;position:relative;overflow:hidden}
+.story::before{content:"";position:absolute;right:-10%;top:-20%;width:60vw;height:60vw;border-radius:50%;background:radial-gradient(circle,rgba(204,96,40,.22),transparent 62%);pointer-events:none}
+.story-wrap{position:relative;max-width:1080px;margin:0 auto}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#c9742f}
+.story h2{font-family:var(--serif);font-weight:400;font-size:clamp(32px,5vw,62px);line-height:1.05;letter-spacing:-.015em;margin:18px 0 0;max-width:20ch}
+.story h2 em{font-style:italic;color:#e9a05a}
+.story-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;margin-top:54px;align-items:center}
+@media(max-width:820px){.story-grid{grid-template-columns:1fr;gap:34px}}
+.quote{font-family:var(--serif);font-style:italic;font-size:clamp(23px,3.2vw,38px);line-height:1.3;color:#f3ead9}
+.quote .by{display:block;font-family:var(--mono);font-style:normal;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9a8f7d;margin-top:18px}
+.story p{font-family:var(--sans);font-size:16px;line-height:1.7;color:#b8ae9c;margin-top:22px;max-width:46ch}
+.chartcard{background:#171d20;border:1px solid #28302f;border-radius:10px;padding:20px 20px 14px}
+.chartcard .ch-top{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8d8474;margin-bottom:8px}
+.ch-foot{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:#7d7565;margin-top:8px;display:flex;gap:16px;flex-wrap:wrap}
+.story-line{font-family:var(--serif);font-size:clamp(20px,2.6vw,30px);font-style:italic;color:#ece3d2;margin-top:64px;text-align:center;max-width:30ch;margin-left:auto;margin-right:auto}
+
+.island{background:var(--paper);padding:13vh 5vw}
+.island-head{max-width:1080px;margin:0 auto 38px}
+.island-head h2{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4.6vw,56px);line-height:1.04;letter-spacing:-.015em;margin-top:14px}
+.island-head h2 em{font-style:italic;color:var(--teal)}
+.island-head p{font-size:16px;line-height:1.6;color:var(--ink-soft);max-width:54ch;margin-top:16px}
+.mapwrap{max-width:1180px;margin:0 auto;position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.1);box-shadow:0 30px 60px rgba(40,30,15,.12)}
+#map{width:100%;height:62vh;min-height:420px;background:#dfe7e6}
+.maptag{position:absolute;z-index:500;left:18px;bottom:18px;background:rgba(246,239,225,.92);backdrop-filter:blur(8px);border-radius:8px;padding:12px 15px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);line-height:1.7}
+.maptag b{color:var(--ink);font-weight:600}
+
+.act{background:var(--ink);color:var(--paper);padding:15vh 5vw}
+.act-wrap{max-width:1080px;margin:0 auto}
+.act h2{font-family:var(--serif);font-weight:400;font-size:clamp(34px,5.6vw,72px);line-height:1.02;letter-spacing:-.02em;max-width:16ch}
+.act h2 em{font-style:italic;color:#e9a05a}
+.act-sub{font-size:17px;line-height:1.6;color:#b9b2a4;max-width:46ch;margin-top:22px}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:60px}
+@media(max-width:820px){.acts{grid-template-columns:1fr}}
+.actcard{display:flex;flex-direction:column;gap:12px;padding:30px 26px 26px;border-radius:12px;background:#1e2024;border:1px solid #2c2f34;transition:transform .18s,background .2s;cursor:pointer}
+.actcard:hover{transform:translateY(-4px);background:#24262b}
+.actcard .n{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#7f8b86}
+.actcard.report .n{color:#7bb893}.actcard.survey .n{color:#e9a05a}.actcard.build .n{color:#5fb6b6}
+.actcard h3{font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.1}
+.actcard p{font-size:14.5px;line-height:1.6;color:#a9a294}
+.actcard .go{margin-top:auto;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);padding-top:10px}
+
+.more{background:var(--paper2);padding:13vh 5vw;border-top:1px solid rgba(0,0,0,.07)}
+.more-wrap{max-width:1080px;margin:0 auto}
+.more .kicker2{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft)}
+.more h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,4vw,50px);line-height:1.06;letter-spacing:-.015em;margin:14px 0 0;max-width:22ch}
+.more h2 em{font-style:italic;color:var(--teal)}
+.doors{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:46px}
+@media(max-width:760px){.doors{grid-template-columns:1fr}}
+.door{display:block;padding:34px 30px;background:var(--paper);border:1px solid rgba(0,0,0,.1);border-radius:12px;transition:transform .18s,box-shadow .2s}
+.door:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(40,30,15,.1)}
+.door .dn{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft)}
+.door h3{font-family:var(--serif);font-weight:400;font-size:30px;line-height:1.1;margin:12px 0 0}
+.door p{font-size:15px;line-height:1.6;color:var(--ink-soft);margin-top:12px;max-width:42ch}
+.door .go{margin-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.foot{background:var(--ink);color:#7c766a;padding:40px 5vw 60px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;line-height:1.9;border-top:1px solid #2a2d31}
+.foot a{color:#b9b2a4}
+.reports{background:var(--paper);padding:12vh 5vw;border-top:1px solid rgba(0,0,0,.06)}
+.reports-wrap{max-width:1080px;margin:0 auto}
+.reports h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,4.4vw,52px);line-height:1.05;letter-spacing:-.015em;margin-top:14px}
+.reports h2 em{font-style:italic;color:var(--teal)}
+.rep-cats{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.rep-chip{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:100px;padding:7px 14px}
+.rep-chip b{color:var(--ink);font-weight:600;margin-left:6px}
+.rep-list{margin-top:24px;display:flex;flex-direction:column;border-top:1px solid rgba(0,0,0,.1)}
+.rep-row{display:grid;grid-template-columns:118px 1fr auto;gap:18px;align-items:baseline;padding:15px 0;border-bottom:1px solid rgba(0,0,0,.08)}
+@media(max-width:680px){.rep-row{grid-template-columns:1fr;gap:4px}}
+.rep-cat{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:500}
+.rep-desc{font-family:var(--serif);font-size:16.5px;line-height:1.4;color:var(--ink)}
+.rep-meta{font-family:var(--mono);font-size:11px;color:var(--ink-soft);white-space:nowrap}
+@media(prefers-reduced-motion:reduce){.num{animation:none}.dot{animation:none}.scrollcue span{animation:none}.rv{transition:none;opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="bar" id="bar">
+  <div class="brand">Making Sense Bali</div>
+  <div class="bar-right">
+    <nav class="bar-nav"><a href="#story">The story</a><a href="about-concept.html">About</a><a href="dashboard-concept.html">The data</a></nav>
+    <div class="live"><span class="dot"></span><span id="bar-state">connecting…</span></div>
+  </div>
+</div>
+
+<header class="hero" id="top">
+  <canvas id="air"></canvas>
+  <div class="hero-inner">
+    <div class="eyebrow rv in">A Fab Lab Bali campaign · open sensors + resident reports</div>
+    <h1 class="headline rv in">Bali, <em>made&nbsp;visible.</em></h1>
+    <div class="readout rv in">
+      <div class="num" id="hero-num">–</div>
+      <div class="num-side">
+        <div class="unit">µg/m³ · PM2.5 · <span id="loc-scope">reading the network…</span></div>
+        <div class="verdict" id="hero-verdict">Reading the air across Bali…</div>
+      </div>
+    </div>
+    <p class="subline rv in">Every speck drifting on this screen is <b>particulate matter</b> — the air you actually breathe, made visible. <span id="hero-mood"></span></p>
+    <div class="hero-cta rv in">
+      <button class="btn btn-fill" id="geo" type="button">◎ Show the air where I am</button>
+      <a class="btn btn-ghost" href="#act">Report what you smell</a>
+    </div>
+    <p class="locnote rv in" id="locnote">Approximate only — rounded to ~1&nbsp;km, computed in your browser, never stored. We read the air within 3&nbsp;km of you.</p>
+  </div>
+  <div class="scrollcue"><span></span>scroll</div>
+</header>
+
+<section class="story" id="story">
+  <div class="story-wrap">
+    <div class="kicker rv" id="story-kicker">Sensors meet residents</div>
+    <h2 class="rv">When the data and the residents tell the <em>same story.</em></h2>
+    <div class="story-grid">
+      <div>
+        <div class="quote rv" id="story-quote">"They're burning at night to avoid the sanctions."
+          <span class="by" id="story-by">— resident report, sent to our WhatsApp bot</span>
+        </div>
+        <p class="rv" id="story-body">Nobody saw a headline. One neighbour smelled smoke and sent a message. A low-cost sensor nearby felt the same thing — particulate matter climbing while the kampung slept. A measurement, and a human voice, pointing at the same moment.</p>
+      </div>
+      <div class="chartcard rv">
+        <div class="ch-top"><span id="story-sensor">nearest sensor · PM2.5</span><span>recent trend</span></div>
+        <svg id="spark" viewBox="0 0 520 240" width="100%" preserveAspectRatio="none" aria-label="Recent PM2.5 trend with a peak aligned to a citizen report"></svg>
+        <div class="ch-foot"><span style="color:#7bb893">— PM2.5 µg/m³</span><span style="color:#e9a05a">● resident report</span><span style="color:#8d8474">- - WHO 24h guideline</span></div>
+      </div>
+    </div>
+    <p class="story-line rv">A sensor measures. A neighbour testifies. Together, they become <em>evidence</em>.</p>
+  </div>
+</section>
+
+<section class="reports" id="reports">
+  <div class="reports-wrap">
+    <div class="kicker rv" style="color:var(--teal)">What residents are reporting</div>
+    <h2 class="rv">The map, in their <em>own words.</em></h2>
+    <div class="rep-cats rv" id="rep-cats"></div>
+    <div class="rep-list rv" id="rep-list"><div class="rep-row"><span class="rep-cat">—</span><span class="rep-desc">Loading reports…</span><span class="rep-meta"></span></div></div>
+    <a class="btn btn-ghost rv" href="https://wa.me/6285190890857?text=Hi%20Making%20Sense%20Bali%20%E2%80%94%20I%20want%20to%20report%3A" target="_blank" rel="noopener" style="margin-top:30px">Add your report →</a>
+  </div>
+</section>
+
+<section class="island" id="island">
+  <div class="island-head">
+    <div class="kicker rv" style="color:var(--teal)">The whole island</div>
+    <h2 class="rv">One map. Every sensor, every report, <em>breathing in real time.</em></h2>
+    <p class="rv">Pinch into your own banjar. The colour is always the air — never the noise of how many people reported. Clean stays calm, even where the reports pile up.</p>
+  </div>
+  <div class="mapwrap rv">
+    <div id="map"></div>
+    <div class="maptag"><b id="map-sensors">—</b> sensors live · <b id="map-reports">—</b> reports<br>tap any point for the reading</div>
+  </div>
+</section>
+
+<section class="act" id="act">
+  <div class="act-wrap">
+    <div class="kicker rv" style="color:#e9a05a">This is where you come in</div>
+    <h2 class="rv">The air is only visible <em>because people look.</em></h2>
+    <p class="act-sub rv">No app to install. No login. You already have the only tool you need — your senses, and a phone.</p>
+    <div class="acts">
+      <a class="actcard report rv" id="act-report" href="https://wa.me/6285190890857?text=Hi%20Making%20Sense%20Bali%20%E2%80%94%20I%20want%20to%20report%3A" target="_blank" rel="noopener">
+        <div class="n">01 · 30 seconds</div>
+        <h3>Report what you smell</h3>
+        <p>Smoke, burning waste, a smell that wasn't there yesterday. One WhatsApp message — our local team verifies it and it joins the public map.</p>
+        <div class="go">Open WhatsApp →</div>
+      </a>
+      <a class="actcard survey rv" id="act-survey" href="https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form" target="_blank" rel="noopener">
+        <div class="n">02 · 5 minutes</div>
+        <h3>Tell us what matters</h3>
+        <p>Eight questions about the environment where you live. Your answers decide where the next sensors go. The campaign starts with you.</p>
+        <div class="go">Open the survey →</div>
+      </a>
+      <a class="actcard build rv" id="act-build" href="https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form" target="_blank" rel="noopener">
+        <div class="n">03 · An afternoon</div>
+        <h3>Build a sensor</h3>
+        <p>Come to Fab Lab Bali, assemble a low-cost air node, and put it on your roof or your classroom wall. Become a point on the map.</p>
+        <div class="go">Join a workshop →</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="more" id="more">
+  <div class="more-wrap">
+    <div class="kicker2 rv">Go deeper — if you want</div>
+    <h2 class="rv">The map shows you <em>what.</em> When you want the why, and the raw numbers — two doors.</h2>
+    <div class="doors">
+      <a class="door rv" href="about-concept.html">
+        <div class="dn">About the campaign</div>
+        <h3>Why we listen before we measure</h3>
+        <p>The method, the seven phases, the people who answer for this, and how Bali fits a global lineage — Making Sense, Smart Citizen, Fab City.</p>
+        <div class="go">Read about Making Sense Bali →</div>
+      </a>
+      <a class="door rv" href="dashboard-concept.html">
+        <div class="dn">The data view · for analysts</div>
+        <h3>Every reading, every standard</h3>
+        <p>Raw sensor history, WHO and EPA thresholds, network coverage, reports by category, and open downloads with citation guidance.</p>
+        <div class="go">Open the data dashboard →</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  Making Sense Bali — led by <a href="https://www.fablabbali.com/">Fab Lab Bali</a> · open hardware: Smart Citizen Kit (Fab Lab Barcelona / IAAC) · methodology: EU Making Sense · part of <a href="https://fab.city">Fab City</a> + Murmurations.<br>
+  Low-cost sensors, ±10–15% from regulatory-grade — trends and relative magnitudes are reliable.
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="./data.js"></script>
+<script src="./peaks.js"></script>
+<script src="./i18n.js"></script>
+<script>
+var D=window.SCB_DATA||{}, P=window.SCB_PEAKS||{};
+var S={sensors:[],reports:[]};
+
+/* ---------- air-quality bands → atmosphere + particles ---------- */
+var BANDS={
+  good:     {accent:'#3f8a5b', sky:['#cfe0dd','#eef0e6','#f6e6c8'], count:60,  pcol:[150,168,150]},
+  moderate: {accent:'#c98a2a', sky:['#e7ddc4','#efe7d4','#f3dcb0'], count:230, pcol:[150,128,86]},
+  unhealthy:{accent:'#bb4a30', sky:['#d8c3ad','#e3cdb0','#e6bd96'], count:520, pcol:[128,96,74]}
+};
+function bandOf(pm){ return pm<=12?'good':(pm<=35?'moderate':'unhealthy'); }
+function bandWord(b){ return b==='good'?'clean air':(b==='moderate'?'moderate haze':'unhealthy air'); }
+function bandColor(pm){ return BANDS[bandOf(pm)].accent; }
+function verdictFor(b,local){ var w=local?'here':'across Bali';
+  if(b==='good') return 'The air '+w+' is clean right now. A good day to be outside.';
+  if(b==='moderate') return 'Some haze '+w+' right now — sensitive lungs, take it easy.';
+  return 'Unhealthy air '+w+' right now. Mask up and keep kids indoors.'; }
+function moodFor(b){ return b==='good'?'Right now it’s calm.':(b==='moderate'?'You can almost see it now.':'The air is thick today.'); }
+var cur=BANDS.good;
+function applyReading(pm, scope, local){
+  var rs=document.documentElement.style;
+  if(pm==null){
+    cur={accent:'#7c8a82', sky:['#dbe0db','#eef0e6','#f3ece0'], count:40, pcol:[150,158,150]};
+    rs.setProperty('--aq',cur.accent); rs.setProperty('--sky-top',cur.sky[0]); rs.setProperty('--sky-mid',cur.sky[1]); rs.setProperty('--sky-low',cur.sky[2]);
+    setText('hero-num','–'); setText('hero-verdict','The network is coming online — check back shortly.'); setText('hero-mood','');
+    setText('loc-scope', scope||'across Bali'); setText('bar-state','connecting…'); rebuildParticles(); return;
+  }
+  var band=bandOf(pm), b=BANDS[band]; cur=b;
+  rs.setProperty('--aq',b.accent); rs.setProperty('--sky-top',b.sky[0]); rs.setProperty('--sky-mid',b.sky[1]); rs.setProperty('--sky-low',b.sky[2]);
+  setText('hero-num', (Math.round(pm*10)/10).toFixed(1));
+  setText('hero-verdict', verdictFor(band,local));
+  setText('hero-mood', moodFor(band));
+  setText('loc-scope', scope);
+  setText('bar-state', (local?'live · your area · ':'live · ')+bandWord(band));
+  rebuildParticles();
+}
+function setText(id,t){ var e=document.getElementById(id); if(e) e.textContent=t; }
+function esc(s){ return D.escapeHtml?D.escapeHtml(String(s)):String(s); }
+
+/* Robust reports loader: try the library, then a direct fetch fallback, with
+   logging — so an empty result is diagnosable instead of silent. */
+async function loadReports(){
+  var rs=[];
+  try{ rs=(await (D.fetchReports?D.fetchReports():[]))||[]; }catch(e){ console.warn('[reports] fetchReports threw:', e); }
+  if(rs.length) return rs;
+  try{
+    var base=(D.reportsBaseUrl?D.reportsBaseUrl():'./data/reports');
+    var ir=await fetch(base+'/index.json',{cache:'no-cache'});
+    if(!ir.ok){ console.warn('[reports] index.json HTTP '+ir.status+' at '+base); return rs; }
+    var idx=await ir.json(), files=(idx&&idx.profiles)||[];
+    var profs=await Promise.all(files.map(function(f){ return fetch(base+'/'+f).then(function(x){return x.ok?x.json():null;}).catch(function(){return null;}); }));
+    rs=profs.filter(Boolean).map(function(p){ return D.profileToReport?D.profileToReport(p):null; }).filter(Boolean);
+    console.log('[reports] direct loader recovered '+rs.length+' of '+files.length);
+  }catch(e){ console.warn('[reports] direct loader failed:', e); }
+  return rs;
+}
+
+/* ---------- helpers ---------- */
+function activeSensors(){ return S.sensors.filter(function(s){ return s && s.reading && typeof s.reading.pm25==='number' && (!D.isActive || D.isActive(s.lastReading)); }); }
+function median(a){ if(!a.length) return null; var x=a.slice().sort(function(p,q){return p-q;}); return x[Math.floor(x.length/2)]; }
+function dkm(a,b,c,d){ return (P.distanceKm)?P.distanceKm(a,b,c,d):haversine(a,b,c,d); }
+function haversine(a,b,c,d){ var R=6371,r=Math.PI/180,dla=(c-a)*r,dlo=(d-b)*r,s=Math.sin(dla/2)*Math.sin(dla/2)+Math.cos(a*r)*Math.cos(c*r)*Math.sin(dlo/2)*Math.sin(dlo/2); return 2*R*Math.asin(Math.min(1,Math.sqrt(s))); }
+
+/* ---------- bar solidify ---------- */
+var bar=document.getElementById('bar');
+addEventListener('scroll',function(){ bar.classList.toggle('solid', scrollY>60); },{passive:true});
+
+/* ---------- reveals ---------- */
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.16});
+document.querySelectorAll('.rv:not(.in)').forEach(function(el){io.observe(el);});
+
+/* ---------- particle field ---------- */
+var cv=document.getElementById('air'), ctx=cv&&cv.getContext('2d'), parts=[], W=0,H=0,DPR=Math.min(devicePixelRatio||1,2);
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function size(){ if(!cv)return; var h=cv.parentElement; W=h.clientWidth; H=h.clientHeight; cv.width=W*DPR; cv.height=H*DPR; cv.style.width=W+'px'; cv.style.height=H+'px'; ctx.setTransform(DPR,0,0,DPR,0,0); }
+function rebuildParticles(){ if(!cv)return; parts=[]; for(var i=0;i<cur.count;i++) parts.push(mk()); }
+function mk(){ var spd=cur.count/120; return {x:Math.random()*W,y:Math.random()*H,r:.6+Math.random()*2.2,vx:(-.25-Math.random()*.5)*spd,vy:(Math.random()-.5)*.4*spd,a:.15+Math.random()*.45}; }
+function draw(){ if(!cv)return; ctx.clearRect(0,0,W,H); var c=cur.pcol; for(var i=0;i<parts.length;i++){ var p=parts[i]; p.x+=p.vx; p.y+=p.vy; if(p.x<-4)p.x=W+4; if(p.x>W+4)p.x=-4; if(p.y<-4)p.y=H+4; if(p.y>H+4)p.y=-4; ctx.beginPath(); ctx.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+p.a+')'; ctx.arc(p.x,p.y,p.r,0,6.2832); ctx.fill(); } if(!reduce) requestAnimationFrame(draw); }
+addEventListener('resize',function(){ size(); rebuildParticles(); });
+
+/* ---------- geolocation : approximate, 3 km ---------- */
+function useMyLocation(){
+  var btn=document.getElementById('geo'), note=document.getElementById('locnote');
+  if(!navigator.geolocation){ note.textContent='This device can’t share location — showing all of Bali instead.'; return; }
+  btn.textContent='◎ Finding you…'; btn.disabled=true;
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat=Math.round(pos.coords.latitude*100)/100, lng=Math.round(pos.coords.longitude*100)/100;
+    var act=activeSensors().map(function(s){return {s:s,km:dkm(lat,lng,s.lat,s.lng)};}).sort(function(x,y){return x.km-y.km;});
+    var within=act.filter(function(o){return o.km<=3;});
+    var reps=S.reports.filter(function(r){return typeof r.lat==='number'&&dkm(lat,lng,r.lat,r.lng)<=3;}).length;
+    btn.disabled=false; btn.textContent='◎ Air where you are';
+    if(within.length){
+      var pm=within.reduce(function(t,o){return t+o.s.reading.pm25;},0)/within.length;
+      applyReading(pm,'within 3 km of you · approximate',true);
+      note.textContent='≈ '+within[0].km.toFixed(1)+' km from the nearest sensor · '+reps+' resident report'+(reps===1?'':'s')+' within 3 km · your location was rounded to ~1 km and never leaves your device.';
+      if(window._map) window._map.setView([pos.coords.latitude,pos.coords.longitude],13);
+    } else if(act.length){
+      var n=act[0];
+      applyReading(n.s.reading.pm25,'nearest reading · '+Math.round(n.km)+' km away',true);
+      note.textContent='No sensor within 3 km of you yet — showing the closest, '+Math.round(n.km)+' km away. Want coverage here? Host or build one. Location rounded, never stored.';
+    } else {
+      note.textContent='No active sensors to compare against right now — showing the network. Location rounded, never stored.';
+    }
+  }, function(){
+    btn.disabled=false; btn.textContent='◎ Show the air where I am';
+    note.textContent='Location stayed off — showing all of Bali. Enable it and tap again whenever you like. Nothing is stored either way.';
+  }, {enableHighAccuracy:false, timeout:9000, maximumAge:600000});
+}
+var geoBtn=document.getElementById('geo'); if(geoBtn) geoBtn.addEventListener('click', useMyLocation);
+
+/* ---------- story TEXT (from the most notable real report) ---------- */
+var KNOWN_SCK=[19236,19600,19618,19651];
+function notableReport(){
+  if(!S.reports.length) return null;
+  var rank={high:3,medium:2,low:1};
+  return S.reports.slice().sort(function(a,b){ return (rank[b.severity]||0)-(rank[a.severity]||0) || (new Date(b.submittedAt||0))-(new Date(a.submittedAt||0)); })[0];
+}
+function renderStory(){
+  var r=notableReport(); if(!r) return;   /* no reports yet → keep evergreen copy */
+  var quote=(r.description||r.title||'').trim();
+  if(quote.length>140) quote=quote.slice(0,137)+'…';
+  if(quote) setText('story-quote','“'+quote+'”');
+  var rel=(window.SCB_I18N&&r.submittedAt)?window.SCB_I18N.formatRelative(r.submittedAt):'';
+  setText('story-by','— resident report'+(r.locality?' · '+r.locality:'')+(rel?' · '+rel:''));
+  setText('story-body','One neighbour'+(r.locality?' in '+r.locality:'')+' sent a message about what they could smell. A low-cost sensor nearby was watching the same air — a measurement and a human voice pointing at the same moment.');
+}
+
+/* ---------- home reports summary (categories + most recent, in their words) ---------- */
+function renderReportsSummary(){
+  var cats=document.getElementById('rep-cats'), list=document.getElementById('rep-list');
+  if(!S.reports.length){ if(list) list.innerHTML='<div class="rep-row"><span class="rep-cat">—</span><span class="rep-desc">No verified reports yet — be the first.</span><span class="rep-meta"></span></div>'; return; }
+  if(cats){ var c={}; S.reports.forEach(function(r){ var k=r.category||'other'; c[k]=(c[k]||0)+1; }); cats.innerHTML=Object.keys(c).sort(function(a,b){return c[b]-c[a];}).map(function(k){ return '<span class="rep-chip">'+esc(k)+'<b>'+c[k]+'</b></span>'; }).join(''); }
+  if(list){ var rs=S.reports.slice().sort(function(a,b){ return new Date(b.submittedAt||0)-new Date(a.submittedAt||0); }).slice(0,6);
+    list.innerHTML=rs.map(function(r){ var rel=(window.SCB_I18N&&r.submittedAt)?window.SCB_I18N.formatRelative(r.submittedAt):''; var desc=(r.description||r.title||'').trim(); if(desc.length>96) desc=desc.slice(0,93)+'…'; return '<div class="rep-row"><span class="rep-cat">'+esc(r.category||'other')+'</span><span class="rep-desc">'+esc(desc||'(no description)')+'</span><span class="rep-meta">'+esc(r.locality||'Bali')+(rel?' · '+rel:'')+'</span></div>'; }).join(''); }
+}
+
+/* ---------- story CHART : real Smart Citizen 24h PM2.5 with clock labels ---------- */
+function activeSCK(){ return activeSensors().filter(function(s){ return s.source==='smartcitizen' && s.rawId; }); }
+async function loadStoryChart(){
+  drawSparkIllustrative(8);                       /* draw something immediately — never blank */
+  var scks=activeSCK();
+  /* prefer the established kits (continuous history) over brand-new sparse nodes */
+  var known=scks.filter(function(s){ return KNOWN_SCK.indexOf(Number(s.rawId))>=0; });
+  var pool=known.length?known:scks, pick=null;
+  if(pool.length){ pick=pool[0]; var r=notableReport(); if(r){ var best=1e9; pool.forEach(function(s){ var k=dkm(r.lat,r.lng,s.lat,s.lng); if(k<best){best=k;pick=s;} }); } }
+  var cand=[];
+  if(pick) cand.push({rid:pick.rawId, label:pick.name});
+  KNOWN_SCK.forEach(function(id){ if(!pick||Number(pick.rawId)!==id) cand.push({rid:id, label:'Smart Citizen · Bali'}); });
+  for(var i=0;i<cand.length;i++){ if(await tryStorySensor(cand[i].rid, cand[i].label)) return; }
+}
+async function tryStorySensor(rid, label){
+  try{
+    var detail=await D.fetchSmartCitizenDetail(rid);
+    var list=(detail&&detail.data&&detail.data.sensors)||(detail&&detail.sensors)||[];
+    var pm=list.find(function(x){ return /pm\s*2\.?5/i.test(x.name||''); });
+    if(!pm) return false;
+    var to=new Date(), from=new Date(to.getTime()-24*3600*1000);
+    var pts=await D.fetchSmartCitizenHistory(rid, pm.id, from.toISOString(), to.toISOString(), '1h');
+    if(pts&&pts.length>=3){ setText('story-sensor', label+' · PM2.5 · 24h'); drawSparkReal(pts, notableReport()); return true; }
+  }catch(_){}
+  return false;
+}
+function drawSparkIllustrative(baseline){
+  var svg=document.getElementById('spark'); if(!svg)return;
+  var n=72,data=[],b=Math.max(4,baseline);
+  for(var i=0;i<n;i++){ data.push(Math.max(2, b*0.8+Math.sin(i/6)*2+Math.random()*1.6)); }
+  svg.innerHTML=_sparkSVG(data,null,null);
+}
+function drawSparkReal(pts,report){
+  var svg=document.getElementById('spark'); if(!svg)return;
+  svg.innerHTML=_sparkSVG(pts.map(function(p){return p.value;}), pts.map(function(p){return new Date(p.recordedAt).getTime();}), report);
+}
+function _fmtClock(ms){ try{ return new Date(ms).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Makassar'}); }catch(_){ return ''; } }
+function _sparkSVG(vals, times, report){
+  var w=520,h=240,pad=16,padB=30,n=vals.length;
+  var max=Math.max(Math.max.apply(null,vals)*1.1,18);
+  var t0=times?times[0]:0, span=times?Math.max(1,times[n-1]-times[0]):1;
+  function X(i){ return times ? pad+(times[i]-t0)/span*(w-2*pad) : pad+i*(w-2*pad)/(n-1); }
+  function Y(v){ return (h-padB)-(v/max)*((h-padB)-pad); }
+  var d=''; for(var i=0;i<n;i++){ d+=(i?'L':'M')+X(i).toFixed(1)+' '+Y(vals[i]).toFixed(1); }
+  var who=Y(15).toFixed(1);
+  var out='<line x1="'+pad+'" y1="'+who+'" x2="'+(w-pad)+'" y2="'+who+'" stroke="#5b5347" stroke-width="1" stroke-dasharray="4 5"/>'+
+          '<path d="'+d+'" fill="none" stroke="#4f9e6e" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>';
+  if(times){ var tk=4; for(var k=0;k<=tk;k++){ var idx=Math.round(k*(n-1)/tk), x=X(idx); out+='<text x="'+x.toFixed(1)+'" y="'+(h-9)+'" text-anchor="middle" fill="#8d8474" font-family="IBM Plex Mono,monospace" font-size="10">'+_fmtClock(times[idx])+'</text>'; } }
+  if(report&&report.submittedAt&&times){ var rt=new Date(report.submittedAt).getTime(); if(rt>=times[0]&&rt<=times[n-1]){ var rx=pad+(rt-t0)/span*(w-2*pad), ni=0,bd=1e18; for(var j=0;j<n;j++){var dd=Math.abs(times[j]-rt); if(dd<bd){bd=dd;ni=j;}} var ry=Y(vals[ni]); out+='<line x1="'+rx.toFixed(1)+'" y1="'+ry.toFixed(1)+'" x2="'+rx.toFixed(1)+'" y2="'+(h-padB)+'" stroke="#e9a05a" stroke-width="1.4" stroke-dasharray="3 4"/><circle cx="'+rx.toFixed(1)+'" cy="'+ry.toFixed(1)+'" r="5.5" fill="#e9a05a"/><text x="'+rx.toFixed(1)+'" y="'+(ry-11).toFixed(1)+'" text-anchor="middle" fill="#e9a05a" font-family="IBM Plex Mono,monospace" font-size="10">'+_fmtClock(rt)+'</text>'; } }
+  return out;
+}
+
+/* ---------- live map ---------- */
+/* report glows are drawn once, whenever BOTH the map and reports are ready
+   (sensors + reports resolve independently, so either can finish first). */
+function renderGlows(){
+  if(!window._map || window._glowsDone || !S.reports.length) return;
+  window._glowsDone=true;
+  S.reports.forEach(function(r){ if(typeof r.lat==='number'&&typeof r.lng==='number'){ L.circle([r.lat,r.lng],{radius:1500,color:'transparent',fillColor:'#dd8a3c',fillOpacity:.13}).addTo(window._map); } });
+}
+function initMap(){
+  if(typeof L==='undefined'){ return; }
+  var map=L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([-8.66,115.16],10);
+  window._map=map;
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}).addTo(map);
+  renderGlows();
+  /* sensor pins — colour = air quality */
+  var pts=[];
+  activeSensors().forEach(function(s){
+    var col=bandColor(s.reading.pm25);
+    L.circleMarker([s.lat,s.lng],{radius:9,color:'#fff',weight:2,fillColor:col,fillOpacity:1}).addTo(map)
+      .bindPopup('<b>'+(D.escapeHtml?D.escapeHtml(s.name):s.name)+'</b><br>PM2.5 '+(Math.round(s.reading.pm25*10)/10)+' µg/m³');
+    pts.push([s.lat,s.lng]);
+  });
+  if(pts.length){ try{ map.fitBounds(pts,{padding:[60,60],maxZoom:12}); }catch(_){ } }
+}
+
+/* ---------- boot ---------- */
+function boot(){
+  size(); applyReading(null,'across Bali',false);
+  if(reduce){ draw(); } else { requestAnimationFrame(draw); }
+  if(window.SCB_I18N&&document.documentElement) document.documentElement.lang=window.SCB_I18N.currentLang();
+
+  (D.fetchSensorsFast?D.fetchSensorsFast():Promise.resolve([])).then(function(s){
+    S.sensors=s||[];
+    var act=activeSensors();
+    setText('map-sensors', act.length||'—');
+    if(act.length){ applyReading(median(act.map(function(x){return x.reading.pm25;})),'right now · across Bali',false); }
+    initMap();
+    loadStoryChart();
+  }).catch(function(){ initMap(); loadStoryChart(); });
+
+  loadReports().then(function(r){
+    S.reports=r||[];
+    setText('map-reports', S.reports.length||'0');
+    renderStory();
+    renderReportsSummary();
+    renderGlows();
+    loadStoryChart();
+  }).catch(function(e){ console.warn('[reports] load failed:', e); });
+}
+if(document.readyState!=='loading'){ boot(); } else { addEventListener('DOMContentLoaded', boot); }
+</script>
+</body>
+</html>
