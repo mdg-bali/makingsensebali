@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-06T21:10:03.138415+00:00",
+  "generated_at": "2026-06-06T21:25:25.896979+00:00",
   "count": 4,
   "sensors": [
     {
@@ -28,13 +28,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-06T21:07:03Z",
+      "lastReading": "2026-06-06T21:23:03Z",
       "reading": {
-        "pm25": 13.6,
-        "pm10": 14.6,
-        "temp": 23.88,
-        "rh": 63.4,
-        "noise": 48.65
+        "pm25": 13.8,
+        "pm10": 13.8,
+        "temp": 24.33,
+        "rh": 63.04,
+        "noise": 55.19
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600"
     },
@@ -46,13 +46,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-06T21:08:32Z",
+      "lastReading": "2026-06-06T21:24:35Z",
       "reading": {
-        "pm25": 12.3,
-        "pm10": 12.7,
-        "temp": 24.24,
-        "rh": 59.81,
-        "noise": 36.62
+        "pm25": 11.2,
+        "pm10": 11.2,
+        "temp": 24.56,
+        "rh": 60.48,
+        "noise": 38.65
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618"
     },
@@ -64,12 +64,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-06T21:09:48Z",
+      "lastReading": "2026-06-06T21:24:48Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 29.12853,
-        "rh": 46.44123,
+        "temp": 29.36069,
+        "rh": 46.71045,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651"
