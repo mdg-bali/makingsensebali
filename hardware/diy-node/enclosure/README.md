@@ -1,79 +1,75 @@
-# DIY Node enclosure — the lantern
+# DIY Node enclosure v3 — the gourd
 
-This folder closes the "STL files: TODO" in the parent README. One parametric OpenSCAD model ([`enclosure.scad`](enclosure.scad)) generates both variants — **Basic** (XIAO ESP32-S3 + BME680 on a 5×7 perfboard) and **Plus** (adds the HM3301 PM bay). Pre-rendered STLs in [`stl/`](stl/), previews in [`img/`](img/).
+One parametric OpenSCAD model ([`enclosure.scad`](enclosure.scad)) generates both variants — **Basic** (XIAO ESP32-S3 + BME680 on a 4×6 cm perfboard) and **Plus** (adds the Grove HM3301 PM module). Pre-rendered STLs in [`stl/`](stl/), previews in [`img/`](img/).
 
-A box with louvers is laser-cutter thinking. This is printer thinking: a D-section shell with two continuous skirt vents and a 45° cone spire — compound curves a flat-material process can't make, printed in **two parts, support-free, snap-fit, no glue, no machine screws**. The walls are thin (1.6 mm shell, 1.3 mm skirts) because curvature does the stiffening, not material. Total plastic: **~90 g for Plus, ~74 g for Basic** — about half the box prototype this replaces.
+v3 exists because v2 met a printer and lost. Three lessons are baked in. First, the PM part is not the 40×38 mm metal can — it's the can on an **80×40 mm Grove carrier PCB** (dimensions pulled from Seeed's Eagle board file: Ø3.2 mounting holes at ±36/±16, Grove socket on the left end, pigtail header on the right). The bay now fits the real module. Second, the hood↔core joint now actually closes: a hard shoulder stop, 0.5 mm radial clearance, chamfered lead-ins, and two M3 screws into bosses — not press-your-luck snap nubs. Third, the whole thing shrank: a XIAO and a BME680 were rattling around a 5×7 perfboard, so the spec drops to 4×6 cm and the body drops from Ø75 to Ø59. Only the foot stays wide, because the module is 80 mm long and geometry doesn't negotiate.
 
 | | Basic | Plus |
 |---|---|---|
-| Body Ø | 75 mm | 75 mm |
-| Max Ø (skirts/brim) | 91 mm | 91 mm |
-| Height | 107 mm | 130 mm |
+| Body Ø | 59 mm | 59 mm |
+| Brim Ø | 73 mm | 73 mm |
+| Foot | — | 88 × 48 mm |
+| Height | 97 mm | 121 mm |
 | Printed parts | core + hood | core + hood |
-| PETG | ~74 g | ~90 g |
 
-![Plus assembly](img/preview_plus_front.png)
+![Plus assembly](img/v3_plus_front.png)
 
 ## The two parts
 
-**Core** — floor, PM cradle, and mounting spine in one piece. The flat back hangs on four keyhole screws; the cup at the bottom holds the HM3301 face-down over two mesh-screened windows; vertical rails take the perfboard; 45° chamfers under the rail blocks are what make the standing print support-free. Prints as exported, floor on the bed.
+**Core** — floor, module cradle, and mounting spine in one standing print. The Grove module mounts **inverted**: can face-down over two mesh-screened floor windows, located by four pegs that match the carrier's Ø3.2 holes, held by two fingers over the carrier edges. Solder your four wires to the carrier's test pads **before** dropping it in — the Grove socket faces down once mounted, and there's no room for a plug. The spine takes the perfboard in side rails and hangs on four keyhole screws.
 
-**Hood** — the lantern. Cone spire, two body bands, a flared skirt over each vent gap, all one revolved piece. Prints as exported, **inverted** — spire cap on the bed — which turns every down-and-out rain surface into a rising 45° surface the printer lays down happily. Slides over the core and clicks onto the cup flange with two printed nubs. No fasteners.
+**Hood** — collar, loft, body, two skirt vents, cone spire; one inverted print. The collar slides over the foot's stepped shoulder until it seats — you feel it stop — then two M3 screws through the collar ends lock into bosses inside the foot wall. The loft from foot to body stays inside 45°, so nothing needs support.
 
-`part="plate"` exports both parts print-oriented side by side: one STL, one print job, a complete enclosure (needs ~200 × 100 mm of bed and 135 mm of Z; on smaller beds print the parts separately).
+`part="plate"` exports core + hood print-oriented on one bed (~190 × 95 mm, 125 mm Z).
 
 ## Why it looks like this
 
-**Rain gets geometry, not gaskets.** The spire sheds everything; its brim overhangs the exhaust vent. Each vent is a continuous gap shaded by a conical skirt whose tip drops past the gap's lower edge — there is no horizontal line of sight into the body anywhere. The PM sensor breathes through the floor: its inlet and outlet face the ground over separate mesh windows with an 8 mm isolation band between them (the HM3301 datasheet's required airflow separation, built in). The USB cable leaves through the floor with a drip loop.
+**Rain gets geometry.** Spire sheds, brim shades the exhaust vent, each vent gap hides behind a conical skirt whose tip drops past the gap's lower edge — no horizontal sight line anywhere. The PM module breathes through the floor: inlet and outlet face the ground over separate mesh windows with an 8 mm isolation band (the HM3301 datasheet's required airflow separation). USB leaves through the foot's end wall with a drip loop.
 
-**Airflow is the chimney the shape makes.** Warm air from the XIAO rises out the top vent under the brim; fresh air enters under the lower skirt. Continuous 360°-minus-chord gaps move more air than any pattern of slots, with less plastic. Build rule on the perfboard: **BME680 at the bottom edge** (intake level), **XIAO at the top** (exhaust level) — the heat goes up and away from the sensor that measures temperature.
+**Airflow is a chimney.** XIAO heat exits the top vent; fresh air enters under the lower skirt. On the perfboard: **BME680 at the bottom edge, XIAO at the top** — heat rises away from the temperature sensor.
 
-**Readings stay honest.** White PETG (solar gain), skirts double as shade rings, the sensor never sees the sky or the wall directly. None of this survives a bad site — siting rules below still decide data quality.
+**`can_cx`.** The can sits roughly centered on the carrier (socket end clear). If your unit differs, measure the can's offset from board center and set `can_cx` — the floor windows and mesh pocket follow it.
 
 ## Printing
 
-PETG, always — PLA softens on Bali rooftops. White strongly preferred. 0.2 mm layers, 4 perimeters at 0.4 nozzle, no supports, part cooling on.
+White PETG, 0.2 mm layers, 4 perimeters, no supports, part cooling on.
 
 | Part | Orientation | Notes |
 |---|---|---|
-| core | as exported — standing on its floor | 5 mm brim; the spine is a tall flag and wants the help |
-| hood | as exported — spire cap on the bed | 10 mm brim — first layer is only the Ø20 cap disc. Skirts print as rising 45° cones; nothing overhangs |
+| core | as exported — standing on its floor | 5 mm brim |
+| hood | as exported — spire cap on the bed | 10 mm brim — first layer is only the Ø16 cap disc |
 
-Roughly 3–4 h per part at 0.2 mm. First print on a new machine: stop the core after ~25 mm and test-fit your HM3301 in the fence and a perfboard offcut in the rails; clearances assume a calibrated printer (`drop_fit` is the knob if it fights you).
-
-Regenerate after editing parameters:
+First print: pause the core at ~25 mm and test-fit the Grove module over the pegs and a perfboard offcut in the rails. `fit` (joint) and `drop` (component) are the clearance knobs; v3 ships at 0.5/0.8 because v2's 0.2 jammed.
 
 ```sh
 openscad -o stl/diy-node-plus-hood.stl -D 'variant="plus"' -D 'part="hood"' enclosure.scad
 ```
 
-parts: `core` / `hood` / `plate` / `assembly` · variants: `basic` / `plus` · set `use_screws=true` if you want M3 backup screws through the hood into the rail blocks (pilots are already there).
+parts: `core` / `hood` / `plate` / `assembly` · variants: `basic` / `plus`
 
 ## What else you need
 
 | Qty | Item | Notes |
 |---|---|---|
-| 1 | stainless woven mesh ~35 × 33 mm, 0.5–1 mm aperture | Plus only; any Denpasar hardware stall |
-| 4 | wall screws + plugs, pan head ≤ Ø8 | drive to ~4 mm standoff; the keyholes hang on them |
-| 2 | zip ties | strain relief at the chassis post |
-| opt | 2 × M3 × 10 self-tapping | only if you set `use_screws=true` |
+| 1 | stainless woven mesh ~35 × 33 mm, 0.5–1 mm aperture | Plus only |
+| 2 | M3 × 8 self-tapping screws | the joint |
+| 4 | wall screws + plugs, pan head ≤ Ø8 | keyholes hang on them, ~4 mm standoff |
+| 2 | zip ties | strain relief |
 
 ## Assembly
 
-1. Slide the soldered perfboard down the spine rails — component side out, **BME680 edge down, XIAO edge up**, USB-C toward the right gap.
-2. Plus: mesh sheet into the floor pocket, HM3301 face-down into the fence until both fingers click over the can. Grove pigtail up.
-3. Cable down the right gap, out the floor arch. Zip-tie at the post, drip loop outside.
-4. Hood down over everything until the nubs click on the cup flange.
-5. Four wall screws (top pair 38 mm apart), hang, tug to seat.
+1. Solder four wires (3V3/5V, GND, SDA, SCL per the parent README) to the Grove carrier's test pads. ~12 cm leads.
+2. Mesh into the floor pocket. Module in **can-down**, pegs through the carrier holes, press until the fingers click over the edges. Wires up the left gap.
+3. Perfboard down the spine rails — **BME680 edge down, XIAO up**, USB-C toward the right gap. Cable out the foot's end arch, zip-tied at the post, drip loop outside.
+4. Hood down over the spine until it seats on the shoulder. Two M3 screws through the collar.
+5. Four wall screws (top pair 30 mm apart), hang, tug to seat.
 
-Wiring, firmware, registration: parent [README](../README.md). Nothing here changes the electronics.
+## Siting rules
 
-## Siting rules (the enclosure can't save a bad site)
-
-Under eaves on a shaded wall — that's the design assumption. More than 20 cm off the ground (HM3301 datasheet: ground-level floc wraps the fan), 1.5–2 m is the sweet spot. Not over bare tin roofing, not where afternoon sun bakes the wall — if it does, add 10 mm spacers behind the keyholes. Check the floor mesh monthly; a clogged mesh reads as "the air got cleaner." Gas-sensor burn-in and SCK co-location per the parent README; the enclosure changes neither.
+Under eaves on a shaded wall. More than 20 cm off the ground, 1.5–2 m sweet spot, never over bare tin roofing. Check the floor mesh monthly — a clogged mesh reads as "the air got cleaner." Burn-in and SCK co-location per the parent README.
 
 ## Known limits, honestly
 
-A passive-vented shell is not IP65 — horizontal monsoon gusts will eventually push some moisture in, and the conformal-coating step in the parent README is what actually protects the board. Fully exposed sites (rooftop masts, no eaves) need a pole mount this v2 doesn't have. The PM cradle is dimensioned for the HM3301 (40 × 38 × 15); the SEN54 refresh under evaluation gets its own cradle revision when validated — a `fence_*`/`win_*` parameter change in the core, the hood doesn't care. The snap nubs are tuned for PETG's flex; if you print something stiffer, scale them down or use the screw option.
+Not IP65 — the conformal coating step in the parent README is what protects the board in monsoon gusts. No pole mount yet. The cradle is dimensioned from Seeed's Eagle files for the Grove HM3301 (101020613); other carriers need `crr_*`/`hole_*` changes. The SEN54 refresh under evaluation gets its own cradle revision when validated. Wires must be soldered before the module drops in — that's the cost of a down-facing socket, and the workshop solders anyway.
 
-License: MIT, same as the parent repo. Fork it for Making Sense [your place] and tell us what changed.
+License: MIT, same as the parent repo. The Seeed board reference ([`ref_hm3301_board.pdf`](ref_hm3301_board.pdf)) is CC-BY-SA per Seeed's schematic title block. Fork it for Making Sense [your place] and tell us what changed.
