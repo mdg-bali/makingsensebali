@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-07T10:22:58.479642+00:00",
+  "generated_at": "2026-06-07T10:38:18.988718+00:00",
   "count": 4,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-07T10:19:30Z",
+      "lastReading": "2026-06-07T10:35:30Z",
       "reading": {
-        "pm25": 12.8,
-        "pm10": 13.6,
+        "pm25": 12.4,
+        "pm10": 12.4,
         "temp": 27.04,
-        "rh": 54.89,
-        "noise": 35.48
+        "rh": 55.0,
+        "noise": 46.28
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236"
     },
@@ -28,13 +28,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-07T10:21:59Z",
+      "lastReading": "2026-06-07T10:38:00Z",
       "reading": {
-        "pm25": 12.2,
-        "pm10": 12.2,
-        "temp": 24.29,
-        "rh": 63.88,
-        "noise": 50.46
+        "pm25": 12.8,
+        "pm10": 12.8,
+        "temp": 23.15,
+        "rh": 62.6,
+        "noise": 64.41
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600"
     },
@@ -46,13 +46,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-07T10:19:45Z",
+      "lastReading": "2026-06-07T10:34:46Z",
       "reading": {
-        "pm25": 11.9,
+        "pm25": 12.1,
         "pm10": 12.1,
         "temp": 24.37,
-        "rh": 59.1,
-        "noise": 45.18
+        "rh": 59.93,
+        "noise": 45.58
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618"
     },
@@ -64,12 +64,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-07T10:22:18Z",
+      "lastReading": "2026-06-07T10:37:19Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 29.49199,
-        "rh": 46.50723,
+        "temp": 28.91639,
+        "rh": 44.92751,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651"
