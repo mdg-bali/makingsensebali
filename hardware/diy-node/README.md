@@ -47,7 +47,7 @@ When the campaign reports DIY-node data, it is reported **as such** — with a d
 | 1 | USB-C cable + 5V/1A power supply | Anywhere | Basic kit's power draw is modest; a phone charger works. |
 | ~4 | 22 AWG jumper wires | Any electronics shop in Denpasar | Keep short — long jumpers add I²C noise. |
 | 1 | Solderless breadboard (prototyping) + perfboard 5×7 cm (deployment) | Tokopedia "PCB matrix board" | Or skip straight to a printed PCB on Fab Lab Bali's mill for batch builds. |
-| — | 3D-printed enclosure (PETG, not PLA) | Fab Lab Bali | PLA softens in Bali rooftop temperatures. PETG holds up. STL files: TODO. |
+| — | 3D-printed enclosure (PETG, not PLA) | Fab Lab Bali | PLA softens in Bali rooftop temperatures. PETG holds up. Parametric design + STLs + print guide: [`enclosure/`](enclosure/). |
 
 ### Plus — Basic + HM3301 PM sensor (~USD 35–60)
 
@@ -260,7 +260,7 @@ Do not skip steps. Each one isolates a different class of bug.
 
 **Stage 2 — Perfboard, USB-powered, indoor.** Solder onto a 5×7 cm matrix board. Use **female headers** for the XIAO and the BME680 — they're the parts most likely to die from a wiring mistake or surge, and you want to swap without desoldering. The HM3301 stays connected via its Grove cable. Run it for 48 hours indoors next to a known reference (a phone's air quality app pointed at a window will do for a sanity check). Confirm readings are stable, the device doesn't reset, and MQTT reconnects after WiFi drops.
 
-**Stage 3 — Enclosure, deployed.** 3D-print a PETG enclosure with vents for the PM sensor inlet and the BME680's pressure port. The enclosure is its own design problem — see the Bali deployment notes below. Mount it under shade, never in direct sun. Power via a weatherproof USB supply or a 5V solar panel + buck converter (the latter is a separate project; start with wall power).
+**Stage 3 — Enclosure, deployed.** 3D-print the PETG enclosure from [`enclosure/`](enclosure/) — a two-part, snap-fit "lantern": cone spire, continuous skirt vents, HM3301 breathing through mesh-screened floor windows. Support-free, ~90 g of PETG, covers both variants. Design rationale and assembly guide live in that folder; the Bali deployment notes below still apply. Mount it under shade, never in direct sun. Power via a weatherproof USB supply or a 5V solar panel + buck converter (the latter is a separate project; start with wall power).
 
 **Stage 4 — Printed PCB (optional, for batch builds).** Once a design has run reliably in stage 3 for a few months, layout a custom carrier board in KiCad and mill it on Fab Lab Bali's PCB printer. This is the "we're committing to deploying 20 of these" stage, not the first build.
 
