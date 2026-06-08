@@ -32,6 +32,26 @@ from __future__ import annotations
 import argparse, json, os, subprocess, sys, urllib.request, urllib.parse
 from datetime import datetime, timezone, timedelta
 
+
+def _load_env_file() -> None:
+    """Load KEY=VALUE lines from a gitignored `.env` next to this script into
+    os.environ (without overriding values already set, e.g. by the plist). Keeps
+    API keys out of the git-tracked plist + repo, and survives plist re-deploys."""
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    try:
+        with open(p) as fh:
+            for line in fh:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+    except FileNotFoundError:
+        pass
+
+
+_load_env_file()
+
 # ----------------------------------------------------------------------------
 # Config (env-overridable; defaults match the Bali reference deployment)
 # ----------------------------------------------------------------------------
@@ -41,6 +61,28 @@ BBOX          = os.environ.get("MSB_BBOX", "114.4,-8.95,115.75,-8.05")  # minLon
 SC_API        = os.environ.get("MSB_SC_API", "https://api.smartcitizen.me/v0")
 OPENAQ_API    = os.environ.get("MSB_OPENAQ_API", "https://api.openaq.org/v3")
 OPENAQ_KEY    = os.environ.get("MSB_OPENAQ_KEY", "")
+# AQICN / World Air Quality Index — one free token (aqicn.org/data-platform/token)
+# covers the official KLHK government monitor + whatever else WAQI aggregates in
+# the Bali bbox. This is the highest-value external source: OpenAQ is effectively
+# empty in Bali (its only two island stations have been offline for >6 months).
+AQICN_API     = os.environ.get("MSB_AQICN_API", "https://api.waqi.info")
+AQICN_TOKEN   = os.environ.get("MSB_AQICN_TOKEN", "")
+# Optional comma-separated WAQI station UIDs to pin (e.g. "-519205"). Bali's WAQI
+# stations are unlisted — discovery is flaky — so pinning the known KLHK monitor
+# guarantees it even if the bounds query comes back empty.
+AQICN_STATIONS = [s.strip() for s in os.environ.get("MSB_AQICN_STATIONS", "").split(",") if s.strip()]
+# PurpleAir — free X-API-Key (develop.purpleair.com). We read a known set of Bali
+# community sensor indices; defaults are the two Lumi Clinic devices the site map
+# already knows about (Jimbaran 36601, Klungkung 46949).
+PURPLEAIR_API = os.environ.get("MSB_PURPLEAIR_API", "https://api.purpleair.com/v1")
+PURPLEAIR_KEY = os.environ.get("MSB_PURPLEAIR_KEY", "")
+PURPLEAIR_IDS = [int(x) for x in os.environ.get("MSB_PURPLEAIR_IDS", "36601,46949").split(",") if x.strip()]
+# AirGradient public open-data API — KEYLESS. Returns every public AirGradient
+# location worldwide; we filter to the Bali bbox. In Bali these are the Nafas
+# Foundation sensors (Tonja, Pemogan, …). This is the sovereign way to get Nafas
+# data: documented, public, no scrape, no token, no ToS grey area.
+AIRGRADIENT_API = os.environ.get("MSB_AIRGRADIENT_API", "https://api.airgradient.com/public/api/v1")
+AIRGRADIENT_ENABLED = os.environ.get("MSB_AIRGRADIENT", "1") not in ("0", "", "false")
 # NAS report source for rsync (mini→NAS over Tailscale; key set up by operator)
 NAS_RSYNC_SRC = os.environ.get("MSB_NAS_RSYNC_SRC", "")  # e.g. fablabbali@tx-nas-bali:/volume1/docker/aq-reporter/data/profiles/
 # NAS published-photo source — the EXIF-stripped public photos the bot writes on
@@ -137,6 +179,235 @@ def fetch_sensors() -> list:
             log(f"  OpenAQ: {len(j.get('results', []))} stations")
         except Exception as e:
             log(f"  OpenAQ: FAILED {type(e).__name__}: {str(e)[:80]}")
+    # AQICN + PurpleAir (each fully isolated: a failure logs and returns [],
+    # never blocks the kits or each other).
+    out.extend(fetch_aqicn())
+    out.extend(fetch_purpleair())
+    out.extend(fetch_airgradient())
+    return out
+
+
+# ----------------------------------------------------------------------------
+# 1a. EXTERNAL NETWORKS (AQICN / WAQI + PurpleAir)
+# Each returns the same normalized shape as the Smart Citizen kits so the rest
+# of the pipeline (sensors.json, area PM2.5 rollups, the map) treats them
+# uniformly. Both are best-effort and gated on a key being present.
+# ----------------------------------------------------------------------------
+
+# US EPA PM2.5 AQI breakpoints (the pre-2024 table WAQI computes its AQI with,
+# and the one the public PM2.5 µg/m³ colour scales are drawn against). We invert
+# it to turn WAQI's AQI sub-index back into a µg/m³ concentration, so AQICN
+# stations are directly comparable to the kits' real readings and the WHO line.
+_PM25_AQI_BP = [
+    (0,   50,  0.0,   12.0),
+    (51,  100, 12.1,  35.4),
+    (101, 150, 35.5,  55.4),
+    (151, 200, 55.5,  150.4),
+    (201, 300, 150.5, 250.4),
+    (301, 400, 250.5, 350.4),
+    (401, 500, 350.5, 500.4),
+]
+
+
+def _aqi_to_pm25(aqi):
+    """Invert a US-EPA PM2.5 AQI sub-index to a µg/m³ concentration."""
+    try:
+        a = float(aqi)
+    except (TypeError, ValueError):
+        return None
+    for ilo, ihi, clo, chi in _PM25_AQI_BP:
+        if ilo <= a <= ihi:
+            return round(clo + (a - ilo) * (chi - clo) / (ihi - ilo), 1)
+    if a > 500:  # above the table — linear extrapolation off the top band
+        return round(500.4 + (a - 500) * (500.4 - 350.5) / (500 - 401), 1)
+    return None
+
+
+def fetch_aqicn() -> list:
+    """AQICN / World Air Quality Index. WAQI reports PM2.5 as a US-AQI sub-index,
+    NOT µg/m³ — we convert it back (see _aqi_to_pm25) and keep the raw AQI in the
+    reading for transparency. Discovers stations dynamically via the map/bounds
+    box, then pulls each station's feed for the pollutant + met values."""
+    if not AQICN_TOKEN:
+        log("  AQICN: no MSB_AQICN_TOKEN — skipping")
+        return []
+    # BBOX is "minLon,minLat,maxLon,maxLat"; WAQI wants latlng="lat1,lng1,lat2,lng2".
+    try:
+        lon1, lat1, lon2, lat2 = [float(x) for x in BBOX.split(",")]
+    except Exception:
+        log("  AQICN: bad BBOX, skipping"); return []
+    latlng = f"{lat1},{lon1},{lat2},{lon2}"
+
+    def _in_bbox(la, lo):
+        return (la is not None and lo is not None
+                and lat1 <= la <= lat2 and lon1 <= lo <= lon2)
+
+    # Discover station UIDs. Bali's WAQI stations are unlisted: plain search/geo
+    # and the v1 map/bounds all miss them — only the v2 map/bounds with
+    # networks=all surfaces them. We then merge any UIDs pinned via
+    # MSB_AQICN_STATIONS (the KLHK monitor is reachable by UID even when the
+    # bounds query is empty), dedupe, and bbox-filter each feed to drop the Java
+    # strays that the nearby/search lists otherwise pull in.
+    uids = []
+    try:
+        j = _get_json(f"{AQICN_API}/v2/map/bounds/?latlng={latlng}&networks=all&token={AQICN_TOKEN}")
+        for st in ((j.get("data") or []) if isinstance(j, dict) else []):
+            if st.get("uid") is not None:
+                uids.append(st["uid"])
+        log(f"  AQICN: {len(uids)} station(s) from bounds")
+    except Exception as e:
+        log(f"  AQICN: bounds FAILED {type(e).__name__}: {str(e)[:80]}")
+    for s in AQICN_STATIONS:
+        try:
+            u = int(s)
+        except ValueError:
+            continue
+        if u not in uids:
+            uids.append(u)
+
+    out = []
+    for uid in uids[:30]:
+        try:
+            fd = _get_json(f"{AQICN_API}/feed/@{uid}/?token={AQICN_TOKEN}")
+            d = (fd.get("data") or {}) if isinstance(fd, dict) else {}
+            if not isinstance(d, dict):
+                continue
+            geo = (d.get("city") or {}).get("geo") or []
+            la = float(geo[0]) if len(geo) >= 2 else None
+            lo = float(geo[1]) if len(geo) >= 2 else None
+            if not _in_bbox(la, lo):
+                continue
+            iaqi = d.get("iaqi") or {}
+            pm25 = _aqi_to_pm25((iaqi.get("pm25") or {}).get("v"))
+            out.append({
+                "id": f"aqicn-{uid}", "rawId": uid,
+                "source": "aqicn", "sourceLabel": "AQICN",
+                "name": (d.get("city") or {}).get("name") or f"AQICN #{uid}",
+                "lat": la, "lng": lo,
+                "lastReading": (d.get("time") or {}).get("iso"),
+                "reading": {
+                    "pm25": pm25,
+                    "pm10": None,  # WAQI pm10 is also an AQI sub-index — not converted
+                    "temp": (iaqi.get("t") or {}).get("v"),
+                    "rh":   (iaqi.get("h") or {}).get("v"),
+                    "aqi":  d.get("aqi"),               # raw overall US-AQI, kept for transparency
+                    "pm25_from_aqi": pm25 is not None,  # pm25 above is converted, not measured
+                },
+                "detailsUrl": (d.get("city") or {}).get("url") or f"https://aqicn.org/station/@{uid}",
+            })
+        except Exception as e:
+            log(f"  AQICN feed @{uid}: FAILED {type(e).__name__}: {str(e)[:60]}")
+    log(f"  AQICN: {len(out)} station(s) normalized")
+    return out
+
+
+def fetch_purpleair() -> list:
+    """PurpleAir community sensors (real µg/m³ PM2.5). Reads a fixed set of Bali
+    sensor indices. Temperature is °F at the raw sensor — converted to °C."""
+    if not PURPLEAIR_KEY:
+        log("  PurpleAir: no MSB_PURPLEAIR_KEY — skipping")
+        return []
+    if not PURPLEAIR_IDS:
+        return []
+    fields = "name,latitude,longitude,pm2.5,pm2.5_60minute,humidity,temperature,last_seen"
+    show = ",".join(str(i) for i in PURPLEAIR_IDS)
+    url = f"{PURPLEAIR_API}/sensors?show_only={show}&fields={urllib.parse.quote(fields)}"
+    out = []
+    try:
+        j = _get_json(url, {"X-API-Key": PURPLEAIR_KEY})
+        cols = j.get("fields") or []
+        idx = {name: i for i, name in enumerate(cols)}
+
+        def col(row, name):
+            i = idx.get(name)
+            return row[i] if (i is not None and i < len(row)) else None
+
+        for row in (j.get("data") or []):
+            lat, lon = col(row, "latitude"), col(row, "longitude")
+            if lat is None or lon is None:
+                continue
+            pm25 = col(row, "pm2.5_60minute")
+            if pm25 is None:
+                pm25 = col(row, "pm2.5")
+            tF = col(row, "temperature")
+            temp = round((tF - 32) * 5 / 9, 1) if isinstance(tF, (int, float)) else None
+            ls = col(row, "last_seen")
+            last_iso = (datetime.fromtimestamp(ls, tz=timezone.utc).isoformat()
+                        if isinstance(ls, (int, float)) else None)
+            sid = col(row, "sensor_index")
+            if sid is None:  # PurpleAir returns sensor_index as the first column
+                sid = row[0] if row else None
+            out.append({
+                "id": f"purpleair-{sid}", "rawId": sid,
+                "source": "purpleair", "sourceLabel": "PurpleAir",
+                "name": col(row, "name") or f"PurpleAir #{sid}",
+                "lat": float(lat), "lng": float(lon),
+                "lastReading": last_iso,
+                "reading": {
+                    "pm25": round(pm25, 1) if isinstance(pm25, (int, float)) else None,
+                    "pm10": None,
+                    "temp": temp,
+                    "rh":   col(row, "humidity"),
+                },
+                "detailsUrl": f"https://map.purpleair.com/?select={sid}",
+            })
+        log(f"  PurpleAir: {len(out)} sensor(s)")
+    except Exception as e:
+        log(f"  PurpleAir: FAILED {type(e).__name__}: {str(e)[:80]}")
+    return out
+
+
+def fetch_airgradient() -> list:
+    """AirGradient public open-data API (keyless). The /world endpoint returns
+    every public AirGradient location worldwide; we filter to the Bali bbox.
+    In Bali these are the Nafas Foundation sensors. pm02 is a real µg/m³ PM2.5
+    concentration; atmp/rhum are ambient °C / %. Offline locations are kept (so
+    the map can show them dark) but carry pm25=None, so they don't skew the
+    area roll-ups. Sovereign: documented public API, no scrape, no token."""
+    if not AIRGRADIENT_ENABLED:
+        log("  AirGradient: disabled (MSB_AIRGRADIENT=0)")
+        return []
+    try:
+        lon1, lat1, lon2, lat2 = [float(x) for x in BBOX.split(",")]
+    except Exception:
+        log("  AirGradient: bad BBOX, skipping"); return []
+    out = []
+    try:
+        j = _get_json(f"{AIRGRADIENT_API}/world/locations/measures/current")
+        rows = j if isinstance(j, list) else (j.get("data") or j.get("locations") or [])
+        n = 0
+        for r in rows:
+            if not isinstance(r, dict):
+                continue
+            try:
+                lat = float(r.get("latitude")); lon = float(r.get("longitude"))
+            except (TypeError, ValueError):
+                continue
+            if not (lat1 <= lat <= lat2 and lon1 <= lon <= lon2):
+                continue
+            n += 1
+            lid = r.get("locationId")
+            offline = bool(r.get("offline"))
+            pm25 = r.get("pm02")
+            pm10 = r.get("pm10")
+            out.append({
+                "id": f"airgradient-{lid}", "rawId": lid,
+                "source": "airgradient", "sourceLabel": "AirGradient",
+                "name": r.get("publicLocationName") or r.get("locationName") or f"AirGradient #{lid}",
+                "lat": lat, "lng": lon,
+                "offline": offline,
+                "lastReading": r.get("timestamp"),
+                "reading": {
+                    "pm25": round(pm25, 1) if (not offline and isinstance(pm25, (int, float))) else None,
+                    "pm10": round(pm10, 1) if (not offline and isinstance(pm10, (int, float))) else None,
+                    "temp": r.get("atmp") if not offline else None,
+                    "rh":   r.get("rhum") if not offline else None,
+                },
+                "detailsUrl": r.get("publicPlaceUrl") or "https://www.airgradient.com/map/",
+            })
+        log(f"  AirGradient: {n} Bali location(s)")
+    except Exception as e:
+        log(f"  AirGradient: FAILED {type(e).__name__}: {str(e)[:80]}")
     return out
 
 
