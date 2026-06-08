@@ -26,7 +26,15 @@
     <key>MSB_NAS_PHOTOS_SRC</key><string>fablabbali@tx-nas-bali:/volume1/docker/aq-reporter/data/profile_photos/</string>
     <key>MSB_NARRATIVE</key>    <string>1</string>
     <key>MSB_EXO_URL</key>      <string>http://127.0.0.1:52415/v1/chat/completions</string>
-    <!-- optional: <key>MSB_OPENAQ_KEY</key><string>...</string> -->
+
+    <!-- External air-quality networks (best-effort; each skips cleanly if unset).
+         AQICN gives the official KLHK government monitor + WAQI aggregator;
+         PurpleAir gives the known Bali community sensors. OpenAQ is left here
+         but is effectively empty in Bali (both island stations long offline). -->
+    <!-- <key>MSB_AQICN_TOKEN</key>  <string>your-waqi-token</string> -->
+    <!-- <key>MSB_PURPLEAIR_KEY</key><string>your-purpleair-read-key</string> -->
+    <!-- <key>MSB_PURPLEAIR_IDS</key><string>36601,46949</string> -->
+    <!-- <key>MSB_OPENAQ_KEY</key>   <string>...</string> -->
   </dict>
 
   <!-- Run every 15 minutes. -->

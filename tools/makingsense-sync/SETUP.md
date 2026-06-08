@@ -38,7 +38,23 @@ It is **fail-safe**: each stage is isolated; one failing never blocks the others
    ```
    (Confirm the NAS profiles path; on this deployment it's `/volume1/docker/aq-reporter/data/profiles/`.)
 
-4. **Edit the plist** `com.fabcity.makingsense-sync.plist` — fix `MSB_REPO_DIR`, `MSB_NAS_RSYNC_SRC`, `MSB_NAS_PHOTOS_SRC` (the EXIF-stripped public photos, so the map can show them), the python path, and the log paths to match the mini. Optional: add `MSB_OPENAQ_KEY`; set `MSB_NARRATIVE` to `0` to ship structured roll-ups only (no exo paragraph).
+4. **Edit the plist** `com.fabcity.makingsense-sync.plist` — fix `MSB_REPO_DIR`, `MSB_NAS_RSYNC_SRC`, `MSB_NAS_PHOTOS_SRC` (the EXIF-stripped public photos, so the map can show them), the python path, and the log paths to match the mini. Set `MSB_NARRATIVE` to `0` to ship structured roll-ups only (no exo paragraph).
+
+   **External air-quality networks (this is how you get past the four kits).** Each is best-effort: a failure logs and skips, never blocking the others. **Secrets live in a gitignored `.env` next to `generate.py` (NOT in the tracked plist — it's a public repo).** Copy the keys there; `generate.py` loads it at startup and it survives plist re-deploys:
+
+   ```
+   # tools/makingsense-sync/.env   (gitignored)
+   MSB_AQICN_TOKEN=...
+   MSB_AQICN_STATIONS=-519205
+   MSB_PURPLEAIR_KEY=...
+   MSB_PURPLEAIR_IDS=36601,46949
+   ```
+
+   - **AirGradient** — on by **default, no key**. Pulls the public AirGradient open-data feed and keeps the Bali locations — these are the **Nafas Foundation** sensors (Tonja, Pemogan, …). `pm02` is a real µg/m³ reading. Set `MSB_AIRGRADIENT=0` to disable.
+   - `MSB_AQICN_TOKEN` — **highest value reference.** Free token from <https://aqicn.org/data-platform/token/> (email only). Yields the official **KLHK government monitor** (Bali's WAQI stations are unlisted, so the known UID is also pinned via `MSB_AQICN_STATIONS`). WAQI reports PM2.5 as a US-AQI sub-index, so the generator converts it back to µg/m³ (pre-2024 EPA breakpoints) and keeps the raw AQI in `reading.aqi` with a `pm25_from_aqi: true` flag. Sanity-check the first run against the station's page on aqicn.org.
+   - `MSB_PURPLEAIR_KEY` — free read key from <https://develop.purpleair.com/>. `MSB_PURPLEAIR_IDS` defaults to `36601,46949` (Jimbaran + Klungkung Lumi Clinic); add more indices as they appear on the PurpleAir map.
+   - `MSB_OPENAQ_KEY` — left in place but **don't expect anything**: OpenAQ's only two Bali stations (Ubud, Balangan) have been offline since 2025. Kept for the day a live one reappears.
+   - Not added (no clean/sovereign path): **IQAir**'s private villa sensors (build-versioned page loader, breaks on each deploy) and the **Nafas** stations that aren't on AirGradient's public feed (realtime is behind app auth). Use AirGradient for Nafas; revisit IQAir only if they expose a real API.
 
 5. **Dry run** (everything except the push):
    ```
