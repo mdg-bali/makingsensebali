@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-08T14:11:52.935065+00:00",
+  "generated_at": "2026-06-08T14:12:38.233815+00:00",
   "count": 9,
   "sensors": [
     {
@@ -64,12 +64,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-08T14:11:22Z",
+      "lastReading": "2026-06-08T14:12:22Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 29.60555,
-        "rh": 52.06098,
+        "temp": 29.72673,
+        "rh": 52.43367,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651"
@@ -154,10 +154,10 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-08T14:11:11.000Z",
+      "lastReading": "2026-06-08T14:12:11.000Z",
       "reading": {
-        "pm25": 39.5,
-        "pm10": 46.8,
+        "pm25": 36.5,
+        "pm10": 43.2,
         "temp": 28.2,
         "rh": 54
       },
