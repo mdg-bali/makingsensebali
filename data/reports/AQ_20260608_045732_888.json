@@ -3,13 +3,13 @@
     "environmental_observation-v1.0.0"
   ],
   "name": "Burning observation — Bali, Bali",
-  "description": "On the beach",
-  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260603_060244_010.json",
-  "latitude": -8.669461,
-  "longitude": 115.141429,
+  "description": "11am today",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260608_045732_888.json",
+  "latitude": -8.667161,
+  "longitude": 115.1677274,
   "geolocation": {
-    "lat": -8.669461,
-    "lon": 115.141429
+    "lat": -8.667161,
+    "lon": 115.1677274
   },
   "locality": "Bali",
   "region": "Bali",
@@ -27,28 +27,27 @@
     "bukit_pilot"
   ],
   "status": "active",
-  "date_added": "2026-06-03T06:05:50.572082+00:00",
+  "date_added": "2026-06-08T04:59:14.413413+00:00",
   "observation_type": "photo",
   "pollution_category": "burning",
   "ai_analysis": {
     "detected": true,
-    "confidence": 0.95,
+    "confidence": 0.7,
     "indicators": [
-      "open fire",
-      "burning debris",
-      "smoke"
+      "plume of smoke",
+      "smoke rising from vegetation area"
     ],
-    "description": "Trash is burning on the beach during sunset.",
+    "description": "Smoke is visible rising from a field area near a roadside.",
     "severity": "medium",
     "model_version": "exo:gemma-4-e4b-it-6bit"
   },
-  "photo_path": "photos/AQ_20260603_060244_010.jpg",
+  "photo_path": "photos/AQ_20260608_045732_888.jpg",
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
   "action_cycle": {
-    "observation_timestamp": "2026-06-03T06:05:50.572082+00:00",
-    "reported_timestamp": "2026-06-03T06:05:50.572082+00:00",
+    "observation_timestamp": "2026-06-08T04:59:14.413413+00:00",
+    "reported_timestamp": "2026-06-08T04:59:14.413413+00:00",
     "response_status": "reported"
   }
 }

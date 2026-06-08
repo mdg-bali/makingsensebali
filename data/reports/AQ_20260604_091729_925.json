@@ -3,13 +3,13 @@
     "environmental_observation-v1.0.0"
   ],
   "name": "Burning observation — Bali, Bali",
-  "description": "On the beach",
-  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260603_060244_010.json",
-  "latitude": -8.669461,
-  "longitude": 115.141429,
+  "description": "Bakar sampah di proyek.",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260604_091729_925.json",
+  "latitude": -8.6615449,
+  "longitude": 115.1617776,
   "geolocation": {
-    "lat": -8.669461,
-    "lon": 115.141429
+    "lat": -8.6615449,
+    "lon": 115.1617776
   },
   "locality": "Bali",
   "region": "Bali",
@@ -27,7 +27,7 @@
     "bukit_pilot"
   ],
   "status": "active",
-  "date_added": "2026-06-03T06:05:50.572082+00:00",
+  "date_added": "2026-06-04T09:19:17.438315+00:00",
   "observation_type": "photo",
   "pollution_category": "burning",
   "ai_analysis": {
@@ -36,19 +36,19 @@
     "indicators": [
       "open fire",
       "burning debris",
-      "smoke"
+      "flames"
     ],
-    "description": "Trash is burning on the beach during sunset.",
+    "description": "An open fire is burning debris in an urban area at night.",
     "severity": "medium",
     "model_version": "exo:gemma-4-e4b-it-6bit"
   },
-  "photo_path": "photos/AQ_20260603_060244_010.jpg",
+  "photo_path": "photos/AQ_20260604_091729_925.jpg",
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
   "action_cycle": {
-    "observation_timestamp": "2026-06-03T06:05:50.572082+00:00",
-    "reported_timestamp": "2026-06-03T06:05:50.572082+00:00",
+    "observation_timestamp": "2026-06-04T09:19:17.438315+00:00",
+    "reported_timestamp": "2026-06-04T09:19:17.438315+00:00",
     "response_status": "reported"
   }
 }
