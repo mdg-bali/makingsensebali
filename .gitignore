@@ -18,3 +18,8 @@ venv/
 
 # Claude Code local settings (preview server config)
 .claude/
+
+# Regenerable CAD meshes / slicer gcode (sources kept: .step .bgcode .png .py)
+*.stl
+*.gcode
+*.3mf

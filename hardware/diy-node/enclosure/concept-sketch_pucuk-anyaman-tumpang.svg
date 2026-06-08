@@ -1,0 +1,98 @@
+<svg viewBox="0 0 860 600" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Three concept directions for the Plus air-quality node body</title>
+<desc>Massing studies. Three faceted enclosure silhouettes — a twisted shard (Pucuk), a woven lattice over a liner (Anyaman), and faceted stacked meru tiers (Tumpang) — above a shared cutaway showing the passive chimney: cool air in low past the BME680, warm air out high past the XIAO, a separate duct for the HM3301 particulate sensor, rain shedding off every facet, and no opening that faces upward.</desc>
+<style>
+  text{fill:#222;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .ttl{font-size:19px;font-weight:700}
+  .sub{font-size:12px;opacity:.6}
+  .lbl{font-size:16px;font-weight:650}
+  .id{font-size:12px;opacity:.62}
+  .sec{font-size:14.5px;font-weight:600}
+  .cap{font-size:11px;opacity:.72}
+  .out{fill:#2222;fill-opacity:.05;stroke:#222;stroke-width:2;stroke-linejoin:round}
+  .facet{fill:none;stroke:#222;stroke-width:1;stroke-opacity:.5}
+  .weave{fill:none;stroke:#222;stroke-width:1;stroke-opacity:.5}
+  .wall{stroke:#222;stroke-width:1;stroke-opacity:.32;fill:none}
+  .part{fill:#222;fill-opacity:.09;stroke:#222;stroke-width:1.1}
+  .air{fill:none;stroke:#E0922E;stroke-width:2.2}
+  .water{fill:none;stroke:#3E8FC4;stroke-width:1.7;stroke-opacity:.9}
+  .ap{stroke:#E0922E;stroke-width:2.4;stroke-linecap:round;fill:#E0922E}
+</style>
+<defs>
+  <marker id="air" markerWidth="9" markerHeight="9" refX="6" refY="4.5" orient="auto"><path d="M0,1 L8,4.5 L0,8 Z" fill="#E0922E"/></marker>
+  <marker id="wat" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="#3E8FC4"/></marker>
+  <clipPath id="c2"><path d="M388,350 L388,150 L414,118 L452,150 L466,250 L458,350 Z"/></clipPath>
+</defs>
+
+<text x="30" y="34" class="ttl">Plus body — three concept directions</text>
+<text x="30" y="55" class="sub">Massing only · all three run the same chimney and shed rain the same way · faceted / triangulated skin</text>
+<line x1="30" y1="70" x2="830" y2="70" class="wall"/>
+
+<text x="30" y="98" class="lbl">C1 · Pucuk</text>
+<text x="30" y="116" class="id">Twisted shard — one piece</text>
+<line x1="104" y1="350" x2="212" y2="350" class="wall"/>
+<path class="out" d="M118,350 L118,140 L150,108 L182,156 L172,200 L196,232 L180,276 L200,312 L192,350 Z"/>
+<path class="facet" d="M118,312 L200,312 M118,276 L180,276 M118,232 L196,232 M118,200 L172,200 M118,156 L182,156 M118,350 L180,276 M118,276 L196,232 M118,200 L150,108"/>
+<path class="ap" d="M176,320 L190,329 M178,331 L192,340"/>
+<path class="ap" d="M159,139 L173,147"/>
+
+<text x="310" y="98" class="lbl">C2 · Anyaman</text>
+<text x="310" y="116" class="id">Woven lattice over a liner</text>
+<line x1="378" y1="350" x2="472" y2="350" class="wall"/>
+<path class="out" d="M388,350 L388,150 L414,118 L452,150 L466,250 L458,350 Z"/>
+<g clip-path="url(#c2)">
+  <path class="weave" d="M380,160 L470,70 M380,190 L470,100 M380,220 L470,130 M380,250 L470,160 M380,280 L470,190 M380,310 L470,220 M380,340 L470,250 M380,370 L470,280 M380,400 L470,310"/>
+  <path class="weave" d="M380,80 L470,170 M380,110 L470,200 M380,140 L470,230 M380,170 L470,260 M380,200 L470,290 M380,230 L470,320 M380,260 L470,350 M380,290 L470,380"/>
+</g>
+<path class="facet" d="M400,344 L400,160 L416,134 L444,160 L454,252 L448,344" stroke-opacity=".35"/>
+<circle cx="427" cy="330" r="3.4" fill="#E0922E"/>
+<circle cx="423" cy="150" r="3.4" fill="#E0922E"/>
+
+<text x="590" y="98" class="lbl">C3 · Tumpang</text>
+<text x="590" y="116" class="id">Faceted meru tiers</text>
+<line x1="636" y1="350" x2="772" y2="350" class="wall"/>
+<line x1="648" y1="168" x2="648" y2="350" class="wall"/>
+<path class="out" d="M648,350 L752,350 L744,312 L648,312 Z"/>
+<path class="out" d="M648,312 L732,312 L724,276 L648,276 Z"/>
+<path class="out" d="M648,276 L710,276 L702,240 L648,240 Z"/>
+<path class="out" d="M648,240 L686,240 L678,206 L648,206 Z"/>
+<path class="out" d="M648,206 L674,206 L660,168 L648,182 Z"/>
+<path class="ap" d="M714,322 L728,322 M714,330 L728,330 M692,286 L706,286 M670,250 L682,250 M655,198 L669,198"/>
+
+<line x1="30" y1="378" x2="830" y2="378" class="wall"/>
+<text x="30" y="400" class="sec">How all three breathe and shed — the shared internals</text>
+
+<line x1="70" y1="410" x2="70" y2="558" class="wall"/>
+<path class="wall" d="M60,422 L70,414 M60,442 L70,434 M60,462 L70,454 M60,482 L70,474 M60,502 L70,494 M60,522 L70,514 M60,542 L70,534"/>
+<text x="46" y="574" class="cap">wall</text>
+<path class="part" d="M72,414 L78,414 L78,552 L72,552 Z"/>
+<path class="out" d="M78,552 L78,414 L96,398 L210,422 L216,470 L206,552 Z"/>
+<rect class="part" x="82" y="420" width="6" height="124"/>
+<rect class="part" x="88" y="430" width="18" height="18"/>
+<text x="110" y="443" class="cap">XIAO · exhaust (high)</text>
+<rect class="part" x="88" y="510" width="16" height="18"/>
+<text x="108" y="523" class="cap">BME680 · intake (low)</text>
+<rect class="part" x="172" y="436" width="12" height="98"/>
+<rect class="part" x="160" y="450" width="12" height="62"/>
+<text x="150" y="430" class="cap">HM3301 · own duct</text>
+<path class="ap" d="M162,512 L162,519 M168,512 L168,519"/>
+<path class="air" marker-end="url(#air)" d="M252,534 Q200,540 152,527"/>
+<path class="air" marker-end="url(#air)" d="M150,522 C138,485 138,452 150,432"/>
+<path class="air" marker-end="url(#air)" d="M153,428 Q205,420 256,414"/>
+<path class="air" marker-end="url(#air)" d="M178,536 Q170,549 160,541"/>
+<path class="water" d="M88,398 L104,398"/>
+<path class="water" marker-end="url(#wat)" d="M96,398 Q66,396 52,411"/>
+<path class="water" marker-end="url(#wat)" d="M96,398 Q150,394 214,420"/>
+<path class="water" marker-end="url(#wat)" d="M214,420 Q224,448 214,476"/>
+<line x1="82" y1="556" x2="206" y2="556" class="wall"/>
+<path class="air" marker-end="url(#air)" d="M150,552 C150,572 172,572 172,561"/>
+<text x="120" y="574" class="cap">↓ USB drip loop · bottom bayonet (monthly service)</text>
+<path class="air" marker-end="url(#air)" d="M372,430 L390,430"/>
+<text x="402" y="434" class="cap">Airflow — cool air in low (BME680), warm out high (XIAO)</text>
+<path class="water" marker-end="url(#wat)" d="M372,460 L390,460"/>
+<text x="402" y="464" class="cap">Rain — sheds off every facet; nothing opens upward</text>
+<path class="ap" d="M374,486 L388,486 M374,492 L388,492"/>
+<text x="402" y="492" class="cap">Louvers / apertures hide in a facet's rain-shadow</text>
+<rect class="part" x="374" y="512" width="15" height="15"/>
+<text x="402" y="523" class="cap">Flat back · keyhole mount · service from below</text>
+</svg>
