@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-08T11:02:41.059422+00:00",
-  "count": 4,
+  "generated_at": "2026-06-08T14:11:52.935065+00:00",
+  "count": 9,
   "sensors": [
     {
       "id": "sck-19236",
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-08T10:59:15Z",
+      "lastReading": "2026-06-08T14:09:14Z",
       "reading": {
-        "pm25": 14.5,
-        "pm10": 14.8,
-        "temp": 25.29,
-        "rh": 60.16,
-        "noise": 45.54
+        "pm25": 16.6,
+        "pm10": 16.6,
+        "temp": 25.7,
+        "rh": 59.17,
+        "noise": 42.52
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236"
     },
@@ -28,13 +28,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-08T11:00:05Z",
+      "lastReading": "2026-06-08T14:11:38Z",
       "reading": {
-        "pm25": 14.7,
-        "pm10": 14.7,
-        "temp": 23.8,
-        "rh": 64.29,
-        "noise": 47.54
+        "pm25": 14.8,
+        "pm10": 15.0,
+        "temp": 25.08,
+        "rh": 72.19,
+        "noise": 53.06
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600"
     },
@@ -46,13 +46,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-08T11:00:07Z",
+      "lastReading": "2026-06-08T14:09:12Z",
       "reading": {
-        "pm25": 14.5,
-        "pm10": 14.5,
-        "temp": 23.73,
-        "rh": 61.17,
-        "noise": 48.18
+        "pm25": 13.6,
+        "pm10": 13.6,
+        "temp": 24.65,
+        "rh": 60.54,
+        "noise": 37.71
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618"
     },
@@ -64,15 +64,104 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-08T11:01:44Z",
+      "lastReading": "2026-06-08T14:11:22Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.81039,
-        "rh": 45.71703,
+        "temp": 29.60555,
+        "rh": 52.06098,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651"
+    },
+    {
+      "id": "aqicn--519205",
+      "rawId": -519205,
+      "source": "aqicn",
+      "sourceLabel": "AQICN",
+      "name": "Kabupaten Badung Sempidi",
+      "lat": -8.603890419006348,
+      "lng": 115.1780014038086,
+      "lastReading": "2026-06-08T14:00:00Z",
+      "reading": {
+        "pm25": 11.8,
+        "pm10": null,
+        "temp": null,
+        "rh": null,
+        "aqi": 49,
+        "pm25_from_aqi": true
+      },
+      "detailsUrl": "https://aqicn.org/station/@519205"
+    },
+    {
+      "id": "purpleair-36601",
+      "rawId": 36601,
+      "source": "purpleair",
+      "sourceLabel": "PurpleAir",
+      "name": "Jimbaran by Lumi Clinic",
+      "lat": -8.791219,
+      "lng": 115.1674,
+      "lastReading": "2026-06-08T14:11:23+00:00",
+      "reading": {
+        "pm25": 1.6,
+        "pm10": null,
+        "temp": 31.7,
+        "rh": 56
+      },
+      "detailsUrl": "https://map.purpleair.com/?select=36601"
+    },
+    {
+      "id": "purpleair-46949",
+      "rawId": 46949,
+      "source": "purpleair",
+      "sourceLabel": "PurpleAir",
+      "name": "Klungkung by Lumi Clinic",
+      "lat": -8.533623,
+      "lng": 115.39973,
+      "lastReading": "2026-06-08T14:10:02+00:00",
+      "reading": {
+        "pm25": 48.4,
+        "pm10": null,
+        "temp": 30.0,
+        "rh": 62
+      },
+      "detailsUrl": "https://map.purpleair.com/?select=46949"
+    },
+    {
+      "id": "airgradient-77245",
+      "rawId": 77245,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Pemogan - Nafas",
+      "lat": -8.707819,
+      "lng": 115.205047,
+      "offline": false,
+      "lastReading": "2026-06-08T14:11:41.000Z",
+      "reading": {
+        "pm25": 0.0,
+        "pm10": 0.0,
+        "temp": 27.0,
+        "rh": 58
+      },
+      "detailsUrl": "https://www.airgradient.com/map/"
+    },
+    {
+      "id": "airgradient-77247",
+      "rawId": 77247,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Tonja - Nafas",
+      "lat": -8.632781,
+      "lng": 115.229004,
+      "offline": false,
+      "lastReading": "2026-06-08T14:11:11.000Z",
+      "reading": {
+        "pm25": 39.5,
+        "pm10": 46.8,
+        "temp": 28.2,
+        "rh": 54
+      },
+      "detailsUrl": "https://www.airgradient.com/map/"
     }
   ]
 }

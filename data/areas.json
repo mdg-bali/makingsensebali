@@ -1,19 +1,22 @@
 {
-  "generated_at": "2026-06-08T11:02:48.870143+00:00",
+  "generated_at": "2026-06-08T14:11:52.939871+00:00",
   "areas": [
     {
       "locality": "Bali",
-      "lat": -1.733892,
-      "lon": 23.028286,
-      "report_count": 5,
+      "lat": -5.198812,
+      "lon": 69.09383,
+      "report_count": 10,
       "categories": {
-        "other": 4,
-        "burning": 1
+        "burning": 6,
+        "other": 4
       },
       "top_tags": [
         "open fire",
         "burning debris",
-        "smoke"
+        "plume of smoke",
+        "smoke rising",
+        "burning activity",
+        "nighttime"
       ],
       "max_severity": "medium",
       "pm25": null,
@@ -40,7 +43,7 @@
         "motorbike"
       ],
       "max_severity": "high",
-      "pm25": 12.4,
+      "pm25": 10.5,
       "summary": null
     }
   ]
