@@ -85,9 +85,19 @@ z_tip  = cap_z0 + cone_h + 1.7;
 
 R_cup_in = R_up - 2;
 
-// scales — top row roots fuse into the cap, like a cone's stem
-sc_z0 = 20;  sc_pitch = 9;
-sc_rows = floor((cap_z0 - 1 - sc_z0)/sc_pitch) + 2;
+// leaves — exactly TEN big scales per enclosure. Layout per
+// variant: [z_root, azimuth, length]. Bottom row shades the
+// intake slots, top row the exhaust slots and fuses into the cap;
+// the middle pair flanks the grille (plus) / fills the arc (basic).
+leaf_t = 2.0;
+leaves_plus = [
+    [30, 10, 28], [30, 62, 28], [30, 118, 28], [30, 170, 28],
+    [62, 18, 34],               [62, 162, 34],
+    [90, 12, 38], [90, 64, 38], [90, 116, 38], [90, 168, 38]];
+leaves_basic = [
+    [30, 10, 28], [30, 62, 28], [30, 118, 28], [30, 170, 28],
+    [50, 36, 32], [50, 90, 32], [50, 144, 32],
+    [70, 14, 36], [70, 90, 36], [70, 166, 36]];
 
 eps = 0.01;
 $fa = 4; $fs = 0.6;
@@ -145,13 +155,22 @@ module rails(side) {
     }
 }
 
-// raised footprint ring on the spine front (proud 0.6)
+// footprint helpers, raised 0.6 on the spine front.
+// fp_ring: the INNER opening = the part's true outline (+0.3 tol),
+// so the component visually nests inside its guide.
 module fp_ring(w, h, r, z, t=1.2) {
     translate([0, 0, z]) rotate([-90,0,0]) linear_extrude(0.6)
         difference() {
+            offset(r=r+t) square([w-2*r, h-2*r], center=true);
             offset(r=r)   square([w-2*r, h-2*r], center=true);
-            offset(r=r-t) square([w-2*r, h-2*r], center=true);
         }
+}
+// fp_dots: a real solder-pin row, 2.54 mm pitch — aligns with the
+// perfboard grid when sighted through the holes
+module fp_dots(n, z, dz=0) {
+    for (i=[0:n-1])
+        translate([(i-(n-1)/2)*2.54, 0, z+dz]) rotate([-90,0,0])
+            cylinder(d=1.6, h=0.6);
 }
 
 module core() {
@@ -186,16 +205,34 @@ module core() {
                 cube([8, 4, 8]);
                 translate([4,-eps,4]) rotate([-90,0,0]) cylinder(d=4, h=5);
             }
-            // ---- FOOTPRINT GUIDES (no text) ----
-            // XIAO shadow at the board top + its USB-C notch
-            fp_ring(21.6, 18.4, 3, z_pb1-9.2);
-            fp_ring(9.4, 3.8, 1.7, z_pb1+0.4);
-            // BME680 shadow low + sensor-lid circle
-            fp_ring(15.6, 12.6, 1.6, z_pb0+10);
-            translate([0,0,z_pb0+10]) rotate([-90,0,0]) linear_extrude(0.6)
-                difference() { circle(d=5); circle(d=3); }
-            // LiPo shadow (plus: cell tapes to the carrier back here)
-            if (with_battery && is_plus) fp_ring(40.6, 30.6, 2, 38);
+            // ---- FOOTPRINT GUIDES (no text, real dimensions) ----
+            // XIAO ESP32-S3: 21 × 17.8, mounted horizontal at the
+            // board top, USB-C to the RIGHT (cable exits that side).
+            // Outline + the two 7-pin header rows (2.54 pitch,
+            // 15.24 apart) + USB-C oval on the right edge.
+            fp_ring(21.6, 18.4, 2.5, z_pb1-9.5);
+            fp_dots(7, z_pb1-9.5, -7.62);
+            fp_dots(7, z_pb1-9.5,  7.62);
+            translate([8, 0, z_pb1-9.5]) rotate([-90,0,0])
+                linear_extrude(0.6) difference() {
+                    offset(r=2.4) square([0.5, 5.8], center=true);
+                    offset(r=1.4) square([0.5, 5.8], center=true);
+                }
+            // BME680 breakout (GY-680 6-pin, ~16 × 12.5 — clones
+            // vary ±2): outline + the 6-pin header row + lid square
+            fp_ring(16.6, 13.1, 1.6, z_pb0+11);
+            fp_dots(6, z_pb0+11, -5.2);
+            translate([0,0,z_pb0+12.5]) rotate([-90,0,0]) linear_extrude(0.6)
+                difference() { square(4.8, center=true);
+                               square(2.8, center=true); }
+            // LiPo: battery pictogram at the cell's height (the
+            // floor lip is the physical locator; plus: the cell
+            // tapes to the carrier back at this level)
+            if (with_battery && is_plus) {
+                fp_ring(16, 9, 1.5, 38);
+                translate([9.2, 0, 38]) rotate([-90,0,0])
+                    linear_extrude(0.6) square([2.4, 4], center=true);
+            }
             if (with_battery && is_plus)
                 translate([-15, 8.6, floor_t]) cube([30, 1.6, 6]); // lip
             if (with_battery && !is_plus) difference() {
@@ -264,35 +301,27 @@ module above_cone() {
                  [cone_tip, cone_h+99], [cap_r+99, cone_h+99], [cap_r+99, 0]]);
 }
 
-// one scale: shield-shaped fin, tilted down-out (use) / up-out (print)
-module pine_scale(az, z, len, tilt) {
+// one leaf: big shield fin, tilted down-out (use) / up-out (print)
+module pine_leaf(az, z, len, tilt) {
     w2 = len*0.42;
     translate([0,cy,0]) rotate([0,0,az])
-        translate([R_out-1.2, 0, z]) rotate([0,tilt,0])
-            linear_extrude(1.35)
-                polygon([[-2.5, -w2*0.7], [len*0.5, -w2],
-                         [len, 0], [len*0.5, w2], [-2.5, w2*0.7]]);
+        translate([R_out-1.4, 0, z]) rotate([0,tilt,0])
+            linear_extrude(leaf_t)
+                polygon([[-3, -w2*0.65], [len*0.45, -w2],
+                         [len, 0], [len*0.45, w2], [-3, w2*0.65]]);
 }
 
-// the skin: jittered rows, scales grow with height (inverted-cone
-// envelope), bald patch over the grille sector (plus)
+// the skin: exactly ten leaves, gently jittered (seeded)
 module scales() {
-    for (row=[0:sc_rows-1]) {
-        z = sc_z0 + row*sc_pitch;
-        n = 15;
-        rnd = rands(0, 1, n*4, scale_seed + row);
-        for (i=[0:n-1]) {
-            az = -15 + i*15 + (row%2==0 ? 0 : 7.5)
-                 + (rnd[4*i]-0.5)*5;
-            grow = min(1, (z - sc_z0)/(cap_z0 - sc_z0));
-            len  = (8 + 8.5*grow) * (0.88 + 0.24*rnd[4*i+1]);
-            tilt = 50 + (rnd[4*i+2]-0.5)*8;   // 46–54°: ≤44° print overhang
-            zj   = min(z + (rnd[4*i+3]-0.5)*2.4, cap_z0+2);
-            in_grille = is_plus && az > 52 && az < 128
-                        && zj > win_z0-4 && zj < win_z1+5;
-            if (az > -18 && az < 198 && !in_grille)
-                pine_scale(az, zj, len, tilt);
-        }
+    lv = is_plus ? leaves_plus : leaves_basic;
+    rnd = rands(0, 1, len(lv)*3, scale_seed);
+    for (i=[0:len(lv)-1]) {
+        L = lv[i];
+        az   = L[1] + (rnd[3*i]-0.5)*7;
+        ln   = L[2] * (0.92 + 0.16*rnd[3*i+1]);
+        tilt = 52 + (rnd[3*i+2]-0.5)*6;        // ≤41° print overhang
+        zj   = min(L[0], cap_z0+2);
+        pine_leaf(az, zj, ln, tilt);
     }
 }
 
@@ -325,15 +354,14 @@ module hood() {
                 }
             }
             above_cone();
-            // breathing slots, hidden under scale rows:
-            // intake low (BME680 zone) — full arc
-            for (zs=[19, 28]) for (az=[0:30:180])
+            // breathing slots, one under each bottom/top leaf
+            for (zs=[19, 28]) for (az=[10, 62, 118, 170])
                 translate([0,cy,0]) rotate([0,0,az])
                     translate([R_up-1, -3.5, zs]) cube([shell+2, 7, 3]);
-            // exhaust high — rear + side sectors, under the cap
-            for (zs=[spine_top-10, spine_top-19]) for (az=[-10,20,160,190])
-                translate([0,cy,0]) rotate([0,0,az])
-                    translate([R_up-1, -3.5, zs]) cube([shell+2, 7, 3]);
+            for (zs=[spine_top-10, spine_top-19])
+                for (az=(is_plus ? [12, 64, 116, 168] : [14, 90, 166]))
+                    translate([0,cy,0]) rotate([0,0,az])
+                        translate([R_up-1, -3.5, zs]) cube([shell+2, 7, 3]);
             // PM grille aperture (plus)
             if (is_plus)
                 translate([-win_w2, y_canface+1, win_z0])
@@ -408,9 +436,10 @@ else if (part=="plate") {
 }
 else { core(); hood(); if (show_dummies) dummies(); }
 
-echo(str("== ", variant, " v5 ==  body Ø", 2*R_out,
-     "  scale envelope ~Ø", round(2*(R_out+12)),
-     "  H=", z_tip, "  rows=", sc_rows,
+echo(str("== ", variant, " v5.1 ==  body Ø", 2*R_out,
+     "  leaf envelope ~Ø", round(2*(R_out+24)),
+     "  H=", z_tip, "  leaves=",
+     len(is_plus ? leaves_plus : leaves_basic),
      is_plus ? str("  grille z ", win_z0, "→", win_z1) : "",
      "  battery=", with_battery ? "yes" : "no",
      "  seed=", scale_seed));

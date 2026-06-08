@@ -2,7 +2,7 @@
 
 One parametric OpenSCAD model ([`enclosure.scad`](enclosure.scad)) generates both variants — **Basic** (XIAO ESP32-S3 + BME680 on a 4×6 cm perfboard) and **Plus** (adds the Grove HM3301 PM module, vertical). STLs in [`stl/`](stl/), previews in [`img/`](img/), the four earlier designs in [`archive/`](archive/) with a review-before-printing disclaimer.
 
-A pine cone is already an outdoor enclosure: overlapping scales that shed rain outward and open to let air through. v5 borrows the whole idea. The body wears rows of shield-shaped scales that grow toward the top, so the silhouette reads as a hanging cone; the rain protection and the ventilation are the same geometry. Every scale prints support-free — in the inverted print orientation they become rising ~40° fins, which is the printer's favourite angle. Seeded jitter on size, angle, and spacing makes each surface organic without sacrificing reproducibility: same `scale_seed`, same cone; change it and you grow a different individual of the same species.
+A pine cone is already an outdoor enclosure: overlapping scales that shed rain outward and open to let air through. v5 borrows the whole idea with exactly **ten big leaves** — four low over the intake slots, a pair flanking the grille (three mid-arc on Basic), four high fusing into the cap over the exhaust. Rain protection and ventilation are the same geometry: every breathing slot hides in a leaf's rain shadow. Each leaf prints support-free — inverted, they become rising ~40° fins. Seeded jitter on size, angle, and azimuth keeps it organic without sacrificing reproducibility: same `scale_seed`, same tree; the `leaves_plus` / `leaves_basic` tables in the source are the layout if you want to art-direct your own.
 
 | | Basic | Plus |
 |---|---|---|
@@ -19,7 +19,7 @@ A pine cone is already an outdoor enclosure: overlapping scales that shed rain o
 
 ## No labels — footprints
 
-Components locate by shape, not text. On the spine: a raised **XIAO outline with its USB-C notch** at the board-top position and a **BME680 outline with the sensor-lid circle** low — sight them through the perfboard's holes when placing parts to solder, then the board hides them. A **LiPo outline** marks where the cell sits. On the floor: a **USB pictogram** at the cable arch, and two **registration pegs** that click into the Grove carrier's own Ø3.2 mounting holes as the module reaches the bottom of its rails — if the pegs engage, the module is oriented socket-up and seated.
+Components locate by shape, not text, and the shapes are real. On the spine: the **XIAO ESP32-S3 footprint** — true 21 × 17.8 outline, its two 7-pin header rows at 2.54 mm pitch (they align with the perfboard grid when sighted through the holes), and the USB-C oval on the cable side; the **BME680 footprint** — outline, 6-pin header row, sensor-lid square; a **battery pictogram** at the cell's height. On the floor: a **USB pictogram** at the cable arch, the **LiPo lip/frame** that physically locates the cell, and two **registration pegs** at the Grove carrier's Eagle-verified Ø3.2 hole positions — when the module reaches the bottom of its rails the pegs click in, which *is* the seated-and-oriented check.
 
 ## LiPo, eyes open
 
@@ -34,7 +34,7 @@ White PETG (or wood-fill PLA+ for indoor demo cones — outdoors stays PETG), 0.
 | core | as exported — standing | 5 mm brim |
 | hood | as exported — cap down | **10 mm brim**; scales print as rising fins, slow outer perimeters help the tips |
 
-The hood is slower than v4's smooth version — ~135 scale perimeters per layer band — budget 5–6 h. First print: pause the core at ~20 mm, test-fit a perfboard offcut and the Grove carrier; `fit` / `drop` are the knobs; `can_cx` moves the grille; `scale_seed` rerolls the cone.
+The hood runs ~4–5 h — ten leaves cost much less than the dense-scale experiment they replaced. First print: pause the core at ~20 mm, test-fit a perfboard offcut and the Grove carrier; `fit` / `drop` are the knobs; `can_cx` moves the grille; `scale_seed` rerolls the cone.
 
 ```sh
 openscad -o stl/diy-node-plus-hood.stl -D 'variant="plus"' -D 'part="hood"' enclosure.scad
