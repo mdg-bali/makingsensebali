@@ -43,6 +43,7 @@
     "severity": "medium",
     "model_version": "exo:gemma-4-e4b-it-6bit"
   },
+  "photo_path": "photos/AQ_20260603_042502_448.jpg",
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
