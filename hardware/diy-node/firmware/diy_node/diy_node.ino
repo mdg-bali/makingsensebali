@@ -14,13 +14,19 @@
 //   4. Every PUBLISH_INTERVAL_MS, reads sensors and publishes one MQTT
 //      message to device/sck/<DEVICE_TOKEN>/readings on mqtt.smartcitizen.me:8883
 //
-// Note on BME680 vs BME280:
+// Note on BME680 gas + IAQ:
 //   The BME680 adds a metal-oxide gas sensor (VOC-sensitive) on top of
-//   temp/humidity/pressure. We publish the raw gas resistance in kΩ —
-//   lower resistance = more VOCs in the air. This is a relative indicator,
-//   not a calibrated IAQ index. Bosch's BSEC library does the conversion
-//   to a 0-500 IAQ score but is closed-source with license restrictions,
-//   so we stay with the raw value for an open-data project.
+//   temp/humidity/pressure. We publish two derived channels:
+//     - GAS (240): the RAW gas resistance in OHMS — lower resistance = more
+//       VOCs in the air. A relative indicator, fully open, no library magic.
+//     - IAQ (241): an OPEN 0-500 air-quality index computed on-device in
+//       computeIAQ() from gas resistance + humidity. This is NOT Bosch's
+//       certified BSEC index — BSEC is closed-source with license terms that
+//       don't fit an open-data project, so we approximate it ourselves.
+//       The approximation only becomes meaningful after the gas sensor has
+//       burned in (~24-48h) and the baseline has settled. Treat early IAQ
+//       values as noise. If you ever need the certified index for policy
+//       work, that's the moment to weigh integrating BSEC — see computeIAQ().
 //
 // Payload shape matches the canonical Smart Citizen MQTT spec:
 //   { "data": [ { "recorded_at": "ISO8601",
@@ -53,32 +59,39 @@
 // ============================================================================
 
 // WiFi
-const char* WIFI_SSID     = "DIEZSENENFAM";
-const char* WIFI_PASSWORD = "BaliLife-05";
+const char* WIFI_SSID     = "**********";
+const char* WIFI_PASSWORD = "**********";
 
 // Smart Citizen device token (from your device page on smartcitizen.me)
-const char* SC_DEVICE_TOKEN = "1d6fe0";
+const char* SC_DEVICE_TOKEN = "**********";
 
-// Smart Citizen sensor IDs — one per metric, copy from your device page
+// Smart Citizen sensor IDs — one per metric, copy from your device page.
 // Each value below MUST match the numeric ID assigned to that sensor on
 // smartcitizen.me. If they don't match, readings land in the wrong slot
 // or get silently dropped. Leave any unused ID as 0 to skip publishing it.
-// Sensor IDs from the SC global catalog (/v0/sensors). The platform doesn't
-// have a BME680 entry, so we map to the closest semantic equivalents:
-//   - Temperature/Pressure → Bosch BMP280 entries (same Bosch family)
-//   - Humidity            → Sensirion SHT31 (BMP280 has no humidity channel)
-//   - PM1/2.5/10          → Plantower PMS5003 (HM3301 outputs same physical
-//                                              signal in same unit)
-//   - Gas resistance      → no good match. Leave at 0 (firmware skips it).
-//                           Ask Oscar to add a "Bosch BME680 - Gas resistance
-//                           [kΩ]" entry to the catalog and set this then.
-const int SC_ID_TEMP      = 174;  // ºC       — Bosch BMP280 - Temperature
-const int SC_ID_HUM       = 56;   // %RH      — Sensirion SHT31 - Humidity
-const int SC_ID_PRESSURE  = 175;  // kPa      — Bosch BMP280 - Pressure (SC platform stores pressure in kPa)
-const int SC_ID_GAS       = 0;    // kΩ       — BME680 gas resistance; no catalog entry, leave at 0 for now
-const int SC_ID_PM1       = 89;   // µg/m³    — Plantower PMS5003 - PM1
-const int SC_ID_PM25      = 87;   // µg/m³    — Plantower PMS5003 - PM2.5
-const int SC_ID_PM10      = 88;   // µg/m³    — Plantower PMS5003 - PM10
+//
+// These are dedicated catalog entries for our exact hardware — Bosch BME68X
+// and Seeed HM-3301 — not the old "closest-equivalent" mappings (BMP280 /
+// SHT31 / Plantower PMS5003) we used before the catalog had proper entries.
+//
+// IMPORTANT — IAQ (241) must be CREATED ON THE PLATFORM FIRST. If the channel
+// doesn't exist in the SC catalog before the device publishes, ingest will
+// drop that value. Create it, confirm the ID is 241, then flash.
+//
+// Two unit/semantics changes vs the old mapping, both handled in code below:
+//   - GAS (240) is now RAW gas resistance in OHMS (not kΩ). readBME680 no
+//     longer divides by 1000.
+//   - IAQ (241) is computed on-device. See computeIAQ() — it is an OPEN
+//     approximation from gas resistance + humidity, NOT the certified Bosch
+//     BSEC index. Read the note above computeIAQ() before citing it.
+const int SC_ID_PM1      = 233;  // µg/m³  — Seeed HM-3301 - PM1.0
+const int SC_ID_PM25     = 234;  // µg/m³  — Seeed HM-3301 - PM2.5
+const int SC_ID_PM10     = 235;  // µg/m³  — Seeed HM-3301 - PM10.0
+const int SC_ID_TEMP     = 237;  // °C     — Bosch BME68X - Temperature (heat-compensated)
+const int SC_ID_HUM      = 238;  // %RH    — Bosch BME68X - Humidity (heat-compensated)
+const int SC_ID_PRESSURE = 239;  // kPa    — Bosch BME68X - Pressure
+const int SC_ID_GAS      = 240;  // Ohm    — Bosch BME68X - Gas Resistance (RAW, in ohms)
+const int SC_ID_IAQ      = 241;  // index  — Bosch BME68X - IAQ (open approximation; CREATE CHANNEL FIRST)
 
 // MQTT broker (do not change unless you're testing locally)
 const char* MQTT_HOST = "mqtt.smartcitizen.me";
@@ -101,6 +114,10 @@ WiFiClientSecure net;
 PubSubClient mqtt(net);
 
 uint32_t lastPublish = 0;
+
+// Clean-air gas-resistance reference for the IAQ approximation, learned at
+// runtime (see computeIAQ). 0 = not yet initialised.
+float gasBaselineOhm = 0.0f;
 
 // ============================================================================
 // WIFI + NTP
@@ -188,8 +205,8 @@ void connectMQTT() {
   }
 }
 
-bool publishReadings(float tempC, float humRH, float pressureKPa, float gasKOhm,
-                     uint16_t pm1, uint16_t pm25, uint16_t pm10) {
+bool publishReadings(float tempC, float humRH, float pressureKPa, float gasOhm,
+                     float iaq, uint16_t pm1, uint16_t pm25, uint16_t pm10) {
   if (!mqtt.connected()) return false;
 
   // Build payload
@@ -215,7 +232,8 @@ bool publishReadings(float tempC, float humRH, float pressureKPa, float gasKOhm,
   addSensor(SC_ID_TEMP,     tempC);
   addSensor(SC_ID_HUM,      humRH);
   addSensor(SC_ID_PRESSURE, pressureKPa);
-  addSensor(SC_ID_GAS,      gasKOhm);
+  addSensor(SC_ID_GAS,      gasOhm);
+  if (!isnan(iaq)) addSensor(SC_ID_IAQ, iaq);  // skip when BME read failed (iaq=NAN)
   addSensor(SC_ID_PM1,      (float)pm1);
   addSensor(SC_ID_PM25,     (float)pm25);
   addSensor(SC_ID_PM10,     (float)pm10);
@@ -243,16 +261,75 @@ bool publishReadings(float tempC, float humRH, float pressureKPa, float gasKOhm,
 // SENSORS
 // ============================================================================
 
-bool readBME680(float &tempC, float &humRH, float &pressureKPa, float &gasKOhm) {
+// computeIAQ — OPEN air-quality index, 0 (clean) … 500 (polluted).
+//
+// This is NOT Bosch's certified BSEC IAQ. BSEC is closed-source with license
+// terms that don't fit an open-data project, so we approximate the same
+// 0-500 shape ourselves from two signals the BME68X gives us for free:
+//
+//   1. Gas resistance. The metal-oxide element reads HIGH in clean air and
+//      DROPS as VOCs rise. We track a slow "clean-air baseline" of the high
+//      end (gasBaselineOhm) and score the current reading as a fraction of it.
+//   2. Humidity. Very dry or very damp air both degrade perceived quality;
+//      we peak the humidity score around ~40 %RH.
+//
+// We weight gas 75 % / humidity 25 % into a 0-100 "goodness", then invert to
+// the Bosch convention (LOWER = cleaner) so downstream consumers that assume
+// a real IAQ scale don't read it upside-down.
+//
+// HONEST LIMITATIONS — read before citing this number:
+//   - The baseline needs the gas sensor to burn in (~24-48h of power-on)
+//     before it means anything. Early values trend artificially clean.
+//   - It is uncalibrated and relative to THIS unit's environment, not
+//     comparable unit-to-unit the way a reference-grade instrument is.
+//   - If you ever need a defensible, comparable index for policy work,
+//     that's the trigger to integrate BSEC (or co-locate with a reference
+//     monitor and derive a correction) — not this proxy.
+float computeIAQ(float gasOhm, float humRH) {
+  if (isnan(gasOhm) || isnan(humRH) || gasOhm <= 0.0f) return NAN;
+
+  // Track the clean-air baseline: rise toward higher (cleaner) readings
+  // fairly quickly, fall very slowly so a burst of pollution doesn't drag
+  // the reference down with it.
+  if (gasBaselineOhm <= 0.0f) {
+    gasBaselineOhm = gasOhm;  // first reading seeds the baseline
+  } else {
+    float alpha = (gasOhm > gasBaselineOhm) ? 0.05f : 0.001f;
+    gasBaselineOhm += alpha * (gasOhm - gasBaselineOhm);
+  }
+
+  // Gas score (0..75): current reading as a fraction of the clean-air
+  // baseline, clamped — at or above baseline = full marks.
+  float gasRatio = gasOhm / gasBaselineOhm;
+  if (gasRatio > 1.0f) gasRatio = 1.0f;
+  if (gasRatio < 0.0f) gasRatio = 0.0f;
+  float gasScore = gasRatio * 75.0f;
+
+  // Humidity score (0..25): peaks at the ~40 %RH comfort point.
+  float humScore;
+  if (humRH < 38.0f)      humScore = (humRH / 40.0f) * 25.0f;
+  else if (humRH > 42.0f) humScore = ((100.0f - humRH) / 60.0f) * 25.0f;
+  else                    humScore = 25.0f;
+  if (humScore < 0.0f) humScore = 0.0f;
+
+  // 0..100 goodness → invert to 0..500 IAQ (lower = cleaner).
+  float goodness = gasScore + humScore;
+  float iaq = (100.0f - goodness) * 5.0f;
+  if (iaq < 0.0f)   iaq = 0.0f;
+  if (iaq > 500.0f) iaq = 500.0f;
+  return iaq;
+}
+
+bool readBME680(float &tempC, float &humRH, float &pressureKPa, float &gasOhm) {
   // performReading() triggers a forced measurement and waits ~150 ms for the
   // gas heater. Returns false if the conversion failed.
   if (!bme.performReading()) {
     return false;
   }
-  tempC       = bme.temperature;             // °C
-  humRH       = bme.humidity;                // %RH
-  pressureKPa = bme.pressure / 1000.0f;      // Pa → kPa (matches SC platform's kPa convention)
-  gasKOhm     = bme.gas_resistance / 1000.0f; // Ω → kΩ
+  tempC       = bme.temperature;        // °C
+  humRH       = bme.humidity;           // %RH
+  pressureKPa = bme.pressure / 1000.0f; // Pa → kPa (matches SC platform's kPa convention)
+  gasOhm      = bme.gas_resistance;     // Ω — RAW ohms, channel 240 expects this (no /1000)
   return !(isnan(tempC) || isnan(humRH));
 }
 
@@ -351,19 +428,23 @@ void loop() {
   if (now - lastPublish >= PUBLISH_INTERVAL_MS || lastPublish == 0) {
     lastPublish = now;
 
-    float tempC = NAN, humRH = NAN, pressureKPa = NAN, gasKOhm = NAN;
+    float tempC = NAN, humRH = NAN, pressureKPa = NAN, gasOhm = NAN;
     uint16_t pm1 = 0, pm25 = 0, pm10 = 0;
 
-    bool bmeOk = readBME680(tempC, humRH, pressureKPa, gasKOhm);
+    bool bmeOk = readBME680(tempC, humRH, pressureKPa, gasOhm);
     bool hmOk  = readHM3301(pm1, pm25, pm10);
 
-    Serial.printf("[read] T=%.2f°C  RH=%.2f%%  P=%.3fkPa  Gas=%.1fkΩ  "
+    // IAQ only when the BME read succeeded; computeIAQ returns NAN otherwise.
+    // The '~' in the log is a reminder this is an approximation, not BSEC.
+    float iaq = bmeOk ? computeIAQ(gasOhm, humRH) : NAN;
+
+    Serial.printf("[read] T=%.2f°C  RH=%.2f%%  P=%.3fkPa  Gas=%.0fΩ  IAQ~%.0f  "
                   "PM1=%u  PM2.5=%u  PM10=%u  (bme=%d hm=%d)\n",
-                  tempC, humRH, pressureKPa, gasKOhm,
+                  tempC, humRH, pressureKPa, gasOhm, iaq,
                   pm1, pm25, pm10, bmeOk, hmOk);
 
     if (bmeOk || hmOk) {
-      publishReadings(tempC, humRH, pressureKPa, gasKOhm, pm1, pm25, pm10);
+      publishReadings(tempC, humRH, pressureKPa, gasOhm, iaq, pm1, pm25, pm10);
     }
   }
 
