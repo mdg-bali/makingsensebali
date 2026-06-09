@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-09T03:11:49.085646+00:00",
+  "generated_at": "2026-06-09T03:27:26.965496+00:00",
   "count": 9,
   "sensors": [
     {
@@ -10,12 +10,12 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-09T03:09:20Z",
+      "lastReading": "2026-06-09T03:24:20Z",
       "reading": {
-        "pm25": 13.8,
-        "pm10": 14.3,
-        "temp": 26.22,
-        "rh": 58.16,
+        "pm25": 12.5,
+        "pm10": 12.8,
+        "temp": 26.24,
+        "rh": 57.28,
         "noise": 67.38
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236"
@@ -28,13 +28,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-09T03:09:19Z",
+      "lastReading": "2026-06-09T03:24:19Z",
       "reading": {
-        "pm25": 11.2,
-        "pm10": 11.2,
-        "temp": 24.36,
-        "rh": 64.54,
-        "noise": 48.48
+        "pm25": 10.9,
+        "pm10": 10.9,
+        "temp": 23.7,
+        "rh": 64.14,
+        "noise": 53.28
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600"
     },
@@ -46,13 +46,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-09T03:09:19Z",
+      "lastReading": "2026-06-09T03:24:19Z",
       "reading": {
-        "pm25": 11.9,
-        "pm10": 12.3,
-        "temp": 24.56,
-        "rh": 61.09,
-        "noise": 66.87
+        "pm25": 10.9,
+        "pm10": 10.9,
+        "temp": 23.69,
+        "rh": 61.17,
+        "noise": 59.68
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618"
     },
@@ -64,12 +64,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-09T03:10:52Z",
+      "lastReading": "2026-06-09T03:26:52Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.84072,
-        "rh": 47.05595,
+        "temp": 28.59831,
+        "rh": 45.4397,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651"
@@ -82,7 +82,7 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-06-09T02:00:00Z",
+      "lastReading": "2026-06-09T03:00:00Z",
       "reading": {
         "pm25": 12.1,
         "pm10": null,
@@ -101,12 +101,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-09T03:09:42+00:00",
+      "lastReading": "2026-06-09T03:25:42+00:00",
       "reading": {
-        "pm25": 2.1,
+        "pm25": 2.0,
         "pm10": null,
         "temp": 32.8,
-        "rh": 51
+        "rh": 50
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601"
     },
@@ -118,12 +118,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-09T03:10:21+00:00",
+      "lastReading": "2026-06-09T03:26:20+00:00",
       "reading": {
-        "pm25": 46.6,
+        "pm25": 43.2,
         "pm10": null,
-        "temp": 31.7,
-        "rh": 54
+        "temp": 32.2,
+        "rh": 52
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949"
     },
@@ -136,11 +136,11 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-09T03:11:08.000Z",
+      "lastReading": "2026-06-09T03:27:09.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
-        "temp": 28.3,
+        "temp": 28.2,
         "rh": 55
       },
       "detailsUrl": "https://www.airgradient.com/map/"
@@ -154,10 +154,10 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-09T03:11:24.000Z",
+      "lastReading": "2026-06-09T03:26:25.000Z",
       "reading": {
-        "pm25": 21.2,
-        "pm10": 21.8,
+        "pm25": 20.2,
+        "pm10": 21.0,
         "temp": 29.7,
         "rh": 47
       },
