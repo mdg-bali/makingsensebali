@@ -342,6 +342,9 @@ function withTimeout(p,ms){ return Promise.race([p, new Promise(function(_,rej){
 
 /* ---------- helpers ---------- */
 function activeSensors(){ return S.sensors.filter(function(s){ return s && s.reading && typeof s.reading.pm25==='number' && (!D.isActive || D.isActive(s.lastReading)); }); }
+/* Sensors that COUNT toward the average: active, minus indoor/outlier sensors the
+   generator tagged excluded_from_avg (they read unrealistically and mislead). */
+function statSensors(){ return activeSensors().filter(function(s){ return !(s && s.excluded_from_avg); }); }
 function median(a){ if(!a.length) return null; var x=a.slice().sort(function(p,q){return p-q;}); return x[Math.floor(x.length/2)]; }
 function dkm(a,b,c,d){ return (P.distanceKm)?P.distanceKm(a,b,c,d):haversine(a,b,c,d); }
 function haversine(a,b,c,d){ var R=6371,r=Math.PI/180,dla=(c-a)*r,dlo=(d-b)*r,s=Math.sin(dla/2)*Math.sin(dla/2)+Math.cos(a*r)*Math.cos(c*r)*Math.sin(dlo/2)*Math.sin(dlo/2); return 2*R*Math.asin(Math.min(1,Math.sqrt(s))); }
@@ -370,7 +373,7 @@ function useMyLocation(){
   btn.textContent='◎ Finding you…'; btn.disabled=true;
   navigator.geolocation.getCurrentPosition(function(pos){
     var lat=Math.round(pos.coords.latitude*100)/100, lng=Math.round(pos.coords.longitude*100)/100;
-    var act=activeSensors().map(function(s){return {s:s,km:dkm(lat,lng,s.lat,s.lng)};}).sort(function(x,y){return x.km-y.km;});
+    var act=statSensors().map(function(s){return {s:s,km:dkm(lat,lng,s.lat,s.lng)};}).sort(function(x,y){return x.km-y.km;});
     var within=act.filter(function(o){return o.km<=3;});
     var reps=S.reports.filter(function(r){return typeof r.lat==='number'&&dkm(lat,lng,r.lat,r.lng)<=3;}).length;
     btn.disabled=false; btn.textContent='◎ Air where you are';
@@ -513,8 +516,9 @@ function initMap(){
   var pts=[];
   activeSensors().forEach(function(s){
     var col=bandColor(s.reading.pm25);
-    L.circleMarker([s.lat,s.lng],{radius:9,color:'#fff',weight:2,fillColor:col,fillOpacity:1}).addTo(map)
-      .bindPopup('<b>'+(D.escapeHtml?D.escapeHtml(s.name):s.name)+'</b><br>PM2.5 '+(Math.round(s.reading.pm25*10)/10)+' µg/m³');
+    var ex=s.excluded_from_avg;
+    L.circleMarker([s.lat,s.lng],{radius:9,color:'#fff',weight:2,fillColor:col,fillOpacity:ex?0.4:1,dashArray:ex?'2,3':null}).addTo(map)
+      .bindPopup('<b>'+(D.escapeHtml?D.escapeHtml(s.name):s.name)+'</b><br>PM2.5 '+(Math.round(s.reading.pm25*10)/10)+' µg/m³'+(ex?'<br><small>indoor / not counted in the average</small>':''));
     pts.push([s.lat,s.lng]);
   });
   if(pts.length){ try{ map.fitBounds(pts,{padding:[60,60],maxZoom:12}); }catch(_){ } }
@@ -530,7 +534,9 @@ function boot(){
     S.sensors=s||[];
     var act=activeSensors();
     setText('map-sensors', act.length||'—');
-    if(act.length){ applyReading(median(act.map(function(x){return x.reading.pm25;})),'right now · across Bali',false); }
+    var statS=statSensors();
+    if(statS.length){ applyReading(median(statS.map(function(x){return x.reading.pm25;})),'right now · across Bali',false); }
+    else if(act.length){ applyReading(median(act.map(function(x){return x.reading.pm25;})),'right now · across Bali',false); }
     initMap();
     loadStoryChart();
   }).catch(function(){ initMap(); loadStoryChart(); });

@@ -281,7 +281,7 @@ function renderChartPairs(pairs){ renderChart(pairs.map(function(p){ return {val
 
 async function boot(){
   var sensors=[]; try{ sensors=(await (D.fetchSensorsFast?D.fetchSensorsFast():[]))||[]; }catch(_){}
-  var act=activeS(sensors), med=median(act.map(function(s){return s.reading.pm25;}));
+  var act=activeS(sensors), med=median(act.filter(function(s){return !s.excluded_from_avg;}).map(function(s){return s.reading.pm25;}));
   setT('m-median', med!=null?(Math.round(med*10)/10).toFixed(1):'–');
   setT('m-sensors', act.length||'–');
   sensorList=act.filter(function(s){ return s.source==='smartcitizen'&&s.rawId; });

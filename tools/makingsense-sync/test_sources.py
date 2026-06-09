@@ -127,6 +127,35 @@ g.AIRGRADIENT_ENABLED = False
 check("airgradient disabled -> []", g.fetch_airgradient() == [])
 g.AIRGRADIENT_ENABLED = True
 
+# --- flag_quality: indoor + outlier exclusion from the averages ---------------
+def _mk(name, pm, **kw):
+    d = {"name": name, "reading": {"pm25": pm}, "lat": -8.6, "lng": 115.2}
+    d.update(kw); return d
+
+q = [
+    _mk("SCK@Jimbaran", 18.0),
+    _mk("SCK-TWO", 22.0),
+    _mk("SCK-THREE", 19.0),
+    _mk("Kabupaten Badung (govt)", 12.0),
+    _mk("Bali DIY Node — Office", 6.0),                               # indoor by NAME
+    _mk("Jimbaran by Lumi Clinic", 0.5, source="purpleair", indoor=True),  # explicit indoor flag
+    _mk("Pemogan - Nafas", 2.5),                                      # below INDOOR_FLOOR
+    _mk("Klungkung", 44.0),                                           # high but plausible -> kept
+    _mk("Faulty high", 480.0),                                        # absurd -> outlier_high
+    _mk("Offline", None),                                            # no reading -> untouched
+]
+g.flag_quality(q)
+byn = {s["name"]: s for s in q}
+check("office name -> indoor", byn["Bali DIY Node — Office"]["exclusion_reason"] == "indoor", byn["Bali DIY Node — Office"]["exclusion_reason"])
+check("explicit indoor flag -> indoor", byn["Jimbaran by Lumi Clinic"]["exclusion_reason"] == "indoor")
+check("below floor -> indoor_suspected", byn["Pemogan - Nafas"]["exclusion_reason"] == "indoor_suspected", byn["Pemogan - Nafas"]["exclusion_reason"])
+check("plausible high kept (Klungkung 44)", byn["Klungkung"]["excluded_from_avg"] is False, byn["Klungkung"]["exclusion_reason"])
+check("absurd high -> outlier_high", byn["Faulty high"]["exclusion_reason"] == "outlier_high", byn["Faulty high"]["exclusion_reason"])
+check("clean outdoor kept (SCK 18)", byn["SCK@Jimbaran"]["excluded_from_avg"] is False)
+check("no-reading sensor untouched", byn["Offline"]["excluded_from_avg"] is False)
+_kept = [s["reading"]["pm25"] for s in q if not s["excluded_from_avg"] and s["reading"]["pm25"] is not None]
+check("kept set drops the near-zero indoor readings", min(_kept) >= 12, "min kept=%s" % min(_kept))
+
 # --- gating: no key -> clean skip ---------------------------------------------
 g.AQICN_TOKEN = ""
 g.PURPLEAIR_KEY = ""

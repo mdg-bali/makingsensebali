@@ -83,6 +83,13 @@ PURPLEAIR_IDS = [int(x) for x in os.environ.get("MSB_PURPLEAIR_IDS", "36601,4694
 # data: documented, public, no scrape, no token, no ToS grey area.
 AIRGRADIENT_API = os.environ.get("MSB_AIRGRADIENT_API", "https://api.airgradient.com/public/api/v1")
 AIRGRADIENT_ENABLED = os.environ.get("MSB_AIRGRADIENT", "1") not in ("0", "", "false")
+# --- Average-quality filter -------------------------------------------------
+# Network + area AVERAGES should reflect realistic OUTDOOR ambient, so indoor /
+# filtered sensors (which read near-zero) and faulty outliers are tagged
+# excluded_from_avg and skipped by the stats — but STILL shown on the map.
+INDOOR_FLOOR       = float(os.environ.get("MSB_INDOOR_FLOOR", "5"))         # µg/m³; below this outdoors is implausible in Bali
+OUTLIER_K          = float(os.environ.get("MSB_OUTLIER_K", "4.0"))          # robust (MAD) multiplier for outlier bounds
+OUTLIER_MIN_SPREAD = float(os.environ.get("MSB_OUTLIER_MIN_SPREAD", "12"))  # µg/m³ floor on the robust spread (small-N guard)
 # NAS report source for rsync (mini→NAS over Tailscale; key set up by operator)
 NAS_RSYNC_SRC = os.environ.get("MSB_NAS_RSYNC_SRC", "")  # e.g. fablabbali@tx-nas-bali:/volume1/docker/aq-reporter/data/profiles/
 # NAS published-photo source — the EXIF-stripped public photos the bot writes on
@@ -184,6 +191,7 @@ def fetch_sensors() -> list:
     out.extend(fetch_aqicn())
     out.extend(fetch_purpleair())
     out.extend(fetch_airgradient())
+    flag_quality(out)
     return out
 
 
@@ -309,7 +317,7 @@ def fetch_purpleair() -> list:
         return []
     if not PURPLEAIR_IDS:
         return []
-    fields = "name,latitude,longitude,pm2.5,pm2.5_60minute,humidity,temperature,last_seen"
+    fields = "name,latitude,longitude,pm2.5,pm2.5_60minute,humidity,temperature,last_seen,location_type"
     show = ",".join(str(i) for i in PURPLEAIR_IDS)
     url = f"{PURPLEAIR_API}/sensors?show_only={show}&fields={urllib.parse.quote(fields)}"
     out = []
@@ -340,6 +348,7 @@ def fetch_purpleair() -> list:
             out.append({
                 "id": f"purpleair-{sid}", "rawId": sid,
                 "source": "purpleair", "sourceLabel": "PurpleAir",
+                "indoor": (col(row, "location_type") == 1),  # PurpleAir: 0=outside, 1=inside
                 "name": col(row, "name") or f"PurpleAir #{sid}",
                 "lat": float(lat), "lng": float(lon),
                 "lastReading": last_iso,
@@ -409,6 +418,62 @@ def fetch_airgradient() -> list:
     except Exception as e:
         log(f"  AirGradient: FAILED {type(e).__name__}: {str(e)[:80]}")
     return out
+
+
+# ----------------------------------------------------------------------------
+# 1c. QUALITY FLAG — exclude indoor + outlier sensors from the AVERAGES
+# (the map still shows every sensor; this only changes the network/area stats).
+# ----------------------------------------------------------------------------
+_INDOOR_NAME_HINTS = ("office", "indoor", "in-door", "dalam ruang")
+
+
+def _median(xs: list):
+    xs = sorted(xs)
+    n = len(xs)
+    if not n:
+        return None
+    return xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2
+
+
+def flag_quality(sensors: list) -> None:
+    """Tag each sensor excluded_from_avg (+ exclusion_reason) so the network and
+    area AVERAGES skip indoor and unrealistic sensors. The map still shows them.
+      • indoor: explicit flag (e.g. PurpleAir location_type=inside), an
+        office/indoor name, or a reading below INDOOR_FLOOR — Bali outdoor
+        ambient is essentially never that clean, so it's filtered/indoor air.
+      • outlier: a reading far from the network's robust centre (median ± K·MAD,
+        with a spread floor). Catches faulty sensors either direction; a genuine
+        cluster of high readings survives because the sensors agree with each other."""
+    for s in sensors:
+        pm = (s.get("reading") or {}).get("pm25")
+        pm = pm if isinstance(pm, (int, float)) else None
+        s["_pm"] = pm
+        reason = None
+        if s.get("indoor") is True:
+            reason = "indoor"
+        elif any(h in (s.get("name") or "").lower() for h in _INDOOR_NAME_HINTS):
+            reason = "indoor"
+        elif pm is not None and pm < INDOOR_FLOOR:
+            reason = "indoor_suspected"
+        s["excluded_from_avg"] = reason is not None
+        s["exclusion_reason"] = reason
+    # Robust outlier pass over the sensors not already excluded.
+    vals = [s["_pm"] for s in sensors if s["_pm"] is not None and not s["excluded_from_avg"]]
+    med = _median(vals)
+    if med is not None and len(vals) >= 4:
+        mad = _median([abs(v - med) for v in vals]) or 0.0
+        spread = max(1.4826 * mad, OUTLIER_MIN_SPREAD)
+        lo, hi = med - OUTLIER_K * spread, med + OUTLIER_K * spread
+        for s in sensors:
+            if s["excluded_from_avg"] or s["_pm"] is None:
+                continue
+            if s["_pm"] < lo or s["_pm"] > hi:
+                s["excluded_from_avg"] = True
+                s["exclusion_reason"] = "outlier_low" if s["_pm"] < lo else "outlier_high"
+    for s in sensors:
+        s.pop("_pm", None)
+    reasons = [s["exclusion_reason"] for s in sensors if s.get("excluded_from_avg")]
+    log(f"quality: {len(reasons)}/{len(sensors)} excluded from averages ({', '.join(reasons) or 'none'})")
 
 
 def write_sensors(sensors: list) -> None:
@@ -556,6 +621,8 @@ def _area_pm25(lat: float, lon: float, sensors: list) -> float | None:
     for s in sensors:
         pm = (s.get("reading") or {}).get("pm25")
         if pm is None:
+            continue
+        if s.get("excluded_from_avg"):   # skip indoor / outlier sensors in the rollup
             continue
         # crude planar distance in degrees (~0.045deg ≈ 5km at this latitude)
         if abs(s["lat"] - lat) < 0.045 and abs(s["lng"] - lon) < 0.045:
