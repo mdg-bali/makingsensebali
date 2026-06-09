@@ -59,11 +59,11 @@
 // ============================================================================
 
 // WiFi
-const char* WIFI_SSID     = "**********";
-const char* WIFI_PASSWORD = "**********";
+const char* WIFI_SSID     = "YOUR_WIFI_SSID";
+const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
 
 // Smart Citizen device token (from your device page on smartcitizen.me)
-const char* SC_DEVICE_TOKEN = "**********";
+const char* SC_DEVICE_TOKEN = "YOUR_SC_DEVICE_TOKEN";
 
 // Smart Citizen sensor IDs — one per metric, copy from your device page.
 // Each value below MUST match the numeric ID assigned to that sensor on
@@ -74,9 +74,13 @@ const char* SC_DEVICE_TOKEN = "**********";
 // and Seeed HM-3301 — not the old "closest-equivalent" mappings (BMP280 /
 // SHT31 / Plantower PMS5003) we used before the catalog had proper entries.
 //
-// IMPORTANT — IAQ (241) must be CREATED ON THE PLATFORM FIRST. If the channel
-// doesn't exist in the SC catalog before the device publishes, ingest will
-// drop that value. Create it, confirm the ID is 241, then flash.
+// IAQ (241) is LIVE in the Smart Citizen global catalog (added by Oscar,
+// 2026-06-09), so it works out of the box — no per-device platform setup.
+// The value is an OPEN on-device approximation, not Bosch BSEC; see computeIAQ().
+//
+// You normally DON'T touch the IDs below: they are SC global-catalog IDs, the
+// same for every node. Replicators only set WiFi + device token above. For a
+// Basic kit (no HM-3301), set the three PM IDs to 0 to skip publishing them.
 //
 // Two unit/semantics changes vs the old mapping, both handled in code below:
 //   - GAS (240) is now RAW gas resistance in OHMS (not kΩ). readBME680 no
@@ -91,7 +95,7 @@ const int SC_ID_TEMP     = 237;  // °C     — Bosch BME68X - Temperature (heat
 const int SC_ID_HUM      = 238;  // %RH    — Bosch BME68X - Humidity (heat-compensated)
 const int SC_ID_PRESSURE = 239;  // kPa    — Bosch BME68X - Pressure
 const int SC_ID_GAS      = 240;  // Ohm    — Bosch BME68X - Gas Resistance (RAW, in ohms)
-const int SC_ID_IAQ      = 241;  // index  — Bosch BME68X - IAQ (open approximation; CREATE CHANNEL FIRST)
+const int SC_ID_IAQ      = 241;  // index  — Bosch BME68X - IAQ (open approximation; see computeIAQ)
 
 // MQTT broker (do not change unless you're testing locally)
 const char* MQTT_HOST = "mqtt.smartcitizen.me";

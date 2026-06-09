@@ -18,7 +18,7 @@ What you get:
 What you get from either variant:
 
 - **Temperature, humidity, and barometric pressure** with reasonable accuracy
-- **Gas resistance (VOC indicator)** — picks up wood smoke, mosquito coil burn, cooking fuel emissions, vehicle exhaust, cleaning products. Published as raw kΩ; lower = more VOCs. This is a relative signal, not a calibrated IAQ index — see the deployment notes.
+- **Gas resistance (VOC indicator)** — picks up wood smoke, mosquito coil burn, cooking fuel emissions, vehicle exhaust, cleaning products. Published as raw gas resistance in ohms; lower = more VOCs. The firmware also publishes an **open IAQ index** (0–500, lower = cleaner) computed on-device — a relative approximation, not the calibrated Bosch BSEC index. See the deployment notes.
 - **A Smart Citizen device record** that appears in the campaign dashboard alongside official SCKs and OpenAQ / Sensor.Community stations
 - **A teaching artifact** — participants leave the workshop understanding I²C, ESP32 firmware, MQTT, and what "your data is public" means
 
@@ -94,7 +94,7 @@ The Basic kit can compute a heat index for any deployment site. Mounted near a c
 
 The BME680's gas sensor responds to volatile organic compounds — mosquito coil smoke, kerosene cooking emissions, cleaning chemicals, paint solvents, cigarette smoke, the capsaicin volatilisation from sambal frying. Documented research (Liu et al., 2003) found that a single overnight mosquito coil releases PM2.5 mass comparable to burning ~75–100 cigarettes, alongside substantial formaldehyde.
 
-The Basic kit publishes raw gas resistance in kΩ; lower = more VOCs. A node in a kitchen or bedroom shows patterns — "your gas resistance drops every night between 9 PM and 5 AM because of the mosquito coil." That's a conversation about alternatives (mosquito nets, electric vaporisers, ventilation), not a vague worry about "indoor air".
+The Basic kit publishes raw gas resistance in ohms; lower = more VOCs. A node in a kitchen or bedroom shows patterns — "your gas resistance drops every night between 9 PM and 5 AM because of the mosquito coil." That's a conversation about alternatives (mosquito nets, electric vaporisers, ventilation), not a vague worry about "indoor air".
 
 ### Outdoor PM — rice burning, traffic, construction (Plus only)
 
@@ -195,7 +195,8 @@ Before flashing, set up the device on Smart Citizen:
    - **Temperature** (°C) — BME680
    - **Humidity** (%) — BME680
    - **Pressure** (hPa) — BME680 *(optional, leave the firmware ID as 0 to skip)*
-   - **Gas resistance** (kΩ) — BME680 VOC indicator
+   - **Gas resistance** (Ω, raw) — BME680 VOC indicator
+   - **IAQ** (index, 0–500) — BME680, computed on-device (open approximation)
 
    **Plus variant only — add these too:**
    - **PM1** (µg/m³) — HM3301
@@ -204,9 +205,7 @@ Before flashing, set up the device on Smart Citizen:
 
    For a Basic kit, just leave the PM sensor IDs at 0 in the firmware config; the publish step skips any sensor with ID 0.
 4. Set the location to the deployment coordinates (not your laptop's IP geolocation — the actual rooftop).
-5. From the device's dashboard page, copy:
-   - The **device token** (used for MQTT auth)
-   - Each **sensor's numeric ID** (you'll paste these into the firmware)
+5. From the device's dashboard page, copy the **device token** (used for MQTT auth) into the firmware. You don't need to copy sensor IDs — the firmware already uses the Smart Citizen global-catalog IDs (233–241), and the platform auto-maps them to your device on first publish.
 
 The device token is what authenticates the node against the platform. It can be revoked from the dashboard if a kit goes missing — treat it like a password.
 
@@ -248,7 +247,7 @@ Rather than patch a vendor library on every developer's machine, both sketches i
 
 Total cost: ~15 lines of code, zero external dependency for this sensor.
 
-Edit the configuration block at the top of `diy_node.ino` — WiFi credentials, the device token, and the five sensor IDs from the SC dashboard. Flash, open serial monitor at 115200 baud, watch the connection sequence. Within a couple of minutes the device should appear "online" on smartcitizen.me with readings flowing.
+Edit the configuration block at the top of `diy_node.ino`. You only set three values, all marked with `YOUR_*` placeholders: `WIFI_SSID`, `WIFI_PASSWORD`, and `SC_DEVICE_TOKEN` (from your device page). The sensor IDs (233–241) are Smart Citizen global-catalog IDs and come pre-filled — leave them as-is; for a Basic kit, set the three PM IDs (233/234/235) to 0 to skip them. Flash, open serial monitor at 115200 baud, watch the connection sequence. Within a couple of minutes the device should appear "online" on smartcitizen.me with readings flowing.
 
 If readings don't appear: check that the sensor IDs in the firmware match exactly what's on the SC device page (they're numeric and per-device), and that the device hasn't been marked "private" — public is the default.
 
