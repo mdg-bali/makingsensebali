@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-09T01:16:24.980269+00:00",
+  "generated_at": "2026-06-09T01:32:17.457871+00:00",
   "count": 7,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-09T01:13:06Z",
+      "lastReading": "2026-06-09T01:29:06Z",
       "reading": {
-        "pm25": 16.5,
-        "pm10": 17.8,
-        "temp": 25.26,
-        "rh": 60.6,
-        "noise": 33.11
+        "pm25": 14.8,
+        "pm10": 15.3,
+        "temp": 25.34,
+        "rh": 60.92,
+        "noise": 46.19
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236"
     },
@@ -28,13 +28,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-09T01:14:30Z",
+      "lastReading": "2026-06-09T01:30:30Z",
       "reading": {
-        "pm25": 18.0,
-        "pm10": 18.8,
-        "temp": 24.16,
-        "rh": 69.77,
-        "noise": 52.48
+        "pm25": 15.2,
+        "pm10": 15.2,
+        "temp": 23.8,
+        "rh": 65.62,
+        "noise": 46.1
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600"
     },
@@ -46,13 +46,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-09T01:15:32Z",
+      "lastReading": "2026-06-09T01:27:35Z",
       "reading": {
-        "pm25": 17.3,
-        "pm10": 17.3,
-        "temp": 23.96,
-        "rh": 65.21,
-        "noise": 47.08
+        "pm25": 15.1,
+        "pm10": 15.5,
+        "temp": 24.17,
+        "rh": 62.41,
+        "noise": 38.15
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618"
     },
@@ -64,12 +64,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-09T01:15:47Z",
+      "lastReading": "2026-06-09T01:31:48Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 29.11834,
-        "rh": 49.73762,
+        "temp": 28.81295,
+        "rh": 47.08792,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651"
@@ -102,11 +102,11 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-09T01:16:07.000Z",
+      "lastReading": "2026-06-09T01:32:06.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
-        "temp": 27.2,
+        "temp": 27.5,
         "rh": 58
       },
       "detailsUrl": "https://www.airgradient.com/map/"
@@ -120,11 +120,11 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-09T01:16:22.000Z",
+      "lastReading": "2026-06-09T01:31:22.000Z",
       "reading": {
-        "pm25": 49.8,
-        "pm10": 61.2,
-        "temp": 28.0,
+        "pm25": 44.3,
+        "pm10": 53.7,
+        "temp": 28.3,
         "rh": 54
       },
       "detailsUrl": "https://www.airgradient.com/map/"
