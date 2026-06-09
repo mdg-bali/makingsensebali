@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-09T13:37:08.886107+00:00",
-  "count": 9,
+  "generated_at": "2026-06-09T13:53:08.710433+00:00",
+  "count": 8,
   "sensors": [
     {
       "id": "sck-19236",
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-09T13:35:50Z",
+      "lastReading": "2026-06-09T13:50:50Z",
       "reading": {
-        "pm25": 6.5,
-        "pm10": 6.9,
-        "temp": 25.62,
-        "rh": 54.7,
-        "noise": 31.85
+        "pm25": 5.7,
+        "pm10": 5.7,
+        "temp": 25.84,
+        "rh": 56.22,
+        "noise": 49.57
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-09T13:33:49Z",
+      "lastReading": "2026-06-09T13:49:52Z",
       "reading": {
-        "pm25": 6.6,
-        "pm10": 6.9,
-        "temp": 22.96,
-        "rh": 61.85,
-        "noise": 45.76
+        "pm25": 6.4,
+        "pm10": 7.2,
+        "temp": 23.84,
+        "rh": 62.35,
+        "noise": 48.2
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,37 +50,17 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-09T13:33:21Z",
+      "lastReading": "2026-06-09T13:49:22Z",
       "reading": {
-        "pm25": 6.6,
-        "pm10": 6.9,
-        "temp": 23.27,
-        "rh": 58.5,
-        "noise": 45.74
+        "pm25": 7.0,
+        "pm10": 8.3,
+        "temp": 24.14,
+        "rh": 59.16,
+        "noise": 45.51
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
       "exclusion_reason": null
-    },
-    {
-      "id": "sck-19651",
-      "rawId": 19651,
-      "source": "smartcitizen",
-      "sourceLabel": "Smart Citizen",
-      "name": "Bali DIY Node — Office",
-      "lat": -8.79314,
-      "lng": 115.14467,
-      "lastReading": "2026-06-09T13:36:14Z",
-      "reading": {
-        "pm25": 6.0,
-        "pm10": 6.0,
-        "temp": 28.80029,
-        "rh": 43.12391,
-        "noise": null
-      },
-      "detailsUrl": "https://smartcitizen.me/kits/19651",
-      "excluded_from_avg": true,
-      "exclusion_reason": "indoor"
     },
     {
       "id": "aqicn--519205",
@@ -112,12 +92,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-09T13:35:58+00:00",
+      "lastReading": "2026-06-09T13:51:58+00:00",
       "reading": {
-        "pm25": 0.8,
+        "pm25": 0.9,
         "pm10": null,
         "temp": 30.6,
-        "rh": 57
+        "rh": 56
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +112,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-09T13:36:39+00:00",
+      "lastReading": "2026-06-09T13:52:39+00:00",
       "reading": {
-        "pm25": 26.4,
+        "pm25": 26.3,
         "pm10": null,
-        "temp": 29.4,
-        "rh": 61
+        "temp": 30.0,
+        "rh": 60
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,7 +132,7 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-09T13:36:23.000Z",
+      "lastReading": "2026-06-09T13:52:25.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
@@ -172,11 +152,11 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-09T13:36:22.000Z",
+      "lastReading": "2026-06-09T13:52:22.000Z",
       "reading": {
         "pm25": null,
         "pm10": null,
-        "temp": 27.7,
+        "temp": 27.6,
         "rh": 54
       },
       "detailsUrl": "https://www.airgradient.com/map/",
