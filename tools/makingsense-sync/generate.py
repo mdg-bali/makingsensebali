@@ -648,10 +648,16 @@ def publish(dry_run: bool) -> None:
         if dry_run:
             log(f"publish: DRY-RUN, would commit:\n{status}"); return
         git("commit", "-m", f"data: auto-sync {datetime.now(WITA).strftime('%Y-%m-%d %H:%M WITA')}")
-        # Stay in sync with site pushes from elsewhere (e.g. the Mac) before we
-        # push our data commit — otherwise the two diverge and this push fails.
+        # Stay in sync with pushes from elsewhere before pushing our data commit.
+        # The aq-reporter pushes approved profiles to this same branch and both it
+        # and this job write data/reports/index.json, so a plain rebase used to
+        # conflict and stall for hours (the 13-commit backlog of 2026-06-08).
+        # --strategy-option=ours keeps the reporter's report index on conflict (it
+        # owns reports); our sensors/history/areas don't conflict and apply cleanly,
+        # and index.json re-converges next cycle. So the pipeline self-heals instead
+        # of stalling. (Proper long-term fix: single-writer ownership of index.json.)
         try:
-            git("pull", "--rebase", "origin", "main")
+            git("pull", "--rebase", "--strategy-option=ours", "origin", "main")
         except subprocess.CalledProcessError as e:
             log(f"publish: pull --rebase failed, aborting + retrying next cycle: {e.stderr.strip()[:120]}")
             try: git("rebase", "--abort")
