@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <title>About — Making Sense Bali</title>
@@ -27,6 +27,8 @@ a{color:inherit;text-decoration:none}
 .bar-nav a{color:var(--ink);opacity:.72;transition:opacity .2s}
 .bar-nav a:hover{opacity:1}
 .bar-nav a.home{color:var(--teal);opacity:1}
+.langtoggle{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);background:transparent;border:1px solid rgba(0,0,0,.25);border-radius:3px;padding:5px 9px;cursor:pointer;line-height:1;transition:background .2s,color .2s,border-color .2s}
+.langtoggle:hover{background:var(--teal);color:var(--paper);border-color:var(--teal)}
 @media(max-width:640px){.bar-nav a.lbl{display:none}}
 
 /* dark philosophy opener */
@@ -110,41 +112,42 @@ a{color:inherit;text-decoration:none}
 <div class="bar">
   <div class="brand">Making Sense Bali</div>
   <nav class="bar-nav">
-    <a class="home" href="index.html">← <span class="lbl">Live air</span></a>
-    <a href="./dashboard/" class="lbl">Data view</a>
+    <a class="home" href="index.html">← <span class="lbl" data-i18n="abt.nav.live">Live air</span></a>
+    <a href="./dashboard/" class="lbl" data-i18n="abt.nav.data">Data view</a>
+    <button type="button" id="langtoggle" class="langtoggle" aria-label="Bahasa Indonesia / English">EN</button>
   </nav>
 </div>
 
 <!-- opener -->
 <header class="open">
   <div class="open-wrap">
-    <div class="kicker rv in">About · Making Sense Bali</div>
-    <h1 class="rv in">A sensor without a matter of concern produces <em>data without consequence.</em></h1>
-    <p class="rv in">So we don't start with sensors. We start with what you already know is wrong — the smoke at night, the haze over the valley, the smell that wasn't there last year — and only then decide what's worth measuring. The instrument follows the concern, never the other way around.</p>
+    <div class="kicker rv in" data-i18n="abt.kicker.opener">About · Making Sense Bali</div>
+    <h1 class="rv in" data-i18n-html="abt.open.h1">A sensor without a matter of concern produces <em>data without consequence.</em></h1>
+    <p class="rv in" data-i18n="abt.open.p">So we don't start with sensors. We start with what you already know is wrong — the smoke at night, the haze over the valley, the smell that wasn't there last year — and only then decide what's worth measuring. The instrument follows the concern, never the other way around.</p>
   </div>
 </header>
 
 <!-- how it works -->
 <section class="sec">
   <div class="wrap">
-    <div class="kicker rv">How it works</div>
-    <h2 class="rv">Listen. Show. <em>Act.</em></h2>
-    <p class="lede rv">Three moves, repeated. None of them is the technology — the technology only serves the loop.</p>
+    <div class="kicker rv" data-i18n="abt.how.kicker">How it works</div>
+    <h2 class="rv" data-i18n-html="abt.how.h2">Listen. Show. <em>Act.</em></h2>
+    <p class="lede rv" data-i18n="abt.how.lede">Three moves, repeated. None of them is the technology — the technology only serves the loop.</p>
     <div class="lsa">
       <div class="beat listen rv">
-        <div class="bn">01 · Listen</div>
-        <h3>Two sources, one truth</h3>
-        <p>Open-hardware <strong>sensors</strong> measure air, noise, heat and humidity around the clock. An <strong>AI-assisted WhatsApp bot</strong> lets any resident report what they see — burning waste, smoke, a new smell — in their own words, in Indonesian, English or Balinese.</p>
+        <div class="bn" data-i18n="abt.how.listen.bn">01 · Listen</div>
+        <h3 data-i18n="abt.how.listen.h3">Two sources, one truth</h3>
+        <p data-i18n-html="abt.how.listen.p">Open-hardware <strong>sensors</strong> measure air, noise, heat and humidity around the clock. An <strong>AI-assisted WhatsApp bot</strong> lets any resident report what they see — burning waste, smoke, a new smell — in their own words, in Indonesian, English or Balinese.</p>
       </div>
       <div class="beat show rv">
-        <div class="bn">02 · Show</div>
-        <h3>Make it legible</h3>
-        <p>Both streams land on one public map. Every reading is checked against international guidelines — <strong>WHO</strong> for air and noise, EPA and ASHRAE indoors — and translated into plain language. No login, no tracking, no paywall.</p>
+        <div class="bn" data-i18n="abt.how.show.bn">02 · Show</div>
+        <h3 data-i18n="abt.how.show.h3">Make it legible</h3>
+        <p data-i18n-html="abt.how.show.p">Both streams land on one public map. Every reading is checked against international guidelines — <strong>WHO</strong> for air and noise, EPA and ASHRAE indoors — and translated into plain language. No login, no tracking, no paywall.</p>
       </div>
       <div class="beat act rv">
-        <div class="bn">03 · Act</div>
-        <h3>Visibility into change</h3>
-        <p>Seeing is the start. From there: workshops, advocacy with the <strong>banjar</strong> and local government, changes in homes and schools. Fab Lab Bali runs the response loop with local partners.</p>
+        <div class="bn" data-i18n="abt.how.act.bn">03 · Act</div>
+        <h3 data-i18n="abt.how.act.h3">Visibility into change</h3>
+        <p data-i18n-html="abt.how.act.p">Seeing is the start. From there: workshops, advocacy with the <strong>banjar</strong> and local government, changes in homes and schools. Fab Lab Bali runs the response loop with local partners.</p>
       </div>
     </div>
   </div>
@@ -153,17 +156,17 @@ a{color:inherit;text-decoration:none}
 <!-- phases -->
 <section class="sec tint">
   <div class="wrap">
-    <div class="kicker rv">The work, in seven phases</div>
-    <h2 class="rv">We're at the <em>beginning</em> — and that's deliberate.</h2>
-    <p class="lede rv">Most sensing projects start by buying sensors. We start by asking what matters. Right now we're in Phase 1: collecting the concerns that decide everything downstream.</p>
+    <div class="kicker rv" data-i18n="abt.phases.kicker">The work, in seven phases</div>
+    <h2 class="rv" data-i18n-html="abt.phases.h2">We're at the <em>beginning</em> — and that's deliberate.</h2>
+    <p class="lede rv" data-i18n="abt.phases.lede">Most sensing projects start by buying sensors. We start by asking what matters. Right now we're in Phase 1: collecting the concerns that decide everything downstream.</p>
     <div class="phases">
-      <div class="ph now rv"><div class="pn">01</div><div><h4>Scoping <span class="tag">NOW</span></h4><p>Collect matters of concern from residents. Decide what this campaign is actually about.</p></div></div>
-      <div class="ph rv"><div class="pn">02</div><div><h4>Community</h4><p>Convene contributors — schools, banjar, NGOs, fab labs.</p></div></div>
-      <div class="ph rv"><div class="pn">03</div><div><h4>Planning</h4><p>Co-design what to measure, where, and how often.</p></div></div>
-      <div class="ph rv"><div class="pn">04</div><div><h4>Sensing</h4><p>Deploy the sensor network and the citizen-reporting bot at scale.</p></div></div>
-      <div class="ph rv"><div class="pn">05</div><div><h4>Awareness</h4><p>Read the data together. Turn signals into shared understanding.</p></div></div>
-      <div class="ph rv"><div class="pn">06</div><div><h4>Action</h4><p>The community decides the response: visibility, advocacy, intervention.</p></div></div>
-      <div class="ph rv"><div class="pn">07</div><div><h4>Reflection</h4><p>Document what worked, what didn't, and what comes next.</p></div></div>
+      <div class="ph now rv"><div class="pn">01</div><div><h4 data-i18n-html="abt.ph.1.h4">Scoping <span class="tag">NOW</span></h4><p data-i18n="abt.ph.1.p">Collect matters of concern from residents. Decide what this campaign is actually about.</p></div></div>
+      <div class="ph rv"><div class="pn">02</div><div><h4 data-i18n="abt.ph.2.h4">Community</h4><p data-i18n="abt.ph.2.p">Convene contributors — schools, banjar, NGOs, fab labs.</p></div></div>
+      <div class="ph rv"><div class="pn">03</div><div><h4 data-i18n="abt.ph.3.h4">Planning</h4><p data-i18n="abt.ph.3.p">Co-design what to measure, where, and how often.</p></div></div>
+      <div class="ph rv"><div class="pn">04</div><div><h4 data-i18n="abt.ph.4.h4">Sensing</h4><p data-i18n="abt.ph.4.p">Deploy the sensor network and the citizen-reporting bot at scale.</p></div></div>
+      <div class="ph rv"><div class="pn">05</div><div><h4 data-i18n="abt.ph.5.h4">Awareness</h4><p data-i18n="abt.ph.5.p">Read the data together. Turn signals into shared understanding.</p></div></div>
+      <div class="ph rv"><div class="pn">06</div><div><h4 data-i18n="abt.ph.6.h4">Action</h4><p data-i18n="abt.ph.6.p">The community decides the response: visibility, advocacy, intervention.</p></div></div>
+      <div class="ph rv"><div class="pn">07</div><div><h4 data-i18n="abt.ph.7.h4">Reflection</h4><p data-i18n="abt.ph.7.p">Document what worked, what didn't, and what comes next.</p></div></div>
     </div>
   </div>
 </section>
@@ -171,14 +174,14 @@ a{color:inherit;text-decoration:none}
 <!-- lineage -->
 <section class="sec">
   <div class="wrap">
-    <div class="kicker rv">Where it comes from</div>
-    <h2 class="rv">Local hands, a <em>global lineage.</em></h2>
-    <p class="lede rv">Fab Lab Bali leads — accountable, run by people who live here. The method and the hardware come from a decade of open work elsewhere, adapted for this island, not imported wholesale.</p>
+    <div class="kicker rv" data-i18n="abt.line.kicker">Where it comes from</div>
+    <h2 class="rv" data-i18n-html="abt.line.h2">Local hands, a <em>global lineage.</em></h2>
+    <p class="lede rv" data-i18n="abt.line.lede">Fab Lab Bali leads — accountable, run by people who live here. The method and the hardware come from a decade of open work elsewhere, adapted for this island, not imported wholesale.</p>
     <div class="line-grid">
-      <div class="anc rv"><div class="al">Campaign lead</div><div class="an">Fab Lab Bali</div><p>Local fabrication lab and maker community. The accountable institution. Part of the global Fab Lab network.</p></div>
-      <div class="anc rv"><div class="al">Methodology</div><div class="an">Making Sense (EU)</div><p>2015–2017 H2020 project. Pilots in Amsterdam, Barcelona, Pristina. Fab Lab Barcelona / IAAC.</p></div>
-      <div class="anc rv"><div class="al">Open hardware</div><div class="an">Smart Citizen Kit</div><p>Originated at Fab Lab Barcelona / IAAC. Open-source environmental sensing, used worldwide.</p></div>
-      <div class="anc rv"><div class="al">Network</div><div class="an">Fab City + Murmurations</div><p>Bioregional hub framework, plus federated discovery linking peer initiatives across the world.</p></div>
+      <div class="anc rv"><div class="al" data-i18n="abt.line.1.al">Campaign lead</div><div class="an">Fab Lab Bali</div><p data-i18n="abt.line.1.p">Local fabrication lab and maker community. The accountable institution. Part of the global Fab Lab network.</p></div>
+      <div class="anc rv"><div class="al" data-i18n="abt.line.2.al">Methodology</div><div class="an">Making Sense (EU)</div><p data-i18n="abt.line.2.p">2015–2017 H2020 project. Pilots in Amsterdam, Barcelona, Pristina. Fab Lab Barcelona / IAAC.</p></div>
+      <div class="anc rv"><div class="al" data-i18n="abt.line.3.al">Open hardware</div><div class="an">Smart Citizen Kit</div><p data-i18n="abt.line.3.p">Originated at Fab Lab Barcelona / IAAC. Open-source environmental sensing, used worldwide.</p></div>
+      <div class="anc rv"><div class="al" data-i18n="abt.line.4.al">Network</div><div class="an">Fab City + Murmurations</div><p data-i18n="abt.line.4.p">Bioregional hub framework, plus federated discovery linking peer initiatives across the world.</p></div>
     </div>
   </div>
 </section>
@@ -186,44 +189,44 @@ a{color:inherit;text-decoration:none}
 <!-- how Bali evolves the method -->
 <section class="sec">
   <div class="wrap">
-    <div class="kicker rv">How Bali evolves the method</div>
-    <h2 class="rv">The same loop — now with <em>AI sensemaking and federated data.</em></h2>
-    <p class="lede rv">The EU Making Sense project gave us the loop: start with concerns, sense, show, act. In Bali we're extending it in three ways that matter — turning a one-line message from a resident into structured, verifiable, shareable evidence, without surrendering it to anyone.</p>
+    <div class="kicker rv" data-i18n="abt.evolve.kicker">How Bali evolves the method</div>
+    <h2 class="rv" data-i18n-html="abt.evolve.h2">The same loop — now with <em>AI sensemaking and federated data.</em></h2>
+    <p class="lede rv" data-i18n="abt.evolve.lede">The EU Making Sense project gave us the loop: start with concerns, sense, show, act. In Bali we're extending it in three ways that matter — turning a one-line message from a resident into structured, verifiable, shareable evidence, without surrendering it to anyone.</p>
     <div class="lsa">
       <div class="beat listen rv">
-        <div class="bn">Reporting</div>
-        <h3>AI-assisted, in your own words</h3>
-        <p>A resident sends a photo and a sentence to a WhatsApp bot — that's the whole ask. No forms, no categories to pick, in Indonesian, English or Balinese. The barrier to contributing environmental data drops to almost nothing.</p>
+        <div class="bn" data-i18n="abt.evolve.report.bn">Reporting</div>
+        <h3 data-i18n="abt.evolve.report.h3">AI-assisted, in your own words</h3>
+        <p data-i18n="abt.evolve.report.p">A resident sends a photo and a sentence to a WhatsApp bot — that's the whole ask. No forms, no categories to pick, in Indonesian, English or Balinese. The barrier to contributing environmental data drops to almost nothing.</p>
       </div>
       <div class="beat show rv">
-        <div class="bn">Analysis</div>
-        <h3>Read by local AI, checked by people</h3>
-        <p>A vision model running on <strong>Fab Lab Bali's own hardware</strong> — not a distant cloud — reads each photo: is something burning, is it waste, how serious. A person verifies before anything is published. The intelligence stays local, low-cost, and accountable to the community.</p>
+        <div class="bn" data-i18n="abt.evolve.analysis.bn">Analysis</div>
+        <h3 data-i18n="abt.evolve.analysis.h3">Read by local AI, checked by people</h3>
+        <p data-i18n-html="abt.evolve.analysis.p">A vision model running on <strong>Fab Lab Bali's own hardware</strong> — not a distant cloud — reads each photo: is something burning, is it waste, how serious. A person verifies before anything is published. The intelligence stays local, low-cost, and accountable to the community.</p>
       </div>
       <div class="beat act rv">
-        <div class="bn">Federation</div>
-        <h3>Open data that travels</h3>
-        <p>Every verified observation becomes an open, structured record — a <strong>Murmurations</strong> profile on a sovereign <strong>PlanetAI node</strong>, discoverable across the <strong>Fab City</strong> network. Bali's data isn't trapped in one database; it federates with peer initiatives worldwide on shared standards.</p>
+        <div class="bn" data-i18n="abt.evolve.fed.bn">Federation</div>
+        <h3 data-i18n="abt.evolve.fed.h3">Open data that travels</h3>
+        <p data-i18n-html="abt.evolve.fed.p">Every verified observation becomes an open, structured record — a <strong>Murmurations</strong> profile on a sovereign <strong>PlanetAI node</strong>, discoverable across the <strong>Fab City</strong> network. Bali's data isn't trapped in one database; it federates with peer initiatives worldwide on shared standards.</p>
       </div>
     </div>
-    <p class="lede rv" style="margin-top:38px">Put together, it's a real shift: the community owns the concern, the sensing, the AI that reads it, and the data it produces — <em>sovereign, local-first, and federated</em> by design, not bolted on after.</p>
+    <p class="lede rv" style="margin-top:38px" data-i18n-html="abt.evolve.close">Put together, it's a real shift: the community owns the concern, the sensing, the AI that reads it, and the data it produces — <em>sovereign, local-first, and federated</em> by design, not bolted on after.</p>
   </div>
 </section>
 
 <!-- classroom + accountability -->
 <section class="sec tint">
   <div class="wrap">
-    <div class="kicker rv">In the classroom · who answers for this</div>
-    <h2 class="rv">Real data, taught where students <em>live.</em></h2>
+    <div class="kicker rv" data-i18n="abt.class.kicker">In the classroom · who answers for this</div>
+    <h2 class="rv" data-i18n-html="abt.class.h2">Real data, taught where students <em>live.</em></h2>
     <div class="two">
       <div class="card rv">
-        <h3>For teachers and schools</h3>
-        <p>A 45-minute lesson where students compare their schoolyard's PM2.5 to the WHO guideline — then to a reference school in Barcelona via Smart Citizen's global network. Or a half-day workshop to build and install a classroom sensor.</p>
-        <a class="btn btn-teal" href="https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form" target="_blank" rel="noopener">Bring it to your school →</a>
+        <h3 data-i18n="abt.class.teachers.h3">For teachers and schools</h3>
+        <p data-i18n="abt.class.teachers.p">A 45-minute lesson where students compare their schoolyard's PM2.5 to the WHO guideline — then to a reference school in Barcelona via Smart Citizen's global network. Or a half-day workshop to build and install a classroom sensor.</p>
+        <a class="btn btn-teal" href="https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form" target="_blank" rel="noopener" data-i18n="abt.class.teachers.btn">Bring it to your school →</a>
       </div>
       <div class="card rv">
-        <h3>Who answers for this</h3>
-        <p>Making Sense Bali is led and moderated by Fab Lab Bali — a real, local, accountable institution, not an anonymous platform. Every report is human-verified before it appears. The data is open; the methodology is documented; the people are reachable.</p>
+        <h3 data-i18n="abt.class.who.h3">Who answers for this</h3>
+        <p data-i18n="abt.class.who.p">Making Sense Bali is led and moderated by Fab Lab Bali — a real, local, accountable institution, not an anonymous platform. Every report is human-verified before it appears. The data is open; the methodology is documented; the people are reachable.</p>
         <a class="btn" href="mailto:fablabbali@gmail.com">fablabbali@gmail.com →</a>
       </div>
     </div>
@@ -232,30 +235,47 @@ a{color:inherit;text-decoration:none}
 
 <!-- philosophy quote -->
 <section class="quote-band">
-  <p class="rv">"We're starting with <em>your concern</em> — and only then deciding what to measure."</p>
-  <div class="by rv">Making Sense methodology, adapted for Bali</div>
+  <p class="rv" data-i18n-html="abt.quote">"We're starting with <em>your concern</em> — and only then deciding what to measure."</p>
+  <div class="by rv" data-i18n="abt.quote.by">Making Sense methodology, adapted for Bali</div>
 </section>
 
 <!-- close -->
 <section class="close">
   <div class="close-wrap">
-    <div class="kicker rv" style="color:#e9a05a">Now you know the why</div>
-    <h2 class="rv">The map is waiting. So is <em>your part in it.</em></h2>
+    <div class="kicker rv" style="color:#e9a05a" data-i18n="abt.close.kicker">Now you know the why</div>
+    <h2 class="rv" data-i18n-html="abt.close.h2">The map is waiting. So is <em>your part in it.</em></h2>
     <div class="close-cta">
-      <a class="btn btn-ember rv" href="index.html#act">Report what you smell →</a>
-      <a class="btn btn-out rv" href="./dashboard/">Open the data view →</a>
-      <a class="btn btn-out rv" href="index.html">← Back to the live air</a>
+      <a class="btn btn-ember rv" href="index.html#act" data-i18n="abt.close.report">Report what you smell →</a>
+      <a class="btn btn-out rv" href="./dashboard/" data-i18n="abt.close.data">Open the data view →</a>
+      <a class="btn btn-out rv" href="index.html" data-i18n="abt.close.back">← Back to the live air</a>
     </div>
   </div>
 </section>
 
-<footer class="foot">
+<footer class="foot" data-i18n-html="abt.foot">
   Making Sense Bali — led by <a href="https://www.fablabbali.com/">Fab Lab Bali</a> · open hardware: Smart Citizen Kit (Fab Lab Barcelona / IAAC) · methodology: EU Making Sense · part of <a href="https://fab.city">Fab City</a> + Murmurations.
 </footer>
 
+<script src="./i18n.js"></script>
 <script>
 var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.16});
 document.querySelectorAll('.rv:not(.in)').forEach(function(el){io.observe(el);});
+
+/* ---------- i18n: default Bahasa Indonesia, one-tap toggle to English ---------- */
+(function(){
+  var I=window.SCB_I18N; if(!I) return;
+  function apply(){
+    if(document.documentElement) document.documentElement.lang=I.currentLang();
+    I.applyTo(document);
+    var b=document.getElementById('langtoggle');
+    if(b) b.textContent=(I.currentLang()==='id'?'EN':'BHS');
+  }
+  apply();
+  var btn=document.getElementById('langtoggle');
+  if(btn) btn.addEventListener('click', function(){
+    I.setLang(I.currentLang()==='id'?'en':'id'); apply();
+  });
+})();
 </script>
 </body>
 </html>

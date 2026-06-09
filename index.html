@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <title>Making Sense Bali — the air, made visible</title>
@@ -35,6 +35,8 @@ a{color:inherit;text-decoration:none}
 .bar .dot{width:7px;height:7px;border-radius:50%;background:var(--aq);animation:pulse 2.4s infinite;transition:background .6s}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,138,91,.5)}70%{box-shadow:0 0 0 9px rgba(63,138,91,0)}100%{box-shadow:0 0 0 0 rgba(63,138,91,0)}}
 @media(max-width:720px){.bar-nav{display:none}}
+.langtoggle{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);background:transparent;border:1px solid rgba(0,0,0,.25);border-radius:3px;padding:5px 9px;cursor:pointer;line-height:1;transition:background .2s,color .2s,border-color .2s}
+.langtoggle:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 
 .hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;
   background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 52%,var(--sky-low) 100%);transition:background 1.2s ease}
@@ -62,6 +64,7 @@ button.btn{font-family:var(--mono)}
 .scrollcue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:5;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);opacity:.7;display:flex;flex-direction:column;align-items:center;gap:8px}
 .scrollcue span{display:block;width:1px;height:34px;background:var(--ink-soft);animation:drop 2s ease-in-out infinite;transform-origin:top}
 @keyframes drop{0%,100%{transform:scaleY(.4);opacity:.3}50%{transform:scaleY(1);opacity:.8}}
+.scrollcue .cuetext{display:block;width:auto;height:auto;background:none;animation:none}
 
 .rv{opacity:0;transform:translateY(26px);transition:opacity .9s ease,transform .9s ease}
 .rv.in{opacity:1;transform:none}
@@ -143,99 +146,100 @@ button.btn{font-family:var(--mono)}
 <div class="bar" id="bar">
   <div class="brand">Making Sense Bali</div>
   <div class="bar-right">
-    <nav class="bar-nav"><a href="#story">The story</a><a href="about.html">About</a><a href="dashboard/">The data</a></nav>
-    <div class="live"><span class="dot"></span><span id="bar-state">connecting…</span></div>
+    <nav class="bar-nav"><a href="#story" data-i18n="idx.nav.story">The story</a><a href="about.html" data-i18n="idx.nav.about">About</a><a href="dashboard/" data-i18n="idx.nav.data">The data</a></nav>
+    <div class="live"><span class="dot"></span><span id="bar-state" data-i18n="idx.state.connecting">connecting…</span></div>
+    <button type="button" id="langtoggle" class="langtoggle" aria-label="Bahasa Indonesia / English">EN</button>
   </div>
 </div>
 
 <header class="hero" id="top">
   <canvas id="air"></canvas>
   <div class="hero-inner">
-    <div class="eyebrow rv in">A Fab Lab Bali campaign · open sensors + resident reports</div>
-    <h1 class="headline rv in">Bali, <em>made&nbsp;visible.</em></h1>
+    <div class="eyebrow rv in" data-i18n="idx.hero.eyebrow">A Fab Lab Bali campaign · open sensors + resident reports</div>
+    <h1 class="headline rv in" data-i18n-html="idx.hero.headline">Bali, <em>made&nbsp;visible.</em></h1>
     <div class="readout rv in">
       <div class="num" id="hero-num">–</div>
       <div class="num-side">
-        <div class="unit">µg/m³ · PM2.5 · <span id="loc-scope">reading the network…</span></div>
-        <div class="verdict" id="hero-verdict">Reading the air across Bali…</div>
+        <div class="unit">µg/m³ · PM2.5 · <span id="loc-scope" data-i18n="idx.scope.reading">reading the network…</span></div>
+        <div class="verdict" id="hero-verdict" data-i18n="idx.verdict.reading">Reading the air across Bali…</div>
       </div>
     </div>
-    <p class="subline rv in">Every speck drifting on this screen is <b>particulate matter</b> — the air you actually breathe, made visible. <span id="hero-mood"></span></p>
+    <p class="subline rv in" data-i18n-html="idx.hero.subline">Every speck drifting on this screen is <b>particulate matter</b> — the air you actually breathe, made visible. <span id="hero-mood"></span></p>
     <div class="hero-cta rv in">
-      <button class="btn btn-fill" id="geo" type="button">◎ Show the air where I am</button>
-      <a class="btn btn-ghost" href="#act">Report what you smell</a>
+      <button class="btn btn-fill" id="geo" type="button" data-i18n="idx.hero.btn_show">◎ Show the air where I am</button>
+      <a class="btn btn-ghost" href="#act" data-i18n="idx.hero.btn_report">Report what you smell</a>
     </div>
-    <p class="locnote rv in" id="locnote">Approximate only — rounded to ~1&nbsp;km, computed in your browser, never stored. We read the air within 3&nbsp;km of you.</p>
+    <p class="locnote rv in" id="locnote" data-i18n="idx.locnote.default">Approximate only — rounded to ~1&nbsp;km, computed in your browser, never stored. We read the air within 3&nbsp;km of you.</p>
   </div>
-  <div class="scrollcue"><span></span>scroll</div>
+  <div class="scrollcue"><span></span><span class="cuetext" data-i18n="idx.hero.scroll">scroll</span></div>
 </header>
 
 <section class="story" id="story">
   <div class="story-wrap">
-    <div class="kicker rv" id="story-kicker">Sensors meet residents</div>
-    <h2 class="rv">When the data and the residents tell the <em>same story.</em></h2>
+    <div class="kicker rv" id="story-kicker" data-i18n="idx.story.kicker">Sensors meet residents</div>
+    <h2 class="rv" data-i18n-html="idx.story.h2">When the data and the residents tell the <em>same story.</em></h2>
     <div class="story-grid">
       <div>
-        <div class="quote rv" id="story-quote">"They're burning at night to avoid the sanctions."
+        <div class="quote rv" id="story-quote" data-i18n-html="idx.story.quote">"They're burning at night to avoid the sanctions."
           <span class="by" id="story-by">— resident report, sent to our WhatsApp bot</span>
         </div>
-        <p class="rv" id="story-body">Nobody saw a headline. One neighbour smelled smoke and sent a message. A low-cost sensor nearby felt the same thing — particulate matter climbing while the kampung slept. A measurement, and a human voice, pointing at the same moment.</p>
+        <p class="rv" id="story-body" data-i18n="idx.story.body">Nobody saw a headline. One neighbour smelled smoke and sent a message. A low-cost sensor nearby felt the same thing — particulate matter climbing while the kampung slept. A measurement, and a human voice, pointing at the same moment.</p>
       </div>
       <div class="chartcard rv">
-        <div class="ch-top"><span id="story-sensor">nearest sensor · PM2.5</span><span>recent trend</span></div>
+        <div class="ch-top"><span id="story-sensor">nearest sensor · PM2.5</span><span data-i18n="idx.story.recent_trend">recent trend</span></div>
         <svg id="spark" viewBox="0 0 520 240" width="100%" preserveAspectRatio="none" aria-label="Recent PM2.5 trend with a peak aligned to a citizen report"></svg>
-        <div class="ch-foot"><span style="color:#7bb893">— PM2.5 µg/m³</span><span style="color:#e9a05a">● resident report</span><span style="color:#8d8474">- - WHO 24h guideline</span></div>
+        <div class="ch-foot"><span style="color:#7bb893">— PM2.5 µg/m³</span><span style="color:#e9a05a" data-i18n="idx.story.legend_report">● resident report</span><span style="color:#8d8474" data-i18n="idx.story.legend_who">- - WHO 24h guideline</span></div>
       </div>
     </div>
-    <p class="story-line rv">A sensor measures. A neighbour testifies. Together, they become <em>evidence</em>.</p>
+    <p class="story-line rv" data-i18n-html="idx.story.line">A sensor measures. A neighbour testifies. Together, they become <em>evidence</em>.</p>
   </div>
 </section>
 
 <section class="reports" id="reports">
   <div class="reports-wrap">
-    <div class="kicker rv" style="color:var(--teal)">What residents are reporting</div>
-    <h2 class="rv">The map, in their <em>own words.</em></h2>
+    <div class="kicker rv" style="color:var(--teal)" data-i18n="idx.reports.kicker">What residents are reporting</div>
+    <h2 class="rv" data-i18n-html="idx.reports.h2">The map, in their <em>own words.</em></h2>
     <div class="rep-cats rv" id="rep-cats"></div>
-    <div class="rep-list rv" id="rep-list"><div class="rep-row"><span class="rep-cat">—</span><span class="rep-desc">Loading reports…</span><span class="rep-meta"></span></div></div>
-    <a class="btn btn-ghost rv" href="https://wa.me/6285190890857?text=Hi%20Making%20Sense%20Bali%20%E2%80%94%20I%20want%20to%20report%3A" target="_blank" rel="noopener" style="margin-top:30px">Add your report →</a>
+    <div class="rep-list rv" id="rep-list"><div class="rep-row"><span class="rep-cat">—</span><span class="rep-desc" data-i18n="idx.reports.loading">Loading reports…</span><span class="rep-meta"></span></div></div>
+    <a class="btn btn-ghost rv" href="https://wa.me/6285190890857?text=Hi%20Making%20Sense%20Bali%20%E2%80%94%20I%20want%20to%20report%3A" target="_blank" rel="noopener" style="margin-top:30px" data-i18n="idx.reports.add">Add your report →</a>
   </div>
 </section>
 
 <section class="island" id="island">
   <div class="island-head">
-    <div class="kicker rv" style="color:var(--teal)">The whole island</div>
-    <h2 class="rv">One map. Every sensor, every report, <em>breathing in real time.</em></h2>
-    <p class="rv">Pinch into your own banjar. The colour is always the air — never the noise of how many people reported. Clean stays calm, even where the reports pile up.</p>
+    <div class="kicker rv" style="color:var(--teal)" data-i18n="idx.island.kicker">The whole island</div>
+    <h2 class="rv" data-i18n-html="idx.island.h2">One map. Every sensor, every report, <em>breathing in real time.</em></h2>
+    <p class="rv" data-i18n="idx.island.lede">Pinch into your own banjar. The colour is always the air — never the noise of how many people reported. Clean stays calm, even where the reports pile up.</p>
   </div>
   <div class="mapwrap rv">
     <div id="map"></div>
-    <div class="maptag"><b id="map-sensors">—</b> sensors live · <b id="map-reports">—</b> reports<br>tap any point for the reading</div>
+    <div class="maptag" data-i18n-html="idx.island.maptag"><b id="map-sensors">—</b> sensors live · <b id="map-reports">—</b> reports<br>tap any point for the reading</div>
   </div>
 </section>
 
 <section class="act" id="act">
   <div class="act-wrap">
-    <div class="kicker rv" style="color:#e9a05a">This is where you come in</div>
-    <h2 class="rv">The air is only visible <em>because people look.</em></h2>
-    <p class="act-sub rv">No app to install. No login. You already have the only tool you need — your senses, and a phone.</p>
+    <div class="kicker rv" style="color:#e9a05a" data-i18n="idx.act.kicker">This is where you come in</div>
+    <h2 class="rv" data-i18n-html="idx.act.h2">The air is only visible <em>because people look.</em></h2>
+    <p class="act-sub rv" data-i18n="idx.act.sub">No app to install. No login. You already have the only tool you need — your senses, and a phone.</p>
     <div class="acts">
       <a class="actcard report rv" id="act-report" href="https://wa.me/6285190890857?text=Hi%20Making%20Sense%20Bali%20%E2%80%94%20I%20want%20to%20report%3A" target="_blank" rel="noopener">
-        <div class="n">01 · 30 seconds</div>
-        <h3>Report what you smell</h3>
-        <p>Smoke, burning waste, a smell that wasn't there yesterday. One WhatsApp message — our local team verifies it and it joins the public map.</p>
-        <div class="go">Open WhatsApp →</div>
+        <div class="n" data-i18n="idx.act.report.n">01 · 30 seconds</div>
+        <h3 data-i18n="idx.act.report.h3">Report what you smell</h3>
+        <p data-i18n="idx.act.report.p">Smoke, burning waste, a smell that wasn't there yesterday. One WhatsApp message — our local team verifies it and it joins the public map.</p>
+        <div class="go" data-i18n="idx.act.report.go">Open WhatsApp →</div>
       </a>
       <a class="actcard survey rv" id="act-survey" href="https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form" target="_blank" rel="noopener">
-        <div class="n">02 · 5 minutes</div>
-        <h3>Tell us what matters</h3>
-        <p>Eight questions about the environment where you live. Your answers decide where the next sensors go. The campaign starts with you.</p>
-        <div class="go">Open the survey →</div>
+        <div class="n" data-i18n="idx.act.survey.n">02 · 5 minutes</div>
+        <h3 data-i18n="idx.act.survey.h3">Tell us what matters</h3>
+        <p data-i18n="idx.act.survey.p">Eight questions about the environment where you live. Your answers decide where the next sensors go. The campaign starts with you.</p>
+        <div class="go" data-i18n="idx.act.survey.go">Open the survey →</div>
       </a>
       <a class="actcard build rv" id="act-build" href="https://airtable.com/appwQPP3ywSp4uu25/pag1mi3F086XPIlBy/form" target="_blank" rel="noopener">
-        <div class="n">03 · An afternoon</div>
-        <h3>Build a sensor</h3>
-        <p>Come to Fab Lab Bali, assemble a low-cost air node, and put it on your roof or your classroom wall. Become a point on the map.</p>
-        <div class="go">Join a workshop →</div>
+        <div class="n" data-i18n="idx.act.build.n">03 · An afternoon</div>
+        <h3 data-i18n="idx.act.build.h3">Build a sensor</h3>
+        <p data-i18n="idx.act.build.p">Come to Fab Lab Bali, assemble a low-cost air node, and put it on your roof or your classroom wall. Become a point on the map.</p>
+        <div class="go" data-i18n="idx.act.build.go">Join a workshop →</div>
       </a>
     </div>
   </div>
@@ -243,26 +247,26 @@ button.btn{font-family:var(--mono)}
 
 <section class="more" id="more">
   <div class="more-wrap">
-    <div class="kicker2 rv">Go deeper — if you want</div>
-    <h2 class="rv">The map shows you <em>what.</em> When you want the why, and the raw numbers — two doors.</h2>
+    <div class="kicker2 rv" data-i18n="idx.more.kicker">Go deeper — if you want</div>
+    <h2 class="rv" data-i18n-html="idx.more.h2">The map shows you <em>what.</em> When you want the why, and the raw numbers — two doors.</h2>
     <div class="doors">
       <a class="door rv" href="about.html">
-        <div class="dn">About the campaign</div>
-        <h3>Why we listen before we measure</h3>
-        <p>The method, the seven phases, the people who answer for this, and how Bali fits a global lineage — Making Sense, Smart Citizen, Fab City.</p>
-        <div class="go">Read about Making Sense Bali →</div>
+        <div class="dn" data-i18n="idx.more.about.dn">About the campaign</div>
+        <h3 data-i18n="idx.more.about.h3">Why we listen before we measure</h3>
+        <p data-i18n="idx.more.about.p">The method, the seven phases, the people who answer for this, and how Bali fits a global lineage — Making Sense, Smart Citizen, Fab City.</p>
+        <div class="go" data-i18n="idx.more.about.go">Read about Making Sense Bali →</div>
       </a>
       <a class="door rv" href="dashboard/">
-        <div class="dn">The data view · for analysts</div>
-        <h3>Every reading, every standard</h3>
-        <p>Raw sensor history, WHO and EPA thresholds, network coverage, reports by category, and open downloads with citation guidance.</p>
-        <div class="go">Open the data dashboard →</div>
+        <div class="dn" data-i18n="idx.more.data.dn">The data view · for analysts</div>
+        <h3 data-i18n="idx.more.data.h3">Every reading, every standard</h3>
+        <p data-i18n="idx.more.data.p">Raw sensor history, WHO and EPA thresholds, network coverage, reports by category, and open downloads with citation guidance.</p>
+        <div class="go" data-i18n="idx.more.data.go">Open the data dashboard →</div>
       </a>
     </div>
   </div>
 </section>
 
-<footer class="foot">
+<footer class="foot" data-i18n-html="idx.foot">
   Making Sense Bali — led by <a href="https://www.fablabbali.com/">Fab Lab Bali</a> · open hardware: Smart Citizen Kit (Fab Lab Barcelona / IAAC) · methodology: EU Making Sense · part of <a href="https://fab.city">Fab City</a> + Murmurations.<br>
   Low-cost sensors, ±10–15% from regulatory-grade — trends and relative magnitudes are reliable.
 </footer>
@@ -282,21 +286,21 @@ var BANDS={
   unhealthy:{accent:'#bb4a30', sky:['#d8c3ad','#e3cdb0','#e6bd96'], count:520, pcol:[128,96,74]}
 };
 function bandOf(pm){ return pm<=12?'good':(pm<=35?'moderate':'unhealthy'); }
-function bandWord(b){ return b==='good'?'clean air':(b==='moderate'?'moderate haze':'unhealthy air'); }
+function tr(k,vars){ return window.SCB_I18N ? window.SCB_I18N.t(k,null,null,vars) : k; }
+function bandWord(b){ return tr('idx.band.'+b); }
 function bandColor(pm){ return BANDS[bandOf(pm)].accent; }
-function verdictFor(b,local){ var w=local?'here':'across Bali';
-  if(b==='good') return 'The air '+w+' is clean right now. A good day to be outside.';
-  if(b==='moderate') return 'Some haze '+w+' right now — sensitive lungs, take it easy.';
-  return 'Unhealthy air '+w+' right now. Mask up and keep kids indoors.'; }
-function moodFor(b){ return b==='good'?'Right now it’s calm.':(b==='moderate'?'You can almost see it now.':'The air is thick today.'); }
+function verdictFor(b,local){ return tr('idx.verdict.'+b, {where: tr(local?'idx.where.here':'idx.where.bali')}); }
+function moodFor(b){ return tr('idx.mood.'+b); }
 var cur=BANDS.good;
-function applyReading(pm, scope, local){
+function applyReading(pm, scopeKey, local, scopeVars){
+  window._lastReading={pm:pm, scopeKey:scopeKey, local:local, scopeVars:scopeVars||null};
+  var scope = scopeKey ? tr(scopeKey, scopeVars) : tr('idx.scope.across_bali');
   var rs=document.documentElement.style;
   if(pm==null){
     cur={accent:'#7c8a82', sky:['#dbe0db','#eef0e6','#f3ece0'], count:40, pcol:[150,158,150]};
     rs.setProperty('--aq',cur.accent); rs.setProperty('--sky-top',cur.sky[0]); rs.setProperty('--sky-mid',cur.sky[1]); rs.setProperty('--sky-low',cur.sky[2]);
-    setText('hero-num','–'); setText('hero-verdict','The network is coming online — check back shortly.'); setText('hero-mood','');
-    setText('loc-scope', scope||'across Bali'); setText('bar-state','connecting…'); rebuildParticles(); return;
+    setText('hero-num','–'); setText('hero-verdict',tr('idx.verdict.coming_online')); setText('hero-mood','');
+    setText('loc-scope', scope); setText('bar-state',tr('idx.state.connecting')); rebuildParticles(); return;
   }
   var band=bandOf(pm), b=BANDS[band]; cur=b;
   rs.setProperty('--aq',b.accent); rs.setProperty('--sky-top',b.sky[0]); rs.setProperty('--sky-mid',b.sky[1]); rs.setProperty('--sky-low',b.sky[2]);
@@ -304,7 +308,7 @@ function applyReading(pm, scope, local){
   setText('hero-verdict', verdictFor(band,local));
   setText('hero-mood', moodFor(band));
   setText('loc-scope', scope);
-  setText('bar-state', (local?'live · your area · ':'live · ')+bandWord(band));
+  setText('bar-state', (local?tr('idx.state.live_local'):tr('idx.state.live'))+bandWord(band));
   rebuildParticles();
 }
 function setText(id,t){ var e=document.getElementById(id); if(e) e.textContent=t; }
@@ -369,29 +373,29 @@ addEventListener('resize',function(){ size(); rebuildParticles(); });
 /* ---------- geolocation : approximate, 3 km ---------- */
 function useMyLocation(){
   var btn=document.getElementById('geo'), note=document.getElementById('locnote');
-  if(!navigator.geolocation){ note.textContent='This device can’t share location — showing all of Bali instead.'; return; }
-  btn.textContent='◎ Finding you…'; btn.disabled=true;
+  if(!navigator.geolocation){ note.textContent=tr('idx.geo.no_geo'); return; }
+  btn.textContent=tr('idx.hero.btn_finding'); btn.disabled=true;
   navigator.geolocation.getCurrentPosition(function(pos){
     var lat=Math.round(pos.coords.latitude*100)/100, lng=Math.round(pos.coords.longitude*100)/100;
     var act=statSensors().map(function(s){return {s:s,km:dkm(lat,lng,s.lat,s.lng)};}).sort(function(x,y){return x.km-y.km;});
     var within=act.filter(function(o){return o.km<=3;});
     var reps=S.reports.filter(function(r){return typeof r.lat==='number'&&dkm(lat,lng,r.lat,r.lng)<=3;}).length;
-    btn.disabled=false; btn.textContent='◎ Air where you are';
+    btn.disabled=false; btn.textContent=tr('idx.hero.btn_here');
     if(within.length){
       var pm=within.reduce(function(t,o){return t+o.s.reading.pm25;},0)/within.length;
-      applyReading(pm,'within 3 km of you · approximate',true);
-      note.textContent='≈ '+within[0].km.toFixed(1)+' km from the nearest sensor · '+reps+' resident report'+(reps===1?'':'s')+' within 3 km · your location was rounded to ~1 km and never leaves your device.';
+      applyReading(pm,'idx.scope.within3',true);
+      note.textContent=tr('idx.geo.within3',{km:within[0].km.toFixed(1), reps:reps, s:(reps===1?'':'s')});
       if(window._map) window._map.setView([pos.coords.latitude,pos.coords.longitude],13);
     } else if(act.length){
       var n=act[0];
-      applyReading(n.s.reading.pm25,'nearest reading · '+Math.round(n.km)+' km away',true);
-      note.textContent='No sensor within 3 km of you yet — showing the closest, '+Math.round(n.km)+' km away. Want coverage here? Host or build one. Location rounded, never stored.';
+      applyReading(n.s.reading.pm25,'idx.scope.nearest',true,{km:Math.round(n.km)});
+      note.textContent=tr('idx.geo.nearest',{km:Math.round(n.km)});
     } else {
-      note.textContent='No active sensors to compare against right now — showing the network. Location rounded, never stored.';
+      note.textContent=tr('idx.geo.none');
     }
   }, function(){
-    btn.disabled=false; btn.textContent='◎ Show the air where I am';
-    note.textContent='Location stayed off — showing all of Bali. Enable it and tap again whenever you like. Nothing is stored either way.';
+    btn.disabled=false; btn.textContent=tr('idx.hero.btn_show');
+    note.textContent=tr('idx.geo.off');
   }, {enableHighAccuracy:false, timeout:9000, maximumAge:600000});
 }
 var geoBtn=document.getElementById('geo'); if(geoBtn) geoBtn.addEventListener('click', useMyLocation);
@@ -409,17 +413,17 @@ function renderStory(){
   if(quote.length>140) quote=quote.slice(0,137)+'…';
   if(quote) setText('story-quote','“'+quote+'”');
   var rel=(window.SCB_I18N&&r.submittedAt)?window.SCB_I18N.formatRelative(r.submittedAt):'';
-  setText('story-by','— resident report'+(r.locality?' · '+r.locality:'')+(rel?' · '+rel:''));
-  setText('story-body','One neighbour'+(r.locality?' in '+r.locality:'')+' sent a message about what they could smell. A low-cost sensor nearby was watching the same air — a measurement and a human voice pointing at the same moment.');
+  setText('story-by',tr('idx.story.by_prefix')+(r.locality?' · '+r.locality:'')+(rel?' · '+rel:''));
+  setText('story-body',tr('idx.story.body_dyn',{loc:(r.locality?tr('idx.story.in',{loc:r.locality}):'')}));
 }
 
 /* ---------- home reports summary (categories + most recent, in their words) ---------- */
 function renderReportsSummary(){
   var cats=document.getElementById('rep-cats'), list=document.getElementById('rep-list');
-  if(!S.reports.length){ if(list) list.innerHTML='<div class="rep-row"><span class="rep-cat">—</span><span class="rep-desc">No verified reports yet — be the first.</span><span class="rep-meta"></span></div>'; return; }
+  if(!S.reports.length){ if(list) list.innerHTML='<div class="rep-row"><span class="rep-cat">—</span><span class="rep-desc">'+esc(tr('idx.reports.empty'))+'</span><span class="rep-meta"></span></div>'; return; }
   if(cats){ var c={}; S.reports.forEach(function(r){ var k=r.category||'other'; c[k]=(c[k]||0)+1; }); cats.innerHTML=Object.keys(c).sort(function(a,b){return c[b]-c[a];}).map(function(k){ return '<span class="rep-chip">'+esc(k)+'<b>'+c[k]+'</b></span>'; }).join(''); }
   if(list){ var rs=S.reports.slice().sort(function(a,b){ return new Date(b.submittedAt||0)-new Date(a.submittedAt||0); }).slice(0,6);
-    list.innerHTML=rs.map(function(r){ var rel=(window.SCB_I18N&&r.submittedAt)?window.SCB_I18N.formatRelative(r.submittedAt):''; var desc=(r.description||r.title||'').trim(); if(desc.length>96) desc=desc.slice(0,93)+'…'; return '<div class="rep-row"><span class="rep-cat">'+esc(r.category||'other')+'</span><span class="rep-desc">'+esc(desc||'(no description)')+'</span><span class="rep-meta">'+esc(r.locality||'Bali')+(rel?' · '+rel:'')+'</span></div>'; }).join(''); }
+    list.innerHTML=rs.map(function(r){ var rel=(window.SCB_I18N&&r.submittedAt)?window.SCB_I18N.formatRelative(r.submittedAt):''; var desc=(r.description||r.title||'').trim(); if(desc.length>96) desc=desc.slice(0,93)+'…'; return '<div class="rep-row"><span class="rep-cat">'+esc(r.category||'other')+'</span><span class="rep-desc">'+esc(desc||tr('idx.reports.no_desc'))+'</span><span class="rep-meta">'+esc(r.locality||'Bali')+(rel?' · '+rel:'')+'</span></div>'; }).join(''); }
 }
 
 /* ---------- story CHART : real Smart Citizen 24h PM2.5 with clock labels ---------- */
@@ -526,17 +530,22 @@ function initMap(){
 
 /* ---------- boot ---------- */
 function boot(){
-  size(); applyReading(null,'across Bali',false);
+  size(); applyReading(null,'idx.scope.across_bali',false);
   if(reduce){ draw(); } else { requestAnimationFrame(draw); }
-  if(window.SCB_I18N&&document.documentElement) document.documentElement.lang=window.SCB_I18N.currentLang();
+  if(window.SCB_I18N){
+    if(document.documentElement) document.documentElement.lang=window.SCB_I18N.currentLang();
+    window.SCB_I18N.applyTo(document);
+  }
+  setText('story-sensor', tr('idx.story.sensor_default'));
+  setupLangToggle();
 
   (D.fetchSensorsFast?D.fetchSensorsFast():Promise.resolve([])).then(function(s){
     S.sensors=s||[];
     var act=activeSensors();
     setText('map-sensors', act.length||'—');
     var statS=statSensors();
-    if(statS.length){ applyReading(median(statS.map(function(x){return x.reading.pm25;})),'right now · across Bali',false); }
-    else if(act.length){ applyReading(median(act.map(function(x){return x.reading.pm25;})),'right now · across Bali',false); }
+    if(statS.length){ applyReading(median(statS.map(function(x){return x.reading.pm25;})),'idx.scope.right_now',false); }
+    else if(act.length){ applyReading(median(act.map(function(x){return x.reading.pm25;})),'idx.scope.right_now',false); }
     initMap();
     loadStoryChart();
   }).catch(function(){ initMap(); loadStoryChart(); });
@@ -549,6 +558,30 @@ function boot(){
     renderGlows();
     loadStoryChart();
   }).catch(function(e){ console.warn('[reports] load failed:', e); });
+}
+
+/* ---------- language toggle (Bahasa Indonesia ↔ English) ---------- */
+/* applyTo() re-paints every [data-i18n] node; then we re-run the dynamic
+   renders that own their nodes so live values survive the toggle. */
+function reRenderI18n(){
+  if(window.SCB_I18N) window.SCB_I18N.applyTo(document);
+  var lr=window._lastReading;
+  if(lr){ applyReading(lr.pm, lr.scopeKey, lr.local, lr.scopeVars); }
+  setText('story-sensor', tr('idx.story.sensor_default'));
+  setText('map-sensors', (activeSensors().length||'—'));
+  setText('map-reports', (S.reports.length||'0'));
+  renderStory();
+  renderReportsSummary();
+  loadStoryChart();
+}
+function setupLangToggle(){
+  var btn=document.getElementById('langtoggle'); if(!btn||!window.SCB_I18N) return;
+  function sync(){ btn.textContent=(window.SCB_I18N.currentLang()==='id'?'EN':'BHS'); }
+  sync();
+  btn.addEventListener('click', function(){
+    var next=(window.SCB_I18N.currentLang()==='id'?'en':'id');
+    window.SCB_I18N.setLang(next); sync(); reRenderI18n();
+  });
 }
 if(document.readyState!=='loading'){ boot(); } else { addEventListener('DOMContentLoaded', boot); }
 </script>
