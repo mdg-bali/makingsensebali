@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-09T21:42:52.709057+00:00",
+  "generated_at": "2026-06-09T21:58:25.414410+00:00",
   "count": 9,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-09T21:40:23Z",
+      "lastReading": "2026-06-09T21:56:26Z",
       "reading": {
-        "pm25": 6.6,
-        "pm10": 6.6,
-        "temp": 25.58,
-        "rh": 58.56,
-        "noise": 43.13
+        "pm25": 5.4,
+        "pm10": 5.6,
+        "temp": 25.59,
+        "rh": 58.8,
+        "noise": 46.92
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,17 +30,17 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-09T21:41:54Z",
+      "lastReading": "2026-06-09T21:56:54Z",
       "reading": {
-        "pm25": 4.9,
-        "pm10": 4.9,
-        "temp": 22.96,
-        "rh": 64.09,
-        "noise": 45.75
+        "pm25": 5.7,
+        "pm10": 5.7,
+        "temp": 23.53,
+        "rh": 64.51,
+        "noise": 53.59
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
-      "excluded_from_avg": true,
-      "exclusion_reason": "indoor_suspected"
+      "excluded_from_avg": false,
+      "exclusion_reason": null
     },
     {
       "id": "sck-19618",
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-09T21:40:53Z",
+      "lastReading": "2026-06-09T21:56:53Z",
       "reading": {
-        "pm25": 5.7,
-        "pm10": 5.7,
-        "temp": 23.43,
-        "rh": 61.02,
-        "noise": 45.73
+        "pm25": 6.5,
+        "pm10": 6.5,
+        "temp": 23.63,
+        "rh": 60.98,
+        "noise": 47.26
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-09T21:42:32Z",
+      "lastReading": "2026-06-09T21:57:32Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.72705,
-        "rh": 45.37877,
+        "temp": 28.75735,
+        "rh": 45.81747,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -112,9 +112,9 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-09T21:42:08+00:00",
+      "lastReading": "2026-06-09T21:54:08+00:00",
       "reading": {
-        "pm25": 0.5,
+        "pm25": 0.6,
         "pm10": null,
         "temp": 29.4,
         "rh": 58
@@ -132,11 +132,11 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-09T21:40:50+00:00",
+      "lastReading": "2026-06-09T21:56:50+00:00",
       "reading": {
-        "pm25": 20.9,
+        "pm25": 21.3,
         "pm10": null,
-        "temp": 27.2,
+        "temp": 26.7,
         "rh": 57
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
@@ -152,11 +152,11 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-09T21:42:30.000Z",
+      "lastReading": "2026-06-09T21:57:30.000Z",
       "reading": {
-        "pm25": 1.0,
-        "pm10": 1.0,
-        "temp": 25.4,
+        "pm25": 0.0,
+        "pm10": 0.0,
+        "temp": 25.3,
         "rh": 60
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -172,11 +172,11 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-09T21:42:30.000Z",
+      "lastReading": "2026-06-09T21:57:31.000Z",
       "reading": {
-        "pm25": 819.8,
-        "pm10": 820.7,
-        "temp": 26.0,
+        "pm25": 124.0,
+        "pm10": 125.3,
+        "temp": 25.8,
         "rh": 55
       },
       "detailsUrl": "https://www.airgradient.com/map/",
