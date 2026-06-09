@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-09T21:27:17.143238+00:00",
+  "generated_at": "2026-06-09T21:42:52.709057+00:00",
   "count": 9,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-09T21:25:23Z",
+      "lastReading": "2026-06-09T21:40:23Z",
       "reading": {
-        "pm25": 5.0,
-        "pm10": 5.0,
-        "temp": 25.59,
-        "rh": 57.97,
-        "noise": 33.33
+        "pm25": 6.6,
+        "pm10": 6.6,
+        "temp": 25.58,
+        "rh": 58.56,
+        "noise": 43.13
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-09T21:25:54Z",
+      "lastReading": "2026-06-09T21:41:54Z",
       "reading": {
-        "pm25": 4.5,
-        "pm10": 4.5,
-        "temp": 23.42,
-        "rh": 64.43,
-        "noise": 52.5
+        "pm25": 4.9,
+        "pm10": 4.9,
+        "temp": 22.96,
+        "rh": 64.09,
+        "noise": 45.75
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": true,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-09T21:25:53Z",
+      "lastReading": "2026-06-09T21:40:53Z",
       "reading": {
-        "pm25": 5.5,
-        "pm10": 5.5,
-        "temp": 23.62,
-        "rh": 60.89,
-        "noise": 35.38
+        "pm25": 5.7,
+        "pm10": 5.7,
+        "temp": 23.43,
+        "rh": 61.02,
+        "noise": 45.73
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-09T21:26:31Z",
+      "lastReading": "2026-06-09T21:42:32Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.83308,
-        "rh": 45.86188,
+        "temp": 28.72705,
+        "rh": 45.37877,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-09T21:26:08+00:00",
+      "lastReading": "2026-06-09T21:42:08+00:00",
       "reading": {
         "pm25": 0.5,
         "pm10": null,
         "temp": 29.4,
-        "rh": 57
+        "rh": 58
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,9 +132,9 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-09T21:26:51+00:00",
+      "lastReading": "2026-06-09T21:40:50+00:00",
       "reading": {
-        "pm25": 20.8,
+        "pm25": 20.9,
         "pm10": null,
         "temp": 27.2,
         "rh": 57
@@ -152,12 +152,12 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-09T21:26:30.000Z",
+      "lastReading": "2026-06-09T21:42:30.000Z",
       "reading": {
-        "pm25": 3.3,
-        "pm10": 3.3,
-        "temp": 25.5,
-        "rh": 59
+        "pm25": 1.0,
+        "pm10": 1.0,
+        "temp": 25.4,
+        "rh": 60
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
@@ -172,16 +172,16 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-09T21:26:30.000Z",
+      "lastReading": "2026-06-09T21:42:30.000Z",
       "reading": {
-        "pm25": null,
-        "pm10": null,
+        "pm25": 819.8,
+        "pm10": 820.7,
         "temp": 26.0,
-        "rh": 57
+        "rh": 55
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "outlier_high"
     }
   ]
 }
