@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-10T05:00:32.064086+00:00",
+  "generated_at": "2026-06-10T05:19:09.503269+00:00",
   "count": 7,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-10T04:58:05Z",
+      "lastReading": "2026-06-10T05:16:05Z",
       "reading": {
-        "pm25": 11.1,
-        "pm10": 11.4,
-        "temp": 26.46,
-        "rh": 58.79,
-        "noise": 56.3
+        "pm25": 10.8,
+        "pm10": 10.8,
+        "temp": 25.77,
+        "rh": 56.64,
+        "noise": 55.31
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-10T04:58:20Z",
+      "lastReading": "2026-06-10T05:17:46Z",
       "reading": {
-        "pm25": 10.4,
-        "pm10": 10.4,
-        "temp": 24.52,
-        "rh": 68.64,
-        "noise": 54.27
+        "pm25": 11.0,
+        "pm10": 11.6,
+        "temp": 24.46,
+        "rh": 61.75,
+        "noise": 48.07
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-10T04:59:31Z",
+      "lastReading": "2026-06-10T05:17:31Z",
       "reading": {
-        "pm25": 11.6,
-        "pm10": 11.6,
-        "temp": 24.66,
-        "rh": 65.67,
-        "noise": 49.09
+        "pm25": 12.8,
+        "pm10": 13.6,
+        "temp": 24.23,
+        "rh": 59.52,
+        "noise": 49.39
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-10T05:00:04Z",
+      "lastReading": "2026-06-10T05:18:05Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 29.29,
-        "rh": 51.42763,
+        "temp": 28.87095,
+        "rh": 45.57182,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -90,7 +90,7 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-06-10T04:00:00Z",
+      "lastReading": "2026-06-10T05:00:00Z",
       "reading": {
         "pm25": 7.9,
         "pm10": null,
@@ -112,12 +112,12 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-10T04:59:39.000Z",
+      "lastReading": "2026-06-10T05:18:39.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
-        "temp": 29.8,
-        "rh": 49
+        "temp": 31.6,
+        "rh": 44
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
@@ -132,10 +132,10 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-10T04:59:38.000Z",
+      "lastReading": "2026-06-10T05:18:38.000Z",
       "reading": {
-        "pm25": 86.3,
-        "pm10": 87.3,
+        "pm25": 83.7,
+        "pm10": 85.5,
         "temp": 30.9,
         "rh": 45
       },
