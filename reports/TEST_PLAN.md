@@ -1,3 +1,5 @@
+**English** · [Bahasa Indonesia](TEST_PLAN.id.md) · [Español](TEST_PLAN.es.md)
+
 # Pre-beta test plan — MLX + bot end-to-end
 
 This is the sit-down-with-coffee checklist. Run it in order on a normal

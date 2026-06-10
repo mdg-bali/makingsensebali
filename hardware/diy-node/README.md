@@ -1,3 +1,5 @@
+**English** · [Bahasa Indonesia](README.id.md) · [Español](README.es.md)
+
 # DIY Node — the workshop sensor
 
 A low-cost, fab-lab-buildable environmental node that publishes to the [Smart Citizen platform](https://smartcitizen.me/) over MQTT. Built around a **Seeed XIAO ESP32-S3** and a **BME680** (temperature, humidity, pressure, gas/VOC), optionally extended with a **Seeed Grove HM3301** for outdoor particulate matter. Two variants:

@@ -1,3 +1,5 @@
+**English** · [Bahasa Indonesia](README.id.md) · [Español](README.es.md)
+
 # Making Sense Bali
 
 **A community-led environmental sensing campaign for Bali, anchored by Fab Lab Bali, within the Fab City Bali chapter.**

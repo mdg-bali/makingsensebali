@@ -1,3 +1,5 @@
+**English** · [Bahasa Indonesia](README.id.md) · [Español](README.es.md)
+
 # Sense Making
 
 **The reports component of [Making Sense Bali](../README.md) — a WhatsApp-based citizen reporting toolkit for Fab City nodes and bioregional campaigns.**

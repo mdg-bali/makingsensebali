@@ -1,3 +1,5 @@
+**English** · [Bahasa Indonesia](PLATFORM_REVISION.id.md) · [Español](PLATFORM_REVISION.es.md)
+
 # Making Sense Bali · Platform Revision Brief (v2)
 
 **Status:** brief — not started.

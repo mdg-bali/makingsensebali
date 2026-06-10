@@ -1,3 +1,5 @@
+**English** · [Bahasa Indonesia](README.id.md) · [Español](README.es.md)
+
 # Enclosure archive — superseded versions
 
 These are the designs that came before the current one. **None of them should be printed for deployment as-is** — each was superseded for a concrete reason, kept here because the lineage is itself workshop material: every folder is a lesson in designing for FDM and for real parts. Review, improve, or cannibalise — don't blindly print.

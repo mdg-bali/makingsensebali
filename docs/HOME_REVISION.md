@@ -1,3 +1,5 @@
+**English** · [Bahasa Indonesia](HOME_REVISION.id.md) · [Español](HOME_REVISION.es.md)
+
 # Making Sense Bali · Home Page Revision Brief (v2)
 
 **Status:** brief — not started.

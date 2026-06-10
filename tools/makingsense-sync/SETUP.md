@@ -1,3 +1,5 @@
+**English** · [Bahasa Indonesia](SETUP.id.md) · [Español](SETUP.es.md)
+
 # Making Sense Bali — data sync generator (mini)
 
 Pre-bakes the site's data so visitors load instantly instead of hammering the

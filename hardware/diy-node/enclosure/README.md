@@ -1,3 +1,5 @@
+**English** · [Bahasa Indonesia](README.id.md) · [Español](README.es.md)
+
 # DIY Node enclosure v5 — the pine cone
 
 One parametric OpenSCAD model ([`enclosure.scad`](enclosure.scad)) generates both variants — **Basic** (XIAO ESP32-S3 + BME680 on a 4×6 cm perfboard) and **Plus** (adds the Grove HM3301 PM module, vertical). STLs in [`stl/`](stl/), previews in [`img/`](img/), the four earlier designs in [`archive/`](archive/) with a review-before-printing disclaimer.

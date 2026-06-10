@@ -1,3 +1,5 @@
+**English** · [Bahasa Indonesia](REPLICATION.id.md) · [Español](REPLICATION.es.md)
+
 # Replicating Making Sense [your place]
 
 A guide for **Fab City chapters with a host Fab Lab** who want to stand up their own bioregional instance of Making Sense — combining open-hardware sensors, public data networks, citizen reports, and a participatory survey under a single campaign.

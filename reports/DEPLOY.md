@@ -1,3 +1,5 @@
+**English** · [Bahasa Indonesia](DEPLOY.id.md) · [Español](DEPLOY.es.md)
+
 # Deploy guide — Making Sense Bali Reporter
 
 Bring up the first PLANETAI Community-tier node on home infrastructure.
