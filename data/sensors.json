@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-10T08:40:31.541434+00:00",
+  "generated_at": "2026-06-10T08:56:30.418728+00:00",
   "count": 9,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-10T08:37:02Z",
+      "lastReading": "2026-06-10T08:52:02Z",
       "reading": {
-        "pm25": 9.9,
-        "pm10": 9.9,
-        "temp": 25.21,
-        "rh": 54.79,
-        "noise": 54.67
+        "pm25": 10.3,
+        "pm10": 10.3,
+        "temp": 25.24,
+        "rh": 55.06,
+        "noise": 47.79
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-10T08:39:10Z",
+      "lastReading": "2026-06-10T08:55:13Z",
       "reading": {
-        "pm25": 10.4,
-        "pm10": 10.4,
-        "temp": 22.57,
-        "rh": 60.32,
-        "noise": 47.19
+        "pm25": 11.3,
+        "pm10": 11.3,
+        "temp": 22.9,
+        "rh": 61.07,
+        "noise": 45.13
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-10T08:39:46Z",
+      "lastReading": "2026-06-10T08:54:46Z",
       "reading": {
-        "pm25": 10.9,
-        "pm10": 11.3,
-        "temp": 22.69,
-        "rh": 56.83,
-        "noise": 56.14
+        "pm25": 11.8,
+        "pm10": 11.8,
+        "temp": 23.15,
+        "rh": 57.19,
+        "noise": 41.52
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-10T08:40:12Z",
+      "lastReading": "2026-06-10T08:55:13Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 27.67438,
-        "rh": 42.86239,
+        "temp": 28.18185,
+        "rh": 42.99881,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-10T08:38:24+00:00",
+      "lastReading": "2026-06-10T08:54:24+00:00",
       "reading": {
         "pm25": 0.6,
         "pm10": null,
-        "temp": 35.6,
-        "rh": 41
+        "temp": 35.0,
+        "rh": 44
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,11 +132,11 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-10T08:39:10+00:00",
+      "lastReading": "2026-06-10T08:55:10+00:00",
       "reading": {
-        "pm25": 25.5,
+        "pm25": 25.9,
         "pm10": null,
-        "temp": 32.2,
+        "temp": 31.7,
         "rh": 46
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
@@ -152,12 +152,12 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-10T08:39:43.000Z",
+      "lastReading": "2026-06-10T08:55:44.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
-        "temp": 28.8,
-        "rh": 48
+        "temp": 28.7,
+        "rh": 50
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
@@ -172,12 +172,12 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-10T08:39:47.000Z",
+      "lastReading": "2026-06-10T08:55:47.000Z",
       "reading": {
         "pm25": null,
         "pm10": null,
-        "temp": 30.2,
-        "rh": 44
+        "temp": 29.9,
+        "rh": 45
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
