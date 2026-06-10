@@ -1,5 +1,147 @@
 {
-  "generated_at": "2026-06-10T04:45:03.542768+00:00",
-  "count": 0,
-  "sensors": []
+  "generated_at": "2026-06-10T05:00:32.064086+00:00",
+  "count": 7,
+  "sensors": [
+    {
+      "id": "sck-19236",
+      "rawId": 19236,
+      "source": "smartcitizen",
+      "sourceLabel": "Smart Citizen",
+      "name": "SCK@Jimbaran-2025",
+      "lat": -8.79352,
+      "lng": 115.14482,
+      "lastReading": "2026-06-10T04:58:05Z",
+      "reading": {
+        "pm25": 11.1,
+        "pm10": 11.4,
+        "temp": 26.46,
+        "rh": 58.79,
+        "noise": 56.3
+      },
+      "detailsUrl": "https://smartcitizen.me/kits/19236",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "sck-19600",
+      "rawId": 19600,
+      "source": "smartcitizen",
+      "sourceLabel": "Smart Citizen",
+      "name": "SCK-TWO@Jimbaran-2025",
+      "lat": -8.79351,
+      "lng": 115.14472,
+      "lastReading": "2026-06-10T04:58:20Z",
+      "reading": {
+        "pm25": 10.4,
+        "pm10": 10.4,
+        "temp": 24.52,
+        "rh": 68.64,
+        "noise": 54.27
+      },
+      "detailsUrl": "https://smartcitizen.me/kits/19600",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "sck-19618",
+      "rawId": 19618,
+      "source": "smartcitizen",
+      "sourceLabel": "Smart Citizen",
+      "name": "SCK-THREE@Jimbaran-2025",
+      "lat": -8.79533,
+      "lng": 115.14784,
+      "lastReading": "2026-06-10T04:59:31Z",
+      "reading": {
+        "pm25": 11.6,
+        "pm10": 11.6,
+        "temp": 24.66,
+        "rh": 65.67,
+        "noise": 49.09
+      },
+      "detailsUrl": "https://smartcitizen.me/kits/19618",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "sck-19651",
+      "rawId": 19651,
+      "source": "smartcitizen",
+      "sourceLabel": "Smart Citizen",
+      "name": "Bali DIY Node — Office",
+      "lat": -8.79314,
+      "lng": 115.14467,
+      "lastReading": "2026-06-10T05:00:04Z",
+      "reading": {
+        "pm25": 6.0,
+        "pm10": 6.0,
+        "temp": 29.29,
+        "rh": 51.42763,
+        "noise": null
+      },
+      "detailsUrl": "https://smartcitizen.me/kits/19651",
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor"
+    },
+    {
+      "id": "aqicn--519205",
+      "rawId": -519205,
+      "source": "aqicn",
+      "sourceLabel": "AQICN",
+      "name": "Kabupaten Badung Sempidi",
+      "lat": -8.603890419006348,
+      "lng": 115.1780014038086,
+      "lastReading": "2026-06-10T04:00:00Z",
+      "reading": {
+        "pm25": 7.9,
+        "pm10": null,
+        "temp": null,
+        "rh": null,
+        "aqi": 46,
+        "pm25_from_aqi": true
+      },
+      "detailsUrl": "https://aqicn.org/station/@519205",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "airgradient-77245",
+      "rawId": 77245,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Pemogan - Nafas",
+      "lat": -8.707819,
+      "lng": 115.205047,
+      "offline": false,
+      "lastReading": "2026-06-10T04:59:39.000Z",
+      "reading": {
+        "pm25": 0.0,
+        "pm10": 0.0,
+        "temp": 29.8,
+        "rh": 49
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor_suspected"
+    },
+    {
+      "id": "airgradient-77247",
+      "rawId": 77247,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Tonja - Nafas",
+      "lat": -8.632781,
+      "lng": 115.229004,
+      "offline": false,
+      "lastReading": "2026-06-10T04:59:38.000Z",
+      "reading": {
+        "pm25": 86.3,
+        "pm10": 87.3,
+        "temp": 30.9,
+        "rh": 45
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": true,
+      "exclusion_reason": "outlier_high"
+    }
+  ]
 }
