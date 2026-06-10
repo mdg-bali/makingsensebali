@@ -35,8 +35,10 @@ a{color:inherit;text-decoration:none}
 .bar .dot{width:7px;height:7px;border-radius:50%;background:var(--aq);animation:pulse 2.4s infinite;transition:background .6s}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,138,91,.5)}70%{box-shadow:0 0 0 9px rgba(63,138,91,0)}100%{box-shadow:0 0 0 0 rgba(63,138,91,0)}}
 @media(max-width:720px){.bar-nav{display:none}}
-.langtoggle{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);background:transparent;border:1px solid rgba(0,0,0,.25);border-radius:3px;padding:5px 9px;cursor:pointer;line-height:1;transition:background .2s,color .2s,border-color .2s}
-.langtoggle:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.langtoggle{display:inline-flex;gap:1px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;border:1px solid rgba(0,0,0,.25);border-radius:3px;overflow:hidden}
+.langtoggle button{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:transparent;border:0;padding:5px 8px;cursor:pointer;line-height:1;transition:background .2s,color .2s}
+.langtoggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.langtoggle button:hover:not([aria-pressed="true"]){background:rgba(0,0,0,.08)}
 
 .hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;
   background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 52%,var(--sky-low) 100%);transition:background 1.2s ease}
@@ -148,7 +150,7 @@ button.btn{font-family:var(--mono)}
   <div class="bar-right">
     <nav class="bar-nav"><a href="#story" data-i18n="idx.nav.story">The story</a><a href="about.html" data-i18n="idx.nav.about">About</a><a href="dashboard/" data-i18n="idx.nav.data">The data</a></nav>
     <div class="live"><span class="dot"></span><span id="bar-state" data-i18n="idx.state.connecting">connecting…</span></div>
-    <button type="button" id="langtoggle" class="langtoggle" aria-label="Bahasa Indonesia / English">EN</button>
+    <div class="langtoggle" id="langtoggle" role="group" aria-label="Bahasa Indonesia / English / Español"><button type="button" data-lang="id">ID</button><button type="button" data-lang="en">EN</button><button type="button" data-lang="es">ES</button></div>
   </div>
 </div>
 
@@ -575,13 +577,11 @@ function reRenderI18n(){
   loadStoryChart();
 }
 function setupLangToggle(){
-  var btn=document.getElementById('langtoggle'); if(!btn||!window.SCB_I18N) return;
-  function sync(){ btn.textContent=(window.SCB_I18N.currentLang()==='id'?'EN':'BHS'); }
+  var box=document.getElementById('langtoggle'); if(!box||!window.SCB_I18N) return;
+  var btns=box.querySelectorAll('button[data-lang]');
+  function sync(){ var cur=window.SCB_I18N.currentLang(); btns.forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-lang')===cur?'true':'false'); }); }
   sync();
-  btn.addEventListener('click', function(){
-    var next=(window.SCB_I18N.currentLang()==='id'?'en':'id');
-    window.SCB_I18N.setLang(next); sync(); reRenderI18n();
-  });
+  btns.forEach(function(b){ b.addEventListener('click', function(){ window.SCB_I18N.setLang(b.getAttribute('data-lang')); sync(); reRenderI18n(); }); });
 }
 if(document.readyState!=='loading'){ boot(); } else { addEventListener('DOMContentLoaded', boot); }
 </script>

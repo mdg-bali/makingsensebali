@@ -27,8 +27,10 @@ a{color:inherit;text-decoration:none}
 .bar-nav a{color:var(--ink);opacity:.72;transition:opacity .2s}
 .bar-nav a:hover{opacity:1}
 .bar-nav a.home{color:var(--teal);opacity:1}
-.langtoggle{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);background:transparent;border:1px solid rgba(0,0,0,.25);border-radius:3px;padding:5px 9px;cursor:pointer;line-height:1;transition:background .2s,color .2s,border-color .2s}
-.langtoggle:hover{background:var(--teal);color:var(--paper);border-color:var(--teal)}
+.langtoggle{display:inline-flex;gap:1px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;border:1px solid rgba(0,0,0,.25);border-radius:3px;overflow:hidden}
+.langtoggle button{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:transparent;border:0;padding:5px 8px;cursor:pointer;line-height:1;transition:background .2s,color .2s}
+.langtoggle button[aria-pressed="true"]{background:var(--teal);color:var(--paper)}
+.langtoggle button:hover:not([aria-pressed="true"]){background:rgba(0,0,0,.08)}
 @media(max-width:640px){.bar-nav a.lbl{display:none}}
 
 /* dark philosophy opener */
@@ -114,7 +116,7 @@ a{color:inherit;text-decoration:none}
   <nav class="bar-nav">
     <a class="home" href="index.html">← <span class="lbl" data-i18n="abt.nav.live">Live air</span></a>
     <a href="./dashboard/" class="lbl" data-i18n="abt.nav.data">Data view</a>
-    <button type="button" id="langtoggle" class="langtoggle" aria-label="Bahasa Indonesia / English">EN</button>
+    <div class="langtoggle" id="langtoggle" role="group" aria-label="Bahasa Indonesia / English / Español"><button type="button" data-lang="id">ID</button><button type="button" data-lang="en">EN</button><button type="button" data-lang="es">ES</button></div>
   </nav>
 </div>
 
@@ -264,17 +266,16 @@ document.querySelectorAll('.rv:not(.in)').forEach(function(el){io.observe(el);})
 /* ---------- i18n: default Bahasa Indonesia, one-tap toggle to English ---------- */
 (function(){
   var I=window.SCB_I18N; if(!I) return;
+  var box=document.getElementById('langtoggle');
+  var btns=box?box.querySelectorAll('button[data-lang]'):[];
   function apply(){
     if(document.documentElement) document.documentElement.lang=I.currentLang();
     I.applyTo(document);
-    var b=document.getElementById('langtoggle');
-    if(b) b.textContent=(I.currentLang()==='id'?'EN':'BHS');
+    var cur=I.currentLang();
+    btns.forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-lang')===cur?'true':'false'); });
   }
   apply();
-  var btn=document.getElementById('langtoggle');
-  if(btn) btn.addEventListener('click', function(){
-    I.setLang(I.currentLang()==='id'?'en':'id'); apply();
-  });
+  btns.forEach(function(b){ b.addEventListener('click', function(){ I.setLang(b.getAttribute('data-lang')); apply(); }); });
 })();
 </script>
 </body>
