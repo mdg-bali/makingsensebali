@@ -411,7 +411,7 @@ function notableReport(){
 }
 function renderStory(){
   var r=notableReport(); if(!r) return;   /* no reports yet → keep evergreen copy */
-  var quote=((r.ai_analysis&&r.ai_analysis.description)||r.description||r.title||'').trim();
+  var quote=(r.aiDescription||r.description||r.title||'').trim();
   if(quote.length>140) quote=quote.slice(0,137)+'…';
   if(quote) setText('story-quote','“'+quote+'”');
   var rel=(window.SCB_I18N&&r.submittedAt)?window.SCB_I18N.formatRelative(r.submittedAt):'';
@@ -425,7 +425,7 @@ function renderReportsSummary(){
   if(!S.reports.length){ if(list) list.innerHTML='<div class="rep-row"><span class="rep-cat">—</span><span class="rep-desc">'+esc(tr('idx.reports.empty'))+'</span><span class="rep-meta"></span></div>'; return; }
   if(cats){ var c={}; S.reports.forEach(function(r){ var k=r.category||'other'; c[k]=(c[k]||0)+1; }); cats.innerHTML=Object.keys(c).sort(function(a,b){return c[b]-c[a];}).map(function(k){ return '<span class="rep-chip">'+esc(k)+'<b>'+c[k]+'</b></span>'; }).join(''); }
   if(list){ var rs=S.reports.slice().sort(function(a,b){ return new Date(b.submittedAt||0)-new Date(a.submittedAt||0); }).slice(0,6);
-    list.innerHTML=rs.map(function(r){ var rel=(window.SCB_I18N&&r.submittedAt)?window.SCB_I18N.formatRelative(r.submittedAt):''; var desc=((r.ai_analysis&&r.ai_analysis.description)||r.description||r.title||'').trim(); if(desc.length>96) desc=desc.slice(0,93)+'…'; return '<div class="rep-row"><span class="rep-cat">'+esc(r.category||'other')+'</span><span class="rep-desc">'+esc(desc||tr('idx.reports.no_desc'))+'</span><span class="rep-meta">'+esc(r.locality||'Bali')+(rel?' · '+rel:'')+'</span></div>'; }).join(''); }
+    list.innerHTML=rs.map(function(r){ var rel=(window.SCB_I18N&&r.submittedAt)?window.SCB_I18N.formatRelative(r.submittedAt):''; var desc=(r.aiDescription||r.description||r.title||'').trim(); if(desc.length>96) desc=desc.slice(0,93)+'…'; return '<div class="rep-row"><span class="rep-cat">'+esc(r.category||'other')+'</span><span class="rep-desc">'+esc(desc||tr('idx.reports.no_desc'))+'</span><span class="rep-meta">'+esc(r.locality||'Bali')+(rel?' · '+rel:'')+'</span></div>'; }).join(''); }
 }
 
 /* ---------- story CHART : real Smart Citizen 24h PM2.5 with clock labels ---------- */
