@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-11T03:59:32.245584+00:00",
+  "generated_at": "2026-06-11T04:15:12.481771+00:00",
   "count": 9,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-11T03:54:49Z",
+      "lastReading": "2026-06-11T04:11:49Z",
       "reading": {
-        "pm25": 10.7,
+        "pm25": 10.2,
         "pm10": 10.7,
-        "temp": 26.42,
-        "rh": 61.62,
-        "noise": 54.42
+        "temp": 26.14,
+        "rh": 57.64,
+        "noise": 54.48
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-11T03:56:57Z",
+      "lastReading": "2026-06-11T04:13:01Z",
       "reading": {
-        "pm25": 9.6,
-        "pm10": 9.6,
-        "temp": 24.07,
-        "rh": 68.8,
-        "noise": 49.45
+        "pm25": 9.3,
+        "pm10": 9.3,
+        "temp": 23.77,
+        "rh": 66.6,
+        "noise": 48.84
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-11T03:55:57Z",
+      "lastReading": "2026-06-11T04:12:00Z",
       "reading": {
-        "pm25": 11.8,
-        "pm10": 11.8,
-        "temp": 24.28,
-        "rh": 66.84,
-        "noise": 57.95
+        "pm25": 11.1,
+        "pm10": 11.5,
+        "temp": 23.58,
+        "rh": 62.82,
+        "noise": 53.17
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -90,7 +90,7 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-06-11T03:00:00Z",
+      "lastReading": "2026-06-11T04:00:00Z",
       "reading": {
         "pm25": 12.1,
         "pm10": null,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-11T03:58:50+00:00",
+      "lastReading": "2026-06-11T04:12:50+00:00",
       "reading": {
-        "pm25": 1.8,
+        "pm25": 1.6,
         "pm10": null,
         "temp": 35.0,
-        "rh": 52
+        "rh": 51
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-11T03:57:38+00:00",
+      "lastReading": "2026-06-11T04:13:38+00:00",
       "reading": {
-        "pm25": 52.6,
+        "pm25": 49.0,
         "pm10": null,
-        "temp": 32.2,
-        "rh": 58
+        "temp": 32.8,
+        "rh": 56
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,11 +152,11 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-11T03:59:17.000Z",
+      "lastReading": "2026-06-11T04:14:18.000Z",
       "reading": {
-        "pm25": 0.0,
-        "pm10": 0.0,
-        "temp": 29.3,
+        "pm25": 0.2,
+        "pm10": 0.2,
+        "temp": 29.1,
         "rh": 58
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -172,12 +172,12 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-11T03:59:16.000Z",
+      "lastReading": "2026-06-11T04:14:16.000Z",
       "reading": {
-        "pm25": 27.3,
-        "pm10": 27.7,
-        "temp": 30.3,
-        "rh": 52
+        "pm25": 26.7,
+        "pm10": 27.0,
+        "temp": 30.5,
+        "rh": 51
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
