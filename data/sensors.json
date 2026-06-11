@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-11T19:23:25.159931+00:00",
+  "generated_at": "2026-06-11T19:39:02.621721+00:00",
   "count": 9,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-11T19:20:02Z",
+      "lastReading": "2026-06-11T19:36:06Z",
       "reading": {
-        "pm25": 7.7,
-        "pm10": 7.7,
-        "temp": 25.52,
+        "pm25": 8.4,
+        "pm10": 8.4,
+        "temp": 25.46,
         "rh": 58.68,
-        "noise": 29.11
+        "noise": 30.87
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-11T19:20:46Z",
+      "lastReading": "2026-06-11T19:36:47Z",
       "reading": {
-        "pm25": 9.4,
-        "pm10": 9.4,
-        "temp": 23.36,
-        "rh": 65.4,
-        "noise": 45.94
+        "pm25": 7.6,
+        "pm10": 7.6,
+        "temp": 23.9,
+        "rh": 65.77,
+        "noise": 48.03
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-11T19:20:24Z",
+      "lastReading": "2026-06-11T19:35:24Z",
       "reading": {
-        "pm25": 9.1,
-        "pm10": 9.1,
-        "temp": 23.69,
-        "rh": 61.11,
-        "noise": 35.69
+        "pm25": 8.4,
+        "pm10": 8.6,
+        "temp": 23.73,
+        "rh": 61.63,
+        "noise": 41.86
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-11T19:23:15Z",
+      "lastReading": "2026-06-11T19:38:16Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.47717,
-        "rh": 47.38866,
+        "temp": 28.58569,
+        "rh": 48.21183,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -112,11 +112,11 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-11T19:21:13+00:00",
+      "lastReading": "2026-06-11T19:37:15+00:00",
       "reading": {
-        "pm25": 0.9,
+        "pm25": 0.8,
         "pm10": null,
-        "temp": 31.7,
+        "temp": 32.2,
         "rh": 68
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-11T19:20:05+00:00",
+      "lastReading": "2026-06-11T19:38:07+00:00",
       "reading": {
-        "pm25": 48.4,
+        "pm25": 47.4,
         "pm10": null,
         "temp": 30.0,
-        "rh": 66
+        "rh": 67
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-11T19:22:37.000Z",
+      "lastReading": "2026-06-11T19:38:37.000Z",
       "reading": {
-        "pm25": 3.3,
-        "pm10": 3.3,
+        "pm25": 0.0,
+        "pm10": 0.0,
         "temp": 27.1,
-        "rh": 68
+        "rh": 69
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
@@ -172,12 +172,12 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-11T19:22:54.000Z",
+      "lastReading": "2026-06-11T19:38:56.000Z",
       "reading": {
-        "pm25": 38.0,
-        "pm10": 46.8,
-        "temp": 28.5,
-        "rh": 62
+        "pm25": 41.0,
+        "pm10": 48.3,
+        "temp": 28.3,
+        "rh": 61
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
