@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-11T07:54:10.975833+00:00",
+  "generated_at": "2026-06-11T08:09:51.259281+00:00",
   "count": 9,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-11T07:51:29Z",
+      "lastReading": "2026-06-11T08:06:29Z",
       "reading": {
-        "pm25": 6.7,
-        "pm10": 6.7,
-        "temp": 25.74,
-        "rh": 57.48,
-        "noise": 43.29
+        "pm25": 6.3,
+        "pm10": 6.6,
+        "temp": 25.7,
+        "rh": 57.9,
+        "noise": 35.17
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-11T07:51:23Z",
+      "lastReading": "2026-06-11T08:07:23Z",
       "reading": {
-        "pm25": 7.3,
-        "pm10": 7.5,
-        "temp": 23.8,
-        "rh": 64.22,
-        "noise": 46.03
+        "pm25": 6.7,
+        "pm10": 6.7,
+        "temp": 24.11,
+        "rh": 64.26,
+        "noise": 49.67
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-11T07:51:02Z",
+      "lastReading": "2026-06-11T08:06:02Z",
       "reading": {
-        "pm25": 6.8,
-        "pm10": 6.8,
-        "temp": 23.88,
-        "rh": 61.09,
-        "noise": 36.68
+        "pm25": 7.0,
+        "pm10": 7.0,
+        "temp": 24.07,
+        "rh": 61.52,
+        "noise": 36.74
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-11T07:53:26Z",
+      "lastReading": "2026-06-11T08:09:27Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.57057,
-        "rh": 48.03398,
+        "temp": 28.75738,
+        "rh": 47.09681,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-11T07:52:55+00:00",
+      "lastReading": "2026-06-11T08:08:55+00:00",
       "reading": {
         "pm25": 0.7,
         "pm10": null,
         "temp": 35.6,
-        "rh": 49
+        "rh": 50
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-11T07:53:43+00:00",
+      "lastReading": "2026-06-11T08:07:44+00:00",
       "reading": {
-        "pm25": 26.5,
+        "pm25": 26.1,
         "pm10": null,
-        "temp": 33.9,
-        "rh": 51
+        "temp": 32.8,
+        "rh": 54
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-11T07:53:23.000Z",
+      "lastReading": "2026-06-11T08:09:23.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
-        "temp": 30.6,
-        "rh": 51
+        "temp": 29.9,
+        "rh": 53
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
@@ -172,11 +172,11 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-11T07:53:19.000Z",
+      "lastReading": "2026-06-11T08:09:19.000Z",
       "reading": {
-        "pm25": 23.3,
-        "pm10": 26.0,
-        "temp": 30.7,
+        "pm25": 16.3,
+        "pm10": 16.3,
+        "temp": 30.5,
         "rh": 51
       },
       "detailsUrl": "https://www.airgradient.com/map/",
