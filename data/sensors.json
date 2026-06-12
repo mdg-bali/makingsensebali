@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-12T04:17:12.528501+00:00",
+  "generated_at": "2026-06-12T04:32:46.055131+00:00",
   "count": 9,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-12T04:14:22Z",
+      "lastReading": "2026-06-12T04:29:22Z",
       "reading": {
-        "pm25": 15.1,
-        "pm10": 15.9,
-        "temp": 26.21,
-        "rh": 59.44,
-        "noise": 33.33
+        "pm25": 11.4,
+        "pm10": 11.4,
+        "temp": 26.23,
+        "rh": 59.33,
+        "noise": 30.25
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-12T04:14:31Z",
+      "lastReading": "2026-06-12T04:30:31Z",
       "reading": {
-        "pm25": 12.8,
-        "pm10": 12.8,
-        "temp": 23.9,
-        "rh": 68.52,
-        "noise": 54.38
+        "pm25": 11.6,
+        "pm10": 11.6,
+        "temp": 24.26,
+        "rh": 68.16,
+        "noise": 50.5
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-12T04:14:23Z",
+      "lastReading": "2026-06-12T04:29:23Z",
       "reading": {
-        "pm25": 12.3,
-        "pm10": 12.5,
-        "temp": 23.93,
-        "rh": 65.38,
-        "noise": 38.08
+        "pm25": 13.1,
+        "pm10": 13.1,
+        "temp": 24.21,
+        "rh": 63.67,
+        "noise": 35.26
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-12T04:16:39Z",
+      "lastReading": "2026-06-12T04:32:40Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.60339,
-        "rh": 50.48665,
+        "temp": 28.3484,
+        "rh": 50.31974,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-12T04:15:25+00:00",
+      "lastReading": "2026-06-12T04:31:25+00:00",
       "reading": {
-        "pm25": 1.5,
+        "pm25": 1.4,
         "pm10": null,
-        "temp": 34.4,
-        "rh": 54
+        "temp": 35.0,
+        "rh": 52
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-12T04:16:17+00:00",
+      "lastReading": "2026-06-12T04:32:19+00:00",
       "reading": {
-        "pm25": 63.4,
+        "pm25": 61.1,
         "pm10": null,
-        "temp": 31.7,
-        "rh": 66
+        "temp": 32.8,
+        "rh": 64
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": true,
@@ -152,12 +152,12 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-12T04:16:51.000Z",
+      "lastReading": "2026-06-12T04:31:51.000Z",
       "reading": {
-        "pm25": 3.0,
-        "pm10": 3.0,
-        "temp": 28.6,
-        "rh": 61
+        "pm25": 0.5,
+        "pm10": 0.5,
+        "temp": 29.0,
+        "rh": 60
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
@@ -172,12 +172,12 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-12T04:17:08.000Z",
+      "lastReading": "2026-06-12T04:32:08.000Z",
       "reading": {
-        "pm25": 24.2,
-        "pm10": 25.0,
-        "temp": 29.5,
-        "rh": 56
+        "pm25": 30.5,
+        "pm10": 33.3,
+        "temp": 29.7,
+        "rh": 55
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
