@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-12T14:33:32.469495+00:00",
+  "generated_at": "2026-06-12T14:51:54.563550+00:00",
   "count": 9,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-12T14:31:44Z",
+      "lastReading": "2026-06-12T14:48:44Z",
       "reading": {
-        "pm25": 21.0,
-        "pm10": 21.0,
-        "temp": 25.07,
-        "rh": 60.49,
-        "noise": 35.88
+        "pm25": 18.8,
+        "pm10": 18.8,
+        "temp": 24.99,
+        "rh": 60.35,
+        "noise": 34.76
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-12T14:32:10Z",
+      "lastReading": "2026-06-12T14:50:13Z",
       "reading": {
-        "pm25": 18.4,
-        "pm10": 18.4,
-        "temp": 23.35,
-        "rh": 65.36,
-        "noise": 45.65
+        "pm25": 16.9,
+        "pm10": 17.9,
+        "temp": 23.98,
+        "rh": 64.93,
+        "noise": 51.6
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-12T14:31:55Z",
+      "lastReading": "2026-06-12T14:49:55Z",
       "reading": {
-        "pm25": 22.8,
-        "pm10": 23.4,
-        "temp": 23.42,
-        "rh": 62.18,
-        "noise": 38.5
+        "pm25": 17.1,
+        "pm10": 17.3,
+        "temp": 23.86,
+        "rh": 62.35,
+        "noise": 36.52
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-12T14:33:00Z",
+      "lastReading": "2026-06-12T14:51:01Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.07832,
-        "rh": 48.19921,
+        "temp": 28.61857,
+        "rh": 47.8613,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-12T14:31:43+00:00",
+      "lastReading": "2026-06-12T14:49:42+00:00",
       "reading": {
         "pm25": 2.0,
         "pm10": null,
         "temp": 31.7,
-        "rh": 69
+        "rh": 70
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,9 +132,9 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-12T14:32:36+00:00",
+      "lastReading": "2026-06-12T14:50:36+00:00",
       "reading": {
-        "pm25": 50.9,
+        "pm25": 52.1,
         "pm10": null,
         "temp": 29.4,
         "rh": 73
@@ -152,12 +152,12 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-12T14:33:16.000Z",
+      "lastReading": "2026-06-12T14:51:16.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
         "temp": 26.3,
-        "rh": 71
+        "rh": 70
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
@@ -172,16 +172,16 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-12T14:33:20.000Z",
+      "lastReading": "2026-06-12T14:51:21.000Z",
       "reading": {
-        "pm25": 83.7,
-        "pm10": 92.2,
-        "temp": 27.8,
+        "pm25": 52.8,
+        "pm10": 66.5,
+        "temp": 28.0,
         "rh": 61
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": true,
-      "exclusion_reason": "outlier_high"
+      "excluded_from_avg": false,
+      "exclusion_reason": null
     }
   ]
 }
