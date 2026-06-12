@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-12T12:08:34.511587+00:00",
+  "generated_at": "2026-06-12T12:23:52.975822+00:00",
   "count": 9,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-12T12:04:37Z",
+      "lastReading": "2026-06-12T12:20:40Z",
       "reading": {
-        "pm25": 12.8,
-        "pm10": 13.0,
-        "temp": 25.26,
-        "rh": 59.97,
-        "noise": 31.23
+        "pm25": 14.3,
+        "pm10": 14.8,
+        "temp": 25.23,
+        "rh": 60.35,
+        "noise": 43.5
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-12T12:07:07Z",
+      "lastReading": "2026-06-12T12:23:07Z",
       "reading": {
-        "pm25": 13.9,
-        "pm10": 13.9,
-        "temp": 24.2,
-        "rh": 66.32,
-        "noise": 56.02
+        "pm25": 13.3,
+        "pm10": 14.1,
+        "temp": 23.36,
+        "rh": 65.1,
+        "noise": 49.75
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-12T12:06:51Z",
+      "lastReading": "2026-06-12T12:22:52Z",
       "reading": {
-        "pm25": 11.4,
-        "pm10": 11.4,
-        "temp": 24.35,
-        "rh": 62.99,
-        "noise": 44.43
+        "pm25": 12.4,
+        "pm10": 12.6,
+        "temp": 23.69,
+        "rh": 61.02,
+        "noise": 37.13
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-12T12:07:55Z",
+      "lastReading": "2026-06-12T12:22:56Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.51254,
-        "rh": 49.44028,
+        "temp": 28.05304,
+        "rh": 47.78609,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -90,13 +90,13 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-06-12T11:00:00Z",
+      "lastReading": "2026-06-12T12:00:00Z",
       "reading": {
-        "pm25": 12.0,
+        "pm25": 12.1,
         "pm10": null,
         "temp": null,
         "rh": null,
-        "aqi": 50,
+        "aqi": 51,
         "pm25_from_aqi": true
       },
       "detailsUrl": "https://aqicn.org/station/@519205",
@@ -112,9 +112,9 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-12T12:07:38+00:00",
+      "lastReading": "2026-06-12T12:23:38+00:00",
       "reading": {
-        "pm25": 2.0,
+        "pm25": 1.9,
         "pm10": null,
         "temp": 31.7,
         "rh": 68
@@ -132,9 +132,9 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-12T12:06:28+00:00",
+      "lastReading": "2026-06-12T12:22:29+00:00",
       "reading": {
-        "pm25": 45.0,
+        "pm25": 45.3,
         "pm10": null,
         "temp": 30.0,
         "rh": 74
@@ -152,7 +152,7 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-12T12:08:13.000Z",
+      "lastReading": "2026-06-12T12:23:12.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
@@ -172,10 +172,10 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-12T12:08:18.000Z",
+      "lastReading": "2026-06-12T12:23:18.000Z",
       "reading": {
-        "pm25": 82.5,
-        "pm10": 88.2,
+        "pm25": 101.8,
+        "pm10": 113.2,
         "temp": 28.0,
         "rh": 61
       },
