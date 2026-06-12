@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-12T20:20:00.527558+00:00",
+  "generated_at": "2026-06-12T20:35:20.799327+00:00",
   "count": 9,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-12T20:17:58Z",
+      "lastReading": "2026-06-12T20:34:01Z",
       "reading": {
-        "pm25": 6.8,
-        "pm10": 6.8,
-        "temp": 25.1,
-        "rh": 61.07,
-        "noise": 33.26
+        "pm25": 7.3,
+        "pm10": 7.3,
+        "temp": 25.11,
+        "rh": 61.49,
+        "noise": 38.94
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-12T20:18:02Z",
+      "lastReading": "2026-06-12T20:34:05Z",
       "reading": {
-        "pm25": 7.1,
-        "pm10": 7.4,
-        "temp": 23.6,
-        "rh": 66.25,
-        "noise": 45.54
+        "pm25": 7.0,
+        "pm10": 7.0,
+        "temp": 24.15,
+        "rh": 65.84,
+        "noise": 55.43
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-12T20:18:14Z",
+      "lastReading": "2026-06-12T20:33:14Z",
       "reading": {
-        "pm25": 8.1,
-        "pm10": 9.0,
-        "temp": 23.8,
-        "rh": 62.72,
-        "noise": 36.96
+        "pm25": 7.8,
+        "pm10": 8.1,
+        "temp": 24.13,
+        "rh": 62.93,
+        "noise": 43.6
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-12T20:19:12Z",
+      "lastReading": "2026-06-12T20:35:13Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.38629,
-        "rh": 48.58934,
+        "temp": 28.47215,
+        "rh": 49.6734,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-12T20:17:51+00:00",
+      "lastReading": "2026-06-12T20:33:50+00:00",
       "reading": {
         "pm25": 0.6,
         "pm10": null,
-        "temp": 30.6,
-        "rh": 73
+        "temp": 29.4,
+        "rh": 75
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-12T20:18:43+00:00",
+      "lastReading": "2026-06-12T20:34:44+00:00",
       "reading": {
-        "pm25": 44.9,
+        "pm25": 44.6,
         "pm10": null,
         "temp": 28.3,
-        "rh": 79
+        "rh": 80
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.707819,
       "lng": 115.205047,
       "offline": false,
-      "lastReading": "2026-06-12T20:19:19.000Z",
+      "lastReading": "2026-06-12T20:34:19.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
-        "temp": 25.8,
-        "rh": 73
+        "temp": 25.1,
+        "rh": 75
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
@@ -172,11 +172,11 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-12T20:19:26.000Z",
+      "lastReading": "2026-06-12T20:34:26.000Z",
       "reading": {
-        "pm25": 45.0,
-        "pm10": 55.8,
-        "temp": 27.0,
+        "pm25": 39.3,
+        "pm10": 47.2,
+        "temp": 26.9,
         "rh": 64
       },
       "detailsUrl": "https://www.airgradient.com/map/",
