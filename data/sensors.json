@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-13T17:40:17.306171+00:00",
+  "generated_at": "2026-06-13T17:55:54.043761+00:00",
   "count": 6,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-13T17:37:08Z",
+      "lastReading": "2026-06-13T17:52:08Z",
       "reading": {
-        "pm25": 7.0,
-        "pm10": 7.0,
-        "temp": 25.27,
-        "rh": 60.72,
-        "noise": 46.12
+        "pm25": 7.3,
+        "pm10": 7.3,
+        "temp": 25.24,
+        "rh": 59.93,
+        "noise": 32.95
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-13T17:36:39Z",
+      "lastReading": "2026-06-13T17:52:42Z",
       "reading": {
-        "pm25": 7.0,
-        "pm10": 7.0,
-        "temp": 23.92,
-        "rh": 65.6,
-        "noise": 50.95
+        "pm25": 8.9,
+        "pm10": 8.9,
+        "temp": 23.58,
+        "rh": 65.03,
+        "noise": 48.03
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-13T17:37:58Z",
+      "lastReading": "2026-06-13T17:53:58Z",
       "reading": {
-        "pm25": 9.0,
-        "pm10": 9.4,
-        "temp": 23.76,
-        "rh": 61.72,
-        "noise": 44.38
+        "pm25": 7.0,
+        "pm10": 7.0,
+        "temp": 23.96,
+        "rh": 61.61,
+        "noise": 44.67
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-13T17:39:02Z",
+      "lastReading": "2026-06-13T17:55:02Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.32325,
-        "rh": 47.43289,
+        "temp": 28.47209,
+        "rh": 48.4926,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -112,10 +112,10 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-13T17:39:46.000Z",
+      "lastReading": "2026-06-13T17:55:46.000Z",
       "reading": {
-        "pm25": 29.0,
-        "pm10": 29.5,
+        "pm25": 22.8,
+        "pm10": 23.5,
         "temp": 27.6,
         "rh": 63
       },
