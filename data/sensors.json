@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-13T05:33:51.265105+00:00",
-  "count": 9,
+  "generated_at": "2026-06-13T05:49:22.109580+00:00",
+  "count": 8,
   "sensors": [
     {
       "id": "sck-19236",
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-13T05:32:16Z",
+      "lastReading": "2026-06-13T05:45:16Z",
       "reading": {
-        "pm25": 5.8,
-        "pm10": 5.8,
-        "temp": 27.55,
-        "rh": 58.96,
-        "noise": 44.58
+        "pm25": 6.7,
+        "pm10": 7.1,
+        "temp": 26.93,
+        "rh": 58.42,
+        "noise": 43.77
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-13T05:31:25Z",
+      "lastReading": "2026-06-13T05:47:31Z",
       "reading": {
-        "pm25": 7.5,
-        "pm10": 7.5,
-        "temp": 24.05,
-        "rh": 71.79,
-        "noise": 51.49
+        "pm25": 6.2,
+        "pm10": 6.2,
+        "temp": 23.8,
+        "rh": 67.07,
+        "noise": 50.08
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-13T05:31:11Z",
+      "lastReading": "2026-06-13T05:47:19Z",
       "reading": {
-        "pm25": 7.0,
-        "pm10": 7.2,
-        "temp": 25.07,
-        "rh": 66.47,
-        "noise": 46.16
+        "pm25": 6.5,
+        "pm10": 6.5,
+        "temp": 23.89,
+        "rh": 64.03,
+        "noise": 45.92
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-13T05:33:08Z",
+      "lastReading": "2026-06-13T05:49:09Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.66394,
-        "rh": 52.15678,
+        "temp": 28.49481,
+        "rh": 48.62887,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-13T05:32:05+00:00",
+      "lastReading": "2026-06-13T05:48:05+00:00",
       "reading": {
         "pm25": 0.5,
         "pm10": null,
-        "temp": 35.0,
-        "rh": 54
+        "temp": 34.4,
+        "rh": 55
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,9 +132,9 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-13T05:32:58+00:00",
+      "lastReading": "2026-06-13T05:46:57+00:00",
       "reading": {
-        "pm25": 25.4,
+        "pm25": 24.6,
         "pm10": null,
         "temp": 33.3,
         "rh": 60
@@ -142,26 +142,6 @@
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
       "exclusion_reason": null
-    },
-    {
-      "id": "airgradient-77245",
-      "rawId": 77245,
-      "source": "airgradient",
-      "sourceLabel": "AirGradient",
-      "name": "Pemogan - Nafas",
-      "lat": -8.707819,
-      "lng": 115.205047,
-      "offline": false,
-      "lastReading": "2026-06-13T05:29:30.000Z",
-      "reading": {
-        "pm25": 3.0,
-        "pm10": 3.0,
-        "temp": 30.9,
-        "rh": 57
-      },
-      "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": true,
-      "exclusion_reason": "indoor_suspected"
     },
     {
       "id": "airgradient-77247",
@@ -172,10 +152,10 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-13T05:33:34.000Z",
+      "lastReading": "2026-06-13T05:48:34.000Z",
       "reading": {
-        "pm25": 27.3,
-        "pm10": 28.5,
+        "pm25": 21.0,
+        "pm10": 21.8,
         "temp": 29.7,
         "rh": 57
       },
