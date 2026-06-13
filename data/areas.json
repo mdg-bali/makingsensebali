@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-13T02:44:30.910730+00:00",
+  "generated_at": "2026-06-13T03:00:00.033420+00:00",
   "areas": [
     {
       "locality": "Bali",
@@ -43,7 +43,7 @@
         "motorbike"
       ],
       "max_severity": "high",
-      "pm25": 6.0,
+      "pm25": 5.4,
       "summary": null
     }
   ]
