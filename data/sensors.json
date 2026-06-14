@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-14T04:42:43.012819+00:00",
+  "generated_at": "2026-06-14T04:58:31.018357+00:00",
   "count": 8,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-14T04:40:11Z",
+      "lastReading": "2026-06-14T04:41:11Z",
       "reading": {
-        "pm25": 14.5,
-        "pm10": 15.1,
-        "temp": 25.42,
-        "rh": 60.68,
-        "noise": 34.31
+        "pm25": 12.7,
+        "pm10": 12.7,
+        "temp": 25.44,
+        "rh": 60.91,
+        "noise": 45.76
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-14T04:38:18Z",
+      "lastReading": "2026-06-14T04:55:27Z",
       "reading": {
-        "pm25": 14.5,
-        "pm10": 14.5,
-        "temp": 24.16,
-        "rh": 65.94,
-        "noise": 55.29
+        "pm25": 11.5,
+        "pm10": 11.5,
+        "temp": 23.9,
+        "rh": 66.34,
+        "noise": 51.06
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-14T04:38:53Z",
+      "lastReading": "2026-06-14T04:53:03Z",
       "reading": {
-        "pm25": 14.2,
-        "pm10": 15.1,
-        "temp": 24.16,
-        "rh": 62.89,
-        "noise": 36.62
+        "pm25": 12.8,
+        "pm10": 13.3,
+        "temp": 24.43,
+        "rh": 61.87,
+        "noise": 65.9
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -70,12 +70,12 @@
       "name": "Bali DIY Node — Office",
       "lat": -8.79314,
       "lng": 115.14467,
-      "lastReading": "2026-06-14T04:42:24Z",
+      "lastReading": "2026-06-14T04:57:25Z",
       "reading": {
         "pm25": 6.0,
         "pm10": 6.0,
-        "temp": 28.94419,
-        "rh": 49.0939,
+        "temp": 28.7523,
+        "rh": 47.41689,
         "noise": null
       },
       "detailsUrl": "https://smartcitizen.me/kits/19651",
@@ -112,9 +112,9 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-14T04:40:39+00:00",
+      "lastReading": "2026-06-14T04:56:39+00:00",
       "reading": {
-        "pm25": 1.5,
+        "pm25": 1.4,
         "pm10": null,
         "temp": 35.6,
         "rh": 46
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-14T04:41:32+00:00",
+      "lastReading": "2026-06-14T04:57:33+00:00",
       "reading": {
-        "pm25": 39.4,
+        "pm25": 38.2,
         "pm10": null,
         "temp": 33.3,
-        "rh": 53
+        "rh": 52
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-14T04:41:55.000Z",
+      "lastReading": "2026-06-14T04:57:55.000Z",
       "reading": {
-        "pm25": 26.7,
-        "pm10": 28.2,
-        "temp": 30.3,
-        "rh": 51
+        "pm25": 26.2,
+        "pm10": 27.8,
+        "temp": 30.5,
+        "rh": 52
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
