@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-15T05:35:59.002724+00:00",
+  "generated_at": "2026-06-15T05:51:16.803333+00:00",
   "count": 8,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-06-15T05:33:38Z",
+      "lastReading": "2026-06-15T05:49:39Z",
       "reading": {
-        "pm25": 12.1,
-        "pm10": 12.1,
+        "pm25": 11.1,
+        "pm10": 11.6,
         "temp": 24.65,
-        "rh": 64.38,
-        "noise": 42.43
+        "rh": 64.81,
+        "noise": 37.48
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -30,13 +30,13 @@
       "name": "SCK-TWO@Jimbaran-2025",
       "lat": -8.79351,
       "lng": 115.14472,
-      "lastReading": "2026-06-15T05:33:29Z",
+      "lastReading": "2026-06-15T05:49:30Z",
       "reading": {
-        "pm25": 7.2,
-        "pm10": 7.2,
-        "temp": 24.02,
-        "rh": 68.28,
-        "noise": 57.0
+        "pm25": 5.0,
+        "pm10": 5.3,
+        "temp": 24.0,
+        "rh": 67.93,
+        "noise": 49.74
       },
       "detailsUrl": "https://smartcitizen.me/kits/19600",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-06-15T05:32:36Z",
+      "lastReading": "2026-06-15T05:48:36Z",
       "reading": {
-        "pm25": 3.9,
-        "pm10": 3.9,
-        "temp": 23.54,
-        "rh": 65.99,
-        "noise": 42.69
+        "pm25": 4.5,
+        "pm10": 4.7,
+        "temp": 23.62,
+        "rh": 66.7,
+        "noise": 31.25
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": true,
@@ -112,7 +112,7 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-15T05:35:13+00:00",
+      "lastReading": "2026-06-15T05:49:13+00:00",
       "reading": {
         "pm25": 1.7,
         "pm10": null,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-15T05:34:12+00:00",
+      "lastReading": "2026-06-15T05:50:11+00:00",
       "reading": {
-        "pm25": 33.5,
+        "pm25": 33.1,
         "pm10": null,
         "temp": 33.3,
-        "rh": 53
+        "rh": 52
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-06-15T05:35:20.000Z",
+      "lastReading": "2026-06-15T05:50:20.000Z",
       "reading": {
-        "pm25": 23.0,
-        "pm10": 24.7,
-        "temp": 30.4,
-        "rh": 49
+        "pm25": 24.5,
+        "pm10": 24.5,
+        "temp": 30.5,
+        "rh": 48
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
