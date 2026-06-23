@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-22T20:13:58.917591+00:00",
-  "count": 7,
+  "generated_at": "2026-06-23T00:35:24.942434+00:00",
+  "count": 11,
   "sensors": [
     {
       "id": "sck-19236",
@@ -90,9 +90,9 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-06-22T19:00:00Z",
+      "lastReading": "2026-06-23T00:00:00Z",
       "reading": {
-        "pm25": 8.6,
+        "pm25": 7.9,
         "pm10": null,
         "temp": null,
         "rh": null,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-06-22T19:55:47+00:00",
+      "lastReading": "2026-06-23T00:33:53+00:00",
       "reading": {
-        "pm25": 0.5,
+        "pm25": 0.6,
         "pm10": null,
-        "temp": 30.6,
-        "rh": 68
+        "temp": 32.2,
+        "rh": 64
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,14 +132,94 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-06-22T19:56:43+00:00",
+      "lastReading": "2026-06-23T00:34:49+00:00",
       "reading": {
-        "pm25": 32.6,
+        "pm25": 61.0,
         "pm10": null,
-        "temp": 28.9,
+        "temp": 30.0,
         "rh": 66
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "airgradient-77247",
+      "rawId": 77247,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Tonja - Nafas",
+      "lat": -8.632781,
+      "lng": 115.229004,
+      "offline": false,
+      "lastReading": "2026-06-23T00:34:52.000Z",
+      "reading": {
+        "pm25": 61.7,
+        "pm10": 74.8,
+        "temp": 28.3,
+        "rh": 59
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "airgradient-195778",
+      "rawId": 195778,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Umadawa",
+      "lat": -8.492994479130525,
+      "lng": 115.30036092298013,
+      "offline": false,
+      "lastReading": "2026-06-23T00:34:48.000Z",
+      "reading": {
+        "pm25": 31.5,
+        "pm10": 33.7,
+        "temp": 26.9,
+        "rh": 64
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "airgradient-195872",
+      "rawId": 195872,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Kuwum, Bali",
+      "lat": -8.661245,
+      "lng": 115.16204,
+      "offline": false,
+      "lastReading": "2026-06-23T00:34:56.000Z",
+      "reading": {
+        "pm25": 44.7,
+        "pm10": 54.0,
+        "temp": 29.5,
+        "rh": 59
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "airgradient-196524",
+      "rawId": 196524,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Tabanan",
+      "lat": -8.59456160873381,
+      "lng": 115.12636083931227,
+      "offline": false,
+      "lastReading": "2026-06-23T00:34:53.000Z",
+      "reading": {
+        "pm25": 22.2,
+        "pm10": 22.5,
+        "temp": 28.3,
+        "rh": 59
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
       "exclusion_reason": null
     }
