@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-11T02:44:04.479007+00:00",
+  "generated_at": "2026-07-11T02:59:52.726301+00:00",
   "count": 11,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-11T02:42:14Z",
+      "lastReading": "2026-07-11T02:59:15Z",
       "reading": {
-        "pm25": 12.0,
-        "pm10": 13.3,
-        "temp": 27.47,
-        "rh": 61.26,
-        "noise": 40.49
+        "pm25": 10.7,
+        "pm10": 11.3,
+        "temp": 27.58,
+        "rh": 59.72,
+        "noise": 42.64
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-11T02:40:00Z",
+      "lastReading": "2026-07-11T02:56:03Z",
       "reading": {
-        "pm25": 12.6,
-        "pm10": 12.6,
-        "temp": 25.44,
-        "rh": 64.22,
-        "noise": 44.44
+        "pm25": 11.3,
+        "pm10": 12.4,
+        "temp": 25.79,
+        "rh": 67.43,
+        "noise": 37.7
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-11T02:42:56+00:00",
+      "lastReading": "2026-07-11T02:58:57+00:00",
       "reading": {
-        "pm25": 6.6,
+        "pm25": 10.6,
         "pm10": null,
-        "temp": 33.3,
-        "rh": 50
+        "temp": 33.9,
+        "rh": 49
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": false,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-11T02:42:40+00:00",
+      "lastReading": "2026-07-11T02:58:40+00:00",
       "reading": {
-        "pm25": 51.3,
+        "pm25": 47.6,
         "pm10": null,
         "temp": 31.7,
-        "rh": 51
+        "rh": 49
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,11 +152,11 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-11T02:43:56.000Z",
+      "lastReading": "2026-07-11T02:58:57.000Z",
       "reading": {
-        "pm25": 23.8,
-        "pm10": 24.5,
-        "temp": 27.4,
+        "pm25": 28.5,
+        "pm10": 29.8,
+        "temp": 27.6,
         "rh": 52
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -172,12 +172,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-11T02:43:42.000Z",
+      "lastReading": "2026-07-11T02:59:42.000Z",
       "reading": {
-        "pm25": 19.5,
-        "pm10": 19.5,
-        "temp": 29.8,
-        "rh": 50
+        "pm25": 12.0,
+        "pm10": 12.7,
+        "temp": 30.0,
+        "rh": 48
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -192,12 +192,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-11T02:43:15.000Z",
+      "lastReading": "2026-07-11T02:59:15.000Z",
       "reading": {
-        "pm25": 35.3,
-        "pm10": 40.2,
-        "temp": 30.6,
-        "rh": 46
+        "pm25": 21.5,
+        "pm10": 23.5,
+        "temp": 31.0,
+        "rh": 45
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -212,10 +212,10 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-11T02:43:26.000Z",
+      "lastReading": "2026-07-11T02:59:26.000Z",
       "reading": {
-        "pm25": 29.5,
-        "pm10": 30.0,
+        "pm25": 32.0,
+        "pm10": 33.7,
         "temp": 28.2,
         "rh": 52
       },
