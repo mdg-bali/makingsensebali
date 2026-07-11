@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-11T05:55:07.975216+00:00",
+  "generated_at": "2026-07-11T06:11:02.670378+00:00",
   "count": 11,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-11T05:52:35Z",
+      "lastReading": "2026-07-11T06:08:35Z",
       "reading": {
-        "pm25": 7.3,
-        "pm10": 7.5,
-        "temp": 27.69,
-        "rh": 55.74,
-        "noise": 35.08
+        "pm25": 6.8,
+        "pm10": 6.8,
+        "temp": 27.58,
+        "rh": 54.19,
+        "noise": 38.28
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-11T05:52:40Z",
+      "lastReading": "2026-07-11T06:08:42Z",
       "reading": {
-        "pm25": 6.7,
-        "pm10": 6.7,
-        "temp": 25.69,
-        "rh": 59.55,
-        "noise": 32.43
+        "pm25": 6.5,
+        "pm10": 6.5,
+        "temp": 25.5,
+        "rh": 56.35,
+        "noise": 35.95
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -90,7 +90,7 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-07-11T05:00:00Z",
+      "lastReading": "2026-07-11T06:00:00Z",
       "reading": {
         "pm25": 7.9,
         "pm10": null,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-11T05:53:00+00:00",
+      "lastReading": "2026-07-11T06:09:00+00:00",
       "reading": {
-        "pm25": 13.8,
+        "pm25": 13.4,
         "pm10": null,
-        "temp": 35.0,
-        "rh": 43
+        "temp": 34.4,
+        "rh": 45
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": false,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-11T05:54:45+00:00",
+      "lastReading": "2026-07-11T06:08:45+00:00",
       "reading": {
-        "pm25": 26.7,
+        "pm25": 25.5,
         "pm10": null,
-        "temp": 32.2,
-        "rh": 43
+        "temp": 32.8,
+        "rh": 41
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-11T05:55:01.000Z",
+      "lastReading": "2026-07-11T06:10:01.000Z",
       "reading": {
-        "pm25": 19.8,
-        "pm10": 21.8,
-        "temp": 29.6,
-        "rh": 44
+        "pm25": 20.0,
+        "pm10": 22.8,
+        "temp": 29.3,
+        "rh": 46
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -172,11 +172,11 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-11T05:54:48.000Z",
+      "lastReading": "2026-07-11T06:10:49.000Z",
       "reading": {
-        "pm25": 7.5,
-        "pm10": 7.5,
-        "temp": 30.5,
+        "pm25": 7.8,
+        "pm10": 7.8,
+        "temp": 30.7,
         "rh": 48
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -192,10 +192,10 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-11T05:54:18.000Z",
+      "lastReading": "2026-07-11T06:10:19.000Z",
       "reading": {
-        "pm25": 12.2,
-        "pm10": 13.2,
+        "pm25": 7.7,
+        "pm10": 7.8,
         "temp": 35.3,
         "rh": 37
       },
@@ -212,10 +212,10 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-11T05:54:29.000Z",
+      "lastReading": "2026-07-11T06:10:29.000Z",
       "reading": {
-        "pm25": 6.5,
-        "pm10": 6.5,
+        "pm25": 5.8,
+        "pm10": 6.0,
         "temp": 28.9,
         "rh": 52
       },
