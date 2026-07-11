@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-11T12:49:31.413210+00:00",
+  "generated_at": "2026-07-11T13:05:06.579819+00:00",
   "count": 11,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-11T12:48:03Z",
+      "lastReading": "2026-07-11T13:04:04Z",
       "reading": {
-        "pm25": 6.6,
-        "pm10": 6.6,
-        "temp": 27.67,
-        "rh": 57.86,
-        "noise": 34.18
+        "pm25": 6.3,
+        "pm10": 6.3,
+        "temp": 27.8,
+        "rh": 58.65,
+        "noise": 38.45
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-11T12:48:18Z",
+      "lastReading": "2026-07-11T13:00:19Z",
       "reading": {
-        "pm25": 8.2,
-        "pm10": 8.4,
-        "temp": 25.72,
-        "rh": 63.19,
-        "noise": 37.33
+        "pm25": 9.8,
+        "pm10": 10.2,
+        "temp": 25.77,
+        "rh": 62.15,
+        "noise": 34.87
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -112,11 +112,11 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-11T12:47:09+00:00",
+      "lastReading": "2026-07-11T13:03:08+00:00",
       "reading": {
-        "pm25": 4.4,
+        "pm25": 4.1,
         "pm10": null,
-        "temp": 30.0,
+        "temp": 30.6,
         "rh": 59
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
@@ -132,11 +132,11 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-11T12:48:54+00:00",
+      "lastReading": "2026-07-11T13:04:54+00:00",
       "reading": {
-        "pm25": 46.9,
+        "pm25": 50.2,
         "pm10": null,
-        "temp": 28.9,
+        "temp": 29.4,
         "rh": 61
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
@@ -152,12 +152,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-11T12:48:33.000Z",
+      "lastReading": "2026-07-11T13:04:33.000Z",
       "reading": {
-        "pm25": 80.7,
-        "pm10": 85.3,
-        "temp": 24.9,
-        "rh": 65
+        "pm25": 79.3,
+        "pm10": 84.5,
+        "temp": 24.8,
+        "rh": 64
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
@@ -172,12 +172,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-11T12:48:57.000Z",
+      "lastReading": "2026-07-11T13:04:57.000Z",
       "reading": {
-        "pm25": 18.5,
-        "pm10": 20.3,
-        "temp": 28.5,
-        "rh": 57
+        "pm25": 17.5,
+        "pm10": 18.5,
+        "temp": 28.3,
+        "rh": 56
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -192,12 +192,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-11T12:49:24.000Z",
+      "lastReading": "2026-07-11T13:04:25.000Z",
       "reading": {
-        "pm25": 35.5,
-        "pm10": 42.3,
-        "temp": 27.2,
-        "rh": 59
+        "pm25": 35.7,
+        "pm10": 44.7,
+        "temp": 27.0,
+        "rh": 60
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -212,11 +212,11 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-11T12:48:36.000Z",
+      "lastReading": "2026-07-11T13:04:37.000Z",
       "reading": {
-        "pm25": 12.0,
-        "pm10": 12.0,
-        "temp": 29.0,
+        "pm25": 7.7,
+        "pm10": 7.7,
+        "temp": 29.1,
         "rh": 51
       },
       "detailsUrl": "https://www.airgradient.com/map/",
