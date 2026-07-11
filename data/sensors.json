@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-11T13:41:12.785538+00:00",
+  "generated_at": "2026-07-11T13:59:17.868286+00:00",
   "count": 11,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-11T13:40:30Z",
+      "lastReading": "2026-07-11T13:57:30Z",
       "reading": {
-        "pm25": 6.3,
-        "pm10": 6.5,
-        "temp": 28.11,
-        "rh": 55.41,
-        "noise": 35.51
+        "pm25": 8.0,
+        "pm10": 8.4,
+        "temp": 28.2,
+        "rh": 54.44,
+        "noise": 39.62
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-11T13:39:24Z",
+      "lastReading": "2026-07-11T13:58:30Z",
       "reading": {
-        "pm25": 7.9,
-        "pm10": 8.0,
-        "temp": 25.82,
-        "rh": 59.49,
-        "noise": 38.72
+        "pm25": 7.8,
+        "pm10": 8.1,
+        "temp": 25.75,
+        "rh": 59.46,
+        "noise": 46.65
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-11T13:39:09+00:00",
+      "lastReading": "2026-07-11T13:57:10+00:00",
       "reading": {
-        "pm25": 3.3,
+        "pm25": 2.9,
         "pm10": null,
         "temp": 30.0,
-        "rh": 59
+        "rh": 60
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,11 +132,11 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-11T13:38:56+00:00",
+      "lastReading": "2026-07-11T13:56:56+00:00",
       "reading": {
-        "pm25": 54.6,
+        "pm25": 55.2,
         "pm10": null,
-        "temp": 28.9,
+        "temp": 28.3,
         "rh": 61
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
@@ -152,11 +152,11 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-11T13:40:34.000Z",
+      "lastReading": "2026-07-11T13:58:36.000Z",
       "reading": {
-        "pm25": 93.8,
-        "pm10": 99.7,
-        "temp": 24.4,
+        "pm25": 97.8,
+        "pm10": 104.7,
+        "temp": 24.3,
         "rh": 64
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -172,12 +172,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-11T13:41:00.000Z",
+      "lastReading": "2026-07-11T13:58:59.000Z",
       "reading": {
-        "pm25": 23.3,
-        "pm10": 24.2,
-        "temp": 28.4,
-        "rh": 57
+        "pm25": 29.3,
+        "pm10": 30.3,
+        "temp": 28.6,
+        "rh": 56
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -192,12 +192,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-11T13:40:25.000Z",
+      "lastReading": "2026-07-11T13:58:25.000Z",
       "reading": {
-        "pm25": 44.0,
-        "pm10": 55.7,
-        "temp": 26.5,
-        "rh": 61
+        "pm25": 42.7,
+        "pm10": 54.2,
+        "temp": 26.3,
+        "rh": 62
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -212,12 +212,12 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-11T13:40:37.000Z",
+      "lastReading": "2026-07-11T13:58:37.000Z",
       "reading": {
-        "pm25": 5.7,
-        "pm10": 7.3,
-        "temp": 28.9,
-        "rh": 46
+        "pm25": 7.2,
+        "pm10": 7.2,
+        "temp": 28.6,
+        "rh": 45
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
