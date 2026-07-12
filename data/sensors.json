@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-12T01:40:10.776029+00:00",
+  "generated_at": "2026-07-12T01:58:12.822336+00:00",
   "count": 11,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-12T01:39:19Z",
+      "lastReading": "2026-07-12T01:57:13Z",
       "reading": {
-        "pm25": 14.6,
-        "pm10": 14.6,
-        "temp": 28.33,
-        "rh": 57.84,
-        "noise": 36.44
+        "pm25": 15.1,
+        "pm10": 15.6,
+        "temp": 28.47,
+        "rh": 57.68,
+        "noise": 39.4
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-12T01:36:31Z",
+      "lastReading": "2026-07-12T01:55:31Z",
       "reading": {
-        "pm25": 21.6,
-        "pm10": 22.3,
-        "temp": 24.92,
-        "rh": 65.14,
-        "noise": 45.0
+        "pm25": 14.7,
+        "pm10": 14.7,
+        "temp": 25.02,
+        "rh": 65.13,
+        "noise": 38.32
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-12T01:39:24+00:00",
+      "lastReading": "2026-07-12T01:57:25+00:00",
       "reading": {
-        "pm25": 3.5,
+        "pm25": 3.3,
         "pm10": null,
-        "temp": 32.2,
-        "rh": 49
+        "temp": 32.8,
+        "rh": 47
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-12T01:39:16+00:00",
+      "lastReading": "2026-07-12T01:57:16+00:00",
       "reading": {
-        "pm25": 81.9,
+        "pm25": 76.8,
         "pm10": null,
-        "temp": 30.0,
-        "rh": 57
+        "temp": 30.6,
+        "rh": 58
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-12T01:39:58.000Z",
+      "lastReading": "2026-07-12T01:57:59.000Z",
       "reading": {
         "pm25": 49.3,
-        "pm10": 61.3,
-        "temp": 26.4,
-        "rh": 50
+        "pm10": 61.8,
+        "temp": 26.8,
+        "rh": 49
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -172,12 +172,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-12T01:39:15.000Z",
+      "lastReading": "2026-07-12T01:57:15.000Z",
       "reading": {
-        "pm25": 47.3,
-        "pm10": 59.2,
-        "temp": 29.3,
-        "rh": 47
+        "pm25": 44.0,
+        "pm10": 52.0,
+        "temp": 29.8,
+        "rh": 49
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -192,12 +192,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-12T01:39:49.000Z",
+      "lastReading": "2026-07-12T01:57:50.000Z",
       "reading": {
-        "pm25": 56.2,
-        "pm10": 67.7,
-        "temp": 27.4,
-        "rh": 48
+        "pm25": 51.0,
+        "pm10": 63.2,
+        "temp": 28.1,
+        "rh": 47
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -212,10 +212,10 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-12T01:39:48.000Z",
+      "lastReading": "2026-07-12T01:57:48.000Z",
       "reading": {
-        "pm25": 39.2,
-        "pm10": 45.2,
+        "pm25": 41.8,
+        "pm10": 49.0,
         "temp": 28.2,
         "rh": 47
       },
