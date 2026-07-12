@@ -1,0 +1,63 @@
+name: makingsense-data-sync
+
+# Publishes the public air-quality data for
+# https://mdg-bali.github.io/makingsensebali/
+#
+# Why this exists: the data used to be pushed only by a launchd job on the mini
+# in Bali. Any power cut / network reset / Tailscale drop / exo outage froze the
+# whole site (it stalled for ~a month after the June move). Running the fetch in
+# GitHub's cloud removes that single point of failure and self-heals: a failed
+# run is irrelevant because the next one runs 15 min later.
+#
+# Scope: this workflow OWNS sensors.json / history.json / areas.json (public
+# networks: Smart Citizen + AirGradient are keyless; AQICN/KLHK + PurpleAir turn
+# on when the repo secrets are set). It does NOT touch data/reports/ (those come
+# from the private NAS) and does NOT run the exo narrative (MSB_NARRATIVE=0) —
+# both need on-network infra and are published separately. Because it only writes
+# the sensor files, it never collides with the reports writer, and generate.py's
+# own `pull --rebase --strategy-option=ours` handles any interleaving.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # every 15 min (cron is UTC; interval-based so tz is irrelevant)
+  workflow_dispatch: {}       # manual "Run workflow" button in the Actions tab
+
+permissions:
+  contents: write             # generate.py commits + pushes the refreshed data
+
+concurrency:
+  group: makingsense-data-sync
+  cancel-in-progress: false   # let a run finish rather than cancel a mid-push
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0        # full history so generate.py's rebase works
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "makingsense-sync[bot]"
+          git config user.email "makingsense-sync@users.noreply.github.com"
+
+      - name: Generate + publish data
+        env:
+          MSB_REPO_DIR: ${{ github.workspace }}
+          MSB_NARRATIVE: "0"                              # no exo narrative in the cloud
+          # MSB_NAS_RSYNC_SRC deliberately unset -> reports pull is skipped,
+          # existing data/reports/ is left untouched.
+          MSB_AQICN_TOKEN: ${{ secrets.MSB_AQICN_TOKEN }} # KLHK / WAQI (optional; secret)
+          MSB_AQICN_STATIONS: "-519205"                   # pinned Bali station UID (not secret)
+          MSB_PURPLEAIR_KEY: ${{ secrets.MSB_PURPLEAIR_KEY }} # PurpleAir read key (optional; secret)
+          MSB_PURPLEAIR_IDS: "36601,46949"                # Bali community sensors (not secret)
+        run: python3 tools/makingsense-sync/generate.py
