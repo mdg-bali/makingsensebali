@@ -147,8 +147,70 @@ def _sck_reading(detail: dict) -> dict:
     }
 
 
+# --- Sovereign local store (PLANETAI zero-layer ingestion on the NAS) --------
+# When MSB_LOCAL_STORE points at the ingestor's readings/ dir, our own kits are
+# read straight off the NAS — no cloud in the path. Empty by default, so this is
+# a no-op in the cloud Action and only activates where the store is mounted
+# (the NAS, or the mini over its NAS mount). See PLANETAI-local-ingest/.
+LOCAL_STORE = os.environ.get("MSB_LOCAL_STORE", "")
+
+
+def fetch_local_store() -> list:
+    """Read readings/<device>/latest.json from the local ingestion store.
+    Coords come from the payload if present, else from an optional sites.json
+    ({device: {name, lat, lng}}) in the store dir. Uncalibrated kits are still
+    shown on the map but flagged (in flag_quality) so they don't enter the
+    averages/index — real as Detect, not index-grade until colocated."""
+    if not LOCAL_STORE:
+        return []
+    if not os.path.isdir(LOCAL_STORE):
+        log(f"  local store: {LOCAL_STORE} not present — skipping")
+        return []
+    sites = {}
+    sp = os.path.join(LOCAL_STORE, "sites.json")
+    if os.path.exists(sp):
+        try:
+            sites = json.load(open(sp))
+        except Exception as e:
+            log(f"  local store: sites.json unreadable ({e})")
+    out = []
+    for dev in sorted(os.listdir(LOCAL_STORE)):
+        latest = os.path.join(LOCAL_STORE, dev, "latest.json")
+        if not os.path.isfile(latest):
+            continue
+        try:
+            r = json.load(open(latest))
+        except Exception as e:
+            log(f"  local {dev}: bad latest.json ({e})")
+            continue
+        site = sites.get(dev, {})
+        lat = r.get("lat") if r.get("lat") is not None else site.get("lat")
+        lon = r.get("lng") if r.get("lng") is not None else r.get("lon")
+        if lon is None:
+            lon = site.get("lng") if site.get("lng") is not None else site.get("lon")
+        if lat is None or lon is None:
+            log(f"  local {dev}: no coords (add it to sites.json) — skipping")
+            continue
+        out.append({
+            "id": f"local-{dev}", "rawId": dev,
+            "source": "local", "sourceLabel": "Making Sense Bali (local)",
+            "name": r.get("name") or site.get("name") or dev,
+            "lat": float(lat), "lng": float(lon),
+            "lastReading": r.get("received_at") or r.get("ts"),
+            "reading": {
+                "pm25": r.get("pm25"), "pm10": r.get("pm10"),
+                "temp": r.get("temp"), "rh": r.get("rh"), "noise": r.get("noise"),
+            },
+            "calibrated": bool(r.get("calibrated", False)),
+            "detailsUrl": "https://mdg-bali.github.io/makingsensebali/dashboard/",
+        })
+    log(f"  local store: {len(out)} sovereign kit(s)")
+    return out
+
+
 def fetch_sensors() -> list:
     out = []
+    out.extend(fetch_local_store())   # our own kits first — sovereign, no cloud
     for sid in SCK_IDS:
         try:
             d = _get_json(f"{SC_API}/devices/{sid}")
@@ -449,7 +511,9 @@ def flag_quality(sensors: list) -> None:
         pm = pm if isinstance(pm, (int, float)) else None
         s["_pm"] = pm
         reason = None
-        if s.get("indoor") is True:
+        if s.get("source") == "local" and s.get("calibrated") is False:
+            reason = "uncalibrated"   # shown on the map, kept out of averages/index
+        elif s.get("indoor") is True:
             reason = "indoor"
         elif any(h in (s.get("name") or "").lower() for h in _INDOOR_NAME_HINTS):
             reason = "indoor"
