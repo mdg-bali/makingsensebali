@@ -1,0 +1,54 @@
+{
+  "linked_schemas": [
+    "environmental_observation-v1.0.0"
+  ],
+  "name": "Vehicle observation — Bali, Bali",
+  "description": "Trash burning",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260709_002636_239.json",
+  "latitude": -8.6610195,
+  "longitude": 115.1628914,
+  "geolocation": {
+    "lat": -8.6610195,
+    "lon": 115.1628914
+  },
+  "locality": "Bali",
+  "region": "Bali",
+  "country_name": "Indonesia",
+  "country_iso_3166": "ID",
+  "tags": [
+    "air_quality",
+    "environment",
+    "community_report",
+    "planet_ai",
+    "vehicle",
+    "source:whatsapp",
+    "severity:medium",
+    "bioregion:indo_pacific_coral_triangle",
+    "bukit_pilot"
+  ],
+  "status": "active",
+  "date_added": "2026-07-09T00:27:19.553004+00:00",
+  "observation_type": "photo",
+  "pollution_category": "vehicle",
+  "ai_analysis": {
+    "detected": true,
+    "confidence": 0.95,
+    "indicators": [
+      "exhaust smoke",
+      "motorbike idling",
+      "white smoke plume"
+    ],
+    "description": "A motorbike is emitting a visible plume of exhaust smoke on a narrow street.",
+    "severity": "medium",
+    "model_version": "gemini:gemini-flash-lite-latest (fallback; primary openai down)"
+  },
+  "photo_path": "photos/AQ_20260709_002636_239.jpg",
+  "data_source": "whatsapp",
+  "planet_ai_node": "bali.fab.city",
+  "bioregion": "indo_pacific_coral_triangle",
+  "action_cycle": {
+    "observation_timestamp": "2026-07-09T00:27:19.553004+00:00",
+    "reported_timestamp": "2026-07-09T00:27:19.553004+00:00",
+    "response_status": "reported"
+  }
+}

@@ -2,16 +2,16 @@
   "linked_schemas": [
     "environmental_observation-v1.0.0"
   ],
-  "name": "Burning observation — Bukit, Bali",
-  "description": "Yes",
-  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260610_083800_787.json",
-  "latitude": -8.8259641,
-  "longitude": 115.1504473,
+  "name": "Burning observation — Bali, Bali",
+  "description": "Burning trash behind Pro Padel",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260702_042958_709.json",
+  "latitude": -8.6675514,
+  "longitude": 115.1668135,
   "geolocation": {
-    "lat": -8.8259641,
-    "lon": 115.1504473
+    "lat": -8.6675514,
+    "lon": 115.1668135
   },
-  "locality": "Bukit",
+  "locality": "Bali",
   "region": "Bali",
   "country_name": "Indonesia",
   "country_iso_3166": "ID",
@@ -27,28 +27,28 @@
     "bukit_pilot"
   ],
   "status": "active",
-  "date_added": "2026-06-10T08:38:37.261871+00:00",
+  "date_added": "2026-07-02T04:32:08.754603+00:00",
   "observation_type": "photo",
   "pollution_category": "burning",
   "ai_analysis": {
     "detected": true,
     "confidence": 0.9,
     "indicators": [
-      "smoke rising",
-      "open burning area",
-      "dry ground debris"
+      "smoke rising from debris",
+      "pile of trash",
+      "open burning"
     ],
-    "description": "A cow stands near an area of smoke and debris in a dry outdoor setting.",
+    "description": "Smoke is rising from a pile of trash in a residential area.",
     "severity": "medium",
     "model_version": "exo:gemma-4-e4b-it-6bit"
   },
-  "photo_path": "photos/AQ_20260610_083800_787.jpg",
+  "photo_path": "photos/AQ_20260702_042958_709.jpg",
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
   "action_cycle": {
-    "observation_timestamp": "2026-06-10T08:38:37.261871+00:00",
-    "reported_timestamp": "2026-06-10T08:38:37.261871+00:00",
+    "observation_timestamp": "2026-07-02T04:32:08.754603+00:00",
+    "reported_timestamp": "2026-07-02T04:32:08.754603+00:00",
     "response_status": "reported"
   }
 }

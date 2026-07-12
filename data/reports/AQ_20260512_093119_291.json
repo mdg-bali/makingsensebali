@@ -2,16 +2,10 @@
   "linked_schemas": [
     "environmental_observation-v1.0.0"
   ],
-  "name": "None observation — Bukit, Bali",
-  "description": "trash in the beach",
-  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260513_072720_604.json",
-  "latitude": -8.7888951,
-  "longitude": 115.14329911,
-  "geolocation": {
-    "lat": -8.7888951,
-    "lon": 115.14329911
-  },
-  "locality": "Bukit",
+  "name": "None observation — Bali, Bali",
+  "description": "",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260512_093119_291.json",
+  "locality": "Bali",
   "region": "Bali",
   "country_name": "Indonesia",
   "country_iso_3166": "ID",
@@ -26,14 +20,14 @@
     "bukit_pilot"
   ],
   "status": "active",
-  "date_added": "2026-05-13T07:27:35.357259+00:00",
+  "date_added": "2026-05-12T09:31:20.021285+00:00",
   "observation_type": "photo",
   "pollution_category": "none",
   "ai_analysis": {
     "detected": false,
-    "confidence": 1.0,
+    "confidence": 0.0,
     "indicators": [],
-    "description": "No visible air pollution detected in the provided image.",
+    "description": "No air pollution is visible in the provided image.",
     "severity": "low",
     "model_version": "exo:gemma-4-e4b-it-6bit"
   },
@@ -41,8 +35,8 @@
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
   "action_cycle": {
-    "observation_timestamp": "2026-05-13T07:27:35.357259+00:00",
-    "reported_timestamp": "2026-05-13T07:27:35.357259+00:00",
-    "response_status": "reported"
+    "observation_timestamp": "2026-05-12T09:31:20.021285+00:00",
+    "reported_timestamp": "2026-05-12T09:31:20.021285+00:00",
+    "response_status": "observed"
   }
 }

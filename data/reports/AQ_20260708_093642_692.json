@@ -2,16 +2,16 @@
   "linked_schemas": [
     "environmental_observation-v1.0.0"
   ],
-  "name": "Burning observation — Bukit, Bali",
-  "description": "Yes",
-  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260610_083800_787.json",
-  "latitude": -8.8259641,
-  "longitude": 115.1504473,
+  "name": "Burning observation — Bali, Bali",
+  "description": "Construction site burning trash",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260708_093642_692.json",
+  "latitude": -8.6615147,
+  "longitude": 115.1616358,
   "geolocation": {
-    "lat": -8.8259641,
-    "lon": 115.1504473
+    "lat": -8.6615147,
+    "lon": 115.1616358
   },
-  "locality": "Bukit",
+  "locality": "Bali",
   "region": "Bali",
   "country_name": "Indonesia",
   "country_iso_3166": "ID",
@@ -27,28 +27,29 @@
     "bukit_pilot"
   ],
   "status": "active",
-  "date_added": "2026-06-10T08:38:37.261871+00:00",
+  "date_added": "2026-07-08T09:37:34.879715+00:00",
   "observation_type": "photo",
   "pollution_category": "burning",
   "ai_analysis": {
     "detected": true,
-    "confidence": 0.9,
+    "confidence": 0.95,
     "indicators": [
-      "smoke rising",
-      "open burning area",
-      "dry ground debris"
+      "thick smoke",
+      "visible flames",
+      "burning materials",
+      "nighttime scene"
     ],
-    "description": "A cow stands near an area of smoke and debris in a dry outdoor setting.",
+    "description": "Smoke and flames are visible rising from a structure at night.",
     "severity": "medium",
     "model_version": "exo:gemma-4-e4b-it-6bit"
   },
-  "photo_path": "photos/AQ_20260610_083800_787.jpg",
+  "photo_path": "photos/AQ_20260708_093642_692.jpg",
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
   "action_cycle": {
-    "observation_timestamp": "2026-06-10T08:38:37.261871+00:00",
-    "reported_timestamp": "2026-06-10T08:38:37.261871+00:00",
+    "observation_timestamp": "2026-07-08T09:37:34.879715+00:00",
+    "reported_timestamp": "2026-07-08T09:37:34.879715+00:00",
     "response_status": "reported"
   }
 }

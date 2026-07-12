@@ -3,13 +3,13 @@
     "environmental_observation-v1.0.0"
   ],
   "name": "Burning observation — Bali, Bali",
-  "description": "Burning trash on the beach.",
-  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260603_091053_130.json",
-  "latitude": -8.6694609,
-  "longitude": 115.141429,
+  "description": "Trash burning on construction site.",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260708_125442_333.json",
+  "latitude": -8.6615147,
+  "longitude": 115.1616358,
   "geolocation": {
-    "lat": -8.6694609,
-    "lon": 115.141429
+    "lat": -8.6615147,
+    "lon": 115.1616358
   },
   "locality": "Bali",
   "region": "Bali",
@@ -27,28 +27,28 @@
     "bukit_pilot"
   ],
   "status": "active",
-  "date_added": "2026-06-03T09:12:17.505510+00:00",
+  "date_added": "2026-07-08T12:56:15.919368+00:00",
   "observation_type": "photo",
   "pollution_category": "burning",
   "ai_analysis": {
     "detected": true,
-    "confidence": 0.95,
+    "confidence": 0.9,
     "indicators": [
-      "open fire",
-      "burning debris",
-      "smoke"
+      "intense orange glow",
+      "fire reflection on scaffolding",
+      "potential open burning"
     ],
-    "description": "Trash is burning on the beach during sunset.",
+    "description": "An intense orange glow illuminates a construction site at night, strongly suggesting open burning.",
     "severity": "medium",
-    "model_version": "exo:gemma-4-e4b-it-6bit"
+    "model_version": "gemini:gemini-2.5-flash (fallback; primary openai down)"
   },
-  "photo_path": "photos/AQ_20260603_091053_130.jpg",
+  "photo_path": "photos/AQ_20260708_125442_333.jpg",
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
   "action_cycle": {
-    "observation_timestamp": "2026-06-03T09:12:17.505510+00:00",
-    "reported_timestamp": "2026-06-03T09:12:17.505510+00:00",
+    "observation_timestamp": "2026-07-08T12:56:15.919368+00:00",
+    "reported_timestamp": "2026-07-08T12:56:15.919368+00:00",
     "response_status": "reported"
   }
 }
