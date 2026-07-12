@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-12T23:34:14.143301+00:00",
+  "generated_at": "2026-07-12T23:35:30.952842+00:00",
   "areas": [
     {
       "locality": "Bali",
@@ -11,9 +11,9 @@
         "other": 4
       },
       "top_tags": [
+        "plume of smoke",
         "open fire",
         "burning debris",
-        "plume of smoke",
         "smoke rising",
         "burning activity",
         "nighttime"
@@ -36,11 +36,11 @@
       },
       "top_tags": [
         "various types of waste",
-        "pile of garbage",
-        "uncollected",
-        "outside",
         "motorbike smoke",
-        "motorbike"
+        "motorbike",
+        "dirt road",
+        "pile of garbage",
+        "uncollected"
       ],
       "max_severity": "high",
       "pm25": 12.4,
