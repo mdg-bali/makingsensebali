@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-13T05:44:58.630816+00:00",
-  "count": 11,
+  "generated_at": "2026-07-13T06:05:10.644593+00:00",
+  "count": 4,
   "sensors": [
     {
       "id": "sck-19236",
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-13T05:42:41Z",
+      "lastReading": "2026-07-13T06:03:22Z",
       "reading": {
-        "pm25": 9.2,
-        "pm10": 9.2,
-        "temp": 29.88,
-        "rh": 52.73,
-        "noise": 43.24
+        "pm25": 6.8,
+        "pm10": 6.8,
+        "temp": 29.87,
+        "rh": 50.48,
+        "noise": 36.94
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-13T05:41:23Z",
+      "lastReading": "2026-07-13T06:03:29Z",
       "reading": {
-        "pm25": 10.4,
-        "pm10": 10.4,
-        "temp": 26.63,
-        "rh": 60.48,
-        "noise": 40.34
+        "pm25": 8.6,
+        "pm10": 8.6,
+        "temp": 26.48,
+        "rh": 55.58,
+        "noise": 37.17
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -81,147 +81,6 @@
       "detailsUrl": "https://smartcitizen.me/kits/19651",
       "excluded_from_avg": true,
       "exclusion_reason": "indoor"
-    },
-    {
-      "id": "aqicn--519205",
-      "rawId": -519205,
-      "source": "aqicn",
-      "sourceLabel": "AQICN",
-      "name": "Kabupaten Badung Sempidi",
-      "lat": -8.603890419006348,
-      "lng": 115.1780014038086,
-      "lastReading": "2026-07-13T05:00:00Z",
-      "reading": {
-        "pm25": 11.0,
-        "pm10": null,
-        "temp": null,
-        "rh": null,
-        "aqi": 46,
-        "pm25_from_aqi": true
-      },
-      "detailsUrl": "https://aqicn.org/station/@519205",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
-      "id": "purpleair-36601",
-      "rawId": 36601,
-      "source": "purpleair",
-      "sourceLabel": "PurpleAir",
-      "indoor": false,
-      "name": "Jimbaran by Lumi Clinic",
-      "lat": -8.791219,
-      "lng": 115.1674,
-      "lastReading": "2026-07-13T05:42:06+00:00",
-      "reading": {
-        "pm25": 0.8,
-        "pm10": null,
-        "temp": 36.1,
-        "rh": 36
-      },
-      "detailsUrl": "https://map.purpleair.com/?select=36601",
-      "excluded_from_avg": true,
-      "exclusion_reason": "indoor_suspected"
-    },
-    {
-      "id": "purpleair-46949",
-      "rawId": 46949,
-      "source": "purpleair",
-      "sourceLabel": "PurpleAir",
-      "indoor": false,
-      "name": "Klungkung by Lumi Clinic",
-      "lat": -8.533623,
-      "lng": 115.39973,
-      "lastReading": "2026-07-13T05:40:51+00:00",
-      "reading": {
-        "pm25": 36.3,
-        "pm10": null,
-        "temp": 32.8,
-        "rh": 47
-      },
-      "detailsUrl": "https://map.purpleair.com/?select=46949",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
-      "id": "airgradient-195778",
-      "rawId": 195778,
-      "source": "airgradient",
-      "sourceLabel": "AirGradient",
-      "name": "Umadawa",
-      "lat": -8.492994479130525,
-      "lng": 115.30036092298013,
-      "offline": false,
-      "lastReading": "2026-07-13T05:42:50.000Z",
-      "reading": {
-        "pm25": 25.8,
-        "pm10": 25.8,
-        "temp": 29.3,
-        "rh": 45
-      },
-      "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
-      "id": "airgradient-195872",
-      "rawId": 195872,
-      "source": "airgradient",
-      "sourceLabel": "AirGradient",
-      "name": "Kuwum, Bali",
-      "lat": -8.661245,
-      "lng": 115.16204,
-      "offline": false,
-      "lastReading": "2026-07-13T05:42:06.000Z",
-      "reading": {
-        "pm25": 21.8,
-        "pm10": 21.8,
-        "temp": 31.9,
-        "rh": 43
-      },
-      "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
-      "id": "airgradient-196524",
-      "rawId": 196524,
-      "source": "airgradient",
-      "sourceLabel": "AirGradient",
-      "name": "Tabanan",
-      "lat": -8.59456160873381,
-      "lng": 115.12636083931227,
-      "offline": false,
-      "lastReading": "2026-07-13T05:42:29.000Z",
-      "reading": {
-        "pm25": 26.5,
-        "pm10": 26.7,
-        "temp": 36.8,
-        "rh": 31
-      },
-      "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
-      "id": "airgradient-197980",
-      "rawId": 197980,
-      "source": "airgradient",
-      "sourceLabel": "AirGradient",
-      "name": "The Luxe Bali ",
-      "lat": -8.811206,
-      "lng": 115.102523,
-      "offline": false,
-      "lastReading": "2026-07-13T05:42:16.000Z",
-      "reading": {
-        "pm25": 7.8,
-        "pm10": 7.8,
-        "temp": 28.3,
-        "rh": 44
-      },
-      "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
     }
   ]
 }
