@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-13T14:58:16.547860+00:00",
-  "count": 8,
+  "generated_at": "2026-07-13T15:13:35.345801+00:00",
+  "count": 7,
   "sensors": [
     {
       "id": "sck-19236",
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-13T14:58:04Z",
+      "lastReading": "2026-07-13T15:12:51Z",
       "reading": {
-        "pm25": 9.7,
-        "pm10": 9.7,
-        "temp": 29.5,
-        "rh": 58.94,
-        "noise": 36.54
+        "pm25": 11.1,
+        "pm10": 11.1,
+        "temp": 29.51,
+        "rh": 57.6,
+        "noise": 37.49
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-13T14:55:03Z",
+      "lastReading": "2026-07-13T15:11:03Z",
       "reading": {
-        "pm25": 10.6,
-        "pm10": 10.6,
+        "pm25": 11.9,
+        "pm10": 11.9,
         "temp": 26.06,
-        "rh": 68.43,
-        "noise": 37.19
+        "rh": 67.17,
+        "noise": 37.16
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -91,11 +91,11 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-13T14:58:11.000Z",
+      "lastReading": "2026-07-13T15:13:11.000Z",
       "reading": {
-        "pm25": 51.7,
-        "pm10": 64.8,
-        "temp": 24.1,
+        "pm25": 51.8,
+        "pm10": 64.3,
+        "temp": 24.0,
         "rh": 64
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -111,12 +111,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-13T14:57:18.000Z",
+      "lastReading": "2026-07-13T15:13:18.000Z",
       "reading": {
-        "pm25": 35.5,
-        "pm10": 40.5,
+        "pm25": 39.8,
+        "pm10": 47.2,
         "temp": 28.7,
-        "rh": 55
+        "rh": 54
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -131,32 +131,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-13T14:57:42.000Z",
+      "lastReading": "2026-07-13T15:12:42.000Z",
       "reading": {
-        "pm25": 65.7,
-        "pm10": 72.5,
-        "temp": 26.4,
+        "pm25": 64.8,
+        "pm10": 73.7,
+        "temp": 26.3,
         "rh": 60
-      },
-      "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
-      "id": "airgradient-197980",
-      "rawId": 197980,
-      "source": "airgradient",
-      "sourceLabel": "AirGradient",
-      "name": "The Luxe Bali ",
-      "lat": -8.811206,
-      "lng": 115.102523,
-      "offline": false,
-      "lastReading": "2026-07-13T14:47:24.000Z",
-      "reading": {
-        "pm25": 18.8,
-        "pm10": 19.3,
-        "temp": 28.5,
-        "rh": 49
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
