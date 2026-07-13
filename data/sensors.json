@@ -1,5 +1,166 @@
 {
-  "generated_at": "2026-07-13T03:25:35.986252+00:00",
-  "count": 0,
-  "sensors": []
+  "generated_at": "2026-07-13T03:41:23.991487+00:00",
+  "count": 8,
+  "sensors": [
+    {
+      "id": "sck-19236",
+      "rawId": 19236,
+      "source": "smartcitizen",
+      "sourceLabel": "Smart Citizen",
+      "name": "SCK@Jimbaran-2025",
+      "lat": -8.79352,
+      "lng": 115.14482,
+      "lastReading": "2026-07-13T03:39:24Z",
+      "reading": {
+        "pm25": 8.5,
+        "pm10": 8.5,
+        "temp": 29.65,
+        "rh": 52.93,
+        "noise": 54.91
+      },
+      "detailsUrl": "https://smartcitizen.me/kits/19236",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "sck-19600",
+      "rawId": 19600,
+      "source": "smartcitizen",
+      "sourceLabel": "Smart Citizen",
+      "name": "SCK-TWO@Jimbaran-2025",
+      "lat": -8.79351,
+      "lng": 115.14472,
+      "lastReading": "2026-06-17T17:15:19Z",
+      "reading": {
+        "pm25": 1.6,
+        "pm10": 1.6,
+        "temp": 23.21,
+        "rh": 58.32,
+        "noise": 35.69
+      },
+      "detailsUrl": "https://smartcitizen.me/kits/19600",
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor_suspected"
+    },
+    {
+      "id": "sck-19618",
+      "rawId": 19618,
+      "source": "smartcitizen",
+      "sourceLabel": "Smart Citizen",
+      "name": "SCK-THREE@Jimbaran-2025",
+      "lat": -8.79533,
+      "lng": 115.14784,
+      "lastReading": "2026-07-13T03:39:20Z",
+      "reading": {
+        "pm25": 8.9,
+        "pm10": 9.0,
+        "temp": 25.81,
+        "rh": 58.28,
+        "noise": 36.89
+      },
+      "detailsUrl": "https://smartcitizen.me/kits/19618",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "sck-19651",
+      "rawId": 19651,
+      "source": "smartcitizen",
+      "sourceLabel": "Smart Citizen",
+      "name": "Bali DIY Node — Office",
+      "lat": -8.79314,
+      "lng": 115.14467,
+      "lastReading": "2026-06-15T02:48:20Z",
+      "reading": {
+        "pm25": 6.0,
+        "pm10": 6.0,
+        "temp": 27.68451,
+        "rh": 59.994,
+        "noise": null
+      },
+      "detailsUrl": "https://smartcitizen.me/kits/19651",
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor"
+    },
+    {
+      "id": "airgradient-195778",
+      "rawId": 195778,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Umadawa",
+      "lat": -8.492994479130525,
+      "lng": 115.30036092298013,
+      "offline": false,
+      "lastReading": "2026-07-13T03:40:47.000Z",
+      "reading": {
+        "pm25": 40.3,
+        "pm10": 48.0,
+        "temp": 28.5,
+        "rh": 55
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "airgradient-195872",
+      "rawId": 195872,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Kuwum, Bali",
+      "lat": -8.661245,
+      "lng": 115.16204,
+      "offline": false,
+      "lastReading": "2026-07-13T03:41:03.000Z",
+      "reading": {
+        "pm25": 18.5,
+        "pm10": 19.3,
+        "temp": 30.6,
+        "rh": 48
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "airgradient-196524",
+      "rawId": 196524,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Tabanan",
+      "lat": -8.59456160873381,
+      "lng": 115.12636083931227,
+      "offline": false,
+      "lastReading": "2026-07-13T03:40:27.000Z",
+      "reading": {
+        "pm25": 34.3,
+        "pm10": 42.2,
+        "temp": 32.7,
+        "rh": 43
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "airgradient-197980",
+      "rawId": 197980,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "The Luxe Bali ",
+      "lat": -8.811206,
+      "lng": 115.102523,
+      "offline": false,
+      "lastReading": "2026-07-13T03:41:13.000Z",
+      "reading": {
+        "pm25": 6.7,
+        "pm10": 6.7,
+        "temp": 28.9,
+        "rh": 49
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    }
+  ]
 }

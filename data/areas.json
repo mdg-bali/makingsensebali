@@ -46,7 +46,7 @@
         "outside"
       ],
       "max_severity": "high",
-      "pm25": null,
+      "pm25": 8.7,
       "summary": null
     }
   ]
