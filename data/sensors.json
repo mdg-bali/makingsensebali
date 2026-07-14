@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-14T07:11:36.108778+00:00",
+  "generated_at": "2026-07-14T07:21:26.229545+00:00",
   "count": 7,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-14T07:10:34Z",
+      "lastReading": "2026-07-14T07:20:14Z",
       "reading": {
-        "pm25": 10.4,
-        "pm10": 10.4,
-        "temp": 29.29,
+        "pm25": 9.0,
+        "pm10": 9.0,
+        "temp": 29.33,
         "rh": 50.71,
-        "noise": 43.22
+        "noise": 33.38
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-14T07:10:27Z",
+      "lastReading": "2026-07-14T07:19:28Z",
       "reading": {
-        "pm25": 10.6,
-        "pm10": 10.6,
-        "temp": 25.82,
-        "rh": 57.4,
-        "noise": 52.64
+        "pm25": 11.3,
+        "pm10": 11.3,
+        "temp": 25.77,
+        "rh": 57.42,
+        "noise": 36.84
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -91,10 +91,10 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-14T07:11:11.000Z",
+      "lastReading": "2026-07-14T07:21:11.000Z",
       "reading": {
-        "pm25": 28.0,
-        "pm10": 29.0,
+        "pm25": 29.2,
+        "pm10": 31.5,
         "temp": 30.2,
         "rh": 48
       },
@@ -111,11 +111,11 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-14T07:10:38.000Z",
+      "lastReading": "2026-07-14T07:20:38.000Z",
       "reading": {
-        "pm25": 22.5,
-        "pm10": 22.5,
-        "temp": 30.8,
+        "pm25": 22.8,
+        "pm10": 23.0,
+        "temp": 30.9,
         "rh": 47
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -131,12 +131,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-14T07:10:57.000Z",
+      "lastReading": "2026-07-14T07:20:57.000Z",
       "reading": {
-        "pm25": 59.2,
-        "pm10": 69.8,
-        "temp": 38.2,
-        "rh": 34
+        "pm25": 30.5,
+        "pm10": 32.7,
+        "temp": 39.2,
+        "rh": 32
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
