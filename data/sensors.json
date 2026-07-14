@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-14T19:51:59Z",
+      "lastReading": "2026-07-14T20:05:02Z",
       "reading": {
-        "pm25": 13.7,
-        "pm10": 14.0,
-        "temp": 24.91,
-        "rh": 64.51,
-        "noise": 35.38
+        "pm25": 14.0,
+        "pm10": 14.3,
+        "temp": 24.83,
+        "rh": 63.33,
+        "noise": 34.44
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -116,7 +116,7 @@
         "pm25": 55.0,
         "pm10": 66.5,
         "temp": 27.3,
-        "rh": 52
+        "rh": 51
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
