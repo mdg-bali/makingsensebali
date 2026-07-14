@@ -152,12 +152,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-14T21:23:13.000Z",
+      "lastReading": "2026-07-14T21:39:13.000Z",
       "reading": {
-        "pm25": 43.0,
-        "pm10": 50.8,
-        "temp": 22.4,
-        "rh": 62
+        "pm25": 41.3,
+        "pm10": 50.3,
+        "temp": 22.1,
+        "rh": 64
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
