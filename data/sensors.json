@@ -112,9 +112,9 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-14T08:20:39+00:00",
+      "lastReading": "2026-07-14T08:38:39+00:00",
       "reading": {
-        "pm25": 2.8,
+        "pm25": 2.7,
         "pm10": null,
         "temp": 34.4,
         "rh": 45
@@ -132,9 +132,9 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-14T08:19:29+00:00",
+      "lastReading": "2026-07-14T08:37:29+00:00",
       "reading": {
-        "pm25": 31.2,
+        "pm25": 30.9,
         "pm10": null,
         "temp": 32.2,
         "rh": 48
