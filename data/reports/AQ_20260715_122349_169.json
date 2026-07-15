@@ -2,9 +2,9 @@
   "linked_schemas": [
     "environmental_observation-v1.0.0"
   ],
-  "name": "None observation — Bali, Bali",
+  "name": "Burning observation — Bali, Bali",
   "description": "Construction site burning trash",
-  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260713_145129_608.json",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260715_122349_169.json",
   "latitude": -8.6615147,
   "longitude": 115.1616358,
   "geolocation": {
@@ -20,34 +20,35 @@
     "environment",
     "community_report",
     "planet_ai",
+    "burning",
     "source:whatsapp",
-    "severity:low",
+    "severity:medium",
     "bioregion:indo_pacific_coral_triangle",
     "bukit_pilot"
   ],
   "status": "active",
-  "date_added": "2026-07-13T14:52:11.975050+00:00",
+  "date_added": "2026-07-15T12:24:34.364193+00:00",
   "observation_type": "photo",
-  "pollution_category": "none",
+  "pollution_category": "burning",
   "ai_analysis": {
-    "detected": false,
-    "confidence": 0.9,
+    "detected": true,
+    "confidence": 0.95,
     "indicators": [
-      "construction site",
-      "nighttime lighting",
-      "no visible smoke or dust"
+      "orange glow",
+      "visible flames",
+      "smoke/haze",
+      "open fire"
     ],
-    "description": "The image shows a construction site at night with no visible signs of air pollution.",
-    "severity": "low",
-    "model_version": "gemini:gemini-flash-lite-latest (fallback; primary openai down)"
+    "description": "Open burning of material is visible beneath structures at night.",
+    "severity": "medium",
+    "model_version": "exo:gemma-4-e4b-it-6bit"
   },
-  "photo_path": "photos/AQ_20260713_145129_608.jpg",
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
   "action_cycle": {
-    "observation_timestamp": "2026-07-13T14:52:11.975050+00:00",
-    "reported_timestamp": "2026-07-13T14:52:11.975050+00:00",
+    "observation_timestamp": "2026-07-15T12:24:34.364193+00:00",
+    "reported_timestamp": "2026-07-15T12:24:34.364193+00:00",
     "response_status": "reported"
   }
 }

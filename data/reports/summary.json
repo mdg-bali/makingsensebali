@@ -1,9 +1,9 @@
 {
-  "line": "Today: 1 report \u2014 clear.",
+  "line": "Today: 1 report \u2014 burning trash.",
   "today": {
     "total": 1,
     "by_category": {
-      "none": 1
+      "burning": 1
     }
   },
   "week": {
@@ -14,5 +14,5 @@
       "none": 1
     }
   },
-  "generated_at": "2026-07-13T14:55:03.330070+00:00"
+  "generated_at": "2026-07-15T12:27:10.253958+00:00"
 }
