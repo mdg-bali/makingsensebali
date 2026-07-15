@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-15T01:57:15Z",
+      "lastReading": "2026-07-15T02:12:18Z",
       "reading": {
-        "pm25": 16.6,
-        "pm10": 16.6,
-        "temp": 28.01,
-        "rh": 54.13,
-        "noise": 38.31
+        "pm25": 15.2,
+        "pm10": 15.2,
+        "temp": 28.16,
+        "rh": 52.87,
+        "noise": 38.99
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
