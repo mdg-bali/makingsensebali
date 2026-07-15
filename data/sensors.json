@@ -112,9 +112,9 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-15T19:25:59+00:00",
+      "lastReading": "2026-07-15T19:44:00+00:00",
       "reading": {
-        "pm25": 0.8,
+        "pm25": 0.7,
         "pm10": null,
         "temp": 30.0,
         "rh": 66
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-15T19:26:18+00:00",
+      "lastReading": "2026-07-15T19:44:19+00:00",
       "reading": {
-        "pm25": 53.0,
+        "pm25": 51.3,
         "pm10": null,
         "temp": 28.9,
-        "rh": 67
+        "rh": 70
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
