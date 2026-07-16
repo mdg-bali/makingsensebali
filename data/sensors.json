@@ -161,6 +161,86 @@
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
       "exclusion_reason": null
+    },
+    {
+      "id": "airgradient-195778",
+      "rawId": 195778,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Umadawa",
+      "lat": -8.492994479130525,
+      "lng": 115.30036092298013,
+      "offline": false,
+      "lastReading": "2026-07-16T10:17:24.000Z",
+      "reading": {
+        "pm25": 52.8,
+        "pm10": 65.8,
+        "temp": 26.8,
+        "rh": 61
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "airgradient-195872",
+      "rawId": 195872,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Kuwum, Bali",
+      "lat": -8.661245,
+      "lng": 115.16204,
+      "offline": false,
+      "lastReading": "2026-07-16T10:17:51.000Z",
+      "reading": {
+        "pm25": 31.8,
+        "pm10": 34.8,
+        "temp": 29.3,
+        "rh": 57
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "airgradient-196524",
+      "rawId": 196524,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Tabanan",
+      "lat": -8.59456160873381,
+      "lng": 115.12636083931227,
+      "offline": false,
+      "lastReading": "2026-07-16T10:18:04.000Z",
+      "reading": {
+        "pm25": 43.5,
+        "pm10": 52.2,
+        "temp": 31.8,
+        "rh": 47
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
+      "id": "airgradient-197980",
+      "rawId": 197980,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "The Luxe Bali ",
+      "lat": -8.811206,
+      "lng": 115.102523,
+      "offline": false,
+      "lastReading": "2026-07-16T10:17:19.000Z",
+      "reading": {
+        "pm25": 24.0,
+        "pm10": 25.2,
+        "temp": 28.5,
+        "rh": 59
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
     }
   ]
 }
