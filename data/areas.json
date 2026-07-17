@@ -17,8 +17,8 @@
         "burning debris",
         "open burning",
         "construction site",
-        "smoke",
-        "plume of smoke"
+        "visible flames",
+        "active fire"
       ],
       "max_severity": "medium",
       "pm25": null,
@@ -39,14 +39,14 @@
       },
       "top_tags": [
         "various types of waste",
-        "large amount of trash",
-        "smoke visible",
         "pile of garbage",
         "uncollected",
-        "outside"
+        "outside",
+        "motorbike smoke",
+        "motorbike"
       ],
       "max_severity": "high",
-      "pm25": 14.2,
+      "pm25": 14.3,
       "summary": null
     }
   ]
