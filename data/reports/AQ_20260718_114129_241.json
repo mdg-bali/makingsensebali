@@ -1,0 +1,52 @@
+{
+  "linked_schemas": [
+    "environmental_observation-v1.0.0"
+  ],
+  "name": "None observation — Bukit, Bali",
+  "description": "This is a new dog in the neighbourhood and is keep in a tiny cage for extended periods of time and can be heard crying. The people are home but don’t care. They have a yard the dog could be roaming in yet for some reason they keep it in the cage.",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260718_114129_241.json",
+  "latitude": -8.805804,
+  "longitude": 115.167541,
+  "geolocation": {
+    "lat": -8.805804,
+    "lon": 115.167541
+  },
+  "locality": "Bukit",
+  "region": "Bali",
+  "country_name": "Indonesia",
+  "country_iso_3166": "ID",
+  "tags": [
+    "air_quality",
+    "environment",
+    "community_report",
+    "planet_ai",
+    "source:whatsapp",
+    "severity:low",
+    "bioregion:indo_pacific_coral_triangle",
+    "bukit_pilot"
+  ],
+  "status": "active",
+  "date_added": "2026-07-18T11:45:18.771085+00:00",
+  "observation_type": "photo",
+  "pollution_category": "none",
+  "ai_analysis": {
+    "detected": false,
+    "confidence": 0.9,
+    "indicators": [
+      "no visible smoke",
+      "no visible fire",
+      "no airborne particulates"
+    ],
+    "description": "The image shows a nighttime outdoor scene with no visible signs of air pollution.",
+    "severity": "low",
+    "model_version": "gemini:gemini-flash-lite-latest (fallback; primary openai down)"
+  },
+  "data_source": "whatsapp",
+  "planet_ai_node": "bali.fab.city",
+  "bioregion": "indo_pacific_coral_triangle",
+  "action_cycle": {
+    "observation_timestamp": "2026-07-18T11:45:18.771085+00:00",
+    "reported_timestamp": "2026-07-18T11:45:18.771085+00:00",
+    "response_status": "reported"
+  }
+}

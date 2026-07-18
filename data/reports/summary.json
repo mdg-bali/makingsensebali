@@ -1,17 +1,17 @@
 {
-  "line": "Today: 1 report \u2014 clear.",
+  "line": "Today: 2 reports \u2014 2 clear.",
   "today": {
-    "total": 1,
+    "total": 2,
     "by_category": {
-      "none": 1
+      "none": 2
     }
   },
   "week": {
-    "total": 3,
+    "total": 4,
     "by_category": {
-      "none": 2,
+      "none": 3,
       "burning": 1
     }
   },
-  "generated_at": "2026-07-18T08:20:48.610981+00:00"
+  "generated_at": "2026-07-18T11:46:24.444735+00:00"
 }
