@@ -90,7 +90,7 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-07-18T13:00:00Z",
+      "lastReading": "2026-07-18T14:00:00Z",
       "reading": {
         "pm25": 7.7,
         "pm10": null,
@@ -112,7 +112,7 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-18T13:59:22+00:00",
+      "lastReading": "2026-07-18T14:17:22+00:00",
       "reading": {
         "pm25": 0.8,
         "pm10": null,
@@ -132,9 +132,9 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-18T13:59:54+00:00",
+      "lastReading": "2026-07-18T14:17:54+00:00",
       "reading": {
-        "pm25": 41.4,
+        "pm25": 40.6,
         "pm10": null,
         "temp": 28.9,
         "rh": 69
