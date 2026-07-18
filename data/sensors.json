@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-18T09:07:08.234767+00:00",
+  "generated_at": "2026-07-18T09:22:18.804789+00:00",
   "count": 8,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-18T09:04:52Z",
+      "lastReading": "2026-07-18T09:19:52Z",
       "reading": {
-        "pm25": 7.5,
-        "pm10": 7.5,
+        "pm25": 7.1,
+        "pm10": 7.1,
         "temp": 27.45,
-        "rh": 52.51,
-        "noise": 39.73
+        "rh": 52.08,
+        "noise": 39.19
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-18T09:04:39Z",
+      "lastReading": "2026-07-18T09:19:39Z",
       "reading": {
-        "pm25": 8.2,
-        "pm10": 8.2,
-        "temp": 25.54,
-        "rh": 55.93,
-        "noise": 34.56
+        "pm25": 8.4,
+        "pm10": 8.4,
+        "temp": 25.26,
+        "rh": 53.16,
+        "noise": 31.79
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-18T09:06:21.000Z",
+      "lastReading": "2026-07-18T09:21:21.000Z",
       "reading": {
-        "pm25": 29.7,
-        "pm10": 31.0,
+        "pm25": 31.7,
+        "pm10": 33.7,
         "temp": 26.6,
-        "rh": 62
+        "rh": 63
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -172,12 +172,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-18T09:06:57.000Z",
+      "lastReading": "2026-07-18T09:21:57.000Z",
       "reading": {
-        "pm25": 21.2,
-        "pm10": 22.2,
-        "temp": 29.6,
-        "rh": 55
+        "pm25": 18.8,
+        "pm10": 18.8,
+        "temp": 29.8,
+        "rh": 53
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -192,12 +192,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-18T09:06:59.000Z",
+      "lastReading": "2026-07-18T09:22:00.000Z",
       "reading": {
-        "pm25": 21.7,
-        "pm10": 22.7,
-        "temp": 37.1,
-        "rh": 36
+        "pm25": 26.0,
+        "pm10": 26.8,
+        "temp": 34.3,
+        "rh": 41
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -212,10 +212,10 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-18T09:07:04.000Z",
+      "lastReading": "2026-07-18T09:22:04.000Z",
       "reading": {
-        "pm25": 14.7,
-        "pm10": 15.5,
+        "pm25": 14.8,
+        "pm10": 14.8,
         "temp": 28.6,
         "rh": 58
       },
