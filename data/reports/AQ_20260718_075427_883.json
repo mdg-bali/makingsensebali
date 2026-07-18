@@ -1,0 +1,52 @@
+{
+  "linked_schemas": [
+    "environmental_observation-v1.0.0"
+  ],
+  "name": "None observation — Bukit, Bali",
+  "description": "The dogs are kept on very short leashes for extended periods of time and bark often for extended periods. The owner keeps them on very short leashes because her gate is broken (she says) so she can't keep them inside. I went there a couple of time before over the past few months and she also said the gate was broken. The dogs bark a lot and she is afraid that they are going to bite someone which is why she doesn't want to set them free to roam around like the other dogs on the road. But the reason they appear aggressive is because they are tied up like that. So it's a catch-22 situation.",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260718_075427_883.json",
+  "latitude": -8.805508,
+  "longitude": 115.167704,
+  "geolocation": {
+    "lat": -8.805508,
+    "lon": 115.167704
+  },
+  "locality": "Bukit",
+  "region": "Bali",
+  "country_name": "Indonesia",
+  "country_iso_3166": "ID",
+  "tags": [
+    "air_quality",
+    "environment",
+    "community_report",
+    "planet_ai",
+    "source:whatsapp",
+    "severity:low",
+    "bioregion:indo_pacific_coral_triangle",
+    "bukit_pilot"
+  ],
+  "status": "active",
+  "date_added": "2026-07-18T08:16:05.366253+00:00",
+  "observation_type": "photo",
+  "pollution_category": "none",
+  "ai_analysis": {
+    "detected": false,
+    "confidence": 1.0,
+    "indicators": [
+      "Residential street scene",
+      "Dogs present",
+      "Trash bag visible"
+    ],
+    "description": "A nighttime residential scene featuring two dogs and some household items.",
+    "severity": "low",
+    "model_version": "exo:gemma-4-e4b-it-6bit"
+  },
+  "data_source": "whatsapp",
+  "planet_ai_node": "bali.fab.city",
+  "bioregion": "indo_pacific_coral_triangle",
+  "action_cycle": {
+    "observation_timestamp": "2026-07-18T08:16:05.366253+00:00",
+    "reported_timestamp": "2026-07-18T08:16:05.366253+00:00",
+    "response_status": "reported"
+  }
+}
