@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-18T07:29:21.615383+00:00",
+  "generated_at": "2026-07-18T07:47:10.013285+00:00",
   "count": 11,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-18T07:26:45Z",
+      "lastReading": "2026-07-18T07:44:45Z",
       "reading": {
-        "pm25": 8.2,
-        "pm10": 8.2,
-        "temp": 27.46,
-        "rh": 53.79,
-        "noise": 37.22
+        "pm25": 7.2,
+        "pm10": 7.2,
+        "temp": 27.47,
+        "rh": 53.77,
+        "noise": 37.8
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-18T07:26:32Z",
+      "lastReading": "2026-07-18T07:44:32Z",
       "reading": {
-        "pm25": 9.3,
-        "pm10": 9.8,
-        "temp": 25.54,
-        "rh": 57.31,
-        "noise": 35.61
+        "pm25": 8.6,
+        "pm10": 9.1,
+        "temp": 25.5,
+        "rh": 56.74,
+        "noise": 32.06
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -112,11 +112,11 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-18T07:27:12+00:00",
+      "lastReading": "2026-07-18T07:45:13+00:00",
       "reading": {
-        "pm25": 1.1,
+        "pm25": 1.0,
         "pm10": null,
-        "temp": 33.3,
+        "temp": 33.9,
         "rh": 53
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-18T07:27:44+00:00",
+      "lastReading": "2026-07-18T07:45:45+00:00",
       "reading": {
-        "pm25": 33.4,
+        "pm25": 32.8,
         "pm10": null,
         "temp": 31.1,
-        "rh": 58
+        "rh": 61
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-18T07:28:19.000Z",
+      "lastReading": "2026-07-18T07:46:24.000Z",
       "reading": {
-        "pm25": 29.3,
-        "pm10": 33.3,
-        "temp": 28.4,
-        "rh": 57
+        "pm25": 31.8,
+        "pm10": 32.8,
+        "temp": 28.0,
+        "rh": 56
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -172,12 +172,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-18T07:28:55.000Z",
+      "lastReading": "2026-07-18T07:46:55.000Z",
       "reading": {
-        "pm25": 18.7,
-        "pm10": 18.7,
-        "temp": 30.5,
-        "rh": 52
+        "pm25": 18.3,
+        "pm10": 19.3,
+        "temp": 30.4,
+        "rh": 53
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -192,12 +192,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-18T07:28:58.000Z",
+      "lastReading": "2026-07-18T07:46:58.000Z",
       "reading": {
-        "pm25": 21.7,
-        "pm10": 23.5,
-        "temp": 39.9,
-        "rh": 32
+        "pm25": 19.3,
+        "pm10": 20.3,
+        "temp": 41.5,
+        "rh": 31
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -212,11 +212,11 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-18T07:29:02.000Z",
+      "lastReading": "2026-07-18T07:47:02.000Z",
       "reading": {
-        "pm25": 17.3,
-        "pm10": 19.2,
-        "temp": 29.2,
+        "pm25": 12.7,
+        "pm10": 12.7,
+        "temp": 29.1,
         "rh": 56
       },
       "detailsUrl": "https://www.airgradient.com/map/",
