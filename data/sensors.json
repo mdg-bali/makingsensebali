@@ -214,10 +214,10 @@
       "offline": false,
       "lastReading": "2026-07-19T11:23:40.000Z",
       "reading": {
-        "pm25": 23.3,
-        "pm10": 24.5,
+        "pm25": 23.5,
+        "pm10": 23.5,
         "temp": 27.8,
-        "rh": 60
+        "rh": 59
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
