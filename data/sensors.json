@@ -104,46 +104,6 @@
       "exclusion_reason": "indoor_suspected"
     },
     {
-      "id": "purpleair-36601",
-      "rawId": 36601,
-      "source": "purpleair",
-      "sourceLabel": "PurpleAir",
-      "indoor": false,
-      "name": "Jimbaran by Lumi Clinic",
-      "lat": -8.791219,
-      "lng": 115.1674,
-      "lastReading": "2026-07-20T23:18:44+00:00",
-      "reading": {
-        "pm25": 0.4,
-        "pm10": null,
-        "temp": 28.3,
-        "rh": 69
-      },
-      "detailsUrl": "https://map.purpleair.com/?select=36601",
-      "excluded_from_avg": true,
-      "exclusion_reason": "indoor_suspected"
-    },
-    {
-      "id": "purpleair-46949",
-      "rawId": 46949,
-      "source": "purpleair",
-      "sourceLabel": "PurpleAir",
-      "indoor": false,
-      "name": "Klungkung by Lumi Clinic",
-      "lat": -8.533623,
-      "lng": 115.39973,
-      "lastReading": "2026-07-20T23:17:12+00:00",
-      "reading": {
-        "pm25": 30.2,
-        "pm10": null,
-        "temp": 27.2,
-        "rh": 74
-      },
-      "detailsUrl": "https://map.purpleair.com/?select=46949",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
       "id": "airgradient-195872",
       "rawId": 195872,
       "source": "airgradient",
