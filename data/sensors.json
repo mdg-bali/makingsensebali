@@ -104,6 +104,26 @@
       "exclusion_reason": "indoor_suspected"
     },
     {
+      "id": "airgradient-195778",
+      "rawId": 195778,
+      "source": "airgradient",
+      "sourceLabel": "AirGradient",
+      "name": "Umadawa",
+      "lat": -8.492994479130525,
+      "lng": 115.30036092298013,
+      "offline": false,
+      "lastReading": "2026-07-20T08:36:23.000Z",
+      "reading": {
+        "pm25": 27.0,
+        "pm10": 27.0,
+        "temp": 22.2,
+        "rh": 78
+      },
+      "detailsUrl": "https://www.airgradient.com/map/",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
       "id": "airgradient-195872",
       "rawId": 195872,
       "source": "airgradient",
