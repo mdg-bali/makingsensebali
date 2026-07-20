@@ -41,6 +41,7 @@
     "severity": "low",
     "model_version": "gemini:gemini-flash-lite-latest (fallback; primary openai down)"
   },
+  "photo_path": "photos/AQ_20260718_114129_241.jpg",
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
