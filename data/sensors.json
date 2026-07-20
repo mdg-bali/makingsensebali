@@ -93,7 +93,7 @@
       "offline": false,
       "lastReading": "2026-07-20T10:01:58.000Z",
       "reading": {
-        "pm25": 4.8,
+        "pm25": 4.6,
         "pm10": null,
         "temp": null,
         "rh": null,
@@ -105,46 +105,6 @@
       "exclusion_reason": "indoor_suspected"
     },
     {
-      "id": "purpleair-36601",
-      "rawId": 36601,
-      "source": "purpleair",
-      "sourceLabel": "PurpleAir",
-      "indoor": false,
-      "name": "Jimbaran by Lumi Clinic",
-      "lat": -8.791219,
-      "lng": 115.1674,
-      "lastReading": "2026-07-20T09:54:26+00:00",
-      "reading": {
-        "pm25": 2.2,
-        "pm10": null,
-        "temp": 31.1,
-        "rh": 52
-      },
-      "detailsUrl": "https://map.purpleair.com/?select=36601",
-      "excluded_from_avg": true,
-      "exclusion_reason": "indoor_suspected"
-    },
-    {
-      "id": "purpleair-46949",
-      "rawId": 46949,
-      "source": "purpleair",
-      "sourceLabel": "PurpleAir",
-      "indoor": false,
-      "name": "Klungkung by Lumi Clinic",
-      "lat": -8.533623,
-      "lng": 115.39973,
-      "lastReading": "2026-07-20T09:54:54+00:00",
-      "reading": {
-        "pm25": 20.0,
-        "pm10": null,
-        "temp": 28.9,
-        "rh": 63
-      },
-      "detailsUrl": "https://map.purpleair.com/?select=46949",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
       "id": "airgradient-195778",
       "rawId": 195778,
       "source": "airgradient",
@@ -153,11 +113,11 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-20T09:55:59.000Z",
+      "lastReading": "2026-07-20T10:11:59.000Z",
       "reading": {
-        "pm25": 28.2,
-        "pm10": 30.5,
-        "temp": 25.8,
+        "pm25": 29.0,
+        "pm10": 32.3,
+        "temp": 25.6,
         "rh": 63
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -201,8 +161,8 @@
         "rh": 44
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": true,
-      "exclusion_reason": "outlier_high"
+      "excluded_from_avg": false,
+      "exclusion_reason": null
     },
     {
       "id": "airgradient-197980",
