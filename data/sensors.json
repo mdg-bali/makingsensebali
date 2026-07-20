@@ -105,6 +105,46 @@
       "exclusion_reason": "indoor_suspected"
     },
     {
+      "id": "purpleair-36601",
+      "rawId": 36601,
+      "source": "purpleair",
+      "sourceLabel": "PurpleAir",
+      "indoor": false,
+      "name": "Jimbaran by Lumi Clinic",
+      "lat": -8.791219,
+      "lng": 115.1674,
+      "lastReading": "2026-07-20T10:42:26+00:00",
+      "reading": {
+        "pm25": 1.7,
+        "pm10": null,
+        "temp": 30.6,
+        "rh": 54
+      },
+      "detailsUrl": "https://map.purpleair.com/?select=36601",
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor_suspected"
+    },
+    {
+      "id": "purpleair-46949",
+      "rawId": 46949,
+      "source": "purpleair",
+      "sourceLabel": "PurpleAir",
+      "indoor": false,
+      "name": "Klungkung by Lumi Clinic",
+      "lat": -8.533623,
+      "lng": 115.39973,
+      "lastReading": "2026-07-20T10:42:54+00:00",
+      "reading": {
+        "pm25": 21.6,
+        "pm10": null,
+        "temp": 28.9,
+        "rh": 64
+      },
+      "detailsUrl": "https://map.purpleair.com/?select=46949",
+      "excluded_from_avg": false,
+      "exclusion_reason": null
+    },
+    {
       "id": "airgradient-195778",
       "rawId": 195778,
       "source": "airgradient",
@@ -113,12 +153,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-20T10:28:00.000Z",
+      "lastReading": "2026-07-20T10:43:59.000Z",
       "reading": {
-        "pm25": 27.0,
-        "pm10": 28.8,
-        "temp": 25.5,
-        "rh": 64
+        "pm25": 32.2,
+        "pm10": 36.0,
+        "temp": 25.3,
+        "rh": 65
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -181,8 +221,8 @@
         "rh": 54
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": true,
-      "exclusion_reason": "indoor_suspected"
+      "excluded_from_avg": false,
+      "exclusion_reason": null
     }
   ]
 }
