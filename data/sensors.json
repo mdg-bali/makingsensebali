@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-20T04:12:31.064586+00:00",
+  "generated_at": "2026-07-20T04:27:43.331656+00:00",
   "count": 7,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-20T04:11:25Z",
+      "lastReading": "2026-07-20T04:24:25Z",
       "reading": {
-        "pm25": 8.2,
-        "pm10": 8.2,
-        "temp": 27.7,
-        "rh": 59.81,
-        "noise": 41.1
+        "pm25": 8.5,
+        "pm10": 8.5,
+        "temp": 27.67,
+        "rh": 60.72,
+        "noise": 47.13
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-20T04:11:23Z",
+      "lastReading": "2026-07-20T04:24:23Z",
       "reading": {
-        "pm25": 10.2,
+        "pm25": 9.9,
         "pm10": 10.2,
-        "temp": 25.71,
-        "rh": 63.24,
-        "noise": 39.62
+        "temp": 26.16,
+        "rh": 64.4,
+        "noise": 49.04
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -152,10 +152,10 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-20T04:11:56.000Z",
+      "lastReading": "2026-07-20T04:26:56.000Z",
       "reading": {
-        "pm25": 14.5,
-        "pm10": 15.5,
+        "pm25": 16.5,
+        "pm10": 16.5,
         "temp": 29.9,
         "rh": 51
       },
@@ -172,11 +172,11 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-20T04:12:20.000Z",
+      "lastReading": "2026-07-20T04:27:20.000Z",
       "reading": {
-        "pm25": 21.3,
-        "pm10": 24.0,
-        "temp": 31.0,
+        "pm25": 24.5,
+        "pm10": 25.8,
+        "temp": 31.2,
         "rh": 47
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -192,11 +192,11 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-20T04:12:10.000Z",
+      "lastReading": "2026-07-20T04:27:10.000Z",
       "reading": {
-        "pm25": 10.8,
-        "pm10": 11.8,
-        "temp": 28.5,
+        "pm25": 12.8,
+        "pm10": 12.8,
+        "temp": 28.6,
         "rh": 54
       },
       "detailsUrl": "https://www.airgradient.com/map/",
