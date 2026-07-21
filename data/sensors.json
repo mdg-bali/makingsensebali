@@ -93,9 +93,9 @@
       "offline": false,
       "lastReading": "2026-07-21T04:16:39.000Z",
       "reading": {
-        "pm25": 13.3,
-        "pm10": 15.7,
-        "temp": 25.7,
+        "pm25": 11.2,
+        "pm10": 11.5,
+        "temp": 26.0,
         "rh": 62
       },
       "detailsUrl": "https://www.airgradient.com/map/",
