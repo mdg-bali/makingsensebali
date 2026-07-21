@@ -30,8 +30,9 @@
       "lon": 115.153587,
       "report_count": 14,
       "categories": {
-        "other": 3,
         "trash": 3,
+        "other": 3,
+        "none": 3,
         "burning": 3,
         "none": 3,
         "vehicle": 1,
@@ -46,7 +47,7 @@
         "outside"
       ],
       "max_severity": "high",
-      "pm25": null,
+      "pm25": 5.2,
       "summary": null
     }
   ]
