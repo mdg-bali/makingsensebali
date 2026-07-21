@@ -59,8 +59,8 @@
         "noise": 54.32
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
-      "excluded_from_avg": true,
-      "exclusion_reason": "indoor_suspected"
+      "excluded_from_avg": false,
+      "exclusion_reason": null
     },
     {
       "id": "sck-19651",
@@ -114,9 +114,9 @@
       "offline": false,
       "lastReading": "2026-07-21T17:43:29.000Z",
       "reading": {
-        "pm25": 12.7,
-        "pm10": 14.0,
-        "temp": 23.1,
+        "pm25": 15.3,
+        "pm10": 17.8,
+        "temp": 23.0,
         "rh": 67
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -140,8 +140,8 @@
         "rh": 58
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor_suspected"
     },
     {
       "id": "airgradient-196524",
@@ -177,7 +177,7 @@
         "pm25": 3.5,
         "pm10": 3.5,
         "temp": 27.1,
-        "rh": 56
+        "rh": 55
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
