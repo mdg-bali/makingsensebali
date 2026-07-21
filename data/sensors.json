@@ -19,8 +19,8 @@
         "noise": 50.6
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor_suspected"
     },
     {
       "id": "sck-19600",
@@ -154,9 +154,9 @@
       "offline": false,
       "lastReading": "2026-07-21T02:58:12.000Z",
       "reading": {
-        "pm25": 24.7,
-        "pm10": 25.0,
-        "temp": 24.7,
+        "pm25": 26.7,
+        "pm10": 26.7,
+        "temp": 25.0,
         "rh": 68
       },
       "detailsUrl": "https://www.airgradient.com/map/",
