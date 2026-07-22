@@ -10,17 +10,17 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-22T16:40:08Z",
+      "lastReading": "2026-07-22T16:57:08Z",
       "reading": {
-        "pm25": 5.2,
-        "pm10": 5.2,
-        "temp": 25.81,
-        "rh": 52.62,
-        "noise": 36.91
+        "pm25": 4.6,
+        "pm10": 4.9,
+        "temp": 25.52,
+        "rh": 51.46,
+        "noise": 38.79
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor_suspected"
     },
     {
       "id": "sck-19600",
@@ -50,17 +50,17 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-22T16:40:14Z",
+      "lastReading": "2026-07-22T16:57:15Z",
       "reading": {
-        "pm25": 5.9,
-        "pm10": 6.2,
-        "temp": 23.7,
-        "rh": 54.54,
-        "noise": 32.67
+        "pm25": 4.8,
+        "pm10": 5.1,
+        "temp": 23.39,
+        "rh": 53.31,
+        "noise": 41.77
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor_suspected"
     },
     {
       "id": "sck-19651",
