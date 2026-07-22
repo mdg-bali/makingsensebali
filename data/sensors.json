@@ -90,9 +90,9 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-07-22T09:00:00Z",
+      "lastReading": "2026-07-22T10:00:00Z",
       "reading": {
-        "pm25": 5.0,
+        "pm25": 5.3,
         "pm10": null,
         "temp": null,
         "rh": null,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-22T09:49:34+00:00",
+      "lastReading": "2026-07-22T10:07:34+00:00",
       "reading": {
-        "pm25": 2.0,
+        "pm25": 1.9,
         "pm10": null,
-        "temp": 31.1,
-        "rh": 48
+        "temp": 30.6,
+        "rh": 49
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-22T09:50:01+00:00",
+      "lastReading": "2026-07-22T10:08:01+00:00",
       "reading": {
-        "pm25": 55.3,
+        "pm25": 52.7,
         "pm10": null,
         "temp": 28.3,
-        "rh": 62
+        "rh": 61
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -220,8 +220,8 @@
         "rh": 56
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor_suspected"
     }
   ]
 }
