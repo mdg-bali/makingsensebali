@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-22T01:59:56.577645+00:00",
+  "generated_at": "2026-07-22T02:15:30.468209+00:00",
   "count": 11,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-22T01:57:53Z",
+      "lastReading": "2026-07-22T02:12:53Z",
       "reading": {
-        "pm25": 11.7,
-        "pm10": 11.7,
-        "temp": 25.62,
-        "rh": 64.03,
-        "noise": 40.02
+        "pm25": 10.3,
+        "pm10": 10.6,
+        "temp": 25.6,
+        "rh": 59.02,
+        "noise": 38.08
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-22T01:57:47Z",
+      "lastReading": "2026-07-22T02:12:47Z",
       "reading": {
-        "pm25": 11.5,
-        "pm10": 11.9,
-        "temp": 23.73,
-        "rh": 70.93,
-        "noise": 39.41
+        "pm25": 10.2,
+        "pm10": 10.2,
+        "temp": 23.38,
+        "rh": 62.0,
+        "noise": 38.32
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
@@ -90,7 +90,7 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-07-22T01:00:00Z",
+      "lastReading": "2026-07-22T02:00:00Z",
       "reading": {
         "pm25": 4.8,
         "pm10": null,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-22T01:59:24+00:00",
+      "lastReading": "2026-07-22T02:13:24+00:00",
       "reading": {
-        "pm25": 0.7,
+        "pm25": 0.8,
         "pm10": null,
-        "temp": 31.7,
-        "rh": 53
+        "temp": 32.2,
+        "rh": 50
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-22T01:57:50+00:00",
+      "lastReading": "2026-07-22T02:13:50+00:00",
       "reading": {
-        "pm25": 44.4,
+        "pm25": 43.3,
         "pm10": null,
         "temp": 28.3,
-        "rh": 68
+        "rh": 65
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-22T01:59:51.000Z",
+      "lastReading": "2026-07-22T02:14:53.000Z",
       "reading": {
-        "pm25": 35.3,
-        "pm10": 41.2,
-        "temp": 25.4,
-        "rh": 63
+        "pm25": 19.7,
+        "pm10": 19.7,
+        "temp": 25.2,
+        "rh": 61
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -172,11 +172,11 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-22T01:59:01.000Z",
+      "lastReading": "2026-07-22T02:15:01.000Z",
       "reading": {
-        "pm25": 8.2,
-        "pm10": 8.2,
-        "temp": 28.9,
+        "pm25": 8.5,
+        "pm10": 8.8,
+        "temp": 28.8,
         "rh": 51
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -192,11 +192,11 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-22T01:59:03.000Z",
+      "lastReading": "2026-07-22T02:15:03.000Z",
       "reading": {
-        "pm25": 28.2,
-        "pm10": 33.0,
-        "temp": 28.0,
+        "pm25": 41.5,
+        "pm10": 49.7,
+        "temp": 27.9,
         "rh": 54
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -212,11 +212,11 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-22T01:58:56.000Z",
+      "lastReading": "2026-07-22T02:14:56.000Z",
       "reading": {
-        "pm25": 7.0,
-        "pm10": 7.2,
-        "temp": 27.6,
+        "pm25": 8.5,
+        "pm10": 8.5,
+        "temp": 27.8,
         "rh": 53
       },
       "detailsUrl": "https://www.airgradient.com/map/",
