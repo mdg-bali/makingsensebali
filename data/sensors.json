@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-22T10:19:37.149924+00:00",
-  "count": 8,
+  "generated_at": "2026-07-22T10:35:38.935800+00:00",
+  "count": 4,
   "sensors": [
     {
       "id": "sck-19236",
@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-22T10:16:45Z",
+      "lastReading": "2026-07-22T10:32:45Z",
       "reading": {
-        "pm25": 15.8,
-        "pm10": 15.8,
-        "temp": 26.77,
-        "rh": 59.68,
-        "noise": 40.19
+        "pm25": 15.5,
+        "pm10": 15.9,
+        "temp": 26.83,
+        "rh": 59.86,
+        "noise": 39.84
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-22T10:16:41Z",
+      "lastReading": "2026-07-22T10:32:45Z",
       "reading": {
-        "pm25": 18.0,
-        "pm10": 18.0,
+        "pm25": 15.1,
+        "pm10": 15.6,
         "temp": 24.89,
-        "rh": 64.03,
-        "noise": 49.1
+        "rh": 63.83,
+        "noise": 52.79
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": false,
