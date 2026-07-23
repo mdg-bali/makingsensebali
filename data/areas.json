@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-23T21:52:08.173768+00:00",
+  "generated_at": "2026-07-23T22:07:21.010697+00:00",
   "areas": [
     {
       "locality": "Bali",
@@ -30,7 +30,6 @@
       "lon": 115.153587,
       "report_count": 14,
       "categories": {
-        "trash": 3,
         "other": 3,
         "none": 3,
         "burning": 3,

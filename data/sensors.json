@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-23T21:52:03.769293+00:00",
+  "generated_at": "2026-07-23T22:07:15.592276+00:00",
   "count": 8,
   "sensors": [
     {
@@ -112,11 +112,11 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-23T21:51:35.000Z",
+      "lastReading": "2026-07-23T22:06:36.000Z",
       "reading": {
-        "pm25": 22.5,
-        "pm10": 23.7,
-        "temp": 22.3,
+        "pm25": 28.0,
+        "pm10": 28.3,
+        "temp": 22.4,
         "rh": 66
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -132,12 +132,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-23T21:51:15.000Z",
+      "lastReading": "2026-07-23T22:06:15.000Z",
       "reading": {
-        "pm25": 11.3,
-        "pm10": 11.3,
-        "temp": 27.2,
-        "rh": 52
+        "pm25": 42.3,
+        "pm10": 49.7,
+        "temp": 27.1,
+        "rh": 54
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-23T21:51:13.000Z",
+      "lastReading": "2026-07-23T22:07:13.000Z",
       "reading": {
-        "pm25": 27.5,
-        "pm10": 29.5,
-        "temp": 24.1,
-        "rh": 63
+        "pm25": 30.5,
+        "pm10": 36.7,
+        "temp": 23.7,
+        "rh": 64
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -172,11 +172,11 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-23T21:51:56.000Z",
+      "lastReading": "2026-07-23T22:06:57.000Z",
       "reading": {
-        "pm25": 3.5,
-        "pm10": 3.5,
-        "temp": 26.4,
+        "pm25": 3.2,
+        "pm10": 3.7,
+        "temp": 26.3,
         "rh": 53
       },
       "detailsUrl": "https://www.airgradient.com/map/",
