@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-23T14:12:07Z",
+      "lastReading": "2026-07-23T14:28:07Z",
       "reading": {
-        "pm25": 4.7,
-        "pm10": 5.9,
-        "temp": 25.04,
-        "rh": 49.59,
-        "noise": 38.83
+        "pm25": 3.3,
+        "pm10": 3.5,
+        "temp": 24.93,
+        "rh": 51.42,
+        "noise": 39.11
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": true,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-23T14:13:02Z",
+      "lastReading": "2026-07-23T14:28:02Z",
       "reading": {
-        "pm25": 3.4,
-        "pm10": 3.4,
-        "temp": 22.97,
-        "rh": 52.94,
-        "noise": 36.55
+        "pm25": 4.1,
+        "pm10": 4.3,
+        "temp": 22.95,
+        "rh": 57.74,
+        "noise": 37.79
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": true,
