@@ -34,6 +34,7 @@
         "none": 3,
         "trash": 3,
         "burning": 3,
+        "none": 3,
         "vehicle": 1,
         "construction": 1
       },
