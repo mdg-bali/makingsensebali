@@ -3,11 +3,11 @@
   "areas": [
     {
       "locality": "Bali",
-      "lat": -6.779904,
-      "lon": 90.125407,
-      "report_count": 23,
+      "lat": -6.858305,
+      "lon": 91.168583,
+      "report_count": 24,
       "categories": {
-        "burning": 16,
+        "burning": 17,
         "other": 4,
         "none": 2,
         "vehicle": 1
@@ -31,8 +31,6 @@
       "report_count": 14,
       "categories": {
         "trash": 3,
-        "other": 3,
-        "none": 3,
         "burning": 3,
         "none": 3,
         "vehicle": 1,
