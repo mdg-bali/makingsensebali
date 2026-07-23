@@ -59,8 +59,8 @@
         "noise": 38.57
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
-      "excluded_from_avg": true,
-      "exclusion_reason": "indoor_suspected"
+      "excluded_from_avg": false,
+      "exclusion_reason": null
     },
     {
       "id": "sck-19651",
@@ -90,9 +90,9 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-07-23T22:00:00Z",
+      "lastReading": "2026-07-23T23:00:00Z",
       "reading": {
-        "pm25": 6.5,
+        "pm25": 6.7,
         "pm10": null,
         "temp": null,
         "rh": null,
