@@ -10,13 +10,13 @@
       "name": "SCK@Jimbaran-2025",
       "lat": -8.79352,
       "lng": 115.14482,
-      "lastReading": "2026-07-23T14:00:07Z",
+      "lastReading": "2026-07-23T14:12:07Z",
       "reading": {
-        "pm25": 4.4,
-        "pm10": 4.9,
-        "temp": 25.13,
-        "rh": 49.66,
-        "noise": 38.19
+        "pm25": 4.7,
+        "pm10": 5.9,
+        "temp": 25.04,
+        "rh": 49.59,
+        "noise": 38.83
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": true,
@@ -50,13 +50,13 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-23T13:56:59Z",
+      "lastReading": "2026-07-23T14:13:02Z",
       "reading": {
         "pm25": 3.4,
         "pm10": 3.4,
-        "temp": 22.83,
-        "rh": 51.49,
-        "noise": 34.64
+        "temp": 22.97,
+        "rh": 52.94,
+        "noise": 36.55
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
       "excluded_from_avg": true,
@@ -220,8 +220,8 @@
         "rh": 53
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor_suspected"
     }
   ]
 }
