@@ -4,7 +4,7 @@
   ],
   "name": "Burning observation — Bali, Bali",
   "description": "Proyek bakar sampah",
-  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260720_131408_145.json",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260723_135547_044.json",
   "latitude": -8.6615147,
   "longitude": 115.1616358,
   "geolocation": {
@@ -27,29 +27,27 @@
     "bukit_pilot"
   ],
   "status": "active",
-  "date_added": "2026-07-20T13:15:10.327261+00:00",
+  "date_added": "2026-07-23T15:16:05.708136+00:00",
   "observation_type": "photo",
   "pollution_category": "burning",
   "ai_analysis": {
     "detected": true,
-    "confidence": 0.85,
+    "confidence": 0.6,
     "indicators": [
-      "intense orange glow",
-      "fire/burning material",
-      "scaffolding",
-      "building under construction"
+      "smoke plume",
+      "nighttime setting",
+      "haze"
     ],
-    "description": "A building under construction shows signs of fire or intense burning.",
+    "description": "Smoke is visible rising from an area near a large structure at night.",
     "severity": "medium",
     "model_version": "exo:gemma-4-e4b-it-6bit"
   },
-  "photo_path": "photos/AQ_20260720_131408_145.jpg",
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
   "action_cycle": {
-    "observation_timestamp": "2026-07-20T13:15:10.327261+00:00",
-    "reported_timestamp": "2026-07-20T13:15:10.327261+00:00",
+    "observation_timestamp": "2026-07-23T15:16:05.708136+00:00",
+    "reported_timestamp": "2026-07-23T15:16:05.708136+00:00",
     "response_status": "reported"
   }
 }
