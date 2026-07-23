@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-23T18:34:32.785156+00:00",
+  "generated_at": "2026-07-23T18:44:06.410450+00:00",
   "areas": [
     {
       "locality": "Bali",
@@ -13,9 +13,9 @@
         "vehicle": 1
       },
       "top_tags": [
+        "open burning",
         "open fire",
         "burning debris",
-        "open burning",
         "construction site",
         "visible flames",
         "active fire"
@@ -31,9 +31,11 @@
       "report_count": 14,
       "categories": {
         "trash": 3,
+        "other": 3,
+        "none": 3,
         "burning": 3,
-        "vehicle": 1,
-        "construction": 1
+        "construction": 1,
+        "vehicle": 1
       },
       "top_tags": [
         "various types of waste",
