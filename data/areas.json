@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-23T00:17:24.235179+00:00",
+  "generated_at": "2026-07-23T00:33:00.300238+00:00",
   "areas": [
     {
       "locality": "Bali",
@@ -45,7 +45,7 @@
         "outside"
       ],
       "max_severity": "high",
-      "pm25": 5.8,
+      "pm25": 7.3,
       "summary": null
     }
   ]
