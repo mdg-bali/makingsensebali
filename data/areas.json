@@ -31,6 +31,8 @@
       "report_count": 14,
       "categories": {
         "trash": 3,
+        "other": 3,
+        "none": 3,
         "burning": 3,
         "vehicle": 1,
         "construction": 1
