@@ -19,8 +19,8 @@
         "noise": 47.34
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor_suspected"
     },
     {
       "id": "sck-19600",
@@ -59,8 +59,8 @@
         "noise": 47.98
       },
       "detailsUrl": "https://smartcitizen.me/kits/19618",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor_suspected"
     },
     {
       "id": "sck-19651",
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-24T03:48:28+00:00",
+      "lastReading": "2026-07-24T04:04:28+00:00",
       "reading": {
         "pm25": 0.5,
         "pm10": null,
         "temp": 33.9,
-        "rh": 40
+        "rh": 41
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-24T03:48:59+00:00",
+      "lastReading": "2026-07-24T04:05:00+00:00",
       "reading": {
-        "pm25": 36.7,
+        "pm25": 34.2,
         "pm10": null,
-        "temp": 28.9,
-        "rh": 56
+        "temp": 29.4,
+        "rh": 55
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
