@@ -217,7 +217,7 @@
         "pm25": 0.5,
         "pm10": 0.5,
         "temp": 28.4,
-        "rh": 46
+        "rh": 47
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
