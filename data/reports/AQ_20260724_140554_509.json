@@ -4,7 +4,7 @@
   ],
   "name": "Burning observation — Bali, Bali",
   "description": "Proyek bakar sampah",
-  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260723_135547_044.json",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260724_140554_509.json",
   "latitude": -8.6615147,
   "longitude": 115.1616358,
   "geolocation": {
@@ -22,33 +22,33 @@
     "planet_ai",
     "burning",
     "source:whatsapp",
-    "severity:medium",
+    "severity:high",
     "bioregion:indo_pacific_coral_triangle",
     "bukit_pilot"
   ],
   "status": "active",
-  "date_added": "2026-07-23T15:16:05.708136+00:00",
+  "date_added": "2026-07-24T14:06:42.127183+00:00",
   "observation_type": "photo",
   "pollution_category": "burning",
   "ai_analysis": {
     "detected": true,
-    "confidence": 0.6,
+    "confidence": 0.9,
     "indicators": [
-      "smoke plume",
-      "nighttime setting",
-      "haze"
+      "intense orange glow",
+      "smoke/haze",
+      "open burning",
+      "construction scaffolding"
     ],
-    "description": "Smoke is visible rising from an area near a large structure at night.",
-    "severity": "medium",
+    "description": "A building under construction is visible near an area with active open burning at night.",
+    "severity": "high",
     "model_version": "exo:gemma-4-e4b-it-6bit"
   },
-  "photo_path": "photos/AQ_20260723_135547_044.jpg",
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
   "action_cycle": {
-    "observation_timestamp": "2026-07-23T15:16:05.708136+00:00",
-    "reported_timestamp": "2026-07-23T15:16:05.708136+00:00",
+    "observation_timestamp": "2026-07-24T14:06:42.127183+00:00",
+    "reported_timestamp": "2026-07-24T14:06:42.127183+00:00",
     "response_status": "reported"
   }
 }
