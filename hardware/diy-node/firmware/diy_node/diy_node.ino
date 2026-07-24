@@ -1,46 +1,69 @@
 // Making Sense Bali — DIY Node firmware
-// Target: Seeed XIAO ESP32-S3
+// v1.1 — WiFiManager + double-reset revision (merges the two v1 sketches
+//        previously floating around: the placeholder-credential template
+//        and the flashed-node copy with real WiFi/token values baked in)
+//
+// Target: Seeed XIAO ESP32-S3 AND ESP32-C3 — same sketch, select the board
+//         in the Arduino IDE and it just works. Pin mapping (D4/D5) is
+//         resolved automatically per board variant: GPIO5/6 on S3,
+//         GPIO6/7 on C3. Nothing in this file is chip-specific.
 // Sensors: BME680 (I2C 0x76) + Seeed Grove HM3301 (I2C 0x40)
 // Platform: publishes to mqtt.smartcitizen.me over TLS
 //
 // Repo: https://github.com/mdg-bali/makingsensebali
-// License: MIT
+// License: MIT — every dependency below is MIT/permissive, no closed blobs.
+//   (This is the "open" firmware. The BSEC2/certified-IAQ revision is kept
+//   as a separate, parallel file in this repo — see /firmware/v2-bsec2/ —
+//   for anyone who wants Bosch's calibrated IAQ and accepts a closed-source
+//   dependency. Both are maintained; this one is the default for public
+//   replication, workshop kits, and any C3-based node.)
 //
-// What this does (in order):
-//   1. Brings up Wire (I2C) on the XIAO's default SDA=D4 (GPIO5), SCL=D5 (GPIO6)
-//   2. Initialises BME680 at 0x76 (oversampling + IIR filter + gas heater)
-//      and HM3301 via Seeed's library
-//   3. Connects to WiFi, syncs the clock via NTP
-//   4. Every PUBLISH_INTERVAL_MS, reads sensors and publishes one MQTT
-//      message to device/sck/<DEVICE_TOKEN>/readings on mqtt.smartcitizen.me:8883
+// ---------------------------------------------------------------------------
+// WHAT CHANGED vs the plain v1 sketch
+// ---------------------------------------------------------------------------
+//  1. No more hardcoded WIFI_SSID / WIFI_PASSWORD. WiFiManager now handles
+//     provisioning: first boot (or any boot where the saved network can't
+//     be reached) opens a temporary "MakingSenseBali-XXXX" access point with
+//     a captive portal where you type in the real network's credentials.
+//     This is the field team's fix for moving kiosk/workshop nodes between
+//     locations without reflashing — credit to the team for building and
+//     testing this on the C3 unit before it landed here.
+//  2. Double-reset-to-reprovision: press the physical RESET button twice
+//     within DRD_TIMEOUT_S seconds and the node wipes its saved WiFi and
+//     reopens the config portal — even if the old network is still in
+//     range and would otherwise reconnect fine. Useful when you want to
+//     deliberately switch a node to a different network without waiting
+//     for the old one to fail first.
+//  3. SC_DEVICE_TOKEN is UNCHANGED — still a hardcoded constant you edit
+//     before flashing. WiFiManager only solves network reconfiguration,
+//     not device identity; a node's Smart Citizen token doesn't change
+//     just because it moved to a new WiFi network.
+//  4. Nothing about the BME680 / HM3301 / MQTT / computeIAQ logic changed.
+//     This is the same open, on-device IAQ approximation as before — see
+//     the note above computeIAQ() if you're citing that number.
 //
-// Note on BME680 gas + IAQ:
-//   The BME680 adds a metal-oxide gas sensor (VOC-sensitive) on top of
-//   temp/humidity/pressure. We publish two derived channels:
-//     - GAS (240): the RAW gas resistance in OHMS — lower resistance = more
-//       VOCs in the air. A relative indicator, fully open, no library magic.
-//     - IAQ (241): an OPEN 0-500 air-quality index computed on-device in
-//       computeIAQ() from gas resistance + humidity. This is NOT Bosch's
-//       certified BSEC index — BSEC is closed-source with license terms that
-//       don't fit an open-data project, so we approximate it ourselves.
-//       The approximation only becomes meaningful after the gas sensor has
-//       burned in (~24-48h) and the baseline has settled. Treat early IAQ
-//       values as noise. If you ever need the certified index for policy
-//       work, that's the moment to weigh integrating BSEC — see computeIAQ().
+// A note on the double-reset mechanism: it relies on ESP32 RTC (slow) memory,
+// which survives a RESET-button press (that only toggles the EN pin, power
+// stays on) but is cleared by an actual power cycle (unplug/replug). That's
+// the point — a deliberate double-tap of the reset button is a clear signal;
+// a power blip during a brownout is not, and should NOT wipe saved WiFi.
 //
-// Payload shape matches the canonical Smart Citizen MQTT spec:
+// ---------------------------------------------------------------------------
+// LIBRARIES (Arduino Library Manager)
+// ---------------------------------------------------------------------------
+//   - Adafruit BME680 Library  (depends on Adafruit Unified Sensor)
+//   - PubSubClient             (Nick O'Leary)
+//   - ArduinoJson              v7.x
+//   - WiFiManager              (tzapu) — MIT licensed, ESP32-compatible
+//
+// PAYLOAD shape (canonical Smart Citizen MQTT spec):
 //   { "data": [ { "recorded_at": "ISO8601",
 //                 "sensors": [ {"id": N, "value": V}, ... ] } ] }
 // Reference: https://github.com/fablabbcn/smartcitizen-api/blob/master/docs/mqtt.md
-//
-// Libraries (install via Arduino Library Manager):
-//   - Adafruit BME680 Library  (depends on Adafruit Unified Sensor)
-//   - Seeed_HM330X             (Seeed Studio's HM3301 driver)
-//   - PubSubClient             (Nick O'Leary)
-//   - ArduinoJson v7.x
 
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
+#include <WiFiManager.h>
 #include <PubSubClient.h>
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
@@ -58,11 +81,9 @@
 // CONFIGURATION — edit these and reflash
 // ============================================================================
 
-// WiFi
-const char* WIFI_SSID     = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-
-// Smart Citizen device token (from your device page on smartcitizen.me)
+// Smart Citizen device token (from your device page on smartcitizen.me).
+// This is per-device identity, NOT provisioned by WiFiManager — it does not
+// change when the node moves to a new network.
 const char* SC_DEVICE_TOKEN = "YOUR_SC_DEVICE_TOKEN";
 
 // Smart Citizen sensor IDs — one per metric, copy from your device page.
@@ -79,15 +100,9 @@ const char* SC_DEVICE_TOKEN = "YOUR_SC_DEVICE_TOKEN";
 // The value is an OPEN on-device approximation, not Bosch BSEC; see computeIAQ().
 //
 // You normally DON'T touch the IDs below: they are SC global-catalog IDs, the
-// same for every node. Replicators only set WiFi + device token above. For a
-// Basic kit (no HM-3301), set the three PM IDs to 0 to skip publishing them.
-//
-// Two unit/semantics changes vs the old mapping, both handled in code below:
-//   - GAS (240) is now RAW gas resistance in OHMS (not kΩ). readBME680 no
-//     longer divides by 1000.
-//   - IAQ (241) is computed on-device. See computeIAQ() — it is an OPEN
-//     approximation from gas resistance + humidity, NOT the certified Bosch
-//     BSEC index. Read the note above computeIAQ() before citing it.
+// same for every node. Replicators only set the device token above (WiFi is
+// now handled at first boot via the config portal — see WIFI PROVISIONING).
+// For a Basic kit (no HM-3301), set the three PM IDs to 0 to skip publishing them.
 const int SC_ID_PM1      = 233;  // µg/m³  — Seeed HM-3301 - PM1.0
 const int SC_ID_PM25     = 234;  // µg/m³  — Seeed HM-3301 - PM2.5
 const int SC_ID_PM10     = 235;  // µg/m³  — Seeed HM-3301 - PM10.0
@@ -103,7 +118,42 @@ const uint16_t MQTT_PORT = 8883;
 
 // Timing
 const uint32_t PUBLISH_INTERVAL_MS = 60UL * 1000UL;  // one reading/minute
-const uint32_t WIFI_CONNECT_TIMEOUT_MS = 30000;
+
+// ============================================================================
+// WIFI PROVISIONING (WiFiManager + double-reset)
+// ============================================================================
+
+// Password for the TEMPORARY "MakingSenseBali-XXXX" hotspot shown during
+// provisioning — this is NOT the node's home/kiosk WiFi password, just a
+// gate so randoms can't hijack the config portal on a public kiosk while
+// it's briefly open. Must be 8+ characters (WPA2 minimum).
+const char* CONFIG_PORTAL_PASSWORD = "msb-setup";
+
+// How long the config portal stays open with no client before giving up
+// and restarting to retry (seconds).
+const uint16_t CONFIG_PORTAL_TIMEOUT_S = 180;
+
+// How long WiFiManager tries the saved network before falling back to the
+// config portal (seconds).
+const uint16_t WIFI_CONNECT_TIMEOUT_S = 15;
+
+// Double-reset window: press physical RESET twice within this many seconds
+// to force-clear saved WiFi and reopen the config portal.
+const uint16_t DRD_TIMEOUT_S = 10;
+
+WiFiManager wm;
+
+// RTC (slow) memory: survives a RESET-button press, cleared by real power
+// loss. Used purely to detect "was the last boot very recent."
+RTC_DATA_ATTR bool drdFlagArmed = false;
+
+bool forceConfigPortal = false;   // computed once in setup() from drdFlagArmed
+
+String uniqueApName() {
+  String mac = WiFi.macAddress();          // e.g. "3C:71:BF:8A:12:34"
+  mac.replace(":", "");
+  return "MakingSenseBali-" + mac.substring(6);  // last 3 octets, no colons
+}
 
 // ============================================================================
 // HARDWARE
@@ -124,29 +174,49 @@ uint32_t lastPublish = 0;
 float gasBaselineOhm = 0.0f;
 
 // ============================================================================
-// WIFI + NTP
+// WIFI PROVISIONING + NTP
 // ============================================================================
 
-void connectWiFi() {
-  if (WiFi.status() == WL_CONNECTED) return;
-
-  Serial.printf("[wifi] connecting to %s ", WIFI_SSID);
+// Blocking — runs once from setup(). Tries the saved network first; if that
+// fails (or forceConfigPortal is set), opens the captive portal. If the
+// portal also times out with no one configuring it, we restart and try the
+// whole sequence again next boot rather than limping on with no WiFi.
+void provisionWiFi() {
   WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  uint32_t start = millis();
-  while (WiFi.status() != WL_CONNECTED && (millis() - start) < WIFI_CONNECT_TIMEOUT_MS) {
-    delay(500);
-    Serial.print(".");
+  if (forceConfigPortal) {
+    Serial.println("[wifi] double-reset detected — clearing saved network and opening config portal");
+    wm.resetSettings();
   }
-  Serial.println();
 
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.printf("[wifi] connected — IP %s · RSSI %d dBm\n",
+  wm.setConnectTimeout(WIFI_CONNECT_TIMEOUT_S);
+  wm.setConfigPortalTimeout(CONFIG_PORTAL_TIMEOUT_S);
+
+  String apName = uniqueApName();
+  Serial.printf("[wifi] connecting (saved network) or opening portal \"%s\" ", apName.c_str());
+
+  bool ok = wm.autoConnect(apName.c_str(), CONFIG_PORTAL_PASSWORD);
+
+  if (ok) {
+    Serial.printf("\n[wifi] connected — IP %s · RSSI %d dBm\n",
                   WiFi.localIP().toString().c_str(), WiFi.RSSI());
   } else {
-    Serial.println("[wifi] failed — will retry next loop");
+    Serial.println("\n[wifi] no connection and portal timed out — restarting to retry");
+    delay(1000);
+    ESP.restart();
   }
+}
+
+// Lightweight, non-blocking reconnect for drops during normal operation.
+// Deliberately does NOT reopen the config portal — a dropped connection on
+// a known-good network should just retry, not demand reprovisioning.
+void maintainWiFi() {
+  if (WiFi.status() == WL_CONNECTED) return;
+  static uint32_t lastAttempt = 0;
+  if (millis() - lastAttempt < 10000) return;  // don't hammer reconnects
+  lastAttempt = millis();
+  Serial.println("[wifi] disconnected — reconnecting with saved credentials");
+  WiFi.reconnect();
 }
 
 void syncTime() {
@@ -288,7 +358,7 @@ bool publishReadings(float tempC, float humRH, float pressureKPa, float gasOhm,
 //     comparable unit-to-unit the way a reference-grade instrument is.
 //   - If you ever need a defensible, comparable index for policy work,
 //     that's the trigger to integrate BSEC (or co-locate with a reference
-//     monitor and derive a correction) — not this proxy.
+//     monitor and derive a correction) — not this proxy. See /firmware/v2-bsec2/.
 float computeIAQ(float gasOhm, float humRH) {
   if (isnan(gasOhm) || isnan(humRH) || gasOhm <= 0.0f) return NAN;
 
@@ -389,10 +459,16 @@ bool readHM3301(uint16_t &pm1, uint16_t &pm25, uint16_t &pm10) {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.println("\n=== Making Sense Bali — DIY Node ===");
+  Serial.println("\n=== Making Sense Bali — DIY Node (v1.1, WiFiManager) ===");
 
-  // I2C on XIAO ESP32-S3 default pins: SDA=D4 (GPIO5), SCL=D5 (GPIO6).
-  // Wire.begin() with no args uses those defaults.
+  // Double-reset check: if the RTC flag from a previous boot is still armed,
+  // this boot happened within DRD_TIMEOUT_S of the last one — treat it as a
+  // deliberate double-tap of RESET and force reprovisioning.
+  forceConfigPortal = drdFlagArmed;
+  drdFlagArmed = true;   // armed until loop() disarms it after the window
+
+  // I2C — Wire.begin() with no args uses the selected board's default pins
+  // (D4/D5, which map to different GPIOs on S3 vs C3; see header note).
   Wire.begin();
 
   // BME680 — try 0x76 first (SDO grounded), then 0x77 (SDO to 3V3).
@@ -419,12 +495,21 @@ void setup() {
     Serial.println("[hm3301] NOT FOUND — check 5V power and Grove cable");
   }
 
-  connectWiFi();
+  provisionWiFi();  // blocking — see WIFI PROVISIONING section
   syncTime();
 }
 
 void loop() {
-  connectWiFi();
+  // Disarm the double-reset flag once we've been running longer than the
+  // window — a boot that stays up this long clearly wasn't followed by a
+  // second quick reset.
+  static bool drdCleared = false;
+  if (!drdCleared && millis() > (uint32_t)DRD_TIMEOUT_S * 1000UL) {
+    drdFlagArmed = false;
+    drdCleared = true;
+  }
+
+  maintainWiFi();
   connectMQTT();
   mqtt.loop();
 
