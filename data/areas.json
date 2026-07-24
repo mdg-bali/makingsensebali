@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-24T04:53:41.059062+00:00",
+  "generated_at": "2026-07-24T05:09:14.494959+00:00",
   "areas": [
     {
       "locality": "Bali",
@@ -45,7 +45,7 @@
         "no visible fire"
       ],
       "max_severity": "high",
-      "pm25": null,
+      "pm25": 5.2,
       "summary": null
     }
   ]
