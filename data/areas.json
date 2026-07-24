@@ -46,7 +46,7 @@
         "no visible fire"
       ],
       "max_severity": "high",
-      "pm25": 5.0,
+      "pm25": null,
       "summary": null
     }
   ]
