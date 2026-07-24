@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-24T03:11:12.711343+00:00",
+  "generated_at": "2026-07-24T03:26:23.993276+00:00",
   "areas": [
     {
       "locality": "Bali",
@@ -32,7 +32,7 @@
       "categories": {
         "trash": 3,
         "other": 3,
-        "none": 3,
+        "trash": 3,
         "burning": 3,
         "vehicle": 1,
         "construction": 1
