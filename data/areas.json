@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-24T07:45:18.892310+00:00",
+  "generated_at": "2026-07-24T08:00:52.536112+00:00",
   "areas": [
     {
       "locality": "Bali",
@@ -34,7 +34,6 @@
         "other": 3,
         "none": 3,
         "burning": 3,
-        "none": 3,
         "vehicle": 1,
         "construction": 1
       },
