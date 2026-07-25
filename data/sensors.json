@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T21:17:39.697986+00:00",
+  "generated_at": "2026-07-25T21:32:52.266238+00:00",
   "count": 8,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-07-25T21:14:09Z",
+      "lastReading": "2026-07-25T21:29:09Z",
       "reading": {
-        "pm25": 9.8,
-        "pm10": 10.1,
-        "temp": 23.79,
-        "rh": 83.62,
-        "noise": 33.09
+        "pm25": 10.2,
+        "pm10": 10.2,
+        "temp": 23.78,
+        "rh": 82.96,
+        "noise": 31.58
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-25T21:17:32.000Z",
+      "lastReading": "2026-07-25T21:32:33.000Z",
       "reading": {
-        "pm25": 35.8,
-        "pm10": 41.2,
-        "temp": 23.2,
-        "rh": 67
+        "pm25": 39.7,
+        "pm10": 46.5,
+        "temp": 23.3,
+        "rh": 66
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -172,7 +172,7 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-25T21:17:16.000Z",
+      "lastReading": "2026-07-25T21:32:16.000Z",
       "reading": {
         "pm25": 29.3,
         "pm10": 29.8,
@@ -192,12 +192,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-25T21:17:04.000Z",
+      "lastReading": "2026-07-25T21:32:05.000Z",
       "reading": {
-        "pm25": 27.3,
-        "pm10": 28.2,
-        "temp": 25.8,
-        "rh": 64
+        "pm25": 27.8,
+        "pm10": 29.3,
+        "temp": 25.6,
+        "rh": 65
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -212,10 +212,10 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-25T21:16:43.000Z",
+      "lastReading": "2026-07-25T21:32:43.000Z",
       "reading": {
-        "pm25": 5.8,
-        "pm10": 6.8,
+        "pm25": 7.7,
+        "pm10": 7.7,
         "temp": 27.2,
         "rh": 59
       },
