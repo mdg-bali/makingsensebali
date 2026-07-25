@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-07-25T06:33:21Z",
+      "lastReading": "2026-07-25T06:46:27Z",
       "reading": {
-        "pm25": 12.6,
-        "pm10": 12.6,
-        "temp": 30.21,
-        "rh": 61.4,
-        "noise": 48.82
+        "pm25": 12.5,
+        "pm10": 12.5,
+        "temp": 30.46,
+        "rh": 60.32,
+        "noise": 51.31
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -50,7 +50,7 @@
       "name": "SCK-THREE@Jimbaran-2025",
       "lat": -8.79533,
       "lng": 115.14784,
-      "lastReading": "2026-07-25T06:33:29Z",
+      "lastReading": "2026-07-25T06:45:29Z",
       "reading": {
         "pm25": 0.7,
         "pm10": 1.1,
