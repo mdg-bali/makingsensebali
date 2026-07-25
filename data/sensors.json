@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T07:41:47.301881+00:00",
+  "generated_at": "2026-07-25T07:57:40.639076+00:00",
   "count": 9,
   "sensors": [
     {
@@ -112,11 +112,11 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-25T07:41:29.000Z",
+      "lastReading": "2026-07-25T07:56:39.000Z",
       "reading": {
-        "pm25": 27.2,
-        "pm10": 27.5,
-        "temp": 28.5,
+        "pm25": 31.5,
+        "pm10": 32.8,
+        "temp": 28.8,
         "rh": 47
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -132,12 +132,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-25T07:40:58.000Z",
+      "lastReading": "2026-07-25T07:56:58.000Z",
       "reading": {
-        "pm25": 26.8,
-        "pm10": 27.8,
+        "pm25": 25.8,
+        "pm10": 26.8,
         "temp": 30.4,
-        "rh": 45
+        "rh": 46
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-25T07:40:51.000Z",
+      "lastReading": "2026-07-25T07:56:51.000Z",
       "reading": {
-        "pm25": 28.2,
-        "pm10": 29.8,
-        "temp": 40.9,
-        "rh": 28
+        "pm25": 26.8,
+        "pm10": 29.7,
+        "temp": 42.3,
+        "rh": 26
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -172,12 +172,12 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-25T07:41:29.000Z",
+      "lastReading": "2026-07-25T07:57:29.000Z",
       "reading": {
-        "pm25": 23.0,
-        "pm10": 24.0,
-        "temp": 28.5,
-        "rh": 51
+        "pm25": 24.3,
+        "pm10": 24.3,
+        "temp": 28.4,
+        "rh": 52
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
