@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T10:22:59.541220+00:00",
+  "generated_at": "2026-07-25T10:23:47.461883+00:00",
   "count": 8,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-07-25T10:19:31Z",
+      "lastReading": "2026-07-25T10:22:31Z",
       "reading": {
         "pm25": 18.1,
         "pm10": 18.1,
         "temp": 25.08,
-        "rh": 75.11,
-        "noise": 41.5
+        "rh": 74.81,
+        "noise": 44.9
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -83,27 +83,6 @@
       "exclusion_reason": "indoor"
     },
     {
-      "id": "aqicn--519205",
-      "rawId": -519205,
-      "source": "aqicn",
-      "sourceLabel": "AQICN",
-      "name": "Kabupaten Badung Sempidi",
-      "lat": -8.603890419006348,
-      "lng": 115.1780014038086,
-      "lastReading": "2026-07-25T10:00:00Z",
-      "reading": {
-        "pm25": 8.2,
-        "pm10": null,
-        "temp": null,
-        "rh": null,
-        "aqi": 47,
-        "pm25_from_aqi": true
-      },
-      "detailsUrl": "https://aqicn.org/station/@519205",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
       "id": "airgradient-195778",
       "rawId": 195778,
       "source": "airgradient",
@@ -112,11 +91,11 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-25T10:22:01.000Z",
+      "lastReading": "2026-07-25T10:23:01.000Z",
       "reading": {
-        "pm25": 47.3,
-        "pm10": 58.0,
-        "temp": 25.9,
+        "pm25": 47.0,
+        "pm10": 57.5,
+        "temp": 25.8,
         "rh": 59
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -132,11 +111,11 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-25T10:22:02.000Z",
+      "lastReading": "2026-07-25T10:23:02.000Z",
       "reading": {
-        "pm25": 35.2,
-        "pm10": 39.2,
-        "temp": 28.8,
+        "pm25": 35.3,
+        "pm10": 39.8,
+        "temp": 28.9,
         "rh": 53
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -172,10 +151,10 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-25T10:22:32.000Z",
+      "lastReading": "2026-07-25T10:23:32.000Z",
       "reading": {
-        "pm25": 32.2,
-        "pm10": 35.2,
+        "pm25": 31.2,
+        "pm10": 33.2,
         "temp": 27.8,
         "rh": 54
       },
