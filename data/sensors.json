@@ -91,11 +91,11 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-25T22:46:52.000Z",
+      "lastReading": "2026-07-25T23:04:01.000Z",
       "reading": {
-        "pm25": 47.8,
-        "pm10": 58.2,
-        "temp": 22.8,
+        "pm25": 47.7,
+        "pm10": 57.0,
+        "temp": 23.0,
         "rh": 66
       },
       "detailsUrl": "https://www.airgradient.com/map/",
