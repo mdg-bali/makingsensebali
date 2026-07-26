@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-26T20:43:06.987922+00:00",
-  "count": 9,
+  "generated_at": "2026-07-26T20:53:07.130355+00:00",
+  "count": 8,
   "sensors": [
     {
       "id": "sck-19236",
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-07-26T20:39:26Z",
+      "lastReading": "2026-07-26T20:52:26Z",
       "reading": {
-        "pm25": 9.1,
-        "pm10": 10.3,
-        "temp": 24.15,
-        "rh": 82.67,
-        "noise": 41.4
+        "pm25": 9.4,
+        "pm10": 9.7,
+        "temp": 24.11,
+        "rh": 83.23,
+        "noise": 40.6
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -83,27 +83,6 @@
       "exclusion_reason": "indoor"
     },
     {
-      "id": "aqicn--519205",
-      "rawId": -519205,
-      "source": "aqicn",
-      "sourceLabel": "AQICN",
-      "name": "Kabupaten Badung Sempidi",
-      "lat": -8.603890419006348,
-      "lng": 115.1780014038086,
-      "lastReading": "2026-07-26T20:00:00Z",
-      "reading": {
-        "pm25": 6.0,
-        "pm10": null,
-        "temp": null,
-        "rh": null,
-        "aqi": 46,
-        "pm25_from_aqi": true
-      },
-      "detailsUrl": "https://aqicn.org/station/@519205",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
       "id": "airgradient-195778",
       "rawId": 195778,
       "source": "airgradient",
@@ -112,9 +91,9 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-26T20:42:48.000Z",
+      "lastReading": "2026-07-26T20:52:50.000Z",
       "reading": {
-        "pm25": 25.8,
+        "pm25": 27.7,
         "pm10": 28.3,
         "temp": 23.5,
         "rh": 69
@@ -132,10 +111,10 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-26T20:42:47.000Z",
+      "lastReading": "2026-07-26T20:52:48.000Z",
       "reading": {
-        "pm25": 9.7,
-        "pm10": 10.5,
+        "pm25": 8.5,
+        "pm10": 8.5,
         "temp": 27.1,
         "rh": 64
       },
@@ -152,10 +131,10 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-26T20:42:21.000Z",
+      "lastReading": "2026-07-26T20:52:21.000Z",
       "reading": {
-        "pm25": 13.5,
-        "pm10": 13.5,
+        "pm25": 11.5,
+        "pm10": 18.0,
         "temp": 25.1,
         "rh": 68
       },
@@ -172,10 +151,10 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-26T20:42:29.000Z",
+      "lastReading": "2026-07-26T20:52:29.000Z",
       "reading": {
-        "pm25": 5.8,
-        "pm10": 5.8,
+        "pm25": 5.5,
+        "pm10": 6.2,
         "temp": 27.4,
         "rh": 59
       },
