@@ -3,13 +3,13 @@
     "environmental_observation-v1.0.0"
   ],
   "name": "Burning observation — Bukit, Bali",
-  "description": "Next to Bali kencana",
-  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260725_011628_016.json",
-  "latitude": -8.8185348,
-  "longitude": 115.1667556,
+  "description": "In the backyard of the house",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260726_075201_351.json",
+  "latitude": -8.8058304,
+  "longitude": 115.1675568,
   "geolocation": {
-    "lat": -8.8185348,
-    "lon": 115.1667556
+    "lat": -8.8058304,
+    "lon": 115.1675568
   },
   "locality": "Bukit",
   "region": "Bali",
@@ -27,28 +27,27 @@
     "bukit_pilot"
   ],
   "status": "active",
-  "date_added": "2026-07-25T01:17:41.548275+00:00",
+  "date_added": "2026-07-26T17:54:59.330404+00:00",
   "observation_type": "photo",
   "pollution_category": "burning",
   "ai_analysis": {
     "detected": true,
-    "confidence": 0.95,
+    "confidence": 0.8,
     "indicators": [
-      "smoke rising",
-      "open burning",
-      "pile of trash"
+      "plume of smoke",
+      "open burning activity",
+      "residential setting"
     ],
-    "description": "A small fire is burning trash along a dirt road.",
+    "description": "Smoke is rising from an open burning site in a residential area.",
     "severity": "medium",
     "model_version": "exo:gemma-4-e4b-it-6bit"
   },
-  "photo_path": "photos/AQ_20260725_011628_016.jpg",
   "data_source": "whatsapp",
   "planet_ai_node": "bali.fab.city",
   "bioregion": "indo_pacific_coral_triangle",
   "action_cycle": {
-    "observation_timestamp": "2026-07-25T01:17:41.548275+00:00",
-    "reported_timestamp": "2026-07-25T01:17:41.548275+00:00",
+    "observation_timestamp": "2026-07-26T17:54:59.330404+00:00",
+    "reported_timestamp": "2026-07-26T17:54:59.330404+00:00",
     "response_status": "reported"
   }
 }
