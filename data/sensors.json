@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-26T19:36:01.503973+00:00",
+  "generated_at": "2026-07-26T19:51:13.624668+00:00",
   "count": 8,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-07-26T19:33:19Z",
+      "lastReading": "2026-07-26T19:49:22Z",
       "reading": {
-        "pm25": 9.2,
-        "pm10": 9.7,
-        "temp": 24.1,
-        "rh": 82.61,
-        "noise": 30.42
+        "pm25": 8.9,
+        "pm10": 9.1,
+        "temp": 24.11,
+        "rh": 82.85,
+        "noise": 42.7
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-26T19:35:48.000Z",
+      "lastReading": "2026-07-26T19:50:47.000Z",
       "reading": {
-        "pm25": 29.0,
-        "pm10": 30.7,
-        "temp": 23.4,
-        "rh": 70
+        "pm25": 23.0,
+        "pm10": 24.2,
+        "temp": 23.6,
+        "rh": 69
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -172,10 +172,10 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-26T19:35:46.000Z",
+      "lastReading": "2026-07-26T19:50:46.000Z",
       "reading": {
-        "pm25": 7.3,
-        "pm10": 7.7,
+        "pm25": 6.5,
+        "pm10": 6.5,
         "temp": 27.3,
         "rh": 63
       },
@@ -192,11 +192,11 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-26T19:35:20.000Z",
+      "lastReading": "2026-07-26T19:50:20.000Z",
       "reading": {
-        "pm25": 7.2,
-        "pm10": 7.2,
-        "temp": 24.7,
+        "pm25": 6.8,
+        "pm10": 6.8,
+        "temp": 24.9,
         "rh": 69
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -212,7 +212,7 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-26T19:35:28.000Z",
+      "lastReading": "2026-07-26T19:50:28.000Z",
       "reading": {
         "pm25": 6.2,
         "pm10": 7.8,
