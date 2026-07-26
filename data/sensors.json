@@ -92,12 +92,11 @@
       "lng": 115.1780014038086,
       "lastReading": "2026-07-26T06:00:00Z",
       "reading": {
-        "pm25": 7.2,
-        "pm10": null,
-        "temp": null,
-        "rh": null,
-        "aqi": 46,
-        "pm25_from_aqi": true
+        "pm25": 6.0,
+        "pm10": 6.0,
+        "temp": 27.68451,
+        "rh": 59.994,
+        "noise": null
       },
       "detailsUrl": "https://aqicn.org/station/@519205",
       "excluded_from_avg": false,
