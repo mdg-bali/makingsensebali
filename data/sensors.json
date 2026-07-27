@@ -90,7 +90,7 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-07-27T02:00:00Z",
+      "lastReading": "2026-07-27T03:00:00Z",
       "reading": {
         "pm25": 5.0,
         "pm10": null,
@@ -112,11 +112,11 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-07-27T02:55:56+00:00",
+      "lastReading": "2026-07-27T03:11:55+00:00",
       "reading": {
         "pm25": 0.8,
         "pm10": null,
-        "temp": 31.7,
+        "temp": 32.2,
         "rh": 57
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-07-27T02:56:41+00:00",
+      "lastReading": "2026-07-27T03:10:42+00:00",
       "reading": {
-        "pm25": 50.7,
+        "pm25": 47.9,
         "pm10": null,
         "temp": 30.0,
-        "rh": 65
+        "rh": 63
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
