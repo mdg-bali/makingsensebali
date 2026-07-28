@@ -1,0 +1,51 @@
+{
+  "linked_schemas": [
+    "environmental_observation-v1.0.0"
+  ],
+  "name": "None observation — Bukit, Bali",
+  "description": "Can be seen from high up at Mades Bakery",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260728_114620_921.json",
+  "latitude": -8.8283505,
+  "longitude": 115.1708482,
+  "geolocation": {
+    "lat": -8.8283505,
+    "lon": 115.1708482
+  },
+  "locality": "Bukit",
+  "region": "Bali",
+  "country_name": "Indonesia",
+  "country_iso_3166": "ID",
+  "tags": [
+    "air_quality",
+    "environment",
+    "community_report",
+    "planet_ai",
+    "source:whatsapp",
+    "severity:low",
+    "bioregion:indo_pacific_coral_triangle",
+    "bukit_pilot"
+  ],
+  "status": "active",
+  "date_added": "2026-07-28T11:48:29.207416+00:00",
+  "observation_type": "photo",
+  "pollution_category": "none",
+  "ai_analysis": {
+    "detected": false,
+    "confidence": 0.1,
+    "indicators": [
+      "very dark image",
+      "indistinct glow"
+    ],
+    "description": "The image is too dark to clearly identify any air pollution source.",
+    "severity": "low",
+    "model_version": "exo:gemma-4-e4b-it-6bit"
+  },
+  "data_source": "whatsapp",
+  "planet_ai_node": "bali.fab.city",
+  "bioregion": "indo_pacific_coral_triangle",
+  "action_cycle": {
+    "observation_timestamp": "2026-07-28T11:48:29.207416+00:00",
+    "reported_timestamp": "2026-07-28T11:48:29.207416+00:00",
+    "response_status": "reported"
+  }
+}
