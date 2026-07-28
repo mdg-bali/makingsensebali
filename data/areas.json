@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-28T15:12:17.844674+00:00",
+  "generated_at": "2026-07-28T15:27:29.880659+00:00",
   "areas": [
     {
       "locality": "Bali",
@@ -46,7 +46,7 @@
         "pile of garbage"
       ],
       "max_severity": "high",
-      "pm25": 10.9,
+      "pm25": 8.2,
       "summary": null
     }
   ]
