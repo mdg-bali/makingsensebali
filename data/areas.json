@@ -18,7 +18,7 @@
         "burning debris",
         "construction site",
         "intense orange glow",
-        "smoke"
+        "visible flames"
       ],
       "max_severity": "high",
       "pm25": null,
@@ -41,9 +41,9 @@
         "various types of waste",
         "open burning",
         "smoke rising",
-        "large amount of trash",
-        "smoke visible",
-        "pile of garbage"
+        "pile of garbage",
+        "uncollected",
+        "outside"
       ],
       "max_severity": "high",
       "pm25": 9.9,
