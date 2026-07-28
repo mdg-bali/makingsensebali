@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-07-28T23:00:36Z",
+      "lastReading": "2026-07-28T23:16:36Z",
       "reading": {
-        "pm25": 12.8,
-        "pm10": 12.8,
-        "temp": 23.76,
-        "rh": 83.2,
-        "noise": 40.96
+        "pm25": 9.6,
+        "pm10": 9.6,
+        "temp": 23.82,
+        "rh": 82.24,
+        "noise": 48.94
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
