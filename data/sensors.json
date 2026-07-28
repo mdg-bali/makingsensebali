@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-28T20:47:16.594991+00:00",
+  "generated_at": "2026-07-28T21:02:28.964400+00:00",
   "count": 8,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-07-28T20:45:29Z",
+      "lastReading": "2026-07-28T21:00:29Z",
       "reading": {
-        "pm25": 10.9,
-        "pm10": 10.9,
-        "temp": 23.68,
-        "rh": 82.72,
-        "noise": 33.52
+        "pm25": 8.7,
+        "pm10": 8.7,
+        "temp": 23.7,
+        "rh": 82.81,
+        "noise": 32.98
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -152,7 +152,7 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-07-28T20:46:49.000Z",
+      "lastReading": "2026-07-28T21:01:50.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
@@ -172,10 +172,10 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-28T20:46:21.000Z",
+      "lastReading": "2026-07-28T21:02:21.000Z",
       "reading": {
-        "pm25": 27.2,
-        "pm10": 28.7,
+        "pm25": 31.0,
+        "pm10": 33.2,
         "temp": 24.5,
         "rh": 69
       },
@@ -192,10 +192,10 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-28T20:46:57.000Z",
+      "lastReading": "2026-07-28T21:01:59.000Z",
       "reading": {
-        "pm25": 8.5,
-        "pm10": 10.0,
+        "pm25": 11.7,
+        "pm10": 12.5,
         "temp": 27.2,
         "rh": 60
       },
@@ -212,11 +212,11 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-28T20:46:23.000Z",
+      "lastReading": "2026-07-28T21:02:23.000Z",
       "reading": {
-        "pm25": 8.8,
-        "pm10": 8.8,
-        "temp": 27.1,
+        "pm25": 7.0,
+        "pm10": 7.0,
+        "temp": 27.2,
         "rh": 58
       },
       "detailsUrl": "https://www.airgradient.com/map/",
