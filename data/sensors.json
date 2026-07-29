@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T07:22:42.665444+00:00",
+  "generated_at": "2026-07-29T10:05:47.030793+00:00",
   "count": 8,
   "sensors": [
     {
@@ -91,12 +91,12 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-07-29T07:22:06.000Z",
+      "lastReading": "2026-07-29T10:05:08.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
-        "temp": 28.7,
-        "rh": 53
+        "temp": 27.2,
+        "rh": 57
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
@@ -111,12 +111,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-29T07:21:53.000Z",
+      "lastReading": "2026-07-29T10:04:58.000Z",
       "reading": {
-        "pm25": 22.0,
-        "pm10": 22.5,
-        "temp": 28.6,
-        "rh": 51
+        "pm25": 27.3,
+        "pm10": 28.3,
+        "temp": 26.0,
+        "rh": 63
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -131,12 +131,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-29T07:22:11.000Z",
+      "lastReading": "2026-07-29T10:05:14.000Z",
       "reading": {
-        "pm25": 17.8,
-        "pm10": 18.7,
-        "temp": 28.9,
-        "rh": 54
+        "pm25": 25.2,
+        "pm10": 27.2,
+        "temp": 28.7,
+        "rh": 55
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -151,12 +151,12 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-29T07:22:34.000Z",
+      "lastReading": "2026-07-29T10:05:36.000Z",
       "reading": {
-        "pm25": 8.3,
-        "pm10": 8.3,
-        "temp": 28.8,
-        "rh": 53
+        "pm25": 9.5,
+        "pm10": 9.5,
+        "temp": 28.0,
+        "rh": 55
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
