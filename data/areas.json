@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T00:12:40.872503+00:00",
+  "generated_at": "2026-07-30T03:29:45.898648+00:00",
   "areas": [
     {
       "locality": "Bali",
@@ -46,7 +46,7 @@
         "dirt road"
       ],
       "max_severity": "high",
-      "pm25": 7.5,
+      "pm25": 6.9,
       "summary": null
     }
   ]
