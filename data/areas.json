@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T06:08:22.702098+00:00",
+  "generated_at": "2026-07-30T06:31:25.554094+00:00",
   "areas": [
     {
       "locality": "Bali",
@@ -16,9 +16,9 @@
         "open burning",
         "open fire",
         "burning debris",
-        "intense orange glow",
         "construction site",
-        "visible flames"
+        "intense orange glow",
+        "smoke"
       ],
       "max_severity": "high",
       "pm25": null,
@@ -39,14 +39,14 @@
       },
       "top_tags": [
         "various types of waste",
-        "smoke rising",
         "open burning",
-        "motorbike smoke",
-        "motorbike",
-        "dirt road"
+        "smoke rising",
+        "large amount of trash",
+        "smoke visible",
+        "pile of garbage"
       ],
       "max_severity": "high",
-      "pm25": 6.0,
+      "pm25": null,
       "summary": null
     }
   ]
