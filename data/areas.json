@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-07-31T04:11:17.989990+00:00",
+  "generated_at": "2026-07-31T04:26:50.448586+00:00",
   "areas": [
     {
       "locality": "Bali",
-      "lat": -6.930433,
-      "lon": 92.128305,
-      "report_count": 25,
+      "lat": -6.99257,
+      "lon": 93.012097,
+      "report_count": 26,
       "categories": {
-        "burning": 18,
+        "burning": 19,
         "other": 4,
         "none": 2,
         "vehicle": 1
@@ -46,7 +46,7 @@
         "outside"
       ],
       "max_severity": "high",
-      "pm25": 12.7,
+      "pm25": 7.6,
       "summary": null
     }
   ]
