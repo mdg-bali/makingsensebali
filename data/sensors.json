@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-31T18:15:04.038630+00:00",
-  "count": 12,
+  "generated_at": "2026-07-31T18:16:21.502433+00:00",
+  "count": 9,
   "sensors": [
     {
       "id": "sck-19236",
@@ -83,67 +83,6 @@
       "exclusion_reason": "indoor"
     },
     {
-      "id": "aqicn--519205",
-      "rawId": -519205,
-      "source": "aqicn",
-      "sourceLabel": "AQICN",
-      "name": "Kabupaten Badung Sempidi",
-      "lat": -8.603890419006348,
-      "lng": 115.1780014038086,
-      "lastReading": "2026-07-31T14:00:00Z",
-      "reading": {
-        "pm25": 9.4,
-        "pm10": null,
-        "temp": null,
-        "rh": null,
-        "aqi": "-",
-        "pm25_from_aqi": true
-      },
-      "detailsUrl": "https://aqicn.org/station/@519205",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
-      "id": "purpleair-36601",
-      "rawId": 36601,
-      "source": "purpleair",
-      "sourceLabel": "PurpleAir",
-      "indoor": false,
-      "name": "Jimbaran by Lumi Clinic",
-      "lat": -8.791219,
-      "lng": 115.1674,
-      "lastReading": "2026-07-31T18:14:14+00:00",
-      "reading": {
-        "pm25": 0.9,
-        "pm10": null,
-        "temp": 29.4,
-        "rh": 65
-      },
-      "detailsUrl": "https://map.purpleair.com/?select=36601",
-      "excluded_from_avg": true,
-      "exclusion_reason": "indoor_suspected"
-    },
-    {
-      "id": "purpleair-46949",
-      "rawId": 46949,
-      "source": "purpleair",
-      "sourceLabel": "PurpleAir",
-      "indoor": false,
-      "name": "Klungkung by Lumi Clinic",
-      "lat": -8.533623,
-      "lng": 115.39973,
-      "lastReading": "2026-07-31T18:13:28+00:00",
-      "reading": {
-        "pm25": 47.0,
-        "pm10": null,
-        "temp": 27.8,
-        "rh": 67
-      },
-      "detailsUrl": "https://map.purpleair.com/?select=46949",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
       "id": "airgradient-77247",
       "rawId": 77247,
       "source": "airgradient",
@@ -152,7 +91,7 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-07-31T18:14:39.000Z",
+      "lastReading": "2026-07-31T18:15:39.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
@@ -172,7 +111,7 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-07-31T18:14:51.000Z",
+      "lastReading": "2026-07-31T18:15:51.000Z",
       "reading": {
         "pm25": 50.3,
         "pm10": 61.8,
@@ -192,10 +131,10 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-07-31T18:14:33.000Z",
+      "lastReading": "2026-07-31T18:15:33.000Z",
       "reading": {
-        "pm25": 40.3,
-        "pm10": 47.3,
+        "pm25": 41.0,
+        "pm10": 48.0,
         "temp": 27.7,
         "rh": 60
       },
@@ -212,10 +151,10 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-07-31T18:14:06.000Z",
+      "lastReading": "2026-07-31T18:16:09.000Z",
       "reading": {
-        "pm25": 81.2,
-        "pm10": 87.5,
+        "pm25": 81.7,
+        "pm10": 89.3,
         "temp": 25.4,
         "rh": 65
       },
@@ -232,10 +171,10 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-07-31T18:15:00.000Z",
+      "lastReading": "2026-07-31T18:16:00.000Z",
       "reading": {
-        "pm25": 23.7,
-        "pm10": 24.0,
+        "pm25": 24.8,
+        "pm10": 24.8,
         "temp": 27.2,
         "rh": 60
       },
