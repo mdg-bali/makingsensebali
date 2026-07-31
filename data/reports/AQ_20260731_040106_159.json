@@ -1,0 +1,53 @@
+{
+  "linked_schemas": [
+    "environmental_observation-v1.0.0"
+  ],
+  "name": "Burning observation — Bali, Bali",
+  "description": "Hi, \nI want to share information about a recycling center next to our house who is daily burning trash. I chatted with them today, the lady said since May they have had to burn the an organic waste they can’t recycle because the landfill won’t take it. So they burn every single day a big pile they light up and it blows over our house every day 🥹😭",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260731_040106_159.json",
+  "latitude": -8.545992851257324,
+  "longitude": 115.10689544677734,
+  "geolocation": {
+    "lat": -8.545992851257324,
+    "lon": 115.10689544677734
+  },
+  "locality": "Bali",
+  "region": "Bali",
+  "country_name": "Indonesia",
+  "country_iso_3166": "ID",
+  "tags": [
+    "air_quality",
+    "environment",
+    "community_report",
+    "planet_ai",
+    "burning",
+    "source:whatsapp",
+    "severity:medium",
+    "bioregion:indo_pacific_coral_triangle",
+    "bukit_pilot"
+  ],
+  "status": "active",
+  "date_added": "2026-07-31T04:04:08.123197+00:00",
+  "observation_type": "photo",
+  "pollution_category": "burning",
+  "ai_analysis": {
+    "detected": true,
+    "confidence": 0.9,
+    "indicators": [
+      "thick smoke plume",
+      "open burning",
+      "waste area"
+    ],
+    "description": "Smoke is rising from an open burning area next to a community building.",
+    "severity": "medium",
+    "model_version": "exo:gemma-4-e4b-it-6bit"
+  },
+  "data_source": "whatsapp",
+  "planet_ai_node": "bali.fab.city",
+  "bioregion": "indo_pacific_coral_triangle",
+  "action_cycle": {
+    "observation_timestamp": "2026-07-31T04:04:08.123197+00:00",
+    "reported_timestamp": "2026-07-31T04:04:08.123197+00:00",
+    "response_status": "reported"
+  }
+}
