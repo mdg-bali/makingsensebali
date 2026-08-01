@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T23:14:57.620496+00:00",
+  "generated_at": "2026-08-01T23:30:37.213703+00:00",
   "count": 12,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-08-01T23:11:50Z",
+      "lastReading": "2026-08-01T23:27:50Z",
       "reading": {
-        "pm25": 59.4,
-        "pm10": 61.8,
-        "temp": 23.62,
-        "rh": 89.07,
-        "noise": 59.47
+        "pm25": 61.2,
+        "pm10": 63.9,
+        "temp": 23.78,
+        "rh": 88.95,
+        "noise": 32.98
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -112,11 +112,11 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-08-01T23:12:49+00:00",
+      "lastReading": "2026-08-01T23:28:49+00:00",
       "reading": {
-        "pm25": 1.8,
+        "pm25": 1.9,
         "pm10": null,
-        "temp": 29.4,
+        "temp": 30.0,
         "rh": 67
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
@@ -132,11 +132,11 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-08-01T23:14:15+00:00",
+      "lastReading": "2026-08-01T23:28:15+00:00",
       "reading": {
-        "pm25": 54.4,
+        "pm25": 55.5,
         "pm10": null,
-        "temp": 26.7,
+        "temp": 27.2,
         "rh": 62
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
@@ -152,11 +152,11 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-08-01T23:14:19.000Z",
+      "lastReading": "2026-08-01T23:30:18.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
-        "temp": 24.8,
+        "temp": 24.9,
         "rh": 56
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -172,12 +172,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-08-01T23:13:59.000Z",
+      "lastReading": "2026-08-01T23:29:59.000Z",
       "reading": {
-        "pm25": 69.2,
-        "pm10": 77.8,
-        "temp": 24.0,
-        "rh": 60
+        "pm25": 66.3,
+        "pm10": 76.8,
+        "temp": 24.2,
+        "rh": 59
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -192,12 +192,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-08-01T23:14:04.000Z",
+      "lastReading": "2026-08-01T23:30:04.000Z",
       "reading": {
-        "pm25": 65.0,
-        "pm10": 72.7,
+        "pm25": 87.2,
+        "pm10": 89.2,
         "temp": 27.2,
-        "rh": 57
+        "rh": 58
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -212,16 +212,16 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-08-01T23:14:41.000Z",
+      "lastReading": "2026-08-01T23:29:42.000Z",
       "reading": {
-        "pm25": 87.2,
-        "pm10": 93.0,
-        "temp": 25.1,
+        "pm25": 125.5,
+        "pm10": 134.3,
+        "temp": 25.3,
         "rh": 63
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "outlier_high"
     },
     {
       "id": "airgradient-197980",
@@ -232,12 +232,12 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-08-01T23:14:33.000Z",
+      "lastReading": "2026-08-01T23:30:33.000Z",
       "reading": {
-        "pm25": 55.8,
-        "pm10": 66.8,
+        "pm25": 50.5,
+        "pm10": 61.5,
         "temp": 26.3,
-        "rh": 63
+        "rh": 64
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
