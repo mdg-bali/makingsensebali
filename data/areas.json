@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T14:20:24.776170+00:00",
+  "generated_at": "2026-08-01T14:36:09.457426+00:00",
   "areas": [
     {
       "locality": "Bali",
@@ -46,7 +46,7 @@
         "outside"
       ],
       "max_severity": "high",
-      "pm25": 26.3,
+      "pm25": 30.5,
       "summary": null
     },
     {
@@ -62,7 +62,7 @@
         "smoke rising from ground"
       ],
       "max_severity": "medium",
-      "pm25": 51.5,
+      "pm25": 66.0,
       "summary": null
     }
   ]
