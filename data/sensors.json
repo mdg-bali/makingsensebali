@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02T00:48:56.246755+00:00",
+  "generated_at": "2026-08-02T01:04:35.334181+00:00",
   "count": 12,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-08-02T00:45:50Z",
+      "lastReading": "2026-08-02T01:01:50Z",
       "reading": {
-        "pm25": 33.2,
-        "pm10": 34.7,
-        "temp": 24.97,
-        "rh": 86.49,
-        "noise": 38.12
+        "pm25": 36.4,
+        "pm10": 36.4,
+        "temp": 25.11,
+        "rh": 85.66,
+        "noise": 40.04
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-08-02T00:46:52+00:00",
+      "lastReading": "2026-08-02T01:02:52+00:00",
       "reading": {
-        "pm25": 3.0,
+        "pm25": 3.1,
         "pm10": null,
-        "temp": 30.6,
-        "rh": 65
+        "temp": 31.1,
+        "rh": 63
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-08-02T00:48:18+00:00",
+      "lastReading": "2026-08-02T01:02:19+00:00",
       "reading": {
-        "pm25": 82.8,
+        "pm25": 83.6,
         "pm10": null,
         "temp": 29.4,
-        "rh": 61
+        "rh": 66
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-08-02T00:48:20.000Z",
+      "lastReading": "2026-08-02T01:04:20.000Z",
       "reading": {
         "pm25": 0.0,
         "pm10": 0.0,
-        "temp": 26.6,
-        "rh": 57
+        "temp": 26.9,
+        "rh": 58
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
@@ -172,12 +172,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-08-02T00:48:02.000Z",
+      "lastReading": "2026-08-02T01:04:02.000Z",
       "reading": {
-        "pm25": 41.8,
-        "pm10": 50.3,
-        "temp": 26.8,
-        "rh": 55
+        "pm25": 47.3,
+        "pm10": 58.5,
+        "temp": 27.1,
+        "rh": 56
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -192,12 +192,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-08-02T00:48:06.000Z",
+      "lastReading": "2026-08-02T01:04:06.000Z",
       "reading": {
-        "pm25": 77.2,
-        "pm10": 80.3,
-        "temp": 28.2,
-        "rh": 59
+        "pm25": 69.5,
+        "pm10": 76.2,
+        "temp": 28.5,
+        "rh": 58
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -212,12 +212,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-08-02T00:48:43.000Z",
+      "lastReading": "2026-08-02T01:03:43.000Z",
       "reading": {
-        "pm25": 55.7,
-        "pm10": 67.2,
-        "temp": 27.1,
-        "rh": 60
+        "pm25": 52.2,
+        "pm10": 65.2,
+        "temp": 27.6,
+        "rh": 59
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -232,12 +232,12 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-08-02T00:48:34.000Z",
+      "lastReading": "2026-08-02T01:03:34.000Z",
       "reading": {
-        "pm25": 46.2,
-        "pm10": 57.0,
-        "temp": 26.9,
-        "rh": 62
+        "pm25": 44.7,
+        "pm10": 54.5,
+        "temp": 27.1,
+        "rh": 61
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
