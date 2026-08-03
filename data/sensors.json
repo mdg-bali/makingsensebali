@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-03T12:12:35.997918+00:00",
-  "count": 12,
+  "generated_at": "2026-08-03T12:28:28.796136+00:00",
+  "count": 11,
   "sensors": [
     {
       "id": "sck-19236",
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-08-03T12:09:48Z",
+      "lastReading": "2026-08-03T12:24:48Z",
       "reading": {
-        "pm25": 13.7,
-        "pm10": 13.7,
-        "temp": 25.03,
-        "rh": 81.65,
-        "noise": 48.43
+        "pm25": 14.4,
+        "pm10": 14.4,
+        "temp": 24.9,
+        "rh": 82.26,
+        "noise": 44.88
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -90,7 +90,7 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-08-03T11:00:00Z",
+      "lastReading": "2026-08-03T12:00:00Z",
       "reading": {
         "pm25": 12.0,
         "pm10": null,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-08-03T12:10:28+00:00",
+      "lastReading": "2026-08-03T12:26:28+00:00",
       "reading": {
         "pm25": 0.9,
         "pm10": null,
         "temp": 30.0,
-        "rh": 65
+        "rh": 64
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,9 +132,9 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-08-03T12:11:10+00:00",
+      "lastReading": "2026-08-03T12:27:09+00:00",
       "reading": {
-        "pm25": 51.3,
+        "pm25": 53.7,
         "pm10": null,
         "temp": 30.0,
         "rh": 64
@@ -152,11 +152,11 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-08-03T12:12:11.000Z",
+      "lastReading": "2026-08-03T12:28:00.000Z",
       "reading": {
-        "pm25": 36.3,
-        "pm10": 45.7,
-        "temp": 28.3,
+        "pm25": 31.0,
+        "pm10": 36.5,
+        "temp": 28.2,
         "rh": 58
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -172,16 +172,16 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-08-03T12:12:25.000Z",
+      "lastReading": "2026-08-03T12:27:26.000Z",
       "reading": {
-        "pm25": 49.2,
-        "pm10": 60.3,
-        "temp": 26.4,
+        "pm25": 591.7,
+        "pm10": 602.7,
+        "temp": 26.3,
         "rh": 64
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "outlier_high"
     },
     {
       "id": "airgradient-195872",
@@ -192,32 +192,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-08-03T12:11:49.000Z",
+      "lastReading": "2026-08-03T12:27:49.000Z",
       "reading": {
-        "pm25": 28.0,
-        "pm10": 29.7,
-        "temp": 28.8,
-        "rh": 59
-      },
-      "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
-      "id": "airgradient-196524",
-      "rawId": 196524,
-      "source": "airgradient",
-      "sourceLabel": "AirGradient",
-      "name": "Tabanan",
-      "lat": -8.59456160873381,
-      "lng": 115.12636083931227,
-      "offline": false,
-      "lastReading": "2026-08-03T12:02:25.000Z",
-      "reading": {
-        "pm25": 76.0,
-        "pm10": 80.5,
+        "pm25": 31.7,
+        "pm10": 34.7,
         "temp": 28.6,
-        "rh": 58
+        "rh": 60
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -232,10 +212,10 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-08-03T12:12:22.000Z",
+      "lastReading": "2026-08-03T12:27:22.000Z",
       "reading": {
-        "pm25": 22.8,
-        "pm10": 24.8,
+        "pm25": 21.5,
+        "pm10": 21.5,
         "temp": 28.0,
         "rh": 59
       },
