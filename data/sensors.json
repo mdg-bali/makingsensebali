@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-04T19:07:19.186785+00:00",
-  "count": 11,
+  "generated_at": "2026-08-04T19:11:36.088717+00:00",
+  "count": 8,
   "sensors": [
     {
       "id": "sck-19236",
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-08-04T19:04:48Z",
+      "lastReading": "2026-08-04T19:10:48Z",
       "reading": {
-        "pm25": 13.7,
-        "pm10": 13.7,
-        "temp": 23.49,
-        "rh": 85.82,
-        "noise": 26.11
+        "pm25": 14.6,
+        "pm10": 14.6,
+        "temp": 23.44,
+        "rh": 85.98,
+        "noise": 33.29
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -83,67 +83,6 @@
       "exclusion_reason": "indoor"
     },
     {
-      "id": "aqicn--519205",
-      "rawId": -519205,
-      "source": "aqicn",
-      "sourceLabel": "AQICN",
-      "name": "Kabupaten Badung Sempidi",
-      "lat": -8.603890419006348,
-      "lng": 115.1780014038086,
-      "lastReading": "2026-08-04T18:00:00Z",
-      "reading": {
-        "pm25": 10.3,
-        "pm10": null,
-        "temp": null,
-        "rh": null,
-        "aqi": 46,
-        "pm25_from_aqi": true
-      },
-      "detailsUrl": "https://aqicn.org/station/@519205",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
-      "id": "purpleair-36601",
-      "rawId": 36601,
-      "source": "purpleair",
-      "sourceLabel": "PurpleAir",
-      "indoor": false,
-      "name": "Jimbaran by Lumi Clinic",
-      "lat": -8.791219,
-      "lng": 115.1674,
-      "lastReading": "2026-08-04T19:04:55+00:00",
-      "reading": {
-        "pm25": 0.5,
-        "pm10": null,
-        "temp": 29.4,
-        "rh": 66
-      },
-      "detailsUrl": "https://map.purpleair.com/?select=36601",
-      "excluded_from_avg": true,
-      "exclusion_reason": "indoor_suspected"
-    },
-    {
-      "id": "purpleair-46949",
-      "rawId": 46949,
-      "source": "purpleair",
-      "sourceLabel": "PurpleAir",
-      "indoor": false,
-      "name": "Klungkung by Lumi Clinic",
-      "lat": -8.533623,
-      "lng": 115.39973,
-      "lastReading": "2026-08-04T19:05:53+00:00",
-      "reading": {
-        "pm25": 51.7,
-        "pm10": null,
-        "temp": 27.2,
-        "rh": 64
-      },
-      "detailsUrl": "https://map.purpleair.com/?select=46949",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
-    },
-    {
       "id": "airgradient-77247",
       "rawId": 77247,
       "source": "airgradient",
@@ -152,10 +91,10 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-08-04T19:06:55.000Z",
+      "lastReading": "2026-08-04T19:10:55.000Z",
       "reading": {
-        "pm25": 124.3,
-        "pm10": 139.8,
+        "pm25": 89.5,
+        "pm10": 97.0,
         "temp": 26.4,
         "rh": 56
       },
@@ -172,10 +111,10 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-08-04T19:07:14.000Z",
+      "lastReading": "2026-08-04T19:11:14.000Z",
       "reading": {
-        "pm25": 21.3,
-        "pm10": 24.0,
+        "pm25": 25.0,
+        "pm10": 26.0,
         "temp": 25.0,
         "rh": 62
       },
@@ -192,10 +131,10 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-08-04T19:06:56.000Z",
+      "lastReading": "2026-08-04T19:10:56.000Z",
       "reading": {
-        "pm25": 71.2,
-        "pm10": 76.0,
+        "pm25": 70.7,
+        "pm10": 76.2,
         "temp": 27.8,
         "rh": 60
       },
@@ -212,10 +151,10 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-08-04T19:06:18.000Z",
+      "lastReading": "2026-08-04T19:11:17.000Z",
       "reading": {
-        "pm25": 19.5,
-        "pm10": 19.5,
+        "pm25": 17.5,
+        "pm10": 18.3,
         "temp": 27.3,
         "rh": 60
       },
