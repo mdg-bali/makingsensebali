@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-04T16:39:17.490011+00:00",
+  "generated_at": "2026-08-04T16:55:47.237039+00:00",
   "count": 7,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-08-04T16:33:23Z",
+      "lastReading": "2026-08-04T16:47:29Z",
       "reading": {
-        "pm25": 13.5,
-        "pm10": 13.5,
-        "temp": 23.92,
-        "rh": 86.24,
-        "noise": 31.74
+        "pm25": 13.3,
+        "pm10": 13.3,
+        "temp": 23.96,
+        "rh": 86.3,
+        "noise": 29.97
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-08-04T16:36:52+00:00",
+      "lastReading": "2026-08-04T16:54:53+00:00",
       "reading": {
-        "pm25": 0.7,
+        "pm25": 0.6,
         "pm10": null,
         "temp": 29.4,
-        "rh": 67
+        "rh": 68
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-08-04T16:27:51+00:00",
+      "lastReading": "2026-08-04T16:53:48+00:00",
       "reading": {
         "pm25": 62.2,
         "pm10": null,
         "temp": 27.2,
-        "rh": 65
+        "rh": 64
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
