@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-05T09:46:57.834604+00:00",
+  "generated_at": "2026-08-05T10:02:37.721729+00:00",
   "count": 12,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-08-05T09:44:46Z",
+      "lastReading": "2026-08-05T09:59:46Z",
       "reading": {
-        "pm25": 11.3,
-        "pm10": 11.3,
-        "temp": 26.81,
-        "rh": 76.59,
-        "noise": 53.32
+        "pm25": 12.3,
+        "pm10": 12.3,
+        "temp": 26.45,
+        "rh": 77.18,
+        "noise": 52.06
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-08-05T09:45:13+00:00",
+      "lastReading": "2026-08-05T10:01:14+00:00",
       "reading": {
         "pm25": 1.0,
         "pm10": null,
         "temp": 31.7,
-        "rh": 56
+        "rh": 58
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-08-05T09:46:12+00:00",
+      "lastReading": "2026-08-05T10:02:14+00:00",
       "reading": {
-        "pm25": 30.5,
+        "pm25": 31.8,
         "pm10": null,
         "temp": 31.1,
-        "rh": 56
+        "rh": 57
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,12 +152,12 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-08-05T09:46:17.000Z",
+      "lastReading": "2026-08-05T10:02:17.000Z",
       "reading": {
-        "pm25": 28.7,
-        "pm10": 32.5,
-        "temp": 28.5,
-        "rh": 54
+        "pm25": 36.3,
+        "pm10": 40.8,
+        "temp": 28.3,
+        "rh": 55
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -172,12 +172,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-08-05T09:46:35.000Z",
+      "lastReading": "2026-08-05T10:01:35.000Z",
       "reading": {
-        "pm25": 37.5,
-        "pm10": 45.7,
-        "temp": 28.8,
-        "rh": 51
+        "pm25": 36.2,
+        "pm10": 44.5,
+        "temp": 28.5,
+        "rh": 52
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -192,12 +192,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-08-05T09:46:15.000Z",
+      "lastReading": "2026-08-05T10:02:16.000Z",
       "reading": {
-        "pm25": 44.3,
-        "pm10": 54.3,
-        "temp": 30.0,
-        "rh": 51
+        "pm25": 40.8,
+        "pm10": 48.8,
+        "temp": 29.7,
+        "rh": 52
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -212,12 +212,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-08-05T09:45:15.000Z",
+      "lastReading": "2026-08-05T09:54:03.000Z",
       "reading": {
-        "pm25": 54.0,
-        "pm10": 68.0,
-        "temp": 32.9,
-        "rh": 42
+        "pm25": 82.8,
+        "pm10": 89.8,
+        "temp": 32.4,
+        "rh": 43
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -232,12 +232,12 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-08-05T09:46:32.000Z",
+      "lastReading": "2026-08-05T10:02:32.000Z",
       "reading": {
         "pm25": 19.5,
         "pm10": 19.5,
-        "temp": 28.6,
-        "rh": 56
+        "temp": 28.5,
+        "rh": 57
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
