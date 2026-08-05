@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-08-05T13:09:53Z",
+      "lastReading": "2026-08-05T13:25:53Z",
       "reading": {
-        "pm25": 12.6,
-        "pm10": 12.6,
-        "temp": 24.82,
-        "rh": 83.56,
-        "noise": 45.87
+        "pm25": 8.5,
+        "pm10": 8.5,
+        "temp": 24.83,
+        "rh": 83.32,
+        "noise": 36.48
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -111,12 +111,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-08-05T13:10:43.000Z",
+      "lastReading": "2026-08-05T13:26:41.000Z",
       "reading": {
-        "pm25": 79.3,
-        "pm10": 86.3,
-        "temp": 26.1,
-        "rh": 62
+        "pm25": 104.2,
+        "pm10": 111.7,
+        "temp": 26.0,
+        "rh": 61
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": true,
@@ -151,10 +151,10 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-08-05T13:08:15.000Z",
+      "lastReading": "2026-08-05T13:16:05.000Z",
       "reading": {
-        "pm25": 31.8,
-        "pm10": 35.7,
+        "pm25": 33.5,
+        "pm10": 37.3,
         "temp": 27.5,
         "rh": 60
       },
