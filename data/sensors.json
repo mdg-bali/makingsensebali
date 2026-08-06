@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-06T08:20:36.199747+00:00",
+  "generated_at": "2026-08-06T08:36:17.908805+00:00",
   "count": 12,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-08-06T08:16:41Z",
+      "lastReading": "2026-08-06T08:32:41Z",
       "reading": {
-        "pm25": 6.1,
-        "pm10": 6.4,
-        "temp": 28.88,
-        "rh": 68.52,
-        "noise": 51.86
+        "pm25": 5.9,
+        "pm10": 5.9,
+        "temp": 28.26,
+        "rh": 69.53,
+        "noise": 51.02
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-08-06T08:19:59+00:00",
+      "lastReading": "2026-08-06T08:35:59+00:00",
       "reading": {
         "pm25": 0.6,
         "pm10": null,
         "temp": 32.8,
-        "rh": 50
+        "rh": 51
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-08-06T08:18:58+00:00",
+      "lastReading": "2026-08-06T08:34:58+00:00",
       "reading": {
-        "pm25": 17.4,
+        "pm25": 16.8,
         "pm10": null,
         "temp": 31.7,
-        "rh": 46
+        "rh": 47
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,10 +152,10 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-08-06T08:19:49.000Z",
+      "lastReading": "2026-08-06T08:35:49.000Z",
       "reading": {
-        "pm25": 13.7,
-        "pm10": 15.5,
+        "pm25": 16.0,
+        "pm10": 19.5,
         "temp": 28.6,
         "rh": 52
       },
@@ -172,12 +172,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-08-06T08:20:09.000Z",
+      "lastReading": "2026-08-06T08:36:09.000Z",
       "reading": {
-        "pm25": 20.2,
-        "pm10": 20.8,
-        "temp": 30.9,
-        "rh": 43
+        "pm25": 23.8,
+        "pm10": 24.8,
+        "temp": 31.0,
+        "rh": 46
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -192,12 +192,12 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-08-06T08:19:45.000Z",
+      "lastReading": "2026-08-06T08:35:46.000Z",
       "reading": {
-        "pm25": 11.3,
-        "pm10": 11.5,
-        "temp": 30.5,
-        "rh": 48
+        "pm25": 7.2,
+        "pm10": 7.5,
+        "temp": 29.9,
+        "rh": 50
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -212,12 +212,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-08-06T08:17:56.000Z",
+      "lastReading": "2026-08-06T08:34:17.000Z",
       "reading": {
-        "pm25": 6.7,
-        "pm10": 7.7,
-        "temp": 43.3,
-        "rh": 26
+        "pm25": 6.8,
+        "pm10": 8.0,
+        "temp": 43.0,
+        "rh": 25
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -232,16 +232,16 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-08-06T08:19:54.000Z",
+      "lastReading": "2026-08-06T08:35:54.000Z",
       "reading": {
-        "pm25": 3.7,
-        "pm10": 3.7,
-        "temp": 28.7,
-        "rh": 53
+        "pm25": 5.0,
+        "pm10": 5.0,
+        "temp": 28.6,
+        "rh": 54
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": true,
-      "exclusion_reason": "indoor_suspected"
+      "excluded_from_avg": false,
+      "exclusion_reason": null
     }
   ]
 }
