@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-06T22:30:32.968511+00:00",
+  "generated_at": "2026-08-06T22:46:13.221325+00:00",
   "count": 12,
   "sensors": [
     {
@@ -10,13 +10,13 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-08-06T22:29:39Z",
+      "lastReading": "2026-08-06T22:45:39Z",
       "reading": {
-        "pm25": 9.0,
-        "pm10": 9.3,
-        "temp": 23.82,
-        "rh": 82.75,
-        "noise": 37.78
+        "pm25": 8.1,
+        "pm10": 8.1,
+        "temp": 23.86,
+        "rh": 82.86,
+        "noise": 47.75
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
       "excluded_from_avg": false,
@@ -112,7 +112,7 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-08-06T22:28:18+00:00",
+      "lastReading": "2026-08-06T22:44:18+00:00",
       "reading": {
         "pm25": 0.5,
         "pm10": null,
@@ -132,9 +132,9 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-08-06T22:29:25+00:00",
+      "lastReading": "2026-08-06T22:45:25+00:00",
       "reading": {
-        "pm25": 28.8,
+        "pm25": 31.0,
         "pm10": null,
         "temp": 25.6,
         "rh": 61
@@ -152,12 +152,12 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-08-06T22:30:01.000Z",
+      "lastReading": "2026-08-06T22:46:01.000Z",
       "reading": {
-        "pm25": 36.5,
-        "pm10": 43.2,
-        "temp": 24.0,
-        "rh": 56
+        "pm25": 39.7,
+        "pm10": 48.0,
+        "temp": 24.1,
+        "rh": 55
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -172,11 +172,11 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-08-06T22:30:29.000Z",
+      "lastReading": "2026-08-06T22:45:30.000Z",
       "reading": {
-        "pm25": 38.0,
-        "pm10": 44.0,
-        "temp": 23.1,
+        "pm25": 40.8,
+        "pm10": 49.0,
+        "temp": 23.2,
         "rh": 60
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -192,10 +192,10 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-08-06T22:30:04.000Z",
+      "lastReading": "2026-08-06T22:46:04.000Z",
       "reading": {
-        "pm25": 43.7,
-        "pm10": 52.3,
+        "pm25": 47.8,
+        "pm10": 58.8,
         "temp": 26.5,
         "rh": 54
       },
@@ -212,10 +212,10 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-08-06T22:27:56.000Z",
+      "lastReading": "2026-08-06T22:43:13.000Z",
       "reading": {
-        "pm25": 54.0,
-        "pm10": 67.7,
+        "pm25": 52.3,
+        "pm10": 64.7,
         "temp": 23.8,
         "rh": 62
       },
@@ -232,12 +232,12 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-08-06T22:30:08.000Z",
+      "lastReading": "2026-08-06T22:46:08.000Z",
       "reading": {
-        "pm25": 7.0,
-        "pm10": 7.8,
-        "temp": 26.9,
-        "rh": 60
+        "pm25": 16.3,
+        "pm10": 19.2,
+        "temp": 26.7,
+        "rh": 61
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
