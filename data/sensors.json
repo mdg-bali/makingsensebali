@@ -12,7 +12,7 @@
       "lng": 115.16657,
       "lastReading": "2026-08-07T17:42:59Z",
       "reading": {
-        "pm25": 7.8,
+        "pm25": 8.2,
         "pm10": 8.4,
         "temp": 23.78,
         "rh": 85.66,
@@ -159,8 +159,8 @@
         "rh": 63
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": true,
-      "exclusion_reason": "outlier_high"
+      "excluded_from_avg": false,
+      "exclusion_reason": null
     },
     {
       "id": "airgradient-197980",
