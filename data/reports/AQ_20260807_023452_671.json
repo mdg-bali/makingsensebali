@@ -1,0 +1,53 @@
+{
+  "linked_schemas": [
+    "environmental_observation-v1.0.0"
+  ],
+  "name": "Burning observation — Bali, Bali",
+  "description": "Indonesian family burning trash on daily basis",
+  "primary_url": "https://planetai.fab.city/bali/profiles/AQ_20260807_023452_671.json",
+  "latitude": -8.6644799,
+  "longitude": 115.1631325,
+  "geolocation": {
+    "lat": -8.6644799,
+    "lon": 115.1631325
+  },
+  "locality": "Bali",
+  "region": "Bali",
+  "country_name": "Indonesia",
+  "country_iso_3166": "ID",
+  "tags": [
+    "air_quality",
+    "environment",
+    "community_report",
+    "planet_ai",
+    "burning",
+    "source:whatsapp",
+    "severity:low",
+    "bioregion:indo_pacific_coral_triangle",
+    "bukit_pilot"
+  ],
+  "status": "active",
+  "date_added": "2026-08-07T02:35:35.159740+00:00",
+  "observation_type": "photo",
+  "pollution_category": "burning",
+  "ai_analysis": {
+    "detected": true,
+    "confidence": 0.7,
+    "indicators": [
+      "smoke plume",
+      "dense foliage",
+      "tropical setting"
+    ],
+    "description": "Smoke is visible rising above dense tropical vegetation.",
+    "severity": "low",
+    "model_version": "exo:gemma-4-e4b-it-6bit"
+  },
+  "data_source": "whatsapp",
+  "planet_ai_node": "bali.fab.city",
+  "bioregion": "indo_pacific_coral_triangle",
+  "action_cycle": {
+    "observation_timestamp": "2026-08-07T02:35:35.159740+00:00",
+    "reported_timestamp": "2026-08-07T02:35:35.159740+00:00",
+    "response_status": "reported"
+  }
+}
