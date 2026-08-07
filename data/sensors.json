@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-07T19:13:56.557358+00:00",
+  "generated_at": "2026-08-07T19:29:38.533188+00:00",
   "count": 12,
   "sensors": [
     {
@@ -10,12 +10,12 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-08-07T19:11:03Z",
+      "lastReading": "2026-08-07T19:27:06Z",
       "reading": {
-        "pm25": 7.6,
-        "pm10": 7.7,
-        "temp": 23.89,
-        "rh": 84.71,
+        "pm25": 7.4,
+        "pm10": 7.6,
+        "temp": 23.93,
+        "rh": 84.34,
         "noise": 53.01
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-08-07T19:12:47+00:00",
+      "lastReading": "2026-08-07T19:28:47+00:00",
       "reading": {
         "pm25": 0.3,
         "pm10": null,
         "temp": 28.9,
-        "rh": 68
+        "rh": 67
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,12 +132,12 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-08-07T19:12:00+00:00",
+      "lastReading": "2026-08-07T19:28:00+00:00",
       "reading": {
-        "pm25": 48.5,
+        "pm25": 47.1,
         "pm10": null,
-        "temp": 27.2,
-        "rh": 62
+        "temp": 26.7,
+        "rh": 61
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
       "excluded_from_avg": false,
@@ -152,11 +152,11 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-08-07T19:13:36.000Z",
+      "lastReading": "2026-08-07T19:28:36.000Z",
       "reading": {
-        "pm25": 9.8,
-        "pm10": 10.7,
-        "temp": 26.3,
+        "pm25": 8.0,
+        "pm10": 9.0,
+        "temp": 26.4,
         "rh": 61
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -172,12 +172,12 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-08-07T19:13:15.000Z",
+      "lastReading": "2026-08-07T19:29:15.000Z",
       "reading": {
-        "pm25": 48.0,
-        "pm10": 60.3,
+        "pm25": 45.0,
+        "pm10": 55.0,
         "temp": 25.2,
-        "rh": 61
+        "rh": 62
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -192,11 +192,11 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-08-07T19:13:29.000Z",
+      "lastReading": "2026-08-07T19:28:29.000Z",
       "reading": {
-        "pm25": 8.7,
-        "pm10": 8.7,
-        "temp": 27.7,
+        "pm25": 5.8,
+        "pm10": 5.8,
+        "temp": 27.8,
         "rh": 60
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -212,16 +212,16 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-08-07T19:13:06.000Z",
+      "lastReading": "2026-08-07T19:29:17.000Z",
       "reading": {
-        "pm25": 56.0,
-        "pm10": 69.5,
-        "temp": 25.3,
+        "pm25": 60.3,
+        "pm10": 71.2,
+        "temp": 25.5,
         "rh": 62
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "outlier_high"
     },
     {
       "id": "airgradient-197980",
@@ -232,16 +232,16 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-08-07T19:13:32.000Z",
+      "lastReading": "2026-08-07T19:29:32.000Z",
       "reading": {
-        "pm25": 5.0,
-        "pm10": 5.0,
+        "pm25": 3.7,
+        "pm10": 3.7,
         "temp": 26.9,
         "rh": 61
       },
       "detailsUrl": "https://www.airgradient.com/map/",
-      "excluded_from_avg": false,
-      "exclusion_reason": null
+      "excluded_from_avg": true,
+      "exclusion_reason": "indoor_suspected"
     }
   ]
 }
