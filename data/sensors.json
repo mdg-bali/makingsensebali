@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-07T13:09:36.411934+00:00",
+  "generated_at": "2026-08-07T13:25:26.887011+00:00",
   "count": 12,
   "sensors": [
     {
@@ -10,12 +10,12 @@
       "name": "Ungasan Kit - TEST",
       "lat": -8.81983,
       "lng": 115.16657,
-      "lastReading": "2026-08-07T13:06:50Z",
+      "lastReading": "2026-08-07T13:21:50Z",
       "reading": {
-        "pm25": 11.3,
-        "pm10": 11.3,
-        "temp": 24.67,
-        "rh": 80.64,
+        "pm25": 10.0,
+        "pm10": 10.0,
+        "temp": 24.65,
+        "rh": 80.76,
         "noise": 53.01
       },
       "detailsUrl": "https://smartcitizen.me/kits/19236",
@@ -90,7 +90,7 @@
       "name": "Kabupaten Badung Sempidi",
       "lat": -8.603890419006348,
       "lng": 115.1780014038086,
-      "lastReading": "2026-08-07T12:00:00Z",
+      "lastReading": "2026-08-07T13:00:00Z",
       "reading": {
         "pm25": 10.1,
         "pm10": null,
@@ -112,12 +112,12 @@
       "name": "Jimbaran by Lumi Clinic",
       "lat": -8.791219,
       "lng": 115.1674,
-      "lastReading": "2026-08-07T13:08:39+00:00",
+      "lastReading": "2026-08-07T13:24:39+00:00",
       "reading": {
-        "pm25": 1.3,
+        "pm25": 1.2,
         "pm10": null,
         "temp": 29.4,
-        "rh": 64
+        "rh": 65
       },
       "detailsUrl": "https://map.purpleair.com/?select=36601",
       "excluded_from_avg": true,
@@ -132,11 +132,11 @@
       "name": "Klungkung by Lumi Clinic",
       "lat": -8.533623,
       "lng": 115.39973,
-      "lastReading": "2026-08-07T13:07:50+00:00",
+      "lastReading": "2026-08-07T13:23:50+00:00",
       "reading": {
-        "pm25": 53.9,
+        "pm25": 54.6,
         "pm10": null,
-        "temp": 29.4,
+        "temp": 28.9,
         "rh": 63
       },
       "detailsUrl": "https://map.purpleair.com/?select=46949",
@@ -152,12 +152,12 @@
       "lat": -8.632781,
       "lng": 115.229004,
       "offline": false,
-      "lastReading": "2026-08-07T13:09:30.000Z",
+      "lastReading": "2026-08-07T13:24:30.000Z",
       "reading": {
-        "pm25": 55.2,
-        "pm10": 68.3,
+        "pm25": 51.5,
+        "pm10": 63.8,
         "temp": 27.9,
-        "rh": 56
+        "rh": 55
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -172,11 +172,11 @@
       "lat": -8.492994479130525,
       "lng": 115.30036092298013,
       "offline": false,
-      "lastReading": "2026-08-07T13:09:06.000Z",
+      "lastReading": "2026-08-07T13:25:07.000Z",
       "reading": {
-        "pm25": 57.3,
-        "pm10": 69.5,
-        "temp": 25.8,
+        "pm25": 68.2,
+        "pm10": 76.7,
+        "temp": 25.6,
         "rh": 60
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -192,11 +192,11 @@
       "lat": -8.661245,
       "lng": 115.16204,
       "offline": false,
-      "lastReading": "2026-08-07T13:09:21.000Z",
+      "lastReading": "2026-08-07T13:25:20.000Z",
       "reading": {
-        "pm25": 29.2,
-        "pm10": 29.5,
-        "temp": 28.1,
+        "pm25": 35.3,
+        "pm10": 40.3,
+        "temp": 28.2,
         "rh": 58
       },
       "detailsUrl": "https://www.airgradient.com/map/",
@@ -212,12 +212,12 @@
       "lat": -8.59456160873381,
       "lng": 115.12636083931227,
       "offline": false,
-      "lastReading": "2026-08-07T13:08:56.000Z",
+      "lastReading": "2026-08-07T13:23:06.000Z",
       "reading": {
-        "pm25": 31.8,
-        "pm10": 35.2,
-        "temp": 27.1,
-        "rh": 59
+        "pm25": 38.5,
+        "pm10": 45.5,
+        "temp": 26.8,
+        "rh": 60
       },
       "detailsUrl": "https://www.airgradient.com/map/",
       "excluded_from_avg": false,
@@ -232,10 +232,10 @@
       "lat": -8.811206,
       "lng": 115.102523,
       "offline": false,
-      "lastReading": "2026-08-07T13:09:26.000Z",
+      "lastReading": "2026-08-07T13:24:26.000Z",
       "reading": {
-        "pm25": 21.7,
-        "pm10": 21.7,
+        "pm25": 27.5,
+        "pm10": 27.5,
         "temp": 27.5,
         "rh": 59
       },
