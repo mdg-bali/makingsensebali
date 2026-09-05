@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-05T21:59:47.148277+00:00",
+  "generated_at": "2026-09-05T22:14:59.617149+00:00",
   "areas": [
     {
       "locality": "Apuan",
@@ -54,7 +54,7 @@
         "rising smoke"
       ],
       "max_severity": "medium",
-      "pm25": 40.4,
+      "pm25": 41.3,
       "summary": null
     },
     {
@@ -91,7 +91,7 @@
         "open burning"
       ],
       "max_severity": "medium",
-      "pm25": 37.9,
+      "pm25": 38.6,
       "summary": null
     },
     {
@@ -111,7 +111,7 @@
         "visible smoke"
       ],
       "max_severity": "high",
-      "pm25": 38.8,
+      "pm25": 39.2,
       "summary": null
     },
     {
@@ -128,7 +128,7 @@
         "clear air"
       ],
       "max_severity": "low",
-      "pm25": 38.2,
+      "pm25": 38.7,
       "summary": null
     },
     {
@@ -149,7 +149,7 @@
         "haze"
       ],
       "max_severity": "medium",
-      "pm25": 36.3,
+      "pm25": 36.7,
       "summary": null
     },
     {
@@ -166,7 +166,7 @@
         "motorcycle riders"
       ],
       "max_severity": "medium",
-      "pm25": 40.1,
+      "pm25": 40.7,
       "summary": null
     },
     {
@@ -182,7 +182,7 @@
         "open burning"
       ],
       "max_severity": "medium",
-      "pm25": 38.5,
+      "pm25": 38.6,
       "summary": null
     },
     {
@@ -202,7 +202,7 @@
         "localized smoke plume"
       ],
       "max_severity": "medium",
-      "pm25": 37.9,
+      "pm25": 38.6,
       "summary": null
     },
     {
@@ -247,7 +247,7 @@
         "thick smoke"
       ],
       "max_severity": "medium",
-      "pm25": 37.9,
+      "pm25": 38.6,
       "summary": null
     },
     {
@@ -268,7 +268,7 @@
         "trash pile"
       ],
       "max_severity": "medium",
-      "pm25": 39.0,
+      "pm25": 39.4,
       "summary": null
     },
     {
@@ -291,7 +291,7 @@
         "flames"
       ],
       "max_severity": "high",
-      "pm25": 39.0,
+      "pm25": 39.4,
       "summary": null
     },
     {
@@ -332,7 +332,7 @@
         "hazy atmosphere"
       ],
       "max_severity": "medium",
-      "pm25": 35.2,
+      "pm25": 35.6,
       "summary": null
     },
     {
@@ -353,7 +353,7 @@
         "open burning"
       ],
       "max_severity": "high",
-      "pm25": 38.2,
+      "pm25": 38.8,
       "summary": null
     },
     {
@@ -374,7 +374,7 @@
         "ground debris"
       ],
       "max_severity": "medium",
-      "pm25": 41.7,
+      "pm25": 42.6,
       "summary": null
     },
     {
@@ -394,7 +394,7 @@
         "visible flames"
       ],
       "max_severity": "high",
-      "pm25": 39.8,
+      "pm25": 40.6,
       "summary": null
     },
     {
@@ -411,7 +411,7 @@
         "waste area"
       ],
       "max_severity": "medium",
-      "pm25": 38.5,
+      "pm25": 38.6,
       "summary": null
     },
     {
@@ -445,7 +445,7 @@
         "burning waste"
       ],
       "max_severity": "medium",
-      "pm25": 35.2,
+      "pm25": 35.6,
       "summary": null
     },
     {
@@ -478,7 +478,7 @@
         "agricultural burning"
       ],
       "max_severity": "medium",
-      "pm25": 31.5,
+      "pm25": 32.7,
       "summary": null
     },
     {
@@ -499,7 +499,7 @@
         "litter in concrete bin"
       ],
       "max_severity": "high",
-      "pm25": 31.0,
+      "pm25": 31.1,
       "summary": null
     },
     {
@@ -516,7 +516,7 @@
         "smoke"
       ],
       "max_severity": "medium",
-      "pm25": 38.4,
+      "pm25": 38.9,
       "summary": null
     },
     {
