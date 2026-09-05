@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-05T21:29:23.834582+00:00",
+  "generated_at": "2026-09-05T21:44:35.919256+00:00",
   "areas": [
     {
       "locality": "Apuan",
@@ -54,7 +54,7 @@
         "rising smoke"
       ],
       "max_severity": "medium",
-      "pm25": 34.1,
+      "pm25": 34.5,
       "summary": null
     },
     {
@@ -71,7 +71,7 @@
         "dark ash"
       ],
       "max_severity": "medium",
-      "pm25": 5.1,
+      "pm25": null,
       "summary": null
     },
     {
@@ -91,7 +91,7 @@
         "open burning"
       ],
       "max_severity": "medium",
-      "pm25": 31.7,
+      "pm25": 33.3,
       "summary": null
     },
     {
@@ -111,7 +111,7 @@
         "visible smoke"
       ],
       "max_severity": "high",
-      "pm25": 33.4,
+      "pm25": 34.1,
       "summary": null
     },
     {
@@ -128,7 +128,7 @@
         "clear air"
       ],
       "max_severity": "low",
-      "pm25": 33.2,
+      "pm25": 33.9,
       "summary": null
     },
     {
@@ -149,7 +149,7 @@
         "haze"
       ],
       "max_severity": "medium",
-      "pm25": 32.1,
+      "pm25": 32.2,
       "summary": null
     },
     {
@@ -166,7 +166,7 @@
         "motorcycle riders"
       ],
       "max_severity": "medium",
-      "pm25": 34.2,
+      "pm25": 36.5,
       "summary": null
     },
     {
@@ -182,7 +182,7 @@
         "open burning"
       ],
       "max_severity": "medium",
-      "pm25": 32.6,
+      "pm25": 35.5,
       "summary": null
     },
     {
@@ -202,7 +202,7 @@
         "localized smoke plume"
       ],
       "max_severity": "medium",
-      "pm25": 31.7,
+      "pm25": 33.3,
       "summary": null
     },
     {
@@ -226,7 +226,7 @@
         "dirt road"
       ],
       "max_severity": "high",
-      "pm25": 5.1,
+      "pm25": null,
       "summary": null
     },
     {
@@ -247,7 +247,7 @@
         "thick smoke"
       ],
       "max_severity": "medium",
-      "pm25": 31.7,
+      "pm25": 33.3,
       "summary": null
     },
     {
@@ -268,7 +268,7 @@
         "trash pile"
       ],
       "max_severity": "medium",
-      "pm25": 34.1,
+      "pm25": 36.5,
       "summary": null
     },
     {
@@ -291,7 +291,7 @@
         "flames"
       ],
       "max_severity": "high",
-      "pm25": 34.1,
+      "pm25": 36.5,
       "summary": null
     },
     {
@@ -332,7 +332,7 @@
         "hazy atmosphere"
       ],
       "max_severity": "medium",
-      "pm25": 27.8,
+      "pm25": 32.1,
       "summary": null
     },
     {
@@ -353,7 +353,7 @@
         "open burning"
       ],
       "max_severity": "high",
-      "pm25": 33.3,
+      "pm25": 35.1,
       "summary": null
     },
     {
@@ -374,7 +374,7 @@
         "ground debris"
       ],
       "max_severity": "medium",
-      "pm25": 35.2,
+      "pm25": 40.6,
       "summary": null
     },
     {
@@ -394,7 +394,7 @@
         "visible flames"
       ],
       "max_severity": "high",
-      "pm25": 33.7,
+      "pm25": 34.4,
       "summary": null
     },
     {
@@ -411,7 +411,7 @@
         "waste area"
       ],
       "max_severity": "medium",
-      "pm25": 32.6,
+      "pm25": 35.5,
       "summary": null
     },
     {
@@ -428,7 +428,7 @@
         "roadside setting"
       ],
       "max_severity": "medium",
-      "pm25": 26.9,
+      "pm25": 30.7,
       "summary": null
     },
     {
@@ -445,7 +445,7 @@
         "burning waste"
       ],
       "max_severity": "medium",
-      "pm25": 27.8,
+      "pm25": 32.1,
       "summary": null
     },
     {
@@ -478,7 +478,7 @@
         "agricultural burning"
       ],
       "max_severity": "medium",
-      "pm25": 26.2,
+      "pm25": 29.3,
       "summary": null
     },
     {
@@ -499,7 +499,7 @@
         "litter in concrete bin"
       ],
       "max_severity": "high",
-      "pm25": 28.9,
+      "pm25": 29.7,
       "summary": null
     },
     {
@@ -516,7 +516,7 @@
         "smoke"
       ],
       "max_severity": "medium",
-      "pm25": 33.8,
+      "pm25": 35.9,
       "summary": null
     },
     {
@@ -559,7 +559,7 @@
         "dark debris"
       ],
       "max_severity": "medium",
-      "pm25": 5.1,
+      "pm25": null,
       "summary": null
     }
   ]
